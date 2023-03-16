@@ -1,0 +1,32 @@
+# Build-time build recipe configuration for the FireSim Simulation Manager
+# See https://docs.fires.im/en/stable/Advanced-Usage/Manager/Manager-Configuration-Files.html for documentation of all of these params.
+
+# this file contains sections that describe hardware designs that /can/ be built.
+# edit config_build.yaml to actually "turn on" a config to be built when you run
+# buildafi
+
+###########
+# Schema:
+###########
+# <NAME>:
+#    DESIGN: <>
+#    TARGET_CONFIG: <>
+#    PLATFORM_CONFIG: Config
+#    deploy_triplet: null
+#    post_build_hook: null
+#    metasim_customruntimeconfig: "path to custom runtime config for metasims"
+#    bit_builder_recipe:
+#    # OPTIONAL: overrides for bit builder recipe
+#    # Arg structure should be identical to the args given
+#    # in the base_recipe.
+#    #bit_builder_arg_overrides:
+#    #  <ARG>: <OVERRIDE>
+
+firesim_rocket_singlecore_no_nic:
+    DESIGN: FireSim
+    TARGET_CONFIG: FireSimRocketConfig
+    PLATFORM_CONFIG: BaseVitisConfig
+    deploy_triplet: null
+    post_build_hook: null
+    metasim_customruntimeconfig: null
+    bit_builder_recipe: bit-builder-recipes/vitis.yaml
