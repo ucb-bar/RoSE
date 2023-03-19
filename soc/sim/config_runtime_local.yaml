@@ -9,7 +9,7 @@ run_farm:
     default_platform: VitisInstanceDeployManager
 
     # REQUIRED: default directory where simulations are run out of on the run farm hosts
-    default_simulation_dir: /scratch/vnikiforov/new_firesim_run_temp
+    default_simulation_dir: /scratch/rose-isca-ae-1/new_firesim_run_temp
     run_farm_host_specs:
         - one_fpga_spec:
             num_fpgas: 1
@@ -51,7 +51,7 @@ target_config:
     # or from config_build_recipes.yaml for metasimulation
     # In homogeneous configurations, use this to set the hardware config deployed
     # for all simulators
-    default_hw_config: firesim_rocket_singlecore_no_nic
+    default_hw_config: firesim-large-boom-fp32gemmini-singlecore-with-airsim-no-nic-l2-llc4mb-ddr3
 
     # Advanced: Specify any extra plusargs you would like to provide when
     # booting the simulator (in both FPGA-sim and metasim modes). This is
