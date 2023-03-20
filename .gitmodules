@@ -1,0 +1,3 @@
+[submodule "soc/sw/onnxruntime-riscv"]
+	path = soc/sw/onnxruntime-riscv
+	url = https://github.com/ucb-bar/onnxruntime-riscv.git
