@@ -1,0 +1,10 @@
+{
+  "name": "airsim-control-fed",
+  "rootfs-size": "4GB",
+  "base": "fedora-base.json",
+  "overlay": "overlay",
+  "host-init": "host-init.sh",
+  "guest-init": "guest-init.sh",
+  "command": "/root/drone_test -m /root/trail_resnet14_complex.onnx -i /root/img_56.png -p unit -x 2 -O 99 -v 3.0 -l 1",
+  "jobs": []
+}
