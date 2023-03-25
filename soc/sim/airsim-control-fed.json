@@ -1,0 +1,9 @@
+{
+	"benchmark_name": "airsim-control-fed",
+  	"common_bootbinary" : "airsim-control-fed-bin",
+  	"common_rootfs"     : "airsim-control-fed.img",
+  	"common_outputs"    : ["/etc/os-release"],
+	"common_simulation_outputs": [
+		"uartlog"
+	]
+}
