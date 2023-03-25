@@ -28,6 +28,9 @@ cp ${ROSE_DIR}/soc/sim/config_runtime_local.yaml ${FIRESIM_DIR}/deploy/config_ru
 cp ${ROSE_DIR}/soc/sim/config_build_recipes_local.yaml ${FIRESIM_DIR}/deploy/config_build_recipes.yaml
 cp ${ROSE_DIR}/soc/sim/config_build_local.yaml ${FIRESIM_DIR}/deploy/config_build.yaml
 
+# Copy workload configs
+cp ${ROSE_DIR}/soc/sim/airsim-driver-fed.json ${FIRESIM_DIR}/deploy/workloads/
+
 # Patch build script
 sed -i 's/midas, icenet, testchipip, sifive_blocks)/midas, icenet, testchipip, sifive_blocks, chipyard)/g' ${FIRESIM_DIR}/sim/build.sbt
 cd ${ROSE_DIR}/soc/sw/onnxruntime-riscv

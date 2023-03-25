@@ -1,4 +1,5 @@
 #!/bin/bash
+PROJECT_ROOT="/scratch/$(whoami)"
 FIRESIM_DIR=${PROJECT_ROOT}/firesim
 source ${FIRESIM_DIR}/env.sh
 source ${FIRESIM_DIR}/sourceme-f1-manager.sh
