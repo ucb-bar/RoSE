@@ -33,6 +33,10 @@ cp ${ROSE_DIR}/soc/sim/config_hwdb_local.yaml ${FIRESIM_DIR}/deploy/config_hwdb.
 cp ${ROSE_DIR}/soc/sim/airsim-driver-fed.json ${FIRESIM_DIR}/deploy/workloads/
 cp ${ROSE_DIR}/soc/sim/airsim-control-fed.json ${FIRESIM_DIR}/deploy/workloads/
 
+# Init firemarshal submodules
+cd ${FIRESIM_DIR}/sw/firesim-software/
+./init-submodules.sh
+
 # Patch build script
 sed -i 's/midas, icenet, testchipip, sifive_blocks)/midas, icenet, testchipip, sifive_blocks, chipyard)/g' ${FIRESIM_DIR}/sim/build.sbt
 cd ${ROSE_DIR}/soc/sw/onnxruntime-riscv
