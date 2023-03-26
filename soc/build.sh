@@ -16,6 +16,10 @@ if [ ! -d ${FIRESIM_DIR}/deploy/workloads/airsim-driver-fed ]; then
     mkdir -p ${FIRESIM_DIR}/deploy/workloads/airsim-driver-fed
 fi
 
+if [ ! -d ${FIRESIM_DIR}/deploy/workloads/airsim-control-fed ]; then
+    mkdir -p ${FIRESIM_DIR}/deploy/workloads/airsim-control-fed
+fi
+
 ln -s ${FIRESIM_DIR}/sw/firesim-software/images/airsim-driver-fed-bin  ${FIRESIM_DIR}/deploy/workloads/airsim-driver-fed/airsim-driver-fed-bin
 ln -s ${FIRESIM_DIR}/sw/firesim-software/images/airsim-driver-fed.img  ${FIRESIM_DIR}/deploy/workloads/airsim-driver-fed/airsim-driver-fed.img
 
