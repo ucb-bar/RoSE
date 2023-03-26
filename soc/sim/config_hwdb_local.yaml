@@ -1,0 +1,25 @@
+# Hardware config database for FireSim Simulation Manager
+# See https://docs.fires.im/en/stable/Advanced-Usage/Manager/Manager-Configuration-Files.html for documentation of all of these params.
+
+# Hardware configs represent a combination of an agfi, a deploytriplet override
+# (if needed), and a custom runtime config (if needed)
+
+# The AGFIs provided below are public and available to all users.
+# Only AGFIs for the latest release of FireSim are guaranteed to be available.
+# If you are using an older version of FireSim, you will need to generate your
+# own images.
+
+firesim_rocket_30MHz_singlecore_no_nic:
+    xclbin: /scratch/rose-isca-ae-bitstreams/platforms/vitis/cl_FireSim-DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.RocketConfig-F30MHz_BaseVitisConfig/bitstream/build_dir.xilinx_u250_gen3x16_xdma_3_1_202020_1/firesim.xclbin
+    deploy_triplet_override: FireSim-DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.RocketConfig-F30MHz_BaseVitisConfig
+    custom_runtime_config: null
+
+firesim-rocket-singlecore-fp32gemmini-with-airsim-fast-no-nic-l2-llc4mb-ddr3:
+    xclbin: /scratch/rose-isca-ae-bitstreams/platforms/vitis/cl_FireSim-DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.AirSimIOTLFPGemminiRocketConfig-F45MHz_BaseVitisConfig/bitstream/build_dir.xilinx_u250_gen3x16_xdma_3_1_202020_1/firesim.xclbin
+    deploy_triplet_override: FireSim-DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.AirSimIOTLFPGemminiRocketConfig-F45MHz_BaseVitisConfig
+    custom_runtime_config: null
+
+firesim-dual-large-boom-fp32gemmini-singlecore-with-airsim-no-nic-l2-llc4mb-ddr3:
+    xclbin: /scratch/rose-isca-ae-bitstreams/platforms/vitis/cl_FireSim-DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.AirSimIOTLFPGemminiLargeDualBoomConfig-F30MHz_BaseVitisConfig/bitstream/build_dir.xilinx_u250_gen3x16_xdma_3_1_202020_1/firesim.xclbin
+    deploy_triplet_override: FireSim-DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.AirSimIOTLFPGemminiLargeDualBoomConfig-F30MHz_BaseVitisConfig
+    custom_runtime_config: null
