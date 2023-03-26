@@ -27,6 +27,7 @@ cp ${FSIM_CC_DIR}/firesim_top.cc ${FIRESIM_DIR}/sim/src/main/cc/firesim/
 cp ${ROSE_DIR}/soc/sim/config_runtime_local.yaml ${FIRESIM_DIR}/deploy/config_runtime.yaml
 cp ${ROSE_DIR}/soc/sim/config_build_recipes_local.yaml ${FIRESIM_DIR}/deploy/config_build_recipes.yaml
 cp ${ROSE_DIR}/soc/sim/config_build_local.yaml ${FIRESIM_DIR}/deploy/config_build.yaml
+cp ${ROSE_DIR}/soc/sim/config_hwdb_local.yaml ${FIRESIM_DIR}/deploy/config_hwdb.yaml
 
 # Copy workload configs
 cp ${ROSE_DIR}/soc/sim/airsim-driver-fed.json ${FIRESIM_DIR}/deploy/workloads/
