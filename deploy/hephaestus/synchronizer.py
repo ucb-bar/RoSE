@@ -72,6 +72,8 @@ class CoSimLogger:
         if filename is None:
             filename = f'./logs/runlog-angle-{yaw}-cycles-{cycles}-frames-{frames}-{datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}.csv'
         self.filename = filename
+        
+
     
     def start(self):
         self.started = True
@@ -130,6 +132,7 @@ class CoSimLogger:
     def log_file(self):
         # print(self.df)
         self.df.to_csv(self.filename)
+        print(f"df logged to {self.filename}: {self.df}")
 
 class CoSimPacket:
     def __init__(self):
@@ -263,7 +266,7 @@ class SocketThread (threading.Thread):
 
 
 class Synchronizer:
-    def __init__(self, host, sync_port, data_port, firesim_step = 10000, airsim_step = 10, control=None, airsim_ip=AIRSIM_IP, cycle_limit=None, vehicle="drone"):
+    def __init__(self, host, sync_port, data_port, firesim_step = 10000, airsim_step = 10, control=None, airsim_ip=AIRSIM_IP, cycle_limit=None, vehicle="drone", initial_y=0.0, terminal_x=None, logname=None):
         self.control   = control
         self.airsim_ip = airsim_ip
         self.sync_host = host
@@ -278,6 +281,8 @@ class Synchronizer:
         self.sync_rxqueue = []
 
         self.cycle_limit = cycle_limit
+        self.initial_y = initial_y
+        self.terminal_x = terminal_x
 
         self.server_started = False
 
@@ -290,11 +295,21 @@ class Synchronizer:
             self.client = airsim.CarClient(ip=airsim_ip)
         self.client.confirmConnection()
         self.client.enableApiControl(True)
-        self.logger = CoSimLogger(self.client, cycles=self.firesim_step, frames=self.airsim_step)
-
+        self.log_csv = None
+        self.log_video = None
+        if logname is not None:
+            self.log_csv = f"{logname}.csv"
+            self.log_video = f"{logname}.mp4"
+        self.logger = CoSimLogger(self.client, cycles=self.firesim_step, frames=self.airsim_step, filename=self.log_csv)
         print("Connected to server")
         print("Pausing simulator...")
         self.client.simPause(True) 
+
+        # Set up video logging
+        fps = 30
+        self.vid_width, self.vid_height = (224, 224)
+        fourcc = cv2.VideoWriter_fourcc(*'DIVX')
+        self.vid_stream = cv2.VideoWriter(self.log_video, fourcc, fps, (self.vid_width, self.vid_height))
     
     def run(self):
         socket_thread = SocketThread(self)
@@ -303,6 +318,14 @@ class Synchronizer:
         self.send_firesim_step()
         self.control.launchStabilizer(self.airsim_ip)
         count = 0
+        start_frame = 0
+
+        pose = self.client.simGetVehiclePose()
+        pose.position.x_val = 0
+        pose.position.y_val = self.initial_y
+        self.client.simSetVehiclePose(pose, ignore_collision=True)
+        self.client.simContinueForFrames(1)
+
         while True:
             if os.path.exists('reset.txt'):
                 start_time = time.time()
@@ -316,24 +339,33 @@ class Synchronizer:
                     pose.orientation = airsim.utils.to_quaternion(0,0, np.pi)
                 self.client.armDisarm(False)
                 pose.position.x_val = 0
-                pose.position.y_val = 0
+                pose.position.y_val = self.initial_y
                 if self.vehicle == "drone":
                     pose.position.z_val = 1
                 self.client.simSetVehiclePose(pose, ignore_collision=True)
-                
+
                 self.client.simContinueForFrames(1)
                 self.client.armDisarm(True)
                 self.control.targets['running'] = True
-                self.logger = CoSimLogger(self.client, cycles=self.firesim_step, frames=self.airsim_step)
+                self.logger = CoSimLogger(self.client, cycles=self.firesim_step, frames=self.airsim_step, filename=self.log_csv)
                 self.logger.start()
                 os.remove('reset.txt')
-            if self.cycle_limit is not None and count * self.firesim_step >= self.cycle_limit:
+
+            pose = self.client.simGetVehiclePose()
+            if (self.cycle_limit is not None and count * self.firesim_step >= self.cycle_limit) or (self.logger.started and self.terminal_x is not None and pose.position.x_val < self.terminal_x):
                 end_time = time.time()
                 elapsed_time = end_time - start_time
+                self.vid_stream.release()
                 # Append-adds at last
-                writestring = f"{elapsed_time}, {self.cycle_limit/elapsed_time}, {self.cycle_limit}, {self.firesim_step}, {self.airsim_step}"
-                os.system(f"echo {writestring} >> sim_data_test.log")
-                print(f"writestring {writestring}")
+                if self.cycle_limit is not None and count * self.firesim_step >= self.cycle_limit:
+                    print("Terminated due to exceeding maximum cycles!")
+                else:
+                    print("Terminated due to completing objective!")
+                if self.cycle_limit is not None:
+                    writestring = f"{elapsed_time}, {self.cycle_limit/elapsed_time}, {self.cycle_limit}, {self.firesim_step}, {self.airsim_step}"
+                    os.system(f"echo {writestring} >> sim_data_test.log")
+                    print(f"writestring {writestring}")
+                self.logger.log_file()
                 print(f"Terminating Simulation at {elapsed_time}")
                 socket_thread.kill()
                 time.sleep(1)
@@ -348,9 +380,20 @@ class Synchronizer:
                 dat['target_y_vel'] = self.control.targets['y_vel']  
                 dat['target_yawrwate'] = self.control.targets['yawrate'] 
                 self.logger.log_targets(dat)
+                rawImage = self.client.simGetImage("0", airsim.ImageType.Scene)
+                png = cv2.imdecode(airsim.string_to_uint8_array(rawImage), cv2.IMREAD_COLOR)
+                
+                self.vid_stream.write(png)
+                # if start_frame < 100:
+                #     # cv2.imwrite(f'img/img_{start_frame}.png', png)
+                # elif start_frame == 100:
+                #     self.vid_stream.release()
+                start_frame += 1
+
             if count % 20 == 0:
                 print("Stepping airsim")
-                self.logger.log_file()
+                if(self.logger.started):
+                    self.logger.log_file()
             #self.client.simContinueForFrames(self.airsim_step)
             self.client.simContinueForTime(self.airsim_step/100)
             if count % 20 == 0:
@@ -413,7 +456,8 @@ class Synchronizer:
                 pose.orientation = airsim.utils.to_quaternion(0,0, np.pi)
             self.client.armDisarm(False)
             pose.position.x_val = 0
-            pose.position.y_val = 0
+            pose.position.y_val = self.initial_y
+            print(f"Setting initial x, y: ({pose.position.x_val}, {pose.position.y_val})")
             if self.vehicle == "drone":
                 pose.position.z_val = 1
             self.client.simSetVehiclePose(pose, ignore_collision=True)
@@ -421,7 +465,7 @@ class Synchronizer:
             self.client.simContinueForFrames(1)
             self.client.armDisarm(True)
             self.control.targets['running'] = True
-            self.logger = CoSimLogger(self.client, cycles=self.firesim_step, frames=self.airsim_step)
+            self.logger = CoSimLogger(self.client, cycles=self.firesim_step, frames=self.airsim_step, filename=self.log_csv)
             self.logger.start()
         elif packet.cmd == CS_REQ_TAKEOFF:
             print("---------------------------------------------------")
