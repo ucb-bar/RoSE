@@ -8,7 +8,7 @@ ROCKET_CONFIG='firesim-rocket-singlecore-fp32gemmini-with-airsim-fast-no-nic-l2-
 
 START_Y='0.0'
 END_X='-80.0'
-END_CYCLE=100_000_000_000
+END_CYCLE=40_000_000_000
 AIRSIM_STEPS=2
 FIRESIM_CYCLES=20_000_000
 ANGLE=200.0
