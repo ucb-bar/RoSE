@@ -27,7 +27,7 @@ yq -i '.workload.workoad_name = "airsim-control-fed.json"' ${ROSE_DIR}/soc/sim/c
 bash ${ROSE_DIR}/soc/setup.sh
 
 echo "RoSE: Updating FireMarshal Workload YAML"
-jq ".command = \"/root/drone_test -m /root/${DNN} -i /root/img_56.png -p unit -x 2 -O 99 -v ${VEL} -l 1\"" ${ROSE_DIR}/soc/sw/rose-images/airsim-control-fed.json > ${ROSE_DIR}/soc/sw/rose-images/tmp.json
+jq ".command = \"/root/drone_test -m /root/${DNN} -i /root/img_56.png -p unit -x 2 -O 99 -v ${VEL} -l 2\"" ${ROSE_DIR}/soc/sw/rose-images/airsim-control-fed.json > ${ROSE_DIR}/soc/sw/rose-images/tmp.json
 mv ${ROSE_DIR}/soc/sw/rose-images/tmp.json ${ROSE_DIR}/soc/sw/rose-images/airsim-control-fed.json 
 cd ${ROSE_DIR}/soc/sw
 
@@ -71,7 +71,7 @@ do
 done
 
 echo "RoSE: Updating FireMarshal Workload YAML"
-jq ".command = \"/root/drone_test -m /root/${DNN} -i /root/img_56.png -p unit -x 0 -O 99 -v ${VEL} -l 1\"" ${ROSE_DIR}/soc/sw/rose-images/airsim-control-fed.json > ${ROSE_DIR}/soc/sw/rose-images/tmp.json
+jq ".command = \"/root/drone_test -m /root/${DNN} -i /root/img_56.png -p unit -x 0 -O 99 -v ${VEL} -l 2\"" ${ROSE_DIR}/soc/sw/rose-images/airsim-control-fed.json > ${ROSE_DIR}/soc/sw/rose-images/tmp.json
 mv ${ROSE_DIR}/soc/sw/rose-images/tmp.json ${ROSE_DIR}/soc/sw/rose-images/airsim-control-fed.json 
 cd ${ROSE_DIR}/soc/sw
 
