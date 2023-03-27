@@ -6,6 +6,10 @@ ROSE_DIR=${PROJECT_ROOT}/RoSE
 SCALA_DIR=${ROSE_DIR}/soc/src/main/scala
 FSIM_CC_DIR=${ROSE_DIR}/soc/src/main/cc
 
+FIRESIM_RUNDIR=${PROJECT_ROOT}/new_firesim_run_temp/
+
+
+
 cd ${ROSE_DIR}
 if [ ! -d ./build/ ]; then
     mkdir -p ./build/
@@ -20,6 +24,8 @@ if [ ! -d ./yq_latest/ ]; then
     wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O ./yq_latest/yq
     chmod +x ./yq_latest/yq
 fi
+
+
 echo Sourcing Deps
 cd ${FIRESIM_DIR}
 source ${FIRESIM_DIR}/env.sh
@@ -28,6 +34,8 @@ cd ${ROSE_DIR}/build/cmake-3.26.0-linux-x86_64/
 export PATH=$(pwd)/bin/:$PATH
 export PATH=${ROSE_DIR}/build/yq_latest/:$PATH
 cd ${ROSE_DIR}
+
+yq -i ".run_farm.recipe_arg_overrides.default_simulation_dir = \"${FIRESIM_RUNDIR}\"" ${ROSE_DIR}/soc/sim/config_runtime_local.yaml
 
 
 
