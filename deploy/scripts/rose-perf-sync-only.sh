@@ -11,8 +11,14 @@ len=${#cycle_steps[@]}
 # use for loop read all nameservers
 echo "RoSE: Updating FireSim Runtime YAML"
 yq -i '.target_config.default_hw_config = "firesim-rocket-singlecore-fp32gemmini-with-airsim-fast-no-nic-l2-llc4mb-ddr3"' ${ROSE_DIR}/soc/sim/config_runtime_local.yaml
-yq -i '.workload.workoad_name = "airsim-driver-fed.json"' ${ROSE_DIR}/soc/sim/config_runtime_local.yaml
+yq -i '.workload.workload_name = "airsim-driver-fed.json"' ${ROSE_DIR}/soc/sim/config_runtime_local.yaml
 bash ${ROSE_DIR}/soc/setup.sh
+
+cd ${ROSE_DIR}/soc/sw:
+echo "RoSE: Building New Linux Image"
+marshal build rose-images/airsim-driver-fed.json
+cd ${ROSE_DIR}/deploy/hephaestus/
+
 
 cd ${ROSE_DIR}/deploy/hephaestus/
 rm -rf sim_data_test.log
@@ -20,11 +26,15 @@ for (( i=0; i<${len}; i++ ));
 do
     echo "running sync: ${cycle_steps[$i]} max: ${max_steps[$i]}"
     #echo "running sync: ${cycle_steps[$i]} max: ${cycle_steps[$i]}"
-    python3 runner.py -f ${cycle_steps[$i]} -c ${max_steps[$i]} -r FireSim
+    python3 runner.py -f ${cycle_steps[$i]} -c ${max_steps[$i]} -r FireSim -l ${ROSE_DIR}/deploy/hephaestus/logs/rose-perf-sync-only-rocket-gemmini-${cycle_steps[$i]}
     # python3 runner.py -f ${cycle_steps[$i]} -c ${max_steps[$i]} -r FireSim
     # echo "python3 runner.py -f ${cycle_steps[$i]} -c ${max_steps[$i]} -r MIDAS" >> sim_cmd.log
     # python3 runner.py -f ${cycle_steps[$i]} -c ${max_steps[$i]} -r MIDAS | grep writestring >> sim_data_midas.log
     # python3 runner.py -f ${cycle_steps[$i]} -c ${cycle_steps[$i]}00 -r FireSim
+    firesim kill &
+    pid=$!
+    sleep 10
+    kill $pid
     sleep 60
 done
 cp sim_data_test.log logs/rose-perf-sync-only.csv

@@ -23,7 +23,7 @@ cd ${ROSE_DIR}
 # Run Rocket Experiments
 echo "RoSE: Updating FireSim Runtime YAML"
 yq -i ".target_config.default_hw_config = \"${ROCKET_CONFIG}\"" ${ROSE_DIR}/soc/sim/config_runtime_local.yaml
-yq -i '.workload.workoad_name = "airsim-control-fed.json"' ${ROSE_DIR}/soc/sim/config_runtime_local.yaml
+yq -i '.workload.workload_name = "airsim-control-fed.json"' ${ROSE_DIR}/soc/sim/config_runtime_local.yaml
 bash ${ROSE_DIR}/soc/setup.sh
 
 
@@ -53,7 +53,7 @@ done
 # Run BOOM Experiments
 echo "RoSE: Updating FireSim Runtime YAML"
 yq -i ".target_config.default_hw_config = \"${BOOM_CONFIG}\"" ${ROSE_DIR}/soc/sim/config_runtime_local.yaml
-yq -i '.workload.workoad_name = "airsim-control-fed.json"' ${ROSE_DIR}/soc/sim/config_runtime_local.yaml
+yq -i '.workload.workload_name = "airsim-control-fed.json"' ${ROSE_DIR}/soc/sim/config_runtime_local.yaml
 bash ${ROSE_DIR}/soc/setup.sh
 
 # Run BOOM + Gemmini
