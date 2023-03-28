@@ -24,6 +24,12 @@ if [ ! -d ./yq_latest/ ]; then
     wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O ./yq_latest/yq
     chmod +x ./yq_latest/yq
 fi
+if [ ! -d ${ROSE_DIR}/deploy/hephaestus/logs ]; then
+    mkdir -p ${ROSE_DIR}/deploy/hephaestus/logs
+fi
+if [ ! -d ${ROSE_DIR}/deploy/hephaestus/img ]; then
+    mkdir -p ${ROSE_DIR}/deploy/hephaestus/img
+fi
 
 
 echo Sourcing Deps
