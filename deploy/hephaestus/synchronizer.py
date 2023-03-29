@@ -132,7 +132,8 @@ class CoSimLogger:
     def log_file(self):
         # print(self.df)
         self.df.to_csv(self.filename)
-        print(f"df logged to {self.filename}: {self.df}")
+        # print(f"df logged to {self.filename}: {self.df}")
+        print(f"df logged to {self.filename}")
 
 class CoSimPacket:
     def __init__(self):
@@ -457,12 +458,18 @@ class Synchronizer:
             self.client.armDisarm(False)
             pose.position.x_val = 0
             pose.position.y_val = self.initial_y
+            pose.position.z_val = -10
+            self.client.simSetVehiclePose(pose, ignore_collision=True)
+            self.client.simContinueForFrames(5)
+
+            pose.position.x_val = 0
+            pose.position.y_val = self.initial_y
             print(f"Setting initial x, y: ({pose.position.x_val}, {pose.position.y_val})")
             if self.vehicle == "drone":
                 pose.position.z_val = 1
             self.client.simSetVehiclePose(pose, ignore_collision=True)
-            
             self.client.simContinueForFrames(1)
+            
             self.client.armDisarm(True)
             self.control.targets['running'] = True
             self.logger = CoSimLogger(self.client, cycles=self.firesim_step, frames=self.airsim_step, filename=self.log_csv)
@@ -500,17 +507,17 @@ class Synchronizer:
             cv2.imwrite('img/img.png', png)
             png = cv2.resize(png, (INPUT_DIM, INPUT_DIM))
             png_arr = png.reshape((INPUT_DIM,INPUT_DIM*3))
-            print(png_arr.shape)
-            print(png_arr)
+            # print(png_arr.shape)
+            # print(png_arr)
             # png_arr = png.reshape((172_800))
             k = 0
 
             for row in png_arr:
                 png_packet_arr = row.view(np.uint32).tolist()
                 if k < 4:
-                    print(len(png_packet_arr))
+                    # print(len(png_packet_arr))
                     #print([hex(x) for x in png_packet_arr])
-                    print([(i, hex(png_packet_arr[i])) for i in range(len(png_packet_arr))])
+                    # print([(i, hex(png_packet_arr[i])) for i in range(len(png_packet_arr))])
                     k += 1
                 # print(png_packet_arr)
                 packet = CoSimPacket()
