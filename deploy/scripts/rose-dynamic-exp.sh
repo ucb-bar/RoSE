@@ -14,7 +14,7 @@ FIRESIM_CYCLES=20_000_000
 ANGLE=200.0
 DNN='trail_resnet14_complex.onnx'
 DNN_SMALL='trail_resnet6_complex.onnx'
-VELS=9
+VEL=9
 
 cd ${ROSE_DIR}
 
@@ -29,7 +29,7 @@ bash ${ROSE_DIR}/soc/setup.sh
 # Run BOOM + Gemmini
 echo "Running BOOM+Gemmini"
 echo "RoSE: Updating FireMarshal Workload YAML"
-jq ".command = \"/root/drone_dynamic_test -m /root/${DNN} -m /root/${DNN_SMALL} -i /root/img_56.png -p unit -x 2 -O 99 -v ${VELS[$i]} -w 10.0 \"" ${ROSE_DIR}/soc/sw/rose-images/airsim-control-fed.json > ${ROSE_DIR}/soc/sw/rose-images/tmp.json
+jq ".command = \"/root/drone_dynamic_test -m /root/${DNN} -m /root/${DNN_SMALL} -i /root/img_56.png -p unit -x 2 -O 99 -v ${VEL} -w 10.0 \"" ${ROSE_DIR}/soc/sw/rose-images/airsim-control-fed.json > ${ROSE_DIR}/soc/sw/rose-images/tmp.json
 mv ${ROSE_DIR}/soc/sw/rose-images/tmp.json ${ROSE_DIR}/soc/sw/rose-images/airsim-control-fed.json 
 cd ${ROSE_DIR}/soc/sw
 
