@@ -14,7 +14,7 @@ yq -i '.target_config.default_hw_config = "firesim-rocket-singlecore-fp32gemmini
 yq -i '.workload.workload_name = "airsim-driver-fed.json"' ${ROSE_DIR}/soc/sim/config_runtime_local.yaml
 bash ${ROSE_DIR}/soc/setup.sh
 
-cd ${ROSE_DIR}/soc/sw:
+cd ${ROSE_DIR}/soc/sw/
 echo "RoSE: Building New Linux Image"
 marshal build rose-images/airsim-driver-fed.json
 cd ${ROSE_DIR}/deploy/hephaestus/

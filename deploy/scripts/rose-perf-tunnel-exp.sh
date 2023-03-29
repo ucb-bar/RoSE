@@ -8,7 +8,7 @@ ROCKET_CONFIG='firesim-rocket-singlecore-fp32gemmini-with-airsim-fast-no-nic-l2-
 
 DNN='trail_resnet14_complex.onnx'
 VEL='3.0'
-START_Y='-22.7'
+START_Y='-22.85'
 END_X='-50.0'
 END_CYCLE=40_000_000_000
 AIRSIM_STEPS=( 1 2 10 40 )
