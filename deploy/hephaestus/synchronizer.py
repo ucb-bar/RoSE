@@ -406,6 +406,8 @@ class Synchronizer:
                     break
             while len(self.data_rxqueue) > 0:
                 self.process_fsim_data_packet()
+            if count == 1:
+                start_time = time.time()
         socket_thread.join()
     
     def send_firesim_step(self):
