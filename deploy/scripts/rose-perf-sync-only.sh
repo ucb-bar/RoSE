@@ -37,5 +37,6 @@ do
     kill $pid
     sleep 60
 done
-cp sim_data_test.log logs/rose-perf-sync-only.csv
+echo "Elapsed Time (sec), Throughput (cycles/sec), Cycle Limit, FireSim Step, AirSim Step" > logs/rose-perf-sync-only.csv
+cat sim_data_test.log >> logs/rose-perf-sync-only.csv
 echo "Completed tests!"
