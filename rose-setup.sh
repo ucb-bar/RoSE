@@ -30,6 +30,9 @@ fi
 if [ ! -d ${ROSE_DIR}/deploy/hephaestus/img ]; then
     mkdir -p ${ROSE_DIR}/deploy/hephaestus/img
 fi
+if [ ! -d ${ROSE_DIR}/deploy/figures ]; then
+    mkdir -p ${ROSE_DIR}/deploy/figures
+fi
 
 
 echo Sourcing Deps
