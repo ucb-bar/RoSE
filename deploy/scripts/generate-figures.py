@@ -48,7 +48,7 @@ def plot_trajectories_2d(ax, files, labels, colors, events=False, indices=None, 
         traj = pd.read_csv(file)
         df = pd.DataFrame(traj, columns=['x', 'y', 'z', 'target_req', 'cycles', 'lin_x_vel', 'lin_y_vel', 'lin_z_vel'])
         cycles = df.cycles.to_numpy()
-        print(f"Cycles: {cycles}")
+        # print(f"Cycles: {cycles}")
         cycle_diff = cycles[-1] - cycles[3]
         time_diff = cycle_diff / 1e9
         # Data for a three-dimensional line
@@ -286,7 +286,7 @@ def plot_rollouts_roofline(files, indices):
     plt.loglog(x,syncbound, 'r--', label="Synchronization Bottleneck")
     plt.loglog(x,fsim_throughput, 'g--', label="FPGA Throughput")
     plt.loglog(perf_data[' FireSim Step'][:-3], perf_data[' Throughput (cycles/sec)'][:-3], 'b', label="Co-Simulation Throughput")
-
+    
     throughputs = []
     for i, file in enumerate(files):
         traj = pd.read_csv(file)
@@ -342,7 +342,7 @@ def plot_hw_sw_sweep_bars(files, networks, cores, latencies=[]):
             dist_vec = (np.sqrt((x[3:-1] - x[2:-2]) ** 2 + (y[3:-1] - y[2:-2]) ** 2))
             time_vec = dist_vec[2:] / vel[2:-2]
             time = np.sum(time_vec)
-            data_time[cores[c]].append(time)
+            data_time[cores[c]].append(time_diff)
             dist = np.sum(dist_vec)
             # print(x_vel)
             avg_vel = np.mean(vel)
@@ -371,105 +371,6 @@ def plot_hw_sw_sweep_bars(files, networks, cores, latencies=[]):
 
     plt.savefig("./deploy/figures/figure14.png")
     
-# def plot_hw_sw_sweep_bars(ax, files, labels, colors, latencies=[], events=False, indices=None, path='straight'):
-#     boundary1 = 1.6
-#     boundary2 = -1.6
-#     coords = [0, 50]
-#     for i, file in enumerate(files):
-#         traj = pd.read_csv(file)
-#         df = pd.DataFrame(traj, columns=['x', 'y', 'z', 'target_req', 'cycles', 'lin_x_vel', 'lin_y_vel', 'lin_z_vel', 'depth'])
-#         cycles = df.cycles.to_numpy()
-#         depth = df.depth.to_numpy()
-#         cycle_diff = cycles[-1] - cycles[3]
-#         time_diff = cycle_diff / 1e9
-#         x = -df.x.to_numpy()
-#         img_req = df.target_req.to_numpy()
-#         img_req[np.isnan(img_req)] = 0
-#         runtimes = img_req * (depth < 10) * latencies[i][0] + img_req * (depth >= 10) * latencies[i][1]
-#         # print(img_req)
-#         y = df.y.to_numpy()
-#         x = -df.x.to_numpy()
-
-
-#         x_vel = -df.lin_x_vel.to_numpy()
-#         y_vel =  df.lin_y_vel.to_numpy()
-#         vel = np.sqrt(x_vel ** 2 + y_vel ** 2)[2:]
-
-#         dist_vec = (np.sqrt((x[3:-1] - x[2:-2]) ** 2 + (y[3:-1] - y[2:-2]) ** 2))
-#         time_vec = dist_vec[2:] / vel[2:-2]
-#         time = np.sum(time_vec)
-#         dist = np.sum(dist_vec)
-#         # print(x_vel)
-#         avg_vel = np.mean(vel)
-        
-#         ind = np.where(img_req > 0)
-#         if indices is None or i in indices:
-#             #ax.plot(x, y, color=colors[i], label=f"Config: {labels[i]}\nMission Time: {time_diff}s")
-#             #ax.plot(x, y, color=colors[i], label=f"{labels[i]}: {time_diff}s, {avg_vel:.2f}m/s, {dist:.2f}m, time: {time:.2f}")
-#             # ax.plot(x, y, color=colors[i], label=f"{labels[i]}:\n{time_diff}s, {avg_vel:.2f}m/s, {dist:.2f}m")
-#             # ax.plot(x, depth < 10.0, color=colors[i], label=f"{labels[i]}:\n{time_diff}s, {avg_vel:.2f}m/s, {dist:.2f}m")
-#             #print(f"Total inferences for {labels[i]}: {np.sum(img_req)}")
-#             #print(f"Total runtimes for {labels[i]}: {np.sum(runtimes)}")
-            
-#             utilization = np.sum(runtimes) / time_diff
-#             print(f"Total utilizaition for {labels[i]}: {utilization}")
-#             print(f"{avg_vel:2.2}")
-#             if("ResNet14" in labels[i]):
-#                 ax.axhline(y=utilization, color='k', linestyle='-', linewidth=1)
-#                 ax.axvline(x=time_diff, color='k', linestyle='-', linewidth=1)
-#             if("Dynamic" in labels[i]):
-#                 ax.scatter(time_diff, utilization, label=f"{labels[i]}", marker=(5,1))
-#             else:
-#                 ax.scatter(time_diff, utilization, label=f"{labels[i]}")
-#             # ax.plot(x, y, color=colors[i], label=f"{labels[i]}s")
-        
-#         x_req = np.take(x, ind)
-#         y_req = np.take(y, ind)
-#         if events and (indices is None or i in indices):
-#             ax.scatter(x_req, y_req, color=colors[i])
-#         ax.set_ylabel("DNN Accelerator Activity Factor")
-#         ax.set_xlabel("Application Latency (s)")
-        
-#         data1 = {'Network': ['ResNet6', 'ResNet11', 'ResNet14', 'ResNet18'],
-#                 'Rocket + Gemmini': [17.98, 21.18, 17.88, 39.88],
-#                 'BOOM + Gemmini': [16.1, 12.94, 12.32, 20.34]}
-
-#         data2 = {'Network': ['ResNet6', 'ResNet11', 'ResNet14', 'ResNet18'],
-#                 'Rocket + Gemmini': [6.1, 5.4, 6, 4],
-#                 'BOOM + Gemmini': [6.6, 7.6, 7.8, 5.7]}
-
-#         data3 = {'Network': ['ResNet6', 'ResNet11', 'ResNet14', 'ResNet18'],
-#                 'Rocket + Gemmini': [0.9, 0.91, 0.92, 0.94],
-#                 'BOOM + Gemmini': [0.75, 0.87, 0.9, 0.92]}
-
-#         fig, axs = plt.subplots(1, 3, figsize=(15, 6))
-
-
-#         df1 = pd.DataFrame(data1)
-#         df1.plot(kind='bar', x='Network', ax=axs[0], fontsize=14)
-#         axs[0].legend('', frameon=False)
-#         axs[0].set_title('Runtime', fontsize=20)
-
-#         df2 = pd.DataFrame(data2)
-#         df2.plot(kind='bar', x='Network', ax=axs[1], fontsize=14)
-#         axs[1].legend('', frameon=False)
-#         axs[1].set_title('Avg Velocity', fontsize=20)
-
-#         df3 = pd.DataFrame(data3)
-#         df3.plot(kind='bar', x='Network',  ax=axs[2], fontsize=12)
-#         axs[2].set_title('DNN Activity Factor', fontsize=20)
-#         axs[2].legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize=16)
-
-#         plt.savefig('hw/sw-configure sweep.png')
-#         #ax.set_ylim([0.6,1])
-#         #ax.set_xlim([12,17])
-
-# latencies_boom = [(0.06, 0.06), (0.07, 0.07), (0.09, 0.09), (0.13, 0.13), (0.21, 0.21)]
-# latencies_rocket = [(0.090, 0.090), (0.11, 0.11), (0.13, 0.13), (0.19, 0.19), (0.30, 0.30)]
-# print("BOOM")
-# plot_analysis_dynamic(ax, gemmini_boom_files_complex, gemmini_boom_labels_complex, gemmini_boom_colors_complex, latencies_boom, events=False, path='s-shape')
-# print("Rocket")
-# plot_analysis_dynamic(ax, gemmini_rocket_files_complex, gemmini_rocket_labels_complex, gemmini_rocket_colors_complex, latencies_rocket, events=False, path='s-shape')
 
 def plot_figure_10():
     colors = ['#AB2328', '#4169E1', '#046A38']
@@ -482,7 +383,7 @@ def plot_figure_10():
     gemmini_boom_labels = ['BOOM + Gemmini, -20°', 'BOOM + Gemmini, 0°', 'BOOM + Gemmini, 20°']
 
     boom_files = [
-        # r'./deploy/hephaestus/logs/tunnel-exp-boom-only-160.csv', 
+        r'./deploy/hephaestus/logs/tunnel-exp-boom-only-160.csv', 
         r'./deploy/hephaestus/logs/tunnel-exp-boom-only-180.csv',
         r'./deploy/hephaestus/logs/tunnel-exp-boom-only-200.csv'
     ]
@@ -522,6 +423,7 @@ def plot_figure_11():
         r'./deploy/hephaestus/logs/rose-hw-sw-sweep-boom-gemmini-resnet11.csv',
         r'./deploy/hephaestus/logs/rose-hw-sw-sweep-boom-gemmini-resnet14.csv',
         r'./deploy/hephaestus/logs/rose-hw-sw-sweep-boom-gemmini-resnet18.csv',
+        # r'./deploy/hephaestus/logs/rose-hw-sw-sweep-boom-gemmini-resnet34.csv',
   ]
     gemmini_boom_labels_complex = ['ResNet6', 'ResNet11', 'ResNet14', 'ResNet18', 'ResNet34', 'Test (ResNet14)', 'Test']
     gemmini_boom_colors_complex = ['#0033FF', '#0000FF', '#3300FF']
@@ -552,11 +454,11 @@ def plot_figure_12():
     f.set_figwidth(7)
     f.set_figheight(3)
     ax = plt.axes()
-    plot_trajectories_2d(ax, gemmini_boom_files, gemmini_boom_labels, ['#AB2328', '#4169E1', '#046A38'], events=False)
+    plot_trajectories_2d(ax, gemmini_boom_files, gemmini_boom_labels, ['#AB2328', '#4169E1', '#046A38'], events=False,path='s-shape')
     plt.title("Rollouts for Target Velocities")
     plt.grid()
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.85))
-    plt.savefig("./deploy/figures/figure12.png", bbox_inches = 'tight')
+    plt.savefig("./deploy/figures/figure12_a.png", bbox_inches = 'tight')
     plt.show()
 
     f = plt.figure()
@@ -569,31 +471,31 @@ def plot_figure_12():
     plt.title("Deadlines for Target Velocities")
     plt.grid()
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-    plt.savefig("./deploy/figures/figure13.png", bbox_inches = 'tight')
+    plt.savefig("./deploy/figures/figure12_b.png", bbox_inches = 'tight')
     plt.show()
 
-    f = plt.figure()
-    f.set_figwidth(7)
-    f.set_figheight(1.5)
-    ax = plt.axes()
-    plot_deadline_violations_2d(ax, gemmini_boom_files, gemmini_boom_labels, ['#AB2328', '#4169E1', '#046A38'], [0.085, 0.085, 0.085], events=False)
-    plt.xlabel("Distance (m)")
-    plt.ylabel("Deadline Violation")
-    plt.title("Deadline Violations for Target Velocities")
-    plt.grid()
-    plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-    plt.savefig('./deploy/figures/figure14.png', bbox_inches = 'tight')
-    plt.show()
+    # f = plt.figure()
+    # f.set_figwidth(7)
+    # f.set_figheight(1.5)
+    # ax = plt.axes()
+    # plot_deadline_violations_2d(ax, gemmini_boom_files, gemmini_boom_labels, ['#AB2328', '#4169E1', '#046A38'], [0.085, 0.085, 0.085], events=False,path='s-shape')
+    # plt.xlabel("Distance (m)")
+    # plt.ylabel("Deadline Violation")
+    # plt.title("Deadline Violations for Target Velocities")
+    # plt.grid()
+    # plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    # plt.savefig('./deploy/figures/figure14.png', bbox_inches = 'tight')
+    # plt.show()
     
 def plot_figure_13():  
     gemmini_boom_files_dynamic = [
         r'./deploy/hephaestus/logs/rose-hw-sw-sweep-boom-gemmini-resnet6.csv',
         r'./deploy/hephaestus/logs/rose-hw-sw-sweep-boom-gemmini-resnet11.csv',
-        r'./deploy/hephaestus/logs/rose-hw-sw-sweep-boom-gemmini-resnet14.csv',     
         r'./deploy/hephaestus/logs/rose-dynamic-exp-boom-gemmini.csv',
+        r'./deploy/hephaestus/logs/rose-hw-sw-sweep-boom-gemmini-resnet14.csv',     
         ]
-    gemmini_boom_labels_dynamic = ['ResNet6', 'ResNet11', 'ResNet14', 'Dynamic ResNet']
-    gemmini_boom_colors_dynamic = ['#AA9900', '#AB2328', '#4169E1', '#046A38', '#402A58', '#000000']
+    gemmini_boom_labels_dynamic = ['ResNet6', 'ResNet11', 'Dynamic ResNet', 'ResNet14']
+    gemmini_boom_colors_dynamic = ['#AA9900', '#AB2328', '#4169E1', '#046A38',  '#402A58', '#000000']
     latencies = [(0.06, 0.06), (0.07, 0.07), (0.09, 0.09) , (0.06, 0.09),]
     f = plt.figure()
     f.set_figwidth(7)
@@ -603,7 +505,7 @@ def plot_figure_13():
     plt.title("")
     plt.grid()
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.55))
-    plt.savefig("./deploy/figures/figure13.png", bbox_inches = 'tight')
+    # plt.savefig("./deploy/figures/figure13.png", bbox_inches = 'tight')
     plt.show()
 
     f = plt.figure()
@@ -614,7 +516,7 @@ def plot_figure_13():
     plt.title("")
     plt.grid()
     plt.legend(loc='center left', bbox_to_anchor=(0.6, 0.75))
-    plt.savefig("scatter_tradeoff.png", bbox_inches = 'tight')
+    plt.savefig("./deploy/figures/figure13.png", bbox_inches = 'tight')
     plt.show()
 
    
@@ -634,37 +536,22 @@ def plot_figure_14():
     plot_hw_sw_sweep_bars(files,networks, cores, latencies)
 
 def plot_figure_15():
-    files = [r'./deploy/hephaestus/logs/rose-perf-tunnel-rocket-gemmini-10_000_000.csv'
-            #  r'./deploy/hephaestus/logs/rose-perf-tunnel-rocket-gemmini-20_000_000.csv',
-            #  r'./deploy/hephaestus/logs/rose-perf-tunnel-rocket-gemmini-100_000_000.csv',
-            #  r'./deploy/hephaestus/logs/rose-perf-tunnel-rocket-gemmini-400_000_000.csv'
+    files = [r'./deploy/hephaestus/logs/rose-perf-tunnel-rocket-gemmini-10_000_000.csv',
+             r'./deploy/hephaestus/logs/rose-perf-tunnel-rocket-gemmini-20_000_000.csv',
+             r'./deploy/hephaestus/logs/rose-perf-tunnel-rocket-gemmini-100_000_000.csv',
+             r'./deploy/hephaestus/logs/rose-perf-tunnel-rocket-gemmini-400_000_000.csv'
              ]
-    indices = [10_000_000]
-    # indices = [10_000_000, 20_000_000, 100_000_000, 400_000_000] 
+    # indices = [10_000_000]
+    indices = [10_000_000, 20_000_000, 100_000_000, 400_000_000] 
     plot_rollouts_roofline(files, indices)
 
 def plot_figure_16():
     gemmini_rocket_sweep_files = [
-       r'./deploy/hephaestus/logs/rose-perf-tunnel-rocket-gemmini-10_000_000.csv'
-            #  r'./deploy/hephaestus/logs/rose-perf-tunnel-rocket-gemmini-20_000_000.csv',
-            #  r'./deploy/hephaestus/logs/rose-perf-tunnel-rocket-gemmini-100_000_000.csv',
-            #  r'./deploy/hephaestus/logs/rose-perf-tunnel-rocket-gemmini-400_000_000.csv'
+       r'./deploy/hephaestus/logs/rose-perf-tunnel-rocket-gemmini-10_000_000.csv',
+             r'./deploy/hephaestus/logs/rose-perf-tunnel-rocket-gemmini-20_000_000.csv',
+             r'./deploy/hephaestus/logs/rose-perf-tunnel-rocket-gemmini-100_000_000.csv',
+             r'./deploy/hephaestus/logs/rose-perf-tunnel-rocket-gemmini-400_000_000.csv'
              ]
-    gemmini_rocket_sweep_labels = [
-        '10M Cycles', 
-        '20M Cycles', 
-        '100M Cycles', 
-        '400M Cycles'
-        ]
-
-    gemmini_rocket_sweep_labels = [
-        '10M Cycles', 
-        '20M Cycles  (MSE: 52K)',  
-        '100M Cycles (MSE: 26K)', 
-        '400M Cycles (MSE: 439K)'
-        ]
-
-        # MSE: [0.0, 51797.59552050921, 60382.2115589857, 29537.12696535392, 26372.190774130988, 31084.040720583045, 438642.6617879875]
     gemmini_rocket_sweep_colors = ['#ffa921', '#f87943', '#dc535b', '#af3d69']
     gemmini_rocket_sweep_colors = [
         '#0036ff', 
@@ -679,14 +566,24 @@ def plot_figure_16():
         None, 
         ]
 
+    indices = [1, 2, 10, 40] 
+    mses = calculate_mses(gemmini_rocket_sweep_files, indices)
+
+    gemmini_rocket_sweep_labels = [
+        f'10M Cycles', 
+        f'20M Cycles  (MSE: {round(mses[1])})',  
+        f'100M Cycles (MSE: {round(mses[2])})', 
+        f'400M Cycles (MSE: {round(mses[3])})'
+        ]
+
     ax = plt.axes()
-    plot_trajectories_2d(ax, gemmini_rocket_sweep_files, gemmini_rocket_sweep_labels, gemmini_rocket_sweep_colors, events=False, indices = [0,3,4,5,6],  y_offset = -22.85)
+    plot_trajectories_2d(ax, gemmini_rocket_sweep_files, gemmini_rocket_sweep_labels, gemmini_rocket_sweep_colors, events=False,  y_offset = -22.85)
     # ax.set_ylim(-2, 4)
     # ax.set_xlim(0, 5)
     # ax.set_ylim(-1, 0.25)
     plt.xlabel("Distance (m)")
     plt.ylabel("Lateral Offset (m)")
-    plt.title("Inference Events for Rocket+Gemmini across Sync Granularities")
+    plt.title("Trajectories vs Synchronization Granularity for RoSE Simulations (Rocket + Gemmini)")
     plt.grid()
     plt.legend(bbox_to_anchor=(1,1))
     # ax.set_zlabel("Altitude (m)")
