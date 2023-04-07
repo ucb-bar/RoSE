@@ -34,7 +34,8 @@ builds_to_run:
     #    <Async Crossing>
     # DRAM : 1000 MHz
     # - firesim_rocket_singlecore_no_nic
-    - firesim-large-boom-fp32gemmini-singlecore-with-airsim-no-nic-l2-llc4mb-ddr3
+    # - firesim-dual-large-boom-fp32gemmini-singlecore-with-airsim-no-nic-l2-llc4mb-ddr3
+    - firesim-large-boom-25mhz-fp32gemmini-singlecore-with-airsim-no-nic-l2-llc4mb-ddr3
     # - firesim-rocket-singlecore-fp32gemmini-with-airsim-no-nic-l2-llc4mb-ddr3
     # - firesim-rocket-singlecore-fp32gemmini-with-airsim-fast-no-nic-l2-llc4mb-ddr3
 

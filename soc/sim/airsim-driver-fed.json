@@ -1,0 +1,9 @@
+{
+	"benchmark_name": "airsim-driver-fed",
+  	"common_bootbinary" : "airsim-driver-fed-bin",
+  	"common_rootfs"     : "airsim-driver-fed.img",
+  	"common_outputs"    : ["/etc/os-release"],
+	"common_simulation_outputs": [
+		"uartlog"
+	]
+}

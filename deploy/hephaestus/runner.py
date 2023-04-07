@@ -1,4 +1,5 @@
 import os
+import signal
 from tokenize import String
 from xmlrpc.client import Boolean
 import synchronizer
@@ -25,7 +26,7 @@ class SyncThread(threading.Thread):
             control = control_drone.IntermediateDroneApi()
         elif args["Vehicle_type"] == "car":
             control = control_car.IntermediateCarApi()
-        self.sync = synchronizer.Synchronizer(HOST, SYNC_PORT, DATA_PORT, firesim_step=args['Firesim_steps'], airsim_step=args['Airsim_steps'], control=control, airsim_ip=args['Airsim_ip'], cycle_limit=args['Cycle_limit'], vehicle=args["Vehicle_type"])
+        self.sync = synchronizer.Synchronizer(HOST, SYNC_PORT, DATA_PORT, firesim_step=args['Firesim_steps'], airsim_step=args['Airsim_steps'], control=control, airsim_ip=args['Airsim_ip'], cycle_limit=args['Cycle_limit'], vehicle=args["Vehicle_type"], initial_y=args["Initial_y"], terminal_x=args["Terminal_x"], logname=args["Log_file"])
     
     def run(self):
         self.sync.run()
@@ -51,8 +52,8 @@ class FiresimThread(threading.Thread):
         os.system("make TARGET_CONFIG=DDR3FRFCFS_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.RoseTLRocketConfig SIM_BINARY=/scratch/$(whoami)/firesim/target-design/chipyard/tests/airsimpackettest.riscv run-verilator-debug")
 
     def run_firesim(self):
-        # os.system("firesim infrasetup")
-        os.system("firesim runworkload > firesim.log")
+        os.system("firesim infrasetup")
+        os.system("firesim runworkload > firesim.log &")
 
 if __name__ == "__main__":
     arg_list = argparse.ArgumentParser()
@@ -64,23 +65,36 @@ if __name__ == "__main__":
     arg_list.add_argument("-i", "--Airsim-ip", default=AIRSIM_IP, help="IP address of airsim server")
     arg_list.add_argument("-c", "--Cycle-limit", type=int, default = None)
     arg_list.add_argument("-v", "--Vehicle-type", type=str, default = "drone", help = "The vehicle you want to simulate")
+    arg_list.add_argument("-y", "--Initial-y", type=float, default=0.0, help="Default y position to start from")
+    arg_list.add_argument("-x", "--Terminal-x", type=float, default=None, help="Default x position at which point simulation is terminated")
+    arg_list.add_argument("-l", "--Log-file", type=str, default = None, help = "The files to log to, no extensions")
     args = vars(arg_list.parse_args())
 
     # control = control_drone.IntermediateDroneApi()
     # control.launchStabilizer(args['Airsim_ip'])
     
     sync_thread = SyncThread(args)
+    print("Starting synchronizer thread")
     sync_thread.start()
     while not sync_thread.sync.server_started:
         print("Waiting for synchronizer server to start...")
         time.sleep(0.1)
+    print("Starting firesim thread")
     firesim_thread = FiresimThread(args)
     firesim_thread.start()
+    print("Joining synchronizer thread")
     sync_thread.join()
     if 'MIDAS' in args['Rtl_sim']:
         time.sleep(1)
         os.system("pkill -9 VFireSim-debug")
     else:
-        os.system("firesim kill")
-        os.system("screen -XS guestmount quit")
-        os.system("guestunmount /scratch/iansseijelly/firesim_run_temp/sim_slot_0/mountpoint")
+        pass
+        # os.system("firesim kill &")
+        # os.system("sleep 10")
+        # os.system("screen -XS guestmount quit")
+        # os.system("guestunmount /scratch/iansseijelly/firesim_run_temp/sim_slot_0/mountpoint")
+    print("Joining firesim thread")
+    os.kill(os.getpid(), signal.SIGTERM)
+
+    
+    firesim_thread.join()

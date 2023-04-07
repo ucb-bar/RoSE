@@ -1,6 +1,15 @@
 #!/bin/bash
+PROJECT_ROOT="/scratch/$(whoami)"
 FIRESIM_DIR=${PROJECT_ROOT}/firesim
-source ${FIRESIM_DIR}/env.sh
+ROSE_DIR=${PROJECT_ROOT}/RoSE
+cd ${FIRESIM_DIR}
 source ${FIRESIM_DIR}/sourceme-f1-manager.sh
-pip3 instal msgpack-rpc-python
+if [ ! -d ${ROSE_DIR}/deploy/hephaestus/logs ]; then
+    mkdir -p ${ROSE_DIR}/deploy/hephaestus/logs
+fi
+if [ ! -d ${ROSE_DIR}/deploy/hephaestus/img ]; then
+    mkdir -p ${ROSE_DIR}/deploy/hephaestus/img
+fi
+pip3 install msgpack-rpc-python
 pip3 install airsim
+cd ${ROSE_DIR}
