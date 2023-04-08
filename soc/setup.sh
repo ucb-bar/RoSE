@@ -1,5 +1,8 @@
 #!/bin/bash
-PROJECT_ROOT="/scratch/$(whoami)"
+DIR=$(dirname "$(realpath "$0")")
+echo $DIR
+PROJECT_ROOT="${DIR}/../.."
+echo "Project root: $PROJECT_ROOT"
 FIRESIM_DIR=${PROJECT_ROOT}/firesim
 CHIPYARD_DIR=${FIRESIM_DIR}/target-design/chipyard
 ROSE_DIR=${PROJECT_ROOT}/RoSE
@@ -8,7 +11,7 @@ FSIM_CC_DIR=${ROSE_DIR}/soc/src/main/cc
 
 # Create an array of source files
 sources=(
-    #scala files
+    #airsim scala files
     "${SCALA_DIR}/AirSimIO.scala"
     "${SCALA_DIR}/IOBinders.scala" 
     "${SCALA_DIR}/BridgeBinders.scala" 
@@ -16,6 +19,9 @@ sources=(
     "${SCALA_DIR}/AbstractConfig.scala" 
     "${SCALA_DIR}/AirSimBridge.scala" 
     "${SCALA_DIR}/RoSEConfigs.scala"
+    #rose scala files
+    "${SCALA_DIR}/RoSEAdapter.scala"
+    "${SCALA_DIR}/RoSEBrdige.scala"
     #C++ files
     "${FSIM_CC_DIR}/airsim.cc"
     "${FSIM_CC_DIR}/airsim.h"
@@ -40,6 +46,9 @@ destinations=(
     "${CHIPYARD_DIR}/generators/chipyard/src/main/scala/config/AbstractConfig.scala"
     "${FIRESIM_DIR}/sim/firesim-lib/src/main/scala/bridges/AirSimBridge.scala"
     "${CHIPYARD_DIR}/generators/chipyard/src/main/scala/config/RoSEConfigs.scala"
+    #rose scala destinations
+    "${CHIPYARD_DIR}/generators/rose/src/main/scala/RoSEAdapter.scala"
+    "${FIRESIM_DIR}/sim/firesim-lib/src/main/scala/bridges/RoSEBridge.scala"
     #C++ destinations
     "${FIRESIM_DIR}/sim/firesim-lib/src/main/cc/bridges/airsim.cc"
     "${FIRESIM_DIR}/sim/firesim-lib/src/main/cc/bridges/airsim.h"
@@ -100,6 +109,14 @@ cd ${FIRESIM_DIR}/sw/firesim-software/
 
 # Patch build script
 sed -i 's/midas, icenet, testchipip, sifive_blocks)/midas, icenet, testchipip, sifive_blocks, chipyard)/g' ${FIRESIM_DIR}/sim/build.sbt
+
+echo 'lazy val rose = (project in file("generators/rose"))
+  .dependsOn(rocketchip, testchipip)
+  .settings(libraryDependencies ++= rocketLibDeps.value)
+  .settings(commonSettings)' >> ${CHIPYARD_DIR}/build.sbt
+
+sed -i 's/gemmini, icenet, tracegen, cva6, nvdla, sodor, ibex, fft_generator)/gemmini, icenet, tracegen, cva6, nvdla, sodor, ibex, fft_generator, rose)/g' ${CHIPYARD_DIR}/build.sbt
+
 cd ${ROSE_DIR}/soc/sw/onnxruntime-riscv
 git submodule update --init --recursive
 
