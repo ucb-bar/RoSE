@@ -260,6 +260,7 @@ class WithDefaultFireSimBridges extends Config(
   new WithNICBridge ++
   new WithUARTBridge ++
   new WithAirSimBridge ++
+  new WithRoseBridge ++
   new WithBlockDeviceBridge ++
   new WithFASEDBridge ++
   new WithFireSimMultiCycleRegfile ++
