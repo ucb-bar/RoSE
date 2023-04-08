@@ -110,10 +110,15 @@ cd ${FIRESIM_DIR}/sw/firesim-software/
 # Patch build script
 sed -i 's/midas, icenet, testchipip, sifive_blocks)/midas, icenet, testchipip, sifive_blocks, chipyard)/g' ${FIRESIM_DIR}/sim/build.sbt
 
-echo 'lazy val rose = (project in file("generators/rose"))
+if grep -q "lazy val rose" ${CHIPYARD_DIR}/build.sbt; then
+  echo "rose found in chipyard sbt, not appending."
+else
+  echo "rose not found in chipyard sbt, appending."
+  echo 'lazy val rose = (project in file("generators/rose"))
   .dependsOn(rocketchip, testchipip)
   .settings(libraryDependencies ++= rocketLibDeps.value)
   .settings(commonSettings)' >> ${CHIPYARD_DIR}/build.sbt
+fi
 
 sed -i 's/gemmini, icenet, tracegen, cva6, nvdla, sodor, ibex, fft_generator)/gemmini, icenet, tracegen, cva6, nvdla, sodor, ibex, fft_generator, rose)/g' ${CHIPYARD_DIR}/build.sbt
 
