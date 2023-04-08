@@ -34,6 +34,7 @@ import chipyard.iobinders.{IOBinders, OverrideIOBinder, ComposeIOBinder, GetSyst
 import chipyard.{HasHarnessSignalReferences}
 import chipyard.harness._
 import chipyard.example._
+import rose._
 
 object MainMemoryConsts {
   val regionNamePrefix = "MainMemory"
@@ -103,6 +104,16 @@ class WithAirSimBridge extends OverrideHarnessBinder({
   }
 })
 
+class WithRoseBridge extends OverrideHarnessBinder({
+  (system: CanHavePeripheryRoseAdapter, th: FireSim, ports: Seq[ClockedIO[RosePortIO]]) => {
+    val p: Parameters = GetSystemParameters(system)
+    ports.map { n => 
+      val rose_b = RoseBridge(n.clock, n.bits)(p) 
+      rose_b
+    }
+    Nil
+  }
+})
 
 class WithUARTBridge extends OverrideHarnessBinder({
   (system: HasPeripheryUARTModuleImp, th: FireSim, ports: Seq[UARTPortIO]) =>
