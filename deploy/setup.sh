@@ -1,5 +1,8 @@
 #!/bin/bash
-PROJECT_ROOT="/scratch/$(whoami)"
+DIR=$(dirname "$(realpath "$0")")
+echo $DIR
+PROJECT_ROOT="${DIR}/../.."
+echo "Project root: $PROJECT_ROOT"
 FIRESIM_DIR=${PROJECT_ROOT}/firesim
 ROSE_DIR=${PROJECT_ROOT}/RoSE
 cd ${FIRESIM_DIR}
