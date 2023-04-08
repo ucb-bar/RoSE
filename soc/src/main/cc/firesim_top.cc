@@ -134,6 +134,44 @@ firesim_top_t::firesim_top_t(int argc, char** argv)
     add_bridge_driver(new airsim_t(this, AIRSIMBRIDGEMODULE_7_substruct, 7));
     #endif
 
+    #ifdef ROSEBRIDGEMODULE_0_PRESENT
+    // Create an instance of the constructor argument (this has all of
+    // addresses of the BridgeModule's memory mapped registers)
+    ROSEBRIDGEMODULE_0_substruct_create;
+    // Instantiate the driver; register it in the main simulation class
+    add_bridge_driver(new airsim_t(this, ROSEBRIDGEMODULE_0_substruct, 0));
+    #endif
+
+    #ifdef ROSEBRIDGEMODULE_1_PRESENT
+    ROSEBRIDGEMODULE_1_substruct_create;
+    add_bridge_driver(new airsim_t(this, ROSEBRIDGEMODULE_1_substruct, 1));
+    #endif
+// DOC include end: airsim Bridge Driver Registration
+    #ifdef ROSEBRIDGEMODULE_2_PRESENT
+    ROSEBRIDGEMODULE_2_substruct_create;
+    add_bridge_driver(new airsim_t(this, ROSEBRIDGEMODULE_2_substruct, 2));
+    #endif
+    #ifdef ROSEBRIDGEMODULE_3_PRESENT
+    ROSEBRIDGEMODULE_3_substruct_create;
+    add_bridge_driver(new airsim_t(this, ROSEBRIDGEMODULE_3_substruct, 3));
+    #endif
+    #ifdef ROSEBRIDGEMODULE_4_PRESENT
+    ROSEBRIDGEMODULE_4_substruct_create;
+    add_bridge_driver(new airsim_t(this, ROSEBRIDGEMODULE_4_substruct, 4));
+    #endif
+    #ifdef ROSEBRIDGEMODULE_5_PRESENT
+    ROSEBRIDGEMODULE_5_substruct_create;
+    add_bridge_driver(new airsim_t(this, ROSEBRIDGEMODULE_5_substruct, 5));
+    #endif
+    #ifdef ROSEBRIDGEMODULE_6_PRESENT
+    ROSEBRIDGEMODULE_6_substruct_create;
+    add_bridge_driver(new airsim_t(this, ROSEBRIDGEMODULE_6_substruct, 6));
+    #endif
+    #ifdef ROSEBRIDGEMODULE_7_PRESENT
+    ROSEBRIDGEMODULE_7_substruct_create;
+    add_bridge_driver(new airsim_t(this, ROSEBRIDGEMODULE_7_substruct, 7));
+    #endif
+
     #ifdef FASEDMEMORYTIMINGMODEL_0
     INSTANTIATE_FASED(fpga_models.push_back, 0)
     #endif
