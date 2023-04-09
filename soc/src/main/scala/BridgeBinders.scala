@@ -1,10 +1,9 @@
 //See LICENSE for license details.
 
-
 package firesim.firesim
 
 import chisel3._
-import chisel3.experimental.annotate
+import chisel3.experimental.{annotate, IO}
 import chisel3.util.experimental.BoringUtils
 
 import freechips.rocketchip.config.{Field, Config, Parameters}
@@ -34,7 +33,6 @@ import chipyard.iobinders.{IOBinders, OverrideIOBinder, ComposeIOBinder, GetSyst
 import chipyard.{HasHarnessSignalReferences}
 import chipyard.harness._
 import chipyard.example._
-import rose._
 
 object MainMemoryConsts {
   val regionNamePrefix = "MainMemory"
@@ -93,8 +91,10 @@ class WithNICBridge extends OverrideHarnessBinder({
   }
 })
 
+// TODO: copy ad do a WithRoseBridge
 class WithAirSimBridge extends OverrideHarnessBinder({
   (system: CanHavePeripheryAirSimIO, th: FireSim, ports: Seq[ClockedIO[AirSimPortIO]]) => {
+  //(system: CanHavePeripheryAirSimIO, th: FireSim, ports: Seq[AirSimPortIO]) => {
     val p: Parameters = GetSystemParameters(system)
     ports.map { n => 
       val airsim_b = AirSimBridge(n.clock, n.bits)(p) 
@@ -106,6 +106,7 @@ class WithAirSimBridge extends OverrideHarnessBinder({
 
 class WithRoseBridge extends OverrideHarnessBinder({
   (system: CanHavePeripheryRoseAdapter, th: FireSim, ports: Seq[ClockedIO[RosePortIO]]) => {
+  //(system: CanHavePeripheryAirSimIO, th: FireSim, ports: Seq[AirSimPortIO]) => {
     val p: Parameters = GetSystemParameters(system)
     ports.map { n => 
       val rose_b = RoseBridge(n.clock, n.bits)(p) 
@@ -114,6 +115,7 @@ class WithRoseBridge extends OverrideHarnessBinder({
     Nil
   }
 })
+
 
 class WithUARTBridge extends OverrideHarnessBinder({
   (system: HasPeripheryUARTModuleImp, th: FireSim, ports: Seq[UARTPortIO]) =>
