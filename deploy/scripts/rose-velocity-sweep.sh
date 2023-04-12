@@ -1,7 +1,6 @@
 #!/bin/bash
 
-PROJECT_ROOT="/scratch/$(whoami)"
-ROSE_DIR=${PROJECT_ROOT}/RoSE
+ROSE_DIR=$(pwd)
 
 BOOM_CONFIG='firesim-dual-large-boom-fp32gemmini-singlecore-with-airsim-no-nic-l2-llc4mb-ddr3'
 ROCKET_CONFIG='firesim-rocket-singlecore-fp32gemmini-with-airsim-fast-no-nic-l2-llc4mb-ddr3'
@@ -23,8 +22,8 @@ cd ${ROSE_DIR}
 
 # Run BOOM Experiments
 echo "RoSE: Updating FireSim Runtime YAML"
-yq -i ".target_config.default_hw_config = \"${BOOM_CONFIG}\"" ${ROSE_DIR}/soc/sim/config_runtime_local.yaml
-yq -i '.workload.workload_name = "airsim-control-fed.json"' ${ROSE_DIR}/soc/sim/config_runtime_local.yaml
+yq -i ".target_config.default_hw_config = \"${BOOM_CONFIG}\"" ${ROSE_DIR}/soc/sim/config/config_runtime_local.yaml
+yq -i '.workload.workload_name = "airsim-control-fed.json"' ${ROSE_DIR}/soc/sim/config/config_runtime_local.yaml
 bash ${ROSE_DIR}/soc/setup.sh
 
 # Run BOOM + Gemmini
