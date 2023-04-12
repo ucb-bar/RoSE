@@ -34,7 +34,7 @@ import chipyard.iobinders.{IOBinders, OverrideIOBinder, ComposeIOBinder, GetSyst
 import chipyard.{HasHarnessSignalReferences}
 import chipyard.harness._
 import chipyard.example._
-import rose._
+// import rose._
 
 object MainMemoryConsts {
   val regionNamePrefix = "MainMemory"
