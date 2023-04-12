@@ -371,16 +371,16 @@ class WithAirSimIOPunchthrough extends OverrideIOBinder({
   }
 })
 
-class WithRoseIOPunchthrough extends OverrideIOBinder({
-  (system: CanHavePeripheryRoseAdapter) => {
-    val ports: Seq[ClockedIO[RosePortIO]] = system.roseAdapter.map({ n =>
-      val p = IO(new ClockedIO(new RosePortIO)).suggestName("roseAdapter")
-      p <> n
-      p
-    }).toSeq
-    (ports, Nil)
-  }
-})
+// class WithRoseIOPunchthrough extends OverrideIOBinder({
+//   (system: CanHavePeripheryRoseAdapter) => {
+//     val ports: Seq[ClockedIO[RosePortIO]] = system.roseAdapter.map({ n =>
+//       val p = IO(new ClockedIO(new RosePortIO)).suggestName("roseAdapter")
+//       p <> n
+//       p
+//     }).toSeq
+//     (ports, Nil)
+//   }
+// })
 
 class WithTraceGenSuccessPunchthrough extends OverrideIOBinder({
   (system: TraceGenSystemModuleImp) => {
