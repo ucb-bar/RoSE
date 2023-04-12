@@ -244,7 +244,7 @@ if __name__ == "__main__":
 
 
 
-    outputfile = f"trail_dnn_{dnn_name}.onnx"
+    outputfile = f"./env/train/trail_dnn_{dnn_name}.onnx"
     torch.onnx.export(model,               # model being run
                   x,                         # model input (or a tuple for multiple inputs)
                   outputfile,   # where to save the model (can be a file or file-like object)
