@@ -42,7 +42,7 @@ for (( i=0; i<${LEN_STEPS}; i++ ));
 do
     echo "Running RoSE simulation"
     echo ${ANGLE}  > angle.txt
-    python3 runner.py -r FireSim -a ${AIRSIM_STEPS[$i]} -f ${FIRESIM_CYCLES[$i]} -y ${START_Y} -c ${END_CYCLE} -x ${END_X} -l ${ROSE_DIR}/deploy/hephaestus/logs/rose-perf-tunnel-rocket-gemmini-${FIRESIM_CYCLES[$i]} # | tee ${ROSE_DIR}/deploy/hephaestus/logs/tunnel-exp-rocket-gemmini-${ANGLE_NAMES[$i]}.log
+    python3 runner.py -i ${AIRSIM_IP} -r FireSim -a ${AIRSIM_STEPS[$i]} -f ${FIRESIM_CYCLES[$i]} -y ${START_Y} -c ${END_CYCLE} -x ${END_X} -l ${ROSE_DIR}/deploy/hephaestus/logs/rose-perf-tunnel-rocket-gemmini-${FIRESIM_CYCLES[$i]} # | tee ${ROSE_DIR}/deploy/hephaestus/logs/tunnel-exp-rocket-gemmini-${ANGLE_NAMES[$i]}.log
     firesim kill &
     pid=$!
     sleep 10
