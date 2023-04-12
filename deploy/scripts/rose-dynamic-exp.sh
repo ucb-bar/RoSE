@@ -39,7 +39,7 @@ cd ${ROSE_DIR}/deploy/hephaestus/
 
 echo "Running RoSE simulation"
 echo ${ANGLE}  > angle.txt
-python3 runner.py -r FireSim -a ${AIRSIM_STEPS} -f ${FIRESIM_CYCLES} -y ${START_Y} -c ${END_CYCLE} -x ${END_X} -l ${ROSE_DIR}/deploy/hephaestus/logs/rose-dynamic-exp-boom-gemmini # | tee ${ROSE_DIR}/deploy/hephaestus/logs/tunnel-exp-rocket-gemmini-${ANGLE_NAMES[$i]}.log
+python3 runner.py -i ${AIRSIM_IP} -r FireSim -a ${AIRSIM_STEPS} -f ${FIRESIM_CYCLES} -y ${START_Y} -c ${END_CYCLE} -x ${END_X} -l ${ROSE_DIR}/deploy/hephaestus/logs/rose-dynamic-exp-boom-gemmini # | tee ${ROSE_DIR}/deploy/hephaestus/logs/tunnel-exp-rocket-gemmini-${ANGLE_NAMES[$i]}.log
 firesim kill &
 pid=$!
 sleep 10
