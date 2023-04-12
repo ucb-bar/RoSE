@@ -1,11 +1,7 @@
 #!/bin/bash
-DIR=$(dirname "$(realpath "$0")")
-echo $DIR
-PROJECT_ROOT="${DIR}/../.."
-echo "Project root: $PROJECT_ROOT"
-FIRESIM_DIR=${PROJECT_ROOT}/firesim
+ROSE_DIR=$(pwd)
+FIRESIM_DIR=${ROSE_DIR}/soc/sim/firesim
 CHIPYARD_DIR=${FIRESIM_DIR}/target-design/chipyard
-ROSE_DIR=${PROJECT_ROOT}/RoSE
 SCALA_DIR=${ROSE_DIR}/soc/src/main/scala
 FSIM_CC_DIR=${ROSE_DIR}/soc/src/main/cc
 
@@ -20,20 +16,20 @@ sources=(
     "${SCALA_DIR}/AirSimBridge.scala" 
     "${SCALA_DIR}/RoSEConfigs.scala"
     #rose scala files
-    "${SCALA_DIR}/RoSEAdapter.scala"
-    "${SCALA_DIR}/RoSEBrdige.scala"
+    # "${SCALA_DIR}/RoSEAdapter.scala"
+    # "${SCALA_DIR}/RoSEBrdige.scala"
     #C++ files
     "${FSIM_CC_DIR}/airsim.cc"
     "${FSIM_CC_DIR}/airsim.h"
     "${FSIM_CC_DIR}/firesim_top.cc"
     #simulation configs
-    "${ROSE_DIR}/soc/sim/config_runtime_local.yaml"
-    "${ROSE_DIR}/soc/sim/config_build_recipes_local.yaml"
-    "${ROSE_DIR}/soc/sim/config_build_local.yaml"
-    "${ROSE_DIR}/soc/sim/config_hwdb_local.yaml"
+    "${ROSE_DIR}/soc/sim/config/config_runtime_local.yaml"
+    "${ROSE_DIR}/soc/sim/config/config_build_recipes_local.yaml"
+    "${ROSE_DIR}/soc/sim/config/config_build_local.yaml"
+    "${ROSE_DIR}/soc/sim/config/config_hwdb_local.yaml"
     #workload configs
-    "${ROSE_DIR}/soc/sim/airsim-driver-fed.json"
-    "${ROSE_DIR}/soc/sim/airsim-control-fed.json"
+    "${ROSE_DIR}/soc/sim/config/airsim-driver-fed.json"
+    "${ROSE_DIR}/soc/sim/config/airsim-control-fed.json"
 )
 
 # Create an array of destination files
@@ -47,8 +43,8 @@ destinations=(
     "${FIRESIM_DIR}/sim/firesim-lib/src/main/scala/bridges/AirSimBridge.scala"
     "${CHIPYARD_DIR}/generators/chipyard/src/main/scala/config/RoSEConfigs.scala"
     #rose scala destinations
-    "${CHIPYARD_DIR}/generators/rose/src/main/scala/RoSEAdapter.scala"
-    "${FIRESIM_DIR}/sim/firesim-lib/src/main/scala/bridges/RoSEBridge.scala"
+    # "${CHIPYARD_DIR}/generators/rose/src/main/scala/RoSEAdapter.scala"
+    # "${FIRESIM_DIR}/sim/firesim-lib/src/main/scala/bridges/RoSEBridge.scala"
     #C++ destinations
     "${FIRESIM_DIR}/sim/firesim-lib/src/main/cc/bridges/airsim.cc"
     "${FIRESIM_DIR}/sim/firesim-lib/src/main/cc/bridges/airsim.h"
@@ -120,10 +116,13 @@ else
   .settings(commonSettings)' >> ${CHIPYARD_DIR}/build.sbt
 fi
 
+echo "Updating build.sbt"
 sed -i 's/gemmini, icenet, tracegen, cva6, nvdla, sodor, ibex, fft_generator)/gemmini, icenet, tracegen, cva6, nvdla, sodor, ibex, fft_generator, rose)/g' ${CHIPYARD_DIR}/build.sbt
 
-cd ${ROSE_DIR}/soc/sw/onnxruntime-riscv
-git submodule update --init --recursive
+echo "Updating onnxruntime-riscv submodules"
+cd ${ROSE_DIR}
+git submodule update --init --recursive ${ROSE_DIR}/soc/sw/onnxruntime-riscv
+cd ${ROSE_DIR}
 
 
 
