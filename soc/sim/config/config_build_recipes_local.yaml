@@ -40,24 +40,6 @@ firesim-large-boom-fp32gemmini-singlecore-with-airsim-no-nic-l2-llc4mb-ddr3:
     metasim_customruntimeconfig: null
     bit_builder_recipe: bit-builder-recipes/vitis.yaml
 
-firesim-large-boom-25mhz-fp32gemmini-singlecore-with-airsim-no-nic-l2-llc4mb-ddr3:
-    DESIGN: FireSim
-    TARGET_CONFIG: DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.AirSimIOTLFPGemminiLargeBoomConfig_
-    PLATFORM_CONFIG: F25MHz_BaseVitisConfig
-    deploy_triplet: null
-    post_build_hook: null
-    metasim_customruntimeconfig: null
-    bit_builder_recipe: bit-builder-recipes/vitis.yaml
-
-firesim-dual-large-boom-fp32gemmini-singlecore-with-airsim-no-nic-l2-llc4mb-ddr3:
-    DESIGN: FireSim
-    TARGET_CONFIG: DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.AirSimIOTLFPGemminiLargeDualBoomConfig
-    PLATFORM_CONFIG: F30MHz_BaseVitisConfig
-    deploy_triplet: null
-    post_build_hook: null
-    metasim_customruntimeconfig: null
-    bit_builder_recipe: bit-builder-recipes/vitis.yaml
-
 firesim-rocket-singlecore-fp32gemmini-with-airsim-no-nic-l2-llc4mb-ddr3:
     DESIGN: FireSim
     TARGET_CONFIG: DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.AirSimIOTLFPGemminiRocketConfig
