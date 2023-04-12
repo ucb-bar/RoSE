@@ -34,7 +34,7 @@ object IOBinderTypes {
 import IOBinderTypes._
 
 import chipyard.example._
-import rose._
+// import rose._
 
 // System for instantiating binders based
 // on the scala type of the Target (_not_ its IO). This avoids needing to
