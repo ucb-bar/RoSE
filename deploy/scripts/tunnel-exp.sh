@@ -42,7 +42,7 @@ for (( i=0; i<${LEN_ANGLE}; i++ ));
 do
     echo "Running RoSE simulation"
     echo ${ANGLES[$i]}  > angle.txt
-    python3 runner.py -r FireSim -a ${AIRSIM_STEPS} -f ${FIRESIM_CYCLES} -y ${START_Y} -c ${END_CYCLE} -x ${END_X} -l ${ROSE_DIR}/deploy/hephaestus/logs/tunnel-exp-rocket-gemmini-${ANGLE_NAMES[$i]} # | tee ${ROSE_DIR}/deploy/hephaestus/logs/tunnel-exp-rocket-gemmini-${ANGLE_NAMES[$i]}.log
+    python3 runner.py -i ${AIRSIM_IP} -r FireSim -a ${AIRSIM_STEPS} -f ${FIRESIM_CYCLES} -y ${START_Y} -c ${END_CYCLE} -x ${END_X} -l ${ROSE_DIR}/deploy/hephaestus/logs/tunnel-exp-rocket-gemmini-${ANGLE_NAMES[$i]} # | tee ${ROSE_DIR}/deploy/hephaestus/logs/tunnel-exp-rocket-gemmini-${ANGLE_NAMES[$i]}.log
     firesim kill &
     pid=$!
     sleep 10
@@ -62,7 +62,7 @@ for (( i=0; i<${LEN_ANGLE}; i++ ));
 do
     echo "Running RoSE simulation"
     echo ${ANGLES[$i]}  > angle.txt
-    python3 runner.py -r FireSim -a ${AIRSIM_STEPS} -f ${FIRESIM_CYCLES} -y ${START_Y} -c ${END_CYCLE} -x ${END_X} -l ${ROSE_DIR}/deploy/hephaestus/logs/tunnel-exp-boom-gemmini-${ANGLE_NAMES[$i]} # | tee ${ROSE_DIR}/deploy/hephaestus/logs/tunnel-exp-boom-gemmini-${ANGLE_NAMES[$i]}.log
+    python3 runner.py -i ${AIRSIM_IP} -r FireSim -a ${AIRSIM_STEPS} -f ${FIRESIM_CYCLES} -y ${START_Y} -c ${END_CYCLE} -x ${END_X} -l ${ROSE_DIR}/deploy/hephaestus/logs/tunnel-exp-boom-gemmini-${ANGLE_NAMES[$i]} # | tee ${ROSE_DIR}/deploy/hephaestus/logs/tunnel-exp-boom-gemmini-${ANGLE_NAMES[$i]}.log
     firesim kill &
     pid=$!
     sleep 10
@@ -85,7 +85,7 @@ for (( i=0; i<${LEN_ANGLE}; i++ ));
 do
     echo "Running RoSE simulation"
     echo ${ANGLES[$i]}  > angle.txt
-    python3 runner.py -r FireSim -a ${AIRSIM_STEPS} -f ${FIRESIM_CYCLES} -y ${START_Y} -c ${END_CYCLE} -x ${END_X} -l ${ROSE_DIR}/deploy/hephaestus/logs/tunnel-exp-boom-only-${ANGLE_NAMES[$i]} # | tee ${ROSE_DIR}/deploy/hephaestus/logs/tunnel-exp-boom-only-${ANGLE_NAMES[$i]}.log
+    python3 runner.py -i ${AIRSIM_IP} -r FireSim -a ${AIRSIM_STEPS} -f ${FIRESIM_CYCLES} -y ${START_Y} -c ${END_CYCLE} -x ${END_X} -l ${ROSE_DIR}/deploy/hephaestus/logs/tunnel-exp-boom-only-${ANGLE_NAMES[$i]} # | tee ${ROSE_DIR}/deploy/hephaestus/logs/tunnel-exp-boom-only-${ANGLE_NAMES[$i]}.log
     firesim kill &
     pid=$!
     sleep 10

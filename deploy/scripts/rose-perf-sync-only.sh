@@ -26,7 +26,7 @@ for (( i=0; i<${len}; i++ ));
 do
     echo "running sync: ${cycle_steps[$i]} max: ${max_steps[$i]}"
     #echo "running sync: ${cycle_steps[$i]} max: ${cycle_steps[$i]}"
-    python3 runner.py -f ${cycle_steps[$i]} -c ${max_steps[$i]} -r FireSim -l ${ROSE_DIR}/deploy/hephaestus/logs/rose-perf-sync-only-rocket-gemmini-${cycle_steps[$i]}
+    python3 runner.py -i ${AIRSIM_IP} -f ${cycle_steps[$i]} -c ${max_steps[$i]} -r FireSim -l ${ROSE_DIR}/deploy/hephaestus/logs/rose-perf-sync-only-rocket-gemmini-${cycle_steps[$i]}
     # python3 runner.py -f ${cycle_steps[$i]} -c ${max_steps[$i]} -r FireSim
     # echo "python3 runner.py -f ${cycle_steps[$i]} -c ${max_steps[$i]} -r MIDAS" >> sim_cmd.log
     # python3 runner.py -f ${cycle_steps[$i]} -c ${max_steps[$i]} -r MIDAS | grep writestring >> sim_data_midas.log
