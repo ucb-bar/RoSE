@@ -1,11 +1,8 @@
 #!/bin/bash
-DIR=$(dirname "$(realpath "$0")")
-echo $DIR
-PROJECT_ROOT="${DIR}/../.."
-echo "Project root: $PROJECT_ROOT"
-FIRESIM_DIR=${PROJECT_ROOT}/firesim
+ROSE_DIR=$(pwd)
+FIRESIM_DIR=${ROSE_DIR}/soc/sim/firesim
 CHIPYARD_DIR=${FIRESIM_DIR}/target-design/chipyard
-ROSE_DIR=${PROJECT_ROOT}/RoSE
+CHIPYARD_DIR=${FIRESIM_DIR}/target-design/chipyard
 
 cd ${ROSE_DIR}/soc/
 cd ./sw/onnxruntime-riscv/

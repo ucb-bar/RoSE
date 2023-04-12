@@ -1,15 +1,12 @@
 #!/bin/bash
-DIR=$(dirname "$(realpath "$0")")
-echo $DIR
-PROJECT_ROOT="${DIR}/../.."
-echo "Project root: $PROJECT_ROOT"
-FIRESIM_DIR=${PROJECT_ROOT}/firesim
+ROSE_DIR=$(pwd)
+FIRESIM_DIR=${ROSE_DIR}/soc/sim/firesim
 CHIPYARD_DIR=${FIRESIM_DIR}/target-design/chipyard
-ROSE_DIR=${PROJECT_ROOT}/RoSE
 SCALA_DIR=${ROSE_DIR}/soc/src/main/scala
 FSIM_CC_DIR=${ROSE_DIR}/soc/src/main/cc
 
-FIRESIM_RUNDIR=${PROJECT_ROOT}/new_firesim_run_temp/
+FIRESIM_RUNDIR=${ROSE_DIR}/soc/sim/firesim_run_temp/
+FIRESIM_BUILDDIR=${ROSE_DIR}/soc/sim/bitstreams/
 
 
 
@@ -47,7 +44,14 @@ export PATH=$(pwd)/bin/:$PATH
 export PATH=${ROSE_DIR}/build/yq_latest/:$PATH
 cd ${ROSE_DIR}
 
-yq -i ".run_farm.recipe_arg_overrides.default_simulation_dir = \"${FIRESIM_RUNDIR}\"" ${ROSE_DIR}/soc/sim/config_runtime_local.yaml
+yq -i ".run_farm.recipe_arg_overrides.default_simulation_dir = \"${FIRESIM_RUNDIR}\"" ${ROSE_DIR}/soc/sim/config/config_runtime_local.yaml
+
+yq -i ".build_farm.recipe_arg_overrides.default_build_dir = \"${FIRESIM_BUILDDIR}\"" ${ROSE_DIR}/soc/sim/config/config_build_local.yaml
+
+sed -i "s|/bitstream_dir|${ROSE_DIR}/soc/sim/bitstreams|g" ${ROSE_DIR}/soc/sim/config/config_hwdb_local.yaml
+
+cd ${ROSE_DIR}/
+git submodule update --init ${ROSE_DIR}/soc/sim/firesim
 
 
 
