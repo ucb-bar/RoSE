@@ -1,7 +1,6 @@
 #!/bin/bash
 
-PROJECT_ROOT="/scratch/$(whoami)"
-ROSE_DIR=${PROJECT_ROOT}/RoSE
+ROSE_DIR=$(pwd)
 
 BOOM_CONFIG='firesim-dual-large-boom-fp32gemmini-singlecore-with-airsim-no-nic-l2-llc4mb-ddr3'
 ROCKET_CONFIG='firesim-rocket-singlecore-fp32gemmini-with-airsim-fast-no-nic-l2-llc4mb-ddr3'
@@ -22,8 +21,8 @@ cd ${ROSE_DIR}
 
 # Run Rocket Experiments
 echo "RoSE: Updating FireSim Runtime YAML"
-yq -i ".target_config.default_hw_config = \"${ROCKET_CONFIG}\"" ${ROSE_DIR}/soc/sim/config_runtime_local.yaml
-yq -i '.workload.workload_name = "airsim-control-fed.json"' ${ROSE_DIR}/soc/sim/config_runtime_local.yaml
+yq -i ".target_config.default_hw_config = \"${ROCKET_CONFIG}\"" ${ROSE_DIR}/soc/sim/config/config_runtime_local.yaml
+yq -i '.workload.workload_name = "airsim-control-fed.json"' ${ROSE_DIR}/soc/sim/config/config_runtime_local.yaml
 bash ${ROSE_DIR}/soc/setup.sh
 
 echo "RoSE: Updating FireMarshal workload YAML"
@@ -35,10 +34,6 @@ echo "RoSE: Building New Linux Image"
 marshal clean rose-images/airsim-control-fed.json
 marshal build rose-images/airsim-control-fed.json
 cd ${ROSE_DIR}/deploy/hephaestus/
-
-rm ${PROJECT_ROOT}/new_firesim_run_temp//sim_slot_0/FireSim-vitis
-rm ${PROJECT_ROOT}/new_firesim_run_temp//sim_slot_0/rsyncdir/airsim-control-fed0-airsim-control-fed.img
-rsync  -pthrvz -L --rsh='ssh   -o StrictHostKeyChecking=no ' ${PROJECT_ROOT}/firesim/deploy/workloads/airsim-control-fed/airsim-control-fed.img rose-isca-ae-2@localhost:${PROJECT_ROOT}/new_firesim_run_temp//sim_slot_0/rsyncdir/airsim-control-fed0-airsim-control-fed.img
 
 
 # Run Rocket + Gemmini
