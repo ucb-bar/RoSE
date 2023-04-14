@@ -28,55 +28,8 @@ case class RoseAdapterParams(
   address: BigInt = 0x2000,
   // This is the width of the queues
   width: Int = 32,
-  // This decides whether to use AXI4 or TileLink
-  useAXI4: Boolean = false,
   // This is the base address of the DMA Engine Memory Location
   base: BigInt = 0x88000000L)
-case object RoseAdapterKey extends Field[Option[RoseAdapterParams]](None)
-
-// Core IO of the adapter
-class RoseAdapterIO(val w: Int) extends Bundle {
-  val clock = Input(Clock())
-  val reset = Input(Bool())
-  // Bridge -> SoC
-  val rx = new Bundle{
-    val enq = Flipped(Decoupled(UInt(w.W)))
-    val deq = Decoupled(UInt(w.W))
-  }
-  // SoC -> Bridge
-  val tx = new Bundle{
-    val enq = Flipped(Decoupled(UInt(w.W)))
-    val deq = Decoupled(UInt(w.W))
-  }
-  // This to dequeue the cam FIFO
-  val cam = Decoupled(UInt(w.W))
-  // Indicating which of the two buffers the image lies in
-  val cam_buffer = Input(UInt(1.W))
-}
-
-// PortIO is used for 
-class RosePortIO extends Bundle {
-  val enq = Flipped(Decoupled(UInt(32.W)))
-  val deq = Decoupled(UInt(32.W))
-}
-
-// TopIO is used for RoseAdapterTL communicating to the cam DMA engine, and the TL registers
-trait RoseAdapterTopIO extends Bundle {
-    val enq = Flipped(Decoupled(UInt(32.W)))
-    val deq = Decoupled(UInt(32.W))
-    val cam = Decoupled(UInt(32.W))
-    val cam_buffer = Input(UInt(1.W))
-    val counter_max = Output(UInt(32.W))
-}
-
-trait HasRoseAdapterIO extends BaseModule {
-  val w: Int
-  val io = IO(new RoseAdapterIO(w))
-}
-
-trait HasRosePortIO extends BaseModule {
-  val port = IO(new RosePortIO())
-}
 
 class RoseAdapterMMIOChiselModule(val w: Int) extends Module
   with HasRoseAdapterIO
@@ -101,9 +54,6 @@ class RoseAdapterMMIOChiselModule(val w: Int) extends Module
   io.tx.deq <> txfifo.io.deq
   io.cam <> camfifo.io.deq
 }
-
-case class CamDMAEngineConfig(base: BigInt)
-case object CamDMAEngineKey extends Field[Option[CamDMAEngineConfig]](None)
 
 class CamDMAEngine(implicit p: Parameters) extends LazyModule {
   //TODO: use my own TLhelper
@@ -329,13 +279,6 @@ class RoseAdapterTL(params: RoseAdapterParams, beatBytes: Int)(implicit p: Param
       new TLRegBundle(params, _) with RoseAdapterTopIO)(
       new TLRegModule(params, _, _) with RoseAdapterModule)
 
-class RoseAdapterAXI4(params: RoseAdapterParams, beatBytes: Int)(implicit p: Parameters)
-  extends AXI4RegisterRouter(
-    params.address,
-    beatBytes=beatBytes)(
-      new AXI4RegBundle(params, _) with RoseAdapterTopIO)(
-      new AXI4RegModule(params, _, _) with RoseAdapterModule)
-
 trait CanHavePeripheryRoseAdapter { this: BaseSubsystem =>
 
   private val portName = "RoseAdapter"
@@ -371,6 +314,4 @@ trait CanHavePeripheryRoseAdapterModuleImp extends LazyModuleImp {
   val outer: CanHavePeripheryRoseAdapter
 }
 
-class WithRoseAdapter(useAXI4: Boolean, base: BigInt, width: Int) extends Config((site, here, up) => {
-  case RoseAdapterKey => Some(RoseAdapterParams(useAXI4 = useAXI4, width = width, base = base))
-})
+

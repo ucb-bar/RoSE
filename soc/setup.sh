@@ -21,7 +21,8 @@ sources=(
     "${SCALA_DIR}/RoSEConfigs.scala"
     #rose scala files
     "${SCALA_DIR}/RoSEAdapter.scala"
-    "${SCALA_DIR}/RoSEBrdige.scala"
+    "${SCALA_DIR}/RoSEBridge.scala"
+    "${SCALA_DIR}/RoSEIO.scala"
     #C++ files
     "${FSIM_CC_DIR}/airsim.cc"
     "${FSIM_CC_DIR}/airsim.h"
@@ -49,6 +50,7 @@ destinations=(
     #rose scala destinations
     "${CHIPYARD_DIR}/generators/rose/src/main/scala/RoSEAdapter.scala"
     "${FIRESIM_DIR}/sim/firesim-lib/src/main/scala/bridges/RoSEBridge.scala"
+    "${CHIPYARD_DIR}/generators/rose/src/main/scala/RoSEIO.scala"
     #C++ destinations
     "${FIRESIM_DIR}/sim/firesim-lib/src/main/cc/bridges/airsim.cc"
     "${FIRESIM_DIR}/sim/firesim-lib/src/main/cc/bridges/airsim.h"
@@ -62,6 +64,11 @@ destinations=(
     "${FIRESIM_DIR}/deploy/workloads/airsim-driver-fed.json"
     "${FIRESIM_DIR}/deploy/workloads/airsim-control-fed.json"
 ) 
+
+# create rose if there is not one already
+if [ ! -d "${CHIPYARD_DIR}/generators/rose/src/main/scala/" ]; then
+  mkdir -p "${CHIPYARD_DIR}/generators/rose/src/main/scala/"
+fi
 
 # Iterate over the arrays and create symbolic links
 for ((i=0;i<${#sources[@]};++i)); do
