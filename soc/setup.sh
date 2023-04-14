@@ -23,6 +23,7 @@ sources=(
     "${SCALA_DIR}/RoSEAdapter.scala"
     "${SCALA_DIR}/RoSEBridge.scala"
     "${SCALA_DIR}/RoSEIO.scala"
+    "${SCALA_DIR}/RoSEGeneratorConfig.scala"
     #C++ files
     "${FSIM_CC_DIR}/airsim.cc"
     "${FSIM_CC_DIR}/airsim.h"
@@ -51,6 +52,7 @@ destinations=(
     "${CHIPYARD_DIR}/generators/rose/src/main/scala/RoSEAdapter.scala"
     "${FIRESIM_DIR}/sim/firesim-lib/src/main/scala/bridges/RoSEBridge.scala"
     "${CHIPYARD_DIR}/generators/rose/src/main/scala/RoSEIO.scala"
+    "${CHIPYARD_DIR}/generators/rose/src/main/scala/RoSEGeneratorConfig.scala"
     #C++ destinations
     "${FIRESIM_DIR}/sim/firesim-lib/src/main/cc/bridges/airsim.cc"
     "${FIRESIM_DIR}/sim/firesim-lib/src/main/cc/bridges/airsim.h"
@@ -121,7 +123,8 @@ if grep -q "lazy val rose" ${CHIPYARD_DIR}/build.sbt; then
   echo "rose found in chipyard sbt, not appending."
 else
   echo "rose not found in chipyard sbt, appending."
-  echo 'lazy val rose = (project in file("generators/rose"))
+  echo '
+  lazy val rose = (project in file("generators/rose"))
   .dependsOn(rocketchip, testchipip)
   .settings(libraryDependencies ++= rocketLibDeps.value)
   .settings(commonSettings)' >> ${CHIPYARD_DIR}/build.sbt
