@@ -34,6 +34,8 @@ import chipyard.{HasHarnessSignalReferences}
 import chipyard.harness._
 import chipyard.example._
 
+import rose._
+
 object MainMemoryConsts {
   val regionNamePrefix = "MainMemory"
   def globalName = s"${regionNamePrefix}_${NodeIdx()}"
