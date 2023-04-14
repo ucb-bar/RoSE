@@ -25,7 +25,7 @@ class AirSimIOTLFPGemminiRocketConfig extends Config(
 class RoseTLRocketConfig extends Config(
   new rose.WithRoseAdapter(base=0x88000000L, width=32) ++          // Use GCD Chisel, connect Tilelink                      // use FP32Gemmini systolic array GEMM accelerator
   new freechips.rocketchip.subsystem.WithNBigCores(1) ++
-  new chipyard.config.AbstractRoseConfig)
+  new chipyard.AbstractRoseConfig)
 
 class AbstractRoseConfig extends Config(
   new chipyard.iobinders.WithRoseIOPunchthrough ++
