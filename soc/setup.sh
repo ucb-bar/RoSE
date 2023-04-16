@@ -5,6 +5,11 @@ CHIPYARD_DIR=${FIRESIM_DIR}/target-design/chipyard
 SCALA_DIR=${ROSE_DIR}/soc/src/main/scala
 FSIM_CC_DIR=${ROSE_DIR}/soc/src/main/cc
 
+echo "Updating onnxruntime-riscv submodules"
+cd ${ROSE_DIR}
+git submodule update --init --recursive ${ROSE_DIR}/soc/sw/onnxruntime-riscv
+cd ${ROSE_DIR}
+
 # Create an array of source files
 sources=(
     #airsim scala files
@@ -30,6 +35,13 @@ sources=(
     #workload configs
     "${ROSE_DIR}/soc/sim/config/airsim-driver-fed.json"
     "${ROSE_DIR}/soc/sim/config/airsim-control-fed.json"
+    #ONNX sources
+    "${ROSE_DIR}/soc/sw/dnn/cmd_args.h"
+    "${ROSE_DIR}/soc/sw/dnn/runner.cpp"
+    "${ROSE_DIR}/soc/sw/dnn/drone.cpp"
+    "${ROSE_DIR}/soc/sw/dnn/drone_dynamic.cpp"
+    "${ROSE_DIR}/soc/sw/dnn/mmio.h"
+    "${ROSE_DIR}/soc/sw/dnn/Makefile"
 )
 
 # Create an array of destination files
@@ -57,6 +69,13 @@ destinations=(
     #workload configs destinations
     "${FIRESIM_DIR}/deploy/workloads/airsim-driver-fed.json"
     "${FIRESIM_DIR}/deploy/workloads/airsim-control-fed.json"
+    #ONNX sources
+    "${ROSE_DIR}/soc/sw/onnxruntime-riscv/systolic_runner/imagenet_runner/src/cmd_args.h"
+    "${ROSE_DIR}/soc/sw/onnxruntime-riscv/systolic_runner/imagenet_runner/src/runner.cpp"
+    "${ROSE_DIR}/soc/sw/onnxruntime-riscv/systolic_runner/imagenet_runner/src/drone.cpp"
+    "${ROSE_DIR}/soc/sw/onnxruntime-riscv/systolic_runner/imagenet_runner/src/drone_dynamic.cpp"
+    "${ROSE_DIR}/soc/sw/onnxruntime-riscv/systolic_runner/imagenet_runner/src/mmio.h"
+    "${ROSE_DIR}/soc/sw/onnxruntime-riscv/systolic_runner/imagenet_runner/Makefile"
 ) 
 
 # Iterate over the arrays and create symbolic links
