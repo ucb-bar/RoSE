@@ -27,7 +27,7 @@ run_farm:
     run_farm_hosts_to_use:
       - localhost: one_fpga_spec
 metasimulation:
-  metasimulation_enabled: false
+  metasimulation_enabled: true
   # vcs or verilator. use vcs-debug or verilator-debug for waveform generation
   metasimulation_host_simulator: verilator
   # plusargs passed to the simulator for all metasimulations
@@ -46,7 +46,7 @@ target_config:
   # or from config_build_recipes.yaml for metasimulation
   # In homogeneous configurations, use this to set the hardware config deployed
   # for all simulators
-  default_hw_config: firesim-dual-large-boom-fp32gemmini-singlecore-with-airsim-no-nic-l2-llc4mb-ddr3
+  default_hw_config: firesim-rocket-singlecore-with-rose-fast-no-nic-l2-llc4mb-ddr3
   # Advanced: Specify any extra plusargs you would like to provide when
   # booting the simulator (in both FPGA-sim and metasim modes). This is
   # a string, with the contents formatted as if you were passing the plusargs
@@ -69,9 +69,9 @@ autocounter:
 workload:
   #workload_name: airsim-driver-fed.json
   #workload_name: airsim-flight.json
-  workload_name: airsim-control-fed.json
+  workload_name: airsim-packettest.json
   terminate_on_completion: no
-
+  suffix_tag: null
 host_debug:
   # When enabled (=yes), Zeros-out FPGA-attached DRAM before simulations
   # begin (takes 2-5 minutes).
