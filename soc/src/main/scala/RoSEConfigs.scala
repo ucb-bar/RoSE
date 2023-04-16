@@ -4,6 +4,10 @@ package chipyard
 
 import freechips.rocketchip.config.{Config}
 
+class AbstractRoseConfig extends Config(
+  new chipyard.iobinders.WithRoseIOPunchthrough ++
+  new chipyard.config.AbstractConfig)
+
 class AirSimIOTLFPGemminiLargeBoomConfig extends Config(
   new chipyard.example.WithAirSimIO(useAXI4=false) ++          // Usesim/src/main/cc/firesim/firesim_top.cc GCD Chisel, connect Tilelink
   new gemmini.GemminiFP32DefaultConfig ++                         // use FP32Gemmini systolic array GEMM accelerator
@@ -27,6 +31,4 @@ class RoseTLRocketConfig extends Config(
   new freechips.rocketchip.subsystem.WithNBigCores(1) ++
   new chipyard.AbstractRoseConfig)
 
-class AbstractRoseConfig extends Config(
-  new chipyard.iobinders.WithRoseIOPunchthrough ++
-  new chipyard.config.AbstractConfig)
+

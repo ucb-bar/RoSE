@@ -14,9 +14,13 @@ cd ./systolic_runner/imagenet_runner/ && bash ./build.sh  --enable_training && c
 cd ../
 marshal build rose-images/airsim-driver-fed.json
 marshal build rose-images/airsim-control-fed.json
-
+marshal build rose-images/airsim-packettest.json
 if [ ! -d ${FIRESIM_DIR}/deploy/workloads/airsim-driver-fed ]; then
     mkdir -p ${FIRESIM_DIR}/deploy/workloads/airsim-driver-fed
+fi
+
+if [ ! -d ${FIRESIM_DIR}/deploy/workloads/airsim-control-fed ]; then
+    mkdir -p ${FIRESIM_DIR}/deploy/workloads/airsim-control-fed
 fi
 
 if [ ! -d ${FIRESIM_DIR}/deploy/workloads/airsim-control-fed ]; then
@@ -28,3 +32,6 @@ ln -s ${FIRESIM_DIR}/sw/firesim-software/images/airsim-driver-fed.img  ${FIRESIM
 
 ln -s ${FIRESIM_DIR}/sw/firesim-software/images/airsim-control-fed-bin  ${FIRESIM_DIR}/deploy/workloads/airsim-control-fed/airsim-control-fed-bin
 ln -s ${FIRESIM_DIR}/sw/firesim-software/images/airsim-control-fed.img  ${FIRESIM_DIR}/deploy/workloads/airsim-control-fed/airsim-control-fed.img
+
+ln -s ${FIRESIM_DIR}/sw/firesim-software/images/airsim-packettest-bin  ${FIRESIM_DIR}/deploy/workloads/airsim-packettest/airsim-packettest-bin
+ln -s ${FIRESIM_DIR}/sw/firesim-software/images/airsim-packettest.img  ${FIRESIM_DIR}/deploy/workloads/airsim-packettest/airsim-packettest.img
