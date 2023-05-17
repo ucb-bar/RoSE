@@ -82,7 +82,7 @@ To begin installation, clone the repository:
 
 
 ```
-    git clone https://github.com/CobbledSteel/RoSE
+    git clone https://github.com/ucb-bar/RoSE/tree/isca-ae
     cd RoSE
     git checkout isca-ae
 ```
