@@ -29,12 +29,12 @@ class DigitalTop(implicit p: Parameters) extends ChipyardSystem
   with chipyard.example.CanHavePeripheryInitZero // Enables optionally adding the initzero example widget
   with chipyard.example.CanHavePeripheryGCD // Enables optionally adding the GCD example widget
   with chipyard.example.CanHavePeripheryAirSimIO // Enables optionally adding the AirSimIO example widget
-  // with rose.CanHavePeripheryRoseAdapter // Enables optionally adding the Rose example widget
   with chipyard.example.CanHavePeripheryStreamingFIR // Enables optionally adding the DSPTools FIR example widget
   with chipyard.example.CanHavePeripheryStreamingPassthrough // Enables optionally adding the DSPTools streaming-passthrough example widget
   with nvidia.blocks.dla.CanHavePeripheryNVDLA // Enables optionally having an NVDLA
   with chipyard.clocking.HasChipyardPRCI // Use Chipyard reset/clock distribution
   with fftgenerator.CanHavePeripheryFFT // Enables optionally having an MMIO-based FFT block
+  with constellation.soc.CanHaveGlobalNoC // Support instantiating a global NoC interconnect
 {
   override lazy val module = new DigitalTopModule(this)
 }
@@ -49,6 +49,6 @@ class DigitalTopModule[+L <: DigitalTop](l: L) extends ChipyardSystemModule(l)
   with sifive.blocks.devices.spi.HasPeripherySPIModuleImp
   with chipyard.example.CanHavePeripheryGCDModuleImp
   with chipyard.example.CanHavePeripheryAirSimIOModuleImp
-  // with rose.CanHavePeripheryRoseAdapterModuleImp
   with freechips.rocketchip.util.DontTouch
 // DOC include end: DigitalTop
+

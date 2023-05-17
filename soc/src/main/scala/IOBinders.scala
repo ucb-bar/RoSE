@@ -13,6 +13,7 @@ import freechips.rocketchip.amba.axi4.{AXI4Bundle, AXI4SlaveNode, AXI4MasterNode
 import freechips.rocketchip.util._
 import freechips.rocketchip.prci._
 import freechips.rocketchip.groundtest.{GroundTestSubsystemModuleImp, GroundTestSubsystem}
+import freechips.rocketchip.tilelink.{TLBundle}
 
 import sifive.blocks.devices.gpio._
 import sifive.blocks.devices.uart._
@@ -23,6 +24,7 @@ import barstools.iocell.chisel._
 
 import testchipip._
 import icenet.{CanHavePeripheryIceNIC, SimNetwork, NicLoopback, NICKey, NICIOvonly}
+import chipyard.{CanHaveMasterTLMemPort}
 import chipyard.clocking.{HasChipyardPRCI, DividerOnlyClockGenerator}
 
 import scala.reflect.{ClassTag}
@@ -32,9 +34,7 @@ object IOBinderTypes {
   type IOBinderFunction = (Boolean, => Any) => ModuleValue[IOBinderTuple]
 }
 import IOBinderTypes._
-
 import chipyard.example._
-// import rose._
 
 // System for instantiating binders based
 // on the scala type of the Target (_not_ its IO). This avoids needing to
@@ -290,7 +290,7 @@ class WithAXI4MemPunchthrough extends OverrideLazyIOBinder({
         p.clock := clockBundle.clock
         p.reset := clockBundle.reset
         p
-      })
+      }).toSeq
       (ports, Nil)
     }
   }
@@ -310,7 +310,7 @@ class WithAXI4MMIOPunchthrough extends OverrideLazyIOBinder({
         p.clock := clockBundle.clock
         p.reset := clockBundle.reset
         p
-      })
+      }).toSeq
       (ports, Nil)
     }
   }
@@ -329,7 +329,7 @@ class WithL2FBusAXI4Punchthrough extends OverrideLazyIOBinder({
         m <> p.bits
         p.clock := clockBundle.clock
         p
-      })
+      }).toSeq
       (ports, Nil)
     }
   }
@@ -339,9 +339,6 @@ class WithBlockDeviceIOPunchthrough extends OverrideIOBinder({
   (system: CanHavePeripheryBlockDevice) => {
     val ports: Seq[ClockedIO[BlockDeviceIO]] = system.bdev.map({ bdev =>
       val p = IO(new ClockedIO(new BlockDeviceIO()(GetSystemParameters(system)))).suggestName("blockdev")
-      println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% BDEV")
-      println(bdev)
-      println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
       p <> bdev
       p
     }).toSeq
@@ -359,28 +356,6 @@ class WithNICIOPunchthrough extends OverrideIOBinder({
     (ports, Nil)
   }
 })
-
-class WithAirSimIOPunchthrough extends OverrideIOBinder({
-  (system: CanHavePeripheryAirSimIO) => {
-    val ports: Seq[ClockedIO[AirSimPortIO]] = system.airsimio.map({ n =>
-      val p = IO(new ClockedIO(new AirSimPortIO)).suggestName("airsimio")
-      p <> n
-      p
-    }).toSeq
-    (ports, Nil)
-  }
-})
-
-// class WithRoseIOPunchthrough extends OverrideIOBinder({
-//   (system: CanHavePeripheryRoseAdapter) => {
-//     val ports: Seq[ClockedIO[RosePortIO]] = system.roseAdapter.map({ n =>
-//       val p = IO(new ClockedIO(new RosePortIO)).suggestName("roseAdapter")
-//       p <> n
-//       p
-//     }).toSeq
-//     (ports, Nil)
-//   }
-// })
 
 class WithTraceGenSuccessPunchthrough extends OverrideIOBinder({
   (system: TraceGenSystemModuleImp) => {
@@ -408,6 +383,15 @@ class WithCustomBootPin extends OverrideIOBinder({
     (Seq(port), cells)
   }).getOrElse((Nil, Nil))
 })
+
+class WithTLMemPunchthrough extends OverrideIOBinder({
+  (system: CanHaveMasterTLMemPort) => {
+    val io_tl_mem_pins_temp = IO(DataMirror.internal.chiselTypeClone[HeterogeneousBag[TLBundle]](system.mem_tl)).suggestName("tl_slave")
+    io_tl_mem_pins_temp <> system.mem_tl
+    (Seq(io_tl_mem_pins_temp), Nil)
+  }
+})
+
 
 class WithDontTouchPorts extends OverrideIOBinder({
   (system: DontTouch) => system.dontTouchPorts(); (Nil, Nil)
@@ -455,3 +439,25 @@ class WithDividerOnlyClockGenerator extends OverrideLazyIOBinder({
     }
   }
 })
+class WithAirSimIOPunchthrough extends OverrideIOBinder({
+  (system: CanHavePeripheryAirSimIO) => {
+    val ports: Seq[ClockedIO[AirSimPortIO]] = system.airsimio.map({ n =>
+      val p = IO(new ClockedIO(new AirSimPortIO)).suggestName("airsimio")
+      p <> n
+      p
+    }).toSeq
+    (ports, Nil)
+  }
+})
+
+// class WithRoseIOPunchthrough extends OverrideIOBinder({
+//   (system: CanHavePeripheryRoseAdapter) => {
+//     val ports: Seq[ClockedIO[RosePortIO]] = system.roseAdapter.map({ n =>
+//       val p = IO(new ClockedIO(new RosePortIO)).suggestName("roseAdapter")
+//       p <> n
+//       p
+//     }).toSeq
+//     (ports, Nil)
+//   }
+// })
+

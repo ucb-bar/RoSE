@@ -1,9 +1,5 @@
 // See LICENSE for license details
 
-// Note: struct_guards just as in the headers
-// #ifdef AIRSIMBRIDGEMODULE_struct_guard
-#ifdef AIRSIMBRIDGEMODULE_struct_guard
-
 #include "airsim.h"
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -13,6 +9,8 @@
 #include <unistd.h>
 
 #include <pthread.h>
+
+char airsim_t::KIND;
 
 
 /* There is no "backpressure" to the user input for sigs. only one at a time
@@ -176,7 +174,7 @@ void * queue_func(void * arg){
         }
     }
 }
-airsim_t::airsim_t(simif_t *sim, AIRSIMBRIDGEMODULE_struct *mmio_addrs, int airsimno) : bridge_driver_t(sim)
+airsim_t::airsim_t(simif_t &sim, AIRSIMBRIDGEMODULE_struct mmio_addrs, int airsimno, const std::vector<std::string> &args) : bridge_driver_t(sim, &KIND)
 {
     printf("[AIRSIM DRIVER] Initiated bridge driver!\n");
     this->mmio_addrs = mmio_addrs;
@@ -190,7 +188,7 @@ airsim_t::airsim_t(simif_t *sim, AIRSIMBRIDGEMODULE_struct *mmio_addrs, int airs
 
 airsim_t::~airsim_t()
 {
-    free(this->mmio_addrs);
+    //free(this->mmio_addrs);
     close(this->loggingfd);
 }
 
@@ -381,21 +379,21 @@ bool airsim_t::read_firesim_packet(cosim_packet_t * packet)
 
 void airsim_t::send()
 {
-    data.in.ready = read(this->mmio_addrs->in_ready);
+    data.in.ready = read(this->mmio_addrs.in_ready);
     if(data.in.ready) {
-        write(this->mmio_addrs->in_bits, data.in.bits);
-        write(this->mmio_addrs->in_valid, 1);
+        write(this->mmio_addrs.in_bits, data.in.bits);
+        write(this->mmio_addrs.in_valid, 1);
     }
 }
 
 void airsim_t::recv()
 {
-    data.out.valid = read(this->mmio_addrs->out_valid);
+    data.out.valid = read(this->mmio_addrs.out_valid);
     if (data.out.valid)
     {
-        data.out.bits = read(this->mmio_addrs->out_bits);
+        data.out.bits = read(this->mmio_addrs.out_bits);
         // printf("[AirSim Driver]: Got bytes %x\n", data.out.bits);
-        write(this->mmio_addrs->out_ready, 1);
+        write(this->mmio_addrs.out_ready, 1);
     }
 }
 
@@ -404,7 +402,7 @@ void airsim_t::check_stall()
     uint32_t budget;
     cosim_packet_t response;
 
-    budget = read(this->mmio_addrs->cycle_budget);
+    budget = read(this->mmio_addrs.cycle_budget);
     //printf("budget: %u\n", budget);
     if(!budget){
         response.init(CS_RSP_STALL, 0, NULL);
@@ -428,10 +426,10 @@ void airsim_t::report_stall()
     cosim_packet_t response;
     // uint32_t buf[ROBOTICS_COSIM_BUFSIZE];
 
-    // while(read(this->mmio_addrs->cycle_budget));
+    // while(read(this->mmio_addrs.cycle_budget));
     uint32_t budget;
     do {
-        budget = read(this->mmio_addrs->cycle_budget);
+        budget = read(this->mmio_addrs.cycle_budget);
         //printf("budget: %u\n", budget);
         sleep(1);
     } while(!budget);
@@ -453,8 +451,8 @@ void airsim_t::report_stall()
 void airsim_t::grant_cycles()
 {
     // printf("[AirSim Driver]: Granting Cycle\n");
-    write(this->mmio_addrs->in_ctrl_bits, 1);
-    write(this->mmio_addrs->in_ctrl_valid, true);
+    write(this->mmio_addrs.in_ctrl_bits, 1);
+    write(this->mmio_addrs.in_ctrl_valid, true);
 }
 
 void airsim_t::report_cycles() 
@@ -462,7 +460,7 @@ void airsim_t::report_cycles()
     cosim_packet_t response;
     // uint32_t buf[ROBOTICS_COSIM_BUFSIZE];
 
-    uint32_t cycles = read(this->mmio_addrs->cycle_budget);
+    uint32_t cycles = read(this->mmio_addrs.cycle_budget);
 
     response.init(CS_RSP_CYCLES, 4, (char *) &cycles);
     // response.encode(this->buf);
@@ -491,7 +489,7 @@ void airsim_t::schedule_firesim_data() {
 void airsim_t::set_step_size(uint32_t step_size)
 {
     // printf("[AirSim Driver]: Setting step size to %d!\n", step_size);
-    write(this->mmio_addrs->cycle_step, step_size);
+    write(this->mmio_addrs.cycle_step, step_size);
 }
 
 void airsim_t::tick()
@@ -632,4 +630,3 @@ void cosim_packet_t::decode(char *buf)
     }
 }
 
-#endif // AIRSIMBRIDGEMODULE_struct_guard

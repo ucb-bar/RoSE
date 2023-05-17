@@ -22,6 +22,7 @@
 #include <deque>
 #include <mutex>
 
+
 #define ROBOTICS_COSIM_BUFSIZE 1024// *1024
 // COSIM-CODE
 
@@ -40,16 +41,21 @@
 #define CS_REQ_DISARM  0x05
 #define CS_REQ_TAKEOFF  0x06
 
-// The definition of the primary constructor argument for a bridge is generated
-// by Golden Gate at compile time _iff_ the bridge is instantiated in the
-// target. As a result, all bridge driver definitions conditionally remove
-// their sources if the constructor class has been defined (the
-// <cname>_struct_guard macros are generated along side the class definition.)
-//
-// The name of this class and its guards are always BridgeModule class name, in
-// all-caps, suffixed with "_struct" and "_struct_guard" respectively.
+typedef struct AIRSIMBRIDGEMODULE_struct {
+    unsigned long out_bits;
+    unsigned long out_valid;
+    unsigned long out_ready;
+    unsigned long in_bits;
+    unsigned long in_valid;
+    unsigned long in_ready;
+    unsigned long in_ctrl_bits;
+    unsigned long in_ctrl_valid;
+    unsigned long in_ctrl_ready;
+    unsigned long cycle_count;
+    unsigned long cycle_budget;
+    unsigned long cycle_step;
+} AIRSIMBRIDGEMODULE_struct;
 
-#ifdef AIRSIMBRIDGEMODULE_struct_guard
 class cosim_packet_t
 {
     public:
@@ -72,7 +78,7 @@ class cosim_packet_t
 class airsim_t: public bridge_driver_t
 {
     public:
-        airsim_t(simif_t* sim, AIRSIMBRIDGEMODULE_struct * mmio_addrs, int airsimno);
+        airsim_t(simif_t& sim, AIRSIMBRIDGEMODULE_struct mmio_addrs, int airsimno, const std::vector<std::string> &args);
         ~airsim_t();
         virtual void tick();
         // Our AIRSIM bridge's initialzation and teardown procedures don't
@@ -96,7 +102,8 @@ class airsim_t: public bridge_driver_t
         // ... and thus, never returns a non-zero exit code
         virtual int exit_code() { return 0; }
 
-        AIRSIMBRIDGEMODULE_struct * mmio_addrs;
+	static char KIND;
+        AIRSIMBRIDGEMODULE_struct  mmio_addrs;
         serial_data_t<uint32_t> data;
 
         int inputfd;
@@ -125,7 +132,5 @@ class airsim_t: public bridge_driver_t
         void send();
         void recv();
 };
-
-#endif // AIRSIMBRIDGEMODULE_struct_guard
 
 #endif // __AIRSIM_H
