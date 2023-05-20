@@ -174,7 +174,7 @@ void * queue_func(void * arg){
         }
     }
 }
-airsim_t::airsim_t(simif_t &sim, AIRSIMBRIDGEMODULE_struct mmio_addrs, int airsimno, const std::vector<std::string> &args) : bridge_driver_t(sim, &KIND)
+airsim_t::airsim_t(simif_t &sim, const AIRSIMBRIDGEMODULE_struct &mmio_addrs, int airsimno, const std::vector<std::string> &args) : bridge_driver_t(sim, &KIND)
 {
     printf("[AIRSIM DRIVER] Initiated bridge driver!\n");
     this->mmio_addrs = mmio_addrs;
@@ -500,7 +500,7 @@ void airsim_t::tick()
 
     count++;
     if(count>1000) {
-        //printf("[AIRSIM DRIVER]: Main heartbeat\n");
+        printf("[AIRSIM DRIVER]: Main heartbeat\n");
         count = 0;
     }
     

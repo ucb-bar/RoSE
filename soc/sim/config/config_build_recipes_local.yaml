@@ -34,7 +34,10 @@ firesim_rocket_30MHz_singlecore_no_nic:
 firesim-large-boom-fp32gemmini-singlecore-with-airsim-no-nic-l2-llc4mb-ddr3:
     DESIGN: FireSim
     TARGET_CONFIG: DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.AirSimIOTLFPGemminiLargeBoomConfig
-    PLATFORM_CONFIG: F30MHz_BaseVitisConfig
+    PLATFORM_CONFIG: BaseVitisConfig
+    platform_config_args:
+        fpga_frequency: 25
+        build_strategy: TIMING
     deploy_triplet: null
     post_build_hook: null
     metasim_customruntimeconfig: null
@@ -43,7 +46,10 @@ firesim-large-boom-fp32gemmini-singlecore-with-airsim-no-nic-l2-llc4mb-ddr3:
 firesim-large-boom-fp32gemmini-dualcore-with-airsim-no-nic-l2-llc4mb-ddr3:
     DESIGN: FireSim
     TARGET_CONFIG: DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.AirSimIOTLFPGemminiLargeDualBoomConfig
-    PLATFORM_CONFIG: F30MHz_BaseVitisConfig
+    PLATFORM_CONFIG: BaseVitisConfig
+    platform_config_args:
+        fpga_frequency: 25
+        build_strategy: TIMING
     deploy_triplet: null
     post_build_hook: null
     metasim_customruntimeconfig: null
@@ -60,9 +66,24 @@ firesim-rocket-singlecore-fp32gemmini-with-airsim-no-nic-l2-llc4mb-ddr3:
     
 firesim-rocket-singlecore-fp32gemmini-with-airsim-fast-no-nic-l2-llc4mb-ddr3:
     DESIGN: FireSim
-    TARGET_CONFIG: DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.AirSimIOTLFPGemminiRocketConfig
-    PLATFORM_CONFIG: F45MHz_BaseVitisConfig
+    TARGET_CONFIG: AirSimIOTLFPGemminiRocketMMIOOnlyConfig
+    PLATFORM_CONFIG: BaseVitisConfig
     deploy_triplet: null
+    platform_config_args:
+        fpga_frequency: 45
+        build_strategy: TIMING
+    post_build_hook: null
+    metasim_customruntimeconfig: null
+    bit_builder_recipe: bit-builder-recipes/vitis.yaml
+
+vitis_firesim_gemmini_rocket_singlecore_no_nic:
+    DESIGN: FireSim
+    TARGET_CONFIG: FireSimLeanGemminiRocketMMIOOnlyConfig
+    PLATFORM_CONFIG: BaseVitisConfig
+    deploy_triplet: null
+    platform_config_args:
+        fpga_frequency: 60
+        build_strategy: TIMING
     post_build_hook: null
     metasim_customruntimeconfig: null
     bit_builder_recipe: bit-builder-recipes/vitis.yaml

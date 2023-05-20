@@ -1,4 +1,4 @@
-package chipyard
+package chipyard.config
 
 import freechips.rocketchip.config.{Config}
 

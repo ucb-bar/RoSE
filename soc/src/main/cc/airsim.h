@@ -41,20 +41,20 @@
 #define CS_REQ_DISARM  0x05
 #define CS_REQ_TAKEOFF  0x06
 
-typedef struct AIRSIMBRIDGEMODULE_struct {
-    unsigned long out_bits;
-    unsigned long out_valid;
-    unsigned long out_ready;
-    unsigned long in_bits;
-    unsigned long in_valid;
-    unsigned long in_ready;
-    unsigned long in_ctrl_bits;
-    unsigned long in_ctrl_valid;
-    unsigned long in_ctrl_ready;
-    unsigned long cycle_count;
-    unsigned long cycle_budget;
-    unsigned long cycle_step;
-} AIRSIMBRIDGEMODULE_struct;
+struct AIRSIMBRIDGEMODULE_struct {
+    uint64_t out_bits;
+    uint64_t out_valid;
+    uint64_t out_ready;
+    uint64_t in_bits;
+    uint64_t in_valid;
+    uint64_t in_ready;
+    uint64_t in_ctrl_bits;
+    uint64_t in_ctrl_valid;
+    uint64_t in_ctrl_ready;
+    uint64_t cycle_count;
+    uint64_t cycle_budget;
+    uint64_t cycle_step;
+};
 
 class cosim_packet_t
 {
@@ -75,10 +75,10 @@ class cosim_packet_t
 
 };
 
-class airsim_t: public bridge_driver_t
+class airsim_t final: public bridge_driver_t
 {
     public:
-        airsim_t(simif_t& sim, AIRSIMBRIDGEMODULE_struct mmio_addrs, int airsimno, const std::vector<std::string> &args);
+        airsim_t(simif_t& sim, const AIRSIMBRIDGEMODULE_struct &mmio_addrs, int airsimno, const std::vector<std::string> &args);
         ~airsim_t();
         virtual void tick();
         // Our AIRSIM bridge's initialzation and teardown procedures don't
