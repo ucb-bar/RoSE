@@ -1,8 +1,8 @@
 #!/bin/bash
-PROJECT_ROOT="/scratch/$(whoami)"
-FIRESIM_DIR=${PROJECT_ROOT}/firesim
+ROSE_DIR=$(pwd)
+FIRESIM_DIR=${ROSE_DIR}/soc/sim/firesim
 CHIPYARD_DIR=${FIRESIM_DIR}/target-design/chipyard
-ROSE_DIR=${PROJECT_ROOT}/RoSE
+CHIPYARD_DIR=${FIRESIM_DIR}/target-design/chipyard
 
 cd ${ROSE_DIR}/soc/
 cd ./sw/onnxruntime-riscv/

@@ -40,8 +40,8 @@ The instructions assume that a user already has robotic applications and hardwar
 * Quantitative Metrics: DNN Latency, mission time, average flight velocity, accelerator activity factor.
 * Qualitative Metrics: Flight trajectories, flight recordings.
 * Output: CSV logs from the synchronizer, tracking UAV dynamics, sensing requests, and control targets.
-* How much time is needed to prepare the workflow?: 2 hours (scripted installation).
-* How much time is needed to complete experiments?: 24 hours (scripted run, scripted result parsing)
+* How much time is needed to prepare the workflow?: 4 hours (scripted installation).
+* How much time is needed to complete experiments?: 48 hours (scripted run, scripted result parsing)
 * Publicly available: Yes.
 * Code licenses: Several, see download.
 * Contact for Artifact Evaluator: Contact SLICE support (slice-support@eecs.berkeley.edu) if you need help setting up AWS instances.
@@ -49,7 +49,9 @@ The instructions assume that a user already has robotic applications and hardwar
 ## Description
 (1) How to access:
 
- • The artifacts consist of modifications/patches to the following sources:
+ • The artifact consists of the core RoSÉ repos-
+itory,  modifications to Firesim, Chipyard, and ONNX
+Runtime:
 
 * RoSÉ Core: Deployment, synchronization, and evaluation software, as well as hardware configurations, and patches to FireSim and Chipyard. (https://github.com/CobbledSteel/RoSE)
 * FireSim: Top-level FPGA-Accelerated RTL Simulation Environment (https://github.com/firesim/firesim) 
@@ -63,13 +65,12 @@ Additionally, this evaluation builds upon the following infrastructures. For the
 
 (2) Dependencies - Hardware 
 
-To run a full simulation with RoSÉ, access to a GPU and FPGA is required, although these can be hosted on separate computers. For this artifact evaluation, instructions for running simulations on a locally-provisioned FPGA are provided. However, RoSEcan also be used using AWS EC2 FPGA instances (e.g. f1.2xlarge). To avoid lengthy build times of over 8 hours, we provide pre-built FPGA instances for the SoC configurations evaluated in this work. However, reference build scripts for re-generating new bitstreams are provided. 
+To run a full simulation with RoSÉ, access to a GPU and FPGA is required, although these can be hosted on separate computers. For this artifact evaluation, instructions for running simulations on a locally-provisioned FPGA are provided. However, RoSÉ can also be used using AWS EC2 FPGA instances (e.g. f1.2xlarge).  In this artifact we provide build scripts for generating bitstreams for locally-provisioned FPGAs. 
 
-Additionally, GPU access is needed in order to run robotics environment simulations with rendering. For this evaluation, AirSim binaries packaged using Unreal Engine are provided. We also provide API access to running AirSim environments hosted on AWS. While direct access to live AirSim renderings are not needed for the evaluation, remote desktop access could be provided if requested to view simulation progress.
+Additionally, GPU access is needed in order to run robotics environment simulations with rendering. For this evaluation, AirSim binaries packaged using Unreal Engine are provided. 
 
-• One AWS EC2 c5.4xlarge instance (also referred to as “manager” instance), and three f1.2xlarge instances are required (we split the workload to run on three parallel f1 instances to save runtime, which takes more than 8 hours if run on a single instance). The latter will be launched automatically by FireSim’s manager.
+To use RoSÉ in the cloud, ne AWS EC2 c5.4xlarge instance (also referred to as “manager” instance), and one f1.2xlarge instance is required. The latter will be launched automatically by FireSim’s manager.
 
-• We have provided pre-built FPGA images to avoid the long latency (sim 8 hours) of the FPGA-built process. However, if users want to build custom FPGA images, one additional z1d.2xlarge is required.
 
 (3) Dependencies - Software 
 
@@ -77,40 +78,39 @@ Use ssh or mosh on your local machine to remote access evaluation instances. All
 
 ## Installation
 
-Evaluation is performed on EDA servers provided by the authors. To access the evaluation instances, provide public keys for remote login, and the authors will provide server addresses for evaluation. Within the evaluation instances, run all `installation/setup` within the `/scratch/rose-isca-ae-[reviewer-login-id]` directory, referred to as the project directory. An alternative way of setting  up is to refer to FireSim docs for on premise FPGA setup https://docs.fires.im/en/1.14.2/Advanced-Usage/Vitis.html?highlight=on-premise The evaluation instances will have the environment set up for accessing the necessary EDA tools.
+To begin installation, clone the repository:
 
-Running all the steps below in a screen or tmux session is recommended, as some commands may take several hours to execute.
-
-• FireSim Installation Begin by installing FireSim on the evaluation instances by running the following commands.
 
 ```
-    git clone https://github.com/firesim/firesim
-    cd firesim
-    git checkout 1.14.2
+    git clone https://github.com/ucb-bar/RoSE.git
+    cd RoSE
+    git checkout isca-ae
+```
+
+### FireSim Installation
+
+Begin by installing FireSim  by running the following commands within the RoSÉ repository.
+
+```
+    git submodule update --init ./soc/sim/firesim
+    cd ./soc/sim/firesim
     ./scripts/machine-launch-script.sh
     ./build-setup.sh
     source sourceme-f1-manager.sh
     firesim managerinit --platform vitis
 ```
+### RoSÉ Installation
 
-• RoSE Installation Begin by cloning RoSEin the project directory:
-
-
-
- ```
-    git clone https://github.com/CobbledSteel/RoSE
-    cd RoSE
-    git checkout isca-ae
-```
+Begin by cloning RoSÉ in the project directory:
 
 
-Next, within RoSE, run the setup script to set the proper environment variables. Make sure to run this script whenever starting a new interactive shell.
+Next, within RoSÉ, run the setup script to set the proper environment variables. Make sure to run this script whenever starting a new interactive shell.
 
 ```
     source rose-setup.sh
 ```
 
-After this is complete, run the following script to patch FireSim and Chipyard with the modifications described in Figure~\reffig:sync_diagram, and to instantiate submodules.
+After this is complete, run the following script to patch FireSim and Chipyard to support RoSÉ, and to instantiate submodules.
 
 ```
     bash soc/setup.sh
@@ -123,31 +123,30 @@ After this setup is complete, run the following script to build binaries for the
  ```
 
 
-Next, run the following script to install dependencies and configure parameters for the RoSEdeployment scripts, using the AirSim IP address provided by the authors.
+Next, run the following script to install dependencies and configure parameters for the RoSÉ deployment scripts, using the IP address of the GPU system that will be used to run the provided AirSim binaries.
 
 
     source deploy/setup.sh [AIRSIM IP]
 
 
-• Optional References
-This evaluation environment provides pre-built FPGA bitstreams, pre-trained controller DNN models, and AirSim environment binaries. To build new bitstreams, run the following:
+### Bitstream Generation 
+To build bitstreams for Rocket+Gemmini and BOOM+Gemmini configurations, run the following. 
 
  ```
     bash soc/buildbitstreams.sh
  ```
 
-To train new classifier DNNs using the provided datasets, run the following.
-
+### DNN Training 
+This artifact provides pre-trained models for evaluation. To train new classifier DNNs using the provided datasets, run the following, selecting between the given ResNet configurations. Each training run will output an ONNX model named `trail_dnn_resnet[xy].onnx`. 
 ```
-    bash env/dnn/train.sh
+    bash env/train/train_resnet.py (6|11|14|18|34|50)
 ```
 
 Finally, the steps for building custom Unreal Engine maps are out of the scope of this evaluation. However, new environments can be built using the documentation provided at (https://microsoft.github.io/AirSim/build_linux/).
 
 ## Experiment Workflow
 
-Now that the environment has been set up and the target hardware and software have been built, one can run the experiments in this work by running the following scripts`.\footnote` 
-Please reach out to authors when planning to run experiments to guarantee exclusive access to FPGA resources. All the experiments can be executed by running the following command. This will generate CSV files as well as videos recorded from the front-facing camera of the simulated UAV in `deploy/logs/`. 
+Now that the environment has been set up and the target hardware and software have been built, one can run the experiments in this work by launching an AirSim simulation and running the following scripts. All the experiments can be executed by running `run-all.sh`. This will generate CSV files as well as videos recorded from the front-facing camera of the simulated UAV in `deploy/hephaestus/logs/`. 
 
 
 
@@ -206,7 +205,7 @@ To run individual experiments corresponding to the figures in this work, the fol
 
 
 ## Figures and Evaluation
-After executing the prior experiments, figures can be generated using the CSV outputs by running the following command. The figures will be available as PDF files in `deploy/figures/`.
+After executing the prior experiments, figures can be generated using the CSV outputs by running the following command. The figures will be available as in `deploy/figures/`.
 
 
 
@@ -221,5 +220,5 @@ After executing the prior experiments, figures can be generated using the CSV ou
 
 • Changing Simulation Parameters RoSEprovides flags that can be used to select different simulation parameters. To view available parameters for deploying simulations, refer to `deploy/hephaestus/runner.py`. Example configurations include changing simulation granularity, or deploying a car vs a drone simulation.
 
-Additionally, new controller ONNX models can be trained using the provided dataset and evaluated using the provided ```drone\_test``` executable. 
+Additionally, new controller ONNX models can be trained using the provided dataset and evaluated using the provided `drone_test` executable. 
 

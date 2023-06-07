@@ -1,7 +1,6 @@
 #!/bin/bash
 
-PROJECT_ROOT="/scratch/$(whoami)"
-ROSE_DIR=${PROJECT_ROOT}/RoSE
+ROSE_DIR=$(pwd)
 
 cd ${ROSE_DIR}
 bash ${ROSE_DIR}/deploy/scripts/tunnel-exp.sh
