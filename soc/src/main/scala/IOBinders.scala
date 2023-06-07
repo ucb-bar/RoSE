@@ -34,6 +34,7 @@ object IOBinderTypes {
 import IOBinderTypes._
 
 import chipyard.example._
+// import rose._
 
 // System for instantiating binders based
 // on the scala type of the Target (_not_ its IO). This avoids needing to
@@ -369,6 +370,17 @@ class WithAirSimIOPunchthrough extends OverrideIOBinder({
     (ports, Nil)
   }
 })
+
+// class WithRoseIOPunchthrough extends OverrideIOBinder({
+//   (system: CanHavePeripheryRoseAdapter) => {
+//     val ports: Seq[ClockedIO[RosePortIO]] = system.roseAdapter.map({ n =>
+//       val p = IO(new ClockedIO(new RosePortIO)).suggestName("roseAdapter")
+//       p <> n
+//       p
+//     }).toSeq
+//     (ports, Nil)
+//   }
+// })
 
 class WithTraceGenSuccessPunchthrough extends OverrideIOBinder({
   (system: TraceGenSystemModuleImp) => {
