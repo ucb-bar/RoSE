@@ -9,8 +9,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Spencer  Pao</title>
-    <meta name="author" content="Spencer  Pao" />
+    <title>RoSÉ
+    </title>
+    <meta name="author" content="Kris Shengjun Dong" />
     <meta name="description" content="A simple, whitespace theme for academics. Based on [*folio](https://github.com/bogoli/-folio) design.
 " />
     <meta name="keywords" content="jekyll, jekyll-theme, academic-website, portfolio-website" />
@@ -33,7 +34,7 @@
     <link rel="shortcut icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚛️</text></svg>">
     
     <link rel="stylesheet" href="/assets/css/main.css">
-    <link rel="canonical" href="https://spencerpao.github.io/">
+    <link rel="canonical" href="https://github.com/ucb-bar/RoSE">
     
     <!-- Dark Mode -->
     
@@ -108,48 +109,52 @@
       <div class="post">
         <header class="post-header">
           <h1 class="post-title">
-           <span class="font-weight-bold">Spencer</span>  Pao
+           <span class="font-weight-bold">RoSÉ</span> A Hardware-Software Co-Simulation Infrastructure Enabling Pre-Silicon Full-Stack Robotics SoC Evaluation
           </h1>
-          <p class="desc"><a href="https://github.com/SpencerPao" target="_blank" rel="noopener noreferrer">Code</a> <a href="https://www.youtube.com/c/SpencerPaoHere" target="_blank" rel="noopener noreferrer">Chill</a> <b> Imagine </b></p>
+          <p class="desc"><a href="https://github.com/ucb-bar/RoSE" target="_blank" rel="noopener noreferrer">Code</a> <a href="https://rose-sim.readthedocs.io/en/latest/" target="_blank" rel="noopener noreferrer">Doc</a>
         </header>
-
-        <article>
-          <div class="profile float-right">
 <figure>
 
-  <picture>
+  <!-- <picture>
     <!-- <source media="(max-width: 480px)" srcset="/assets/img/prof_pic-480.webp" />
     <source media="(max-width: 800px)" srcset="/assets/img/prof_pic-800.webp" />
     <source media="(max-width: 1400px)" srcset="/assets/img/prof_pic-1400.webp" />
     -->
 
     <!-- Fallback to the original file -->
-    <img class="img-fluid z-dept-1 rounded" src="/assets/img/prof_pic.png" alt="prof_pic.png">
+    <!-- <img class="img-fluid z-dept-1 rounded" src="/assets/img/prof_pic.png" alt="prof_pic.png"> -->
 
-  </picture>
+  <!-- </picture> --> 
 
 </figure>
-
+<!-- 
             <div class="address">
               <p>Located in Virginia, USA</p>
 
             </div>
-          </div>
+          </div> -->
 
-          <div class="clearfix">
-            <p>Hello! My name is Spencer, and I absolutely love to combine data science capabilities with any type of industry. I love to create mini projects that explains or demonstrates how to use said application in your everyday life.</p>
+<div class="clearfix">
+  <p>Robotic systems such as unmanned autonomous drones and self-driving cars have been widely deployed in many scenarios and have the potential to revolutionize the future generation of computing. To improve the performance and energy efficiency of robotic platforms,  significant research efforts are being devoted to developing hardware accelerators for workloads that form bottlenecks in the robotics software pipeline.</p>
 
-<p>I am currently working at Booz Allen Hamilton as a Machine Learning Engineer with a focus on <b>Natural Language Processing </b> and <b>model deployment.</b></p>
+  <p>Although domain-specific accelerators (DSAs) can offer improved efficiency over general-purpose processors on isolated robotics benchmarks, system-level constraints such as data movement and contention over shared resources could significantly impact the achievable acceleration in an end-to-end fashion.</p>
 
-<p>I also do pro-bono strategic consulting work with <a href="https://compassprobono.org/" target="_blank" rel="noopener noreferrer">Compass.</a> I am currently assisting on a growth strategic proposal to a nonprofit firm.</p>
+  <p>In addition, the closed-loop nature of robotic systems, where there is a tight interaction across different deployed environments, software stacks, and hardware architecture, further exacerbates the difficulties of evaluating robotic SoCs.</p>
 
-<p>Perhaps you found this website through my <a href="https://www.youtube.com/c/SpencerPaoHere/" target="_blank" rel="noopener noreferrer">YouTube Channel</a>? If not, check it out! I have quite the video portfolio from finance to technological applications and theory accumulating there.</p>
+  <p>To address this limitation, we develop RoSÉ, an open-source, hardware-software co-simulation infrastructure for full-stack, pre-silicon hardware-in-the-loop evaluation of robotics SoCs, together with the full software stack and realistic robotic environments created to support robotics RoSE captures the complex interactions across hardware, algorithm, and environment, enabling new architectural research directions in hardware-software co-design for robotic UAV systems.</p>
 
-<p>I am always looking for folks who are interested in aiding on ongoing or newly created projects.</p>
-<ul>
-  <li>Contact me at <b>business.inquiry.spao@gmail.com</b> if interested!</li>
-  <li>Some of the Ongoing works:
-    <ul>
+  <p>Specifically, RoSÉ integrates AirSim, a software robotic environment simulator, supporting UAV models and FireSim, an FPGA-based RTL simulator, to capture closed-loop interactions between environments, algorithms, and hardware. The sensor environment data is passed from AirSim to FireSim to trigger the hardware pipeline, and the computed commands are generated from the FireSim hardware simulation and fed back to AirSim. RoSÉ accurately synchronizes the timing and data transfer between the AirSim environment simulator and the FireSim hardware simulator without significant degradation in simulation speed.</p>
+
+  <p>Our evaluation demonstrates that RoSÉ holistically captures the closed-loop interactions between environment, algorithms, and hardware, opening up new opportunities for systematic hardware-software co-design for robotic UAV systems.</p>
+
+  <p>In summary, this project makes the following contributions:</p>
+
+  <ul>
+    <li>We build RoSÉ, a hardware-software co-simulation infrastructure for pre-silicon, full-stack evaluation of robotics UAV SoCs. RoSÉ captures the dynamic interactions between robotic hardware, software, and environment\footnote{We commit to an open-source release of the RoSÉ framework.</li>
+    <li>We design software algorithms, and hardware SoCs along with robotic environments, to holistically evaluate the co-design trade-off in robotic UAV systems using RoSÉ.</li>
+    <li>We demonstrate design space exploration of domain-specific SoCs enabled by RoSÉ and identify significant design trade-offs.</li>
+  </ul>
+<!-- <ul>
       <li>Architecting cost effective and efficient code solutions</li>
       <li>Evaluating Crypto (finance + code)</li>
       <li>Creating Artwork with GANS (code)</li>
@@ -161,9 +166,12 @@
       </li>
     </ul>
   </li>
-</ul>
+</ul> -->
+<p>In summary, RoSÉ enables robotics UAV researchers and architects to comprehensively evaluate robotics UAV SoCs. RoSÉ captures a full-stack simulation of a robot by integrating the simulation of a robot UAV's environment and its RTL, enabling design space exploration of robot environments, algorithms, hardware, and system parameters within a unified simulation environment.</p>
 
-<p>If you have an idea and want to see if I’d be interested in helping out, please contact me!</p>
+<p>By using RoSÉ, researchers can better study and analyze the tradeoffs of robotic UAV systems without the overhead of taping out an SoC. Building upon RoSÉ by introducing new applications, robot UAV environments, and architectures will enable the agile development of robotics SoCs across diverse domains.</p>
+
+<p>If you have any questions or comments, contact the dev team of RoSÉ at <b>vnikiforov@berkeley.edu</b>, <b>krisdong@berkeley.edu</b>!</p>
 
           </div>
 
@@ -173,17 +181,15 @@
             <div class="table-responsive">
               <table class="table table-sm table-borderless"> 
                 <tr>
-                  <th scope="row">May 22, 2022</th>
+                  <th scope="row">June 19, 2023</th>
                   <td>
-                    Looking to show appreciation? <a href="https://ko-fi.com/spencerpao" target="_blank" rel="noopener noreferrer">Buy me a coffee!</a>
- 
+                    <a href="https://www.iscaconf.org/isca2023/program/#ii-3a" target="_blank" rel="noopener noreferrer">Our work will be presented at ISCA!</a>
                   </td>
                 </tr> 
                 <tr>
-                  <th scope="row">Mar 21, 2022</th>
+                  <th scope="row">April 06, 2022</th>
                   <td>
-                    I created my <a href="https://youtu.be/-UJJm_VMSdU" target="_blank" rel="noopener noreferrer">first YouTube short!</a>
- 
+                    <p class="desc">< <a href="https://illixr.org/open_meetings" target="_blank" rel="noopener noreferrer">Our work was presented at ISCA! ILLIXR Consortium!</a><a href="https://www.youtube.com/watch?v=o7P6AOBeGcs&t=100s" target="_blank" rel="noopener noreferrer">Our work was presented at ISCA! ILLIXR Consortium!</a>
                   </td>
                 </tr> 
                 <tr>
@@ -214,18 +220,10 @@
           <!-- Social -->
           <div class="social">
             <div class="contact-icons">
-            <a href="mailto:%62%75%73%69%6E%65%73%73.%69%6E%71%75%69%72%79.%73%70%61%6F@%67%6D%61%69%6C.%63%6F%6D" title="email"><i class="fas fa-envelope"></i></a>
-            <a href="https://github.com/SpencerPao" title="GitHub" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"></i></a>
-            <a href="https://www.linkedin.com/in/spencerpao" title="LinkedIn" target="_blank" rel="noopener noreferrer"><i class="fab fa-linkedin"></i></a>
-            <a href="https://spencerpao.github.io/feed.xml" title="RSS Feed"><i class="fas fa-rss-square"></i></a>
-            
-            </div>
-
-            <div class="contact-note">
-              The best way to contact me is through gmail.
-
-            </div>
-            
+              <a href="mailto:vnikiforov@berkeley.edu" title="email"><i class="fas fa-envelope"></i></a>
+              <a href="https://github.com/ucb-bar/RoSE" title="GitHub" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"></i></a>
+              <!-- <a href="https://www.linkedin.com/in/spencerpao" title="LinkedIn" target="_blank" rel="noopener noreferrer"><i class="fab fa-linkedin"></i></a> -->
+            </div>            
           </div>
         </article>
 
