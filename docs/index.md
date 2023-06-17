@@ -13,7 +13,7 @@ Our tool synchronizes two key parts: AirSim, which creates a realistic robotics 
     The user flow for RoSÉ, including the environment, hardware, and software flows.
 </div>
 
-<div class="news">
+<div class="News">
   <h2>news</h2>
   <div class="table-responsive">
     <table class="table table-sm table-borderless">
@@ -28,7 +28,6 @@ Our tool synchronizes two key parts: AirSim, which creates a realistic robotics 
         <td>
           Our work was accepted by and was presented at  <a style="color:blue;"  href="https://sites.google.com/g.harvard.edu/roboarch2022/" target="_blank" rel="noopener noreferrer">RoboARCH Workshop at IEEE MICRO!
         </td>
-
       </tr>
       <tr>
         <th scope="row">April 06, 2022</th>
