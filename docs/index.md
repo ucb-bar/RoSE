@@ -13,3 +13,30 @@ Our tool synchronizes two key parts: AirSim, which creates a realistic robotics 
     The user flow for RoSÉ, including the environment, hardware, and software flows.
 </div>
 
+<div class="news">
+  <h2>news</h2>
+  <div class="table-responsive">
+    <table class="table table-sm table-borderless">
+      <tr>
+        <th scope="row">June 19, 2023</th>
+        <td>
+          Our work was accepted by and will be presented at <a style="color:blue;"  href="https://www.iscaconf.org/isca2023/program/#ii-3a" target="_blank" rel="noopener noreferrer"> ISCA</a>!
+        </td>
+      </tr>
+      <tr>
+        <th scope="row">Mar 10, 2022</th>
+        <td>
+          Our work was accepted by and was presented at  <a style="color:blue;"  href="https://sites.google.com/g.harvard.edu/roboarch2022/" target="_blank" rel="noopener noreferrer">RoboARCH Workshop at IEEE MICRO!
+        </td>
+
+      </tr>
+      <tr>
+        <th scope="row">April 06, 2022</th>
+        <td>
+          <p class="desc"> Our work was presented at <a style="color:blue;" href="https://illixr.org/open_meetings" target="_blank" rel="noopener noreferrer">ILLIXR Consortium</a>!<a style="color:blue;" href="https://www.youtube.com/watch?v=o7P6AOBeGcs&t=100s" target="_blank" rel="noopener noreferrer"> (additional info & recording)</a>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>
+
