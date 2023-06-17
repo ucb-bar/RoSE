@@ -37,6 +37,9 @@
             {%- if site.github_repo -%}
             <a href="https://{{ site.github_repo }}" title="GitHub"><i class="fab fa-github"></i></a>
             {% endif %}
+            {%- if site.readthedocs -%}
+            <a href="https://{{ site.readthedocs }}" title="ReadTheDocs"><i class="fab fa-book"></i></a>
+            {% endif %}
             {%- if site.linkedin_username -%}
             <a href="https://www.linkedin.com/in/{{ site.linkedin_username }}" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
             {% endif %}
