@@ -1,4 +1,4 @@
-# Overview 
+# RoSÉ: Pre-Silicon, Full-Stack Robotics Soc Evaluation
 
 Meet RoSÉ, your new way to create and evaluate specialized hardware for robotic systems! We've created a unified simulation platform that combines hardware and software, enavling pre-silicon, full-stack, closed-loop evaluation of your robotic system. 
 
