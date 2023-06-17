@@ -6,7 +6,7 @@ title: RoSÉ # the website title (if blank, full name will be used instead)
 first_name: Dima Nikiforov, Shengjun Kris Dong, Chengyi Lux Zhang
 # middle_name: R.
 # last_name: Name
-email: you@example.com
+email: vnikiforov@berkeley.edu
 description: > # the ">" symbol means to ignore newlines until "footer_text:"
   A Hardware-Software Co-Simulation Infrastructure Enabling Pre-Silicon Full-Stack Robotics SoC Evaluation 
 footer_text: >
@@ -70,7 +70,8 @@ og_image: # The site-wide (default for all links) Open Graph preview image
 # Social integration
 # -----------------------------------------------------------------------------
 
-github_username: ucb-bar # your GitHub user name
+github_username: # your GitHub user name
+github_repo: github.com/ucb-bar/RoSE # your GitHub user name
 gitlab_username: # your GitLab user name
 twitter_username: # your Twitter handle
 mastodon_username: # your mastodon instance+username in the format instance.tld/@username
