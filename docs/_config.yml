@@ -73,6 +73,7 @@ og_image: # The site-wide (default for all links) Open Graph preview image
 github_username: # your GitHub user name
 github_repo: github.com/ucb-bar/RoSE # your GitHub user name
 readthedocs: rose-sim.readthedocs.io/en/latest/ # your ReadTheDocs  
+pdf_ref: assets/pdf/RoSE_ISCA_2023.pdf # your pdf 
 gitlab_username: # your GitLab user name
 twitter_username: # your Twitter handle
 mastodon_username: # your mastodon instance+username in the format instance.tld/@username

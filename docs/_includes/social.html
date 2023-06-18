@@ -40,6 +40,9 @@
             {%- if site.readthedocs -%}
             <a href="https://{{ site.readthedocs }}" title="ReadTheDocs"><i class="fa-solid fa-book"></i></a>
             {% endif %}
+            {%- if site.pdf_ref -%}
+            <a href="{{ site.pdf_ref}}" title="Paper PDF"><i class="fa-regular fa-file-pdf"></i></a>
+            {% endif %}
             {%- if site.linkedin_username -%}
             <a href="https://www.linkedin.com/in/{{ site.linkedin_username }}" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
             {% endif %}
