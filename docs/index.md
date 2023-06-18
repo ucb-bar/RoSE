@@ -26,7 +26,7 @@ Our tool synchronizes two key parts: AirSim, which creates a realistic robotics 
       <tr>
         <th scope="row">Mar 10, 2022</th>
         <td>
-          Our work was accepted by and was presented at  <a style="color:blue;"  href="https://sites.google.com/g.harvard.edu/roboarch2022/" target="_blank" rel="noopener noreferrer">RoboARCH Workshop at IEEE MICRO!
+          Our work was accepted by and was presented at  <a style="color:blue;"  href="https://sites.google.com/g.harvard.edu/roboarch2022/" target="_blank" rel="noopener noreferrer"> RoboARCH Workshop at IEEE MICRO!</a>
         </td>
       </tr>
       <tr>
