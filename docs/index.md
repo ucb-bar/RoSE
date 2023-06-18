@@ -32,7 +32,7 @@ Our tool synchronizes two key parts: AirSim, which creates a realistic robotics 
       <tr>
         <th scope="row">April 06, 2022</th>
         <td>
-          <p class="desc"> Our work was presented at <a style="color:blue;" href="https://illixr.org/open_meetings" target="_blank" rel="noopener noreferrer">ILLIXR Consortium</a>!<a style="color:blue;" href="https://www.youtube.com/watch?v=o7P6AOBeGcs&t=100s" target="_blank" rel="noopener noreferrer"> (additional info & recording)</a>
+          <p class="desc"> Our work was presented at <a style="color:blue;" href="https://illixr.org/open_meetings" target="_blank" rel="noopener noreferrer">ILLIXR Consortium</a>!<a style="color:blue;" href="https://www.youtube.com/watch?v=o7P6AOBeGcs&t=100s" target="_blank" rel="noopener noreferrer"> (additional info & recording)</a></p>
         </td>
       </tr>
     </table>
