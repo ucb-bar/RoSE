@@ -9,4 +9,5 @@ Contents
 
 .. toctree::
 
+   design
    rose
