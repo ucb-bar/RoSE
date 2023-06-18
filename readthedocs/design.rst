@@ -6,7 +6,7 @@ Top Level Architecture
 
 
 .. figure:: ./img/rose_top_level.png
-   :scale: 70 %
+   :scale: 60 %
    :alt: Figure 1
 
    Fig. 1: Top level block diagram of RoSÉ, depicting co-simulation and software infrastructure components.
