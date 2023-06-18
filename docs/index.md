@@ -20,7 +20,7 @@ Our tool synchronizes two key parts: AirSim, which creates a realistic robotics 
       <tr>
         <th scope="row">June 19, 2023</th>
         <td>
-          Our work was accepted by and will be presented at <a style="color:blue;"  href="https://www.iscaconf.org/isca2023/program/#ii-3a" target="_blank" rel="noopener noreferrer"> ISCA</a>!
+          Our work was accepted by and will be presented at <a style="color:blue;"  href="https://www.iscaconf.org/isca2023/program/#ii-3a" target="_blank" rel="noopener noreferrer"> ISCA</a>! <a href="assets/pdf/RoSE_ISCA_2023.pdf" title="Paper PDF"><i class="fa-regular fa-file-pdf"></i></a>
         </td>
       </tr>
       <tr>
