@@ -1,6 +1,6 @@
 #include "mmio.h"
 
-#include<stdio.h>
+#include <stdio.h>
 
 #define AIRSIM_STATUS 0x2000
 #define AIRSIM_WRITTEN_COUNTER_MAX 0x2004
