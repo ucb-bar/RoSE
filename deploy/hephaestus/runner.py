@@ -49,8 +49,8 @@ class FiresimThread(threading.Thread):
         os.chdir(r"/scratch/$(whoami)/firesim/sim")
         os.system("echo printing directory")
         os.system("pwd")
-        os.system("make TARGET_CONFIG=DDR3FRFCFS_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.RoseTLRocketConfig SIM_BINARY=/scratch/$(whoami)/firesim/target-design/chipyard/tests/airsimpackettest.riscv run-verilator-debug")
-
+        # os.system("make TARGET_CONFIG=DDR3FRFCFS_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.RoseTLRocketConfig SIM_BINARY=/scratch/$(whoami)/firesim/target-design/chipyard/tests/airsimpackettest.riscv run-verilator-debug")
+        os.system("firesim runworkload")
     def run_firesim(self):
         os.system("firesim infrasetup")
         os.system("firesim runworkload > firesim.log &")

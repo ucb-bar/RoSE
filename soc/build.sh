@@ -12,9 +12,9 @@ cd ./sw/onnxruntime-riscv/
 ./build.sh --enable_training --config=Debug --cmake_extra_defines onnxruntime_USE_SYSTOLIC=ON onnxruntime_SYSTOLIC_INT8=OFF onnxruntime_SYSTOLIC_FP32=ON
 cd ./systolic_runner/imagenet_runner/ && bash ./build.sh  --enable_training && cd ../..
 cd ../
-marshal build rose-images/airsim-driver-fed.json
-marshal build rose-images/airsim-control-fed.json
-marshal build rose-images/airsim-packettest.json
+marshal build ${ROSE_DIR}/soc/sw/rose-images/airsim-driver-fed.json
+marshal build ${ROSE_DIR}/soc/sw/rose-images/airsim-control-fed.json
+marshal build ${ROSE_DIR}/soc/sw/rose-images/airsim-packettest.json
 if [ ! -d ${FIRESIM_DIR}/deploy/workloads/airsim-driver-fed ]; then
     mkdir -p ${FIRESIM_DIR}/deploy/workloads/airsim-driver-fed
 fi

@@ -22,41 +22,25 @@ import freechips.rocketchip.tilelink._
 import freechips.rocketchip.util.UIntIsOneOf
 import testchipip.TLHelper
 
-// Parameter used accross the project
-case class RoseAdapterParams(
-  // This is the base address of the adapter TL Registers
-  address: BigInt = 0x2000,
-  // This is the width of the queues
-  width: Int = 32,
-  // This is the base address of the DMA Engine Memory Location
-  base: BigInt = 0x88000000L)
-
-class RoseAdapterMMIOChiselModule(val w: Int) extends Module
-  with HasRoseAdapterIO
+class RoseAdapterMMIOChiselModule(params: RoseAdapterParams) extends Module
 {
-  val txfifo = Module(new Queue(UInt(w.W), 64))
-  val rxfifo = Module(new Queue(UInt(w.W), 64))
+  val io = IO(new RoseAdapterIO(params))
+  val txfifo = Module(new Queue(UInt(params.width.W), 64))
 
-  val camfifo = Module(new Queue(UInt(w.W), 32))
-  val otherfifo = Module(new Queue(UInt(w.W), 32))
-
-  val arbiter = Module(new RoseAdapterArbiter(w))
-
-  camfifo.io.enq <> arbiter.io.cam
-
-  otherfifo.io.enq <> arbiter.io.other
-  rxfifo.io.deq <> arbiter.io.rx
-
-  io.rx.enq <> rxfifo.io.enq
-  io.rx.deq <> otherfifo.io.deq 
+  for (i <- 0 until params.dst_ports.size) {
+    if (params.dst_ports(i).port_type != "DMA") {
+      io.rx(i) <> txfifo.io.enq
+    }
+  } 
 
   io.tx.enq <> txfifo.io.enq
   io.tx.deq <> txfifo.io.deq
-  io.cam <> camfifo.io.deq
+
 }
 
-class CamDMAEngine(implicit p: Parameters) extends LazyModule {
+class CamDMAEngine(param: DstParams)(implicit p: Parameters) extends LazyModule {
   //TODO: use my own TLhelper
+  val port_param = param
   val node = TLHelper.makeClientNode(name = "cam-dma", sourceId = IdRange(0,1))
   lazy val module = new CamDMAEngineModuleImp(this)
 }
@@ -65,10 +49,14 @@ class CamDMAEngineModuleImp(outer: CamDMAEngine) extends LazyModuleImp(outer){
   val config = p(RoseAdapterKey).get
 
   val io = IO(new Bundle{
-    val fifo = Flipped(Decoupled(UInt(config.width.W)))
+    val rx = Flipped(Decoupled(UInt(config.width.W)))
     val cam_buffer = Output(UInt(1.W))
     val counter_max = Input(UInt(config.width.W))
   })
+
+  // TODO: find a suitable depth
+  val fifo = Module(new Queue(UInt(config.width.W), 32))
+  fifo.io.enq <> io.rx
 
   val (mem, edge) = outer.node.out(0)
   val addrBits = edge.bundle.addressBits
@@ -79,11 +67,11 @@ class CamDMAEngineModuleImp(outer: CamDMAEngine) extends LazyModuleImp(outer){
 
   val mIdle :: mWrite :: mResp :: Nil = Enum(3)
   val mstate = RegInit(mIdle)
-  
+
   val addr = Reg(UInt(addrBits.W))
   val buffer_next = Wire(UInt(config.width.W))
-  buffer_next := io.fifo.bits
-  val buffer = RegEnable(next = buffer_next, enable = io.fifo.fire)
+  buffer_next := fifo.io.deq.bits
+  val buffer = RegEnable(next = buffer_next, enable = fifo.io.deq.fire)
   //TODO: set this to something reasonable
   // val counter_max = RegInit(32.U(config.width.W))
   //TODO: add a size here
@@ -94,8 +82,7 @@ class CamDMAEngineModuleImp(outer: CamDMAEngine) extends LazyModuleImp(outer){
   counter_next := Mux((counter < io.counter_max + io.counter_max - 4.U), counter + 4.U, 0.U)
 
   io.cam_buffer := counter >= io.counter_max
-
-  io.fifo.ready := mstate === mIdle
+  fifo.io.deq.ready := mstate === mIdle
   mem.a.valid := mstate === mWrite
   mem.d.ready := mstate === mResp
   dontTouch(mem.d.valid)
@@ -107,15 +94,14 @@ class CamDMAEngineModuleImp(outer: CamDMAEngine) extends LazyModuleImp(outer){
   lgSize = log2Ceil(config.width).U - 3.U,
   data = buffer)._2
 
-  //FIXME: Hardwired because i am crazy
-  addr := config.base.U + counter
+  addr := outer.port_param.DMA_address.U + counter
 
   counter_enabled := mem.a.fire && mstate === mWrite
 
   switch(mstate){
     is (mIdle){
       //grab data into the fifo
-      mstate := Mux(io.fifo.fire, mWrite, mIdle)
+      mstate := Mux(fifo.io.deq.fire, mWrite, mIdle)
     }
     is (mWrite){
       // edge.done refers to fully transmit a message possibly with multiple beats, while mem.d.fire refers to response to a single beat
@@ -235,41 +221,76 @@ trait RoseAdapterModule extends HasRegMap {
 
   // TL Register Wires
   val tx_data = Wire(new DecoupledIO(UInt(params.width.W)))
-  val rx_data = Wire(new DecoupledIO(UInt(params.width.W)))
-  val status = Wire(UInt(3.W))
+  val rx_data = Vec(params.dst_ports.count(_.port_type != "DMA"), Wire(new DecoupledIO(UInt(params.width.W))))
+  val status = Wire(UInt((2 + params.dst_ports.size).W))
 
   // FIXME: get the max value
-  val written_counter_max = RegInit(99999.U(32.W))
+  val written_counter_max = Vec(params.dst_ports.count(_.port_type == "DMA"),RegInit(99999.U(32.W)))
 
   // Instantiate the internal RTL Module
-  val impl = Module(new RoseAdapterMMIOChiselModule(params.width))
-  //TODO: data to be connected 'Clock' must be hardware, not a bare Chisel type. Perhaps you forgot to wrap it in Wire(_) or IO(_)?
+  val impl = Module(new RoseAdapterMMIOChiselModule(params))
+  
   impl.io.clock := clock
   impl.io.reset := reset.asBool
 
-  impl.io.cam <> io.cam
-
   tx_data <> impl.io.tx.enq
-  rx_data <> impl.io.rx.deq
 
-  // Accessed in reverse order in C code
-  status := Cat(impl.io.cam_buffer, impl.io.tx.enq.ready, impl.io.rx.deq.valid)
+  // Create a sequence of all DMA cam buffers
+  val cam_buffers:Seq[UInt] = Seq()
+  for (i <- 0 until params.dst_ports.count(_.port_type == "DMA")) {
+    cam_buffers :+ impl.io.cam_buffer(i)
+  }
 
+  // create a sequence of all rx valid signals
+  val rx_valids:Seq[Bool] = Seq()
+  for (i <- 0 until params.dst_ports.count(_.port_type != "DMA")) {
+    rx_valids :+ impl.io.rx(i).valid
+  }
+
+  // Concat all cam buffers
+  val cam_buffers_cat = Cat(cam_buffers)
+  // Concat all rx valid signals
+  val rx_valids_cat = Cat(rx_valids)
+  // Concat all rx valid signals and cam buffers, and tx ready
+  status := Cat(cam_buffers_cat, rx_valids_cat, impl.io.tx.enq.ready)
+  //
   // Connect to top IO
-  io.enq <> impl.io.rx.enq
-  io.deq <> impl.io.tx.deq
-  io.cam_buffer <> impl.io.cam_buffer
-  io.counter_max <> written_counter_max
+  for (i <- 0 until params.dst_ports.count(_.port_type != "DMA")) {
+    io.rx(i) <> impl.io.rx(i)
+    rx_data(i) <> impl.io.rx(i).deq
+  }
+  io.tx <> impl.io.tx.deq
+
+  for (i <- 0 until params.dst_ports.count(_.port_type == "DMA")) {
+    io.cam_buffer(i) <> impl.io.cam_buffer(i)
+    io.counter_max(i) <> written_counter_max(i)
+  }
+
+  val rx_datas =     
+  for (i <- 0 until params.dst_ports.count(_.port_type != "DMA")) yield {
+      0x0C + i*4 -> Seq(
+        RegField.r(params.width, rx_data(i))) // read-only, RoseAdapter.ready is set on read
+  }
+
+  val written_counters = 
+  for (i <- 0 until params.dst_ports.count(_.port_type == "DMA")) yield {
+      0x0C + (params.dst_ports.count(_.port_type != "DMA") + i)*4 -> Seq(
+        RegField.r(params.width, written_counter_max(i))) // read-only, RoseAdapter.ready is set on read
+  }
 
   regmap(
+    (Seq(
     0x00 -> Seq(
-      RegField.r(3, status)), // a read-only register capturing current status
-    0x04 -> Seq(
-      RegField.w(params.width, written_counter_max)), // write-only, max_counter is set on write
+      // only support leq 30 ports
+      RegField.r(2 + params.dst_ports.size, status)),
+
     0x08 -> Seq(
-      RegField.w(params.width, tx_data)), // write-only, y.valid is set on write
-    0x0C -> Seq(
-      RegField.r(params.width, rx_data))) // read-only, RoseAdapter.ready is set on read
+      RegField.w(params.width, tx_data))) ++ // write-only, y.valid is set on write
+
+    // create all rx_data output MMIO regs
+    // create all cam_buffer output MMIO regs
+    rx_datas ++ written_counters): _*
+  )
 }
 
 class RoseAdapterTL(params: RoseAdapterParams, beatBytes: Int)(implicit p: Parameters)
@@ -286,24 +307,53 @@ trait CanHavePeripheryRoseAdapter { this: BaseSubsystem =>
   val roseAdapter = p(RoseAdapterKey).map { 
 
     params =>
-
+    // generate the lazymodule with regmap
     val roseAdapterTL = LazyModule(new RoseAdapterTL(params, pbus.beatBytes)(p))
     pbus.toVariableWidthSlave(Some(portName)) { roseAdapterTL.node }
 
-    val camDMAEngine = LazyModule(new CamDMAEngine()(p))
-    // TODO: hard coded AF, bad practice, don't listen to me
-    fbus.fromPort(Some("cam-dma"))() := TLWidthWidget(4) := camDMAEngine.node
+    // save all the DMA Engines for Inmodulebody use
+    val DMA_lazymods = Seq[CamDMAEngine]()
+    val idx_map = Seq[Int]()
+    // generate all the DMA engines
+    var DMA_count = 0
+    var other_count = 0
+    params.dst_ports.foreach(
+      i => i.port_type match {
+        case "DMA" => {
+          val camDMAEngine = LazyModule(new CamDMAEngine(i)(p))
+          fbus.fromPort(Some(f"cam-dma-$DMA_count"))() := TLWidthWidget(4) := camDMAEngine.node
+          DMA_lazymods :+ camDMAEngine
+          idx_map :+ DMA_count
+          DMA_count += 1
+        }
+        case _ => {
+          other_count += 1
+          idx_map :+ other_count
+        }
+      }
+    )
 
     val outer_io = InModuleBody {
-      val outer_io = IO(new ClockedIO(new RosePortIO)).suggestName(portName)
+      val outer_io = IO(new ClockedIO(new RosePortIO(params))).suggestName(portName)
 
       outer_io.clock := roseAdapterTL.module.clock
-      outer_io.bits.enq <> roseAdapterTL.module.io.enq
-      outer_io.bits.deq <> roseAdapterTL.module.io.deq
 
-      camDMAEngine.module.io.cam_buffer <> roseAdapterTL.module.io.cam_buffer
-      camDMAEngine.module.io.counter_max <> roseAdapterTL.module.io.counter_max
-      camDMAEngine.module.io.fifo <> roseAdapterTL.module.io.cam
+      for (i <- 0 until params.dst_ports.length) {
+        params.dst_ports(i).port_type match {
+          case "DMA" => {
+            outer_io.bits.rx(i) <> DMA_lazymods(idx_map(i)).module.io.rx
+          }
+          case _ => {
+            outer_io.bits.rx(i) <> roseAdapterTL.module.io.rx(idx_map(i))
+          }
+        }
+      }
+
+      // connect the DMA engines
+      for (i <- 0 until DMA_lazymods.length) {
+        DMA_lazymods(i).module.io.cam_buffer <> roseAdapterTL.module.io.cam_buffer(i)
+        DMA_lazymods(i).module.io.counter_max <> roseAdapterTL.module.io.counter_max(i)
+      }
       outer_io
     }
     outer_io
@@ -313,5 +363,3 @@ trait CanHavePeripheryRoseAdapter { this: BaseSubsystem =>
 trait CanHavePeripheryRoseAdapterModuleImp extends LazyModuleImp {
   val outer: CanHavePeripheryRoseAdapter
 }
-
-
