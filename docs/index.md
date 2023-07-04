@@ -1,6 +1,6 @@
-# RoSÉ: Pre-Silicon, Full-Stack Robotics Soc Evaluation
+# RoSÉ: Pre-Silicon, Full-Stack Robotics SoC Evaluation
 
-Meet RoSÉ, your new way to create and evaluate specialized hardware for robotic systems! We've created a unified simulation platform that combines hardware and software, enavling pre-silicon, full-stack, closed-loop evaluation of your robotic system. 
+Meet RoSÉ, your new way to create and evaluate specialized hardware for robotic systems! We've created a unified simulation platform that combines hardware and software, enabling pre-silicon, full-stack, closed-loop evaluation of your robotic system. 
 
 Our tool synchronizes two key parts: AirSim, which creates a realistic robotics environment, and FireSim, which simulates the robot's hardware.  Dive into the details of your designs and discover new ways to improve them with RoSÉ, making robotics research and development easier and more accessible than ever.
 
@@ -39,3 +39,18 @@ Our tool synchronizes two key parts: AirSim, which creates a realistic robotics 
   </div>
 </div>
 
+## Citing RoSÉ
+
+```
+@inproceedings{nikiforov2023rose,
+  title={RoS{\'E}: A Hardware-Software Co-Simulation Infrastructure Enabling Pre-Silicon Full-Stack Robotics SoC Evaluation},
+  author={Nikiforov, Dima and Dong, Shengjun Chris and Zhang, Chengyi Lux and Kim, Seah and Nikolic, Borivoje and Shao, Yakun Sophia},
+  booktitle={Proceedings of the 50th Annual International Symposium on Computer Architecture},
+  pages={1--15},
+  year={2023}
+}
+```
+
+## Acknowledgements
+
+This research was supported in part by the NSF Awards CCF-2238346 and CCF-1955450 and in part by SLICE Lab industrial sponsors and affiliates. This research was also funded in part by the U.S. Government under the DARPA RTML program (contract FA8650-20-2-7006). The views and conclusions contained in this document are those of the authors and should not be interpreted as representing the official policies, either expressed or implied, of the U.S. Government.
