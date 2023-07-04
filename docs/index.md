@@ -14,7 +14,7 @@ Our tool synchronizes two key parts: AirSim, which creates a realistic robotics 
 </div>
 
 <div class="News">
-  <h2>news</h2>
+  <h2>News</h2>
   <div class="table-responsive">
     <table class="table table-sm table-borderless">
       <tr>
