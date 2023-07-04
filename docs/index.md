@@ -42,7 +42,7 @@ Our tool synchronizes two key parts: AirSim, which creates a realistic robotics 
 ## Citing RoSÉ
 
 ```
-@inproceedings{nikiforov2023rose,
+@inproceedings{rose-isca,
   title={RoS{\'E}: A Hardware-Software Co-Simulation Infrastructure Enabling Pre-Silicon Full-Stack Robotics SoC Evaluation},
   author={Nikiforov, Dima and Dong, Shengjun Chris and Zhang, Chengyi Lux and Kim, Seah and Nikolic, Borivoje and Shao, Yakun Sophia},
   booktitle={Proceedings of the 50th Annual International Symposium on Computer Architecture},
