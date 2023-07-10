@@ -36,8 +36,6 @@ case class RoseAdapterParams(
   // require(RoseAdapterParams().dst_ports.size < 30)
 )
 
-
-
 case class DstParams (
   val port_type: String = "reqrsp", // supported are stream, decoupled, interrupt, and DMA
   val IDs: Seq[Byte] = Seq(0x00), // sequence of ID bytes, must be non-overlapping

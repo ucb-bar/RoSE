@@ -11,8 +11,8 @@ run_farm:
     default_simulation_dir: /scratch/rose-isca-ae-1/new_firesim_run_temp
     run_farm_host_specs:
       - one_fpga_spec:
-          num_fpgas: 1
-          num_metasims: 0
+          num_fpgas: 0
+          num_metasims: 1
           use_for_switch_only: false
     # REQUIRED: List of unique hostnames/IP addresses, each with their
     # corresponding specification that describes the properties of the host.
@@ -27,7 +27,7 @@ run_farm:
     run_farm_hosts_to_use:
       - localhost: one_fpga_spec
 metasimulation:
-  metasimulation_enabled: false
+  metasimulation_enabled: true
   # vcs or verilator. use vcs-debug or verilator-debug for waveform generation
   metasimulation_host_simulator: verilator
   # plusargs passed to the simulator for all metasimulations
