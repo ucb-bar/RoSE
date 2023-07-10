@@ -142,7 +142,7 @@ class WithGPIOCells extends OverrideIOBinder({
         iocell.io.o := pin.o.oval
         iocell.io.oe := pin.o.oe
         iocell.io.ie := pin.o.ie
-        pin.i.i\val := iocell.io.i
+        pin.i.ival := iocell.io.i
         iocell.io.pad <> g
         (g, iocell)
       }).unzip
@@ -375,7 +375,7 @@ class WithRoseIOPunchthrough extends OverrideIOBinder({
   (system: CanHavePeripheryRoseAdapter) => {
     val params = GetSystemParameters(system)
     val ports: Seq[ClockedIO[RosePortIO]] = system.roseAdapter.map({ n =>
-      val p = IO(new ClockedIO(new RosePortIO(params(RoseAdapterParams)))).suggestName("roseAdapter")
+      val p = IO(new ClockedIO(new RosePortIO(params(RoseAdapterKey).get))).suggestName("roseAdapter")
       p <> n
       p
     }).toSeq

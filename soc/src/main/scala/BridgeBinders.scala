@@ -108,7 +108,6 @@ class WithAirSimBridge extends OverrideHarnessBinder({
 
 class WithRoseBridge extends OverrideHarnessBinder({
   (system: CanHavePeripheryRoseAdapter, th: FireSim, ports: Seq[ClockedIO[RosePortIO]]) => {
-  //(system: CanHavePeripheryAirSimIO, th: FireSim, ports: Seq[AirSimPortIO]) => {
     val p: Parameters = GetSystemParameters(system)
     ports.map { n => 
       val rose_b = RoseBridge(n.clock, n.bits)(p) 
