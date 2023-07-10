@@ -115,43 +115,56 @@ class CamDMAEngineModuleImp(outer: CamDMAEngine) extends LazyModuleImp(outer){
 }
 
 //arbiter, connected between the camfifo, otherfifo, and rxfifo
-class RoseAdapterArbiter(val w: Int) extends Module {
-
-  val io = IO(new Bundle{
-    //valid and bits are output, ready is input in DecoupledIO
-    val cam = Decoupled(UInt(w.W))
-    val other = Decoupled(UInt(w.W))
-    //flipped for rx
-    val rx = Flipped(Decoupled(UInt(w.W)))
-  })
-
+class RoseAdapterArbiter(params: RoseAdapterParams) extends Module {
+  val w = params.width
+  // val io = IO(new Bundle{
+  //   //valid and bits are output, ready is input in DecoupledIO
+  //   val cam = Decoupled(UInt(w.W))
+  //   val other = Decoupled(UInt(w.W))
+  //   //flipped for rx
+  //   val rx = Flipped(Decoupled(UInt(w.W)))
+  // })
+  val io = IO(new RosePortIO(params))
   //                        - cam.fifo
-  // rx.fifo-----arbiter----
+  // rx.fifo-----arbiter--- - something.fifo
   //                        - other.fifo
   //the buffer of rx deque data
   val buffer_next = Wire(UInt(w.W))
   buffer_next := io.rx.bits
   //goal: io.rx.fire should be synced with io.target.fire
-  val buffer = RegEnable(next = buffer_next, enable = io.rx.fire)
+  val buffer = RegEnable(next = buffer_next, enable = io.tx.fire)
   //the counter of how many cycles of loads, decided by the second queue val
   val counter = Reg(UInt(w.W))
   val sIdle :: sFlag :: sHeader :: sCounter :: sLoad :: Nil = Enum(5)
   val state = RegInit(sIdle)
 
-  //flag determining where the data goes
-  val fOther :: fCam :: Nil = Enum(2)
-  val flag = RegInit(false.B)
+  // create a map with id as key and the corresponding dst_port index as value
+  val id_map = scala.collection.mutable.Map[Byte, DstParams]()
+  for (i <- 0 until params.dst_ports.length) {
+    for (j <- 0 until params.dst_ports(i).IDs.length) {
+      id_map += (params.dst_ports(i).IDs(j) -> i)
+    }
+  }
 
+  var idx: Int
   // general enque logic, applicable to both cam&others
   val tx_val = Wire(Bool())
-  io.cam.valid := Mux(flag, tx_val, 0.U)
-  io.other.valid := Mux(~flag, tx_val, 0.U)
+
+  // if idx equals i, get tx_val, otherwise get 0
+  params.dst_ports.foreach(
+    i => i match {
+      case idx => io.rx(i).valid := tx_val
+      case _ => io.rx(i).valid := 0.U
+    }
+  ) 
+  // io.cam.valid := Mux(flag, tx_val, 0.U)
+  // io.other.valid := Mux(~flag, tx_val, 0.U)
 
   io.cam.bits := buffer
   io.other.bits := buffer
 
   tx_val := 0.U
-  io.rx.ready := Mux(flag, io.cam.ready, io.other.ready)
+  io.tx.ready := io.rx(idx).ready
 
   switch(state) {
     // heat up the buffer with the header
@@ -159,8 +172,8 @@ class RoseAdapterArbiter(val w: Int) extends Module {
       // what if the target fifo is not ready?
       // notice that flag is not set here yet
       when(io.cam.ready & io.other.ready) {
-        io.rx.ready := 1.U
-        state := Mux(io.rx.fire, sFlag, sIdle)
+        io.tx.ready := 1.U
+        state := Mux(io.tx.fire, sFlag, sIdle)
       } .otherwise {
         state := sIdle
       }
@@ -168,42 +181,44 @@ class RoseAdapterArbiter(val w: Int) extends Module {
     // header is already in the buffer, now set flag
     is (sFlag) {
       // make sure the buffer does not change here
-      io.rx.ready := 0.U
-      flag := (buffer === 0x11.U)
+      io.tx.ready := 0.U
+      // look up the id_map to get the index
+      val idx_wrapper = id_map(buffer.toString(16).take(2).toByte)
+      // get idx out of idx_wrapper
+      idx = idx_wrapper.getOrElse(0) // FIXME: would default to 0 
+      // flag := (buffer === 0x11.U)
       state := sHeader
     }
     // send the header packet to the right fifo according to the flag
     is(sHeader) {
       // if it is a camera header, throw it away, else transmit it
-      tx_val := Mux(flag, false.B, io.rx.valid)
-      state := Mux(io.rx.fire, sCounter, sHeader)
+      tx_val := false.B
+      state := Mux(io.tx.fire, sCounter, sHeader)
     }
     // set the value of counter to the desired cycles
     // the buffer now holds the counter value. notice that counter will be set at the next cycle. 
     is(sCounter) {
-      // TODO: verify this
       counter := buffer >> 2
       // counter := Mux(buffer === 0.U, 0.U, 1.U << ((Log2(buffer) - (log2Ceil(w) - log2Ceil(8)).U) - 1.U))
-      tx_val := Mux(flag, false.B, io.rx.valid)
+      tx_val := false.B
       // don't bother to step into sLoad and do nothing and exit
       when (buffer === 0.U){
-        io.rx.ready := 0.U
-        state := Mux(Mux(flag, true.B, io.other.fire), sIdle, sCounter)
+        io.tx.ready := 0.U
+        state := Mux(io.rx(idx).fire, sIdle, sCounter)
       } .otherwise {
-        state := Mux(io.rx.fire, sLoad, sCounter)
+        state := Mux(io.tx.fire, sLoad, sCounter)
       }
     }
     is(sLoad){
-      // TODO: verify this to be 1.U or 0.U
       when(counter > 1.U){
-        tx_val := io.rx.valid
-        counter := Mux(io.rx.fire, counter - 1.U, counter)
+        tx_val := io.tx.valid
+        counter := Mux(io.tx.fire, counter - 1.U, counter)
         state := sLoad
         //when counter is strictly 1, there's one last thing to send. Go back to Idle after this
       } .otherwise {
-        io.rx.ready := 0.U
+        io.tx.ready := 0.U
         tx_val := true.B
-        state := Mux(Mux(flag, io.cam.fire, io.other.fire), sIdle, sLoad)
+        state := Mux(io.rx(idx).fire, sIdle, sLoad)
       }
     }
   }
@@ -253,7 +268,7 @@ trait RoseAdapterModule extends HasRegMap {
   val rx_valids_cat = Cat(rx_valids)
   // Concat all rx valid signals and cam buffers, and tx ready
   status := Cat(cam_buffers_cat, rx_valids_cat, impl.io.tx.enq.ready)
-  //
+
   // Connect to top IO
   for (i <- 0 until params.dst_ports.count(_.port_type != "DMA")) {
     io.rx(i) <> impl.io.rx(i)

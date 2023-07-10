@@ -10,13 +10,69 @@ import freechips.rocketchip.config.Parameters
 import freechips.rocketchip.subsystem.PeripheryBusKey
 import sifive.blocks.devices.uart.{UARTPortIO, UARTParams}
 
+import rose.{RosePortIO, RoseAdapterParams, RoseAdapterKey, RoseAdapterArbiter}
 
-import rose.{RosePortIO}
+class rxcontroller(params: RoseAdapterParams) extends Module{
+  val io = IO(new Bundle{
+    val rx = Flipped(Decoupled(params.width.W))
+    val tx = Decoupled(params.width.W)
+    val fire = Input(Bool())
+  })
+
+  val sRxIdle :: sRxRecv :: sRxSend :: sRxDelay1 :: sRxDelay2 :: Nil = Enum(5)
+  val rxState = RegInit(sRxIdle)
+  val rxData = Reg(UInt(32.W))
+
+  switch(rxState) {
+    is(sRxIdle) {
+      rxData := 0.U
+      when(io.tx.ready) {
+        rxState := sRxRecv
+      }.otherwise {
+        rxState := sRxIdle
+      }
+    }
+    is(sRxRecv) {
+      when(io.rx.valid) {
+        rxState := sRxSend
+        rxData := io.rx.bits
+      }.otherwise {
+        rxState := sRxRecv
+        rxData := 0.U
+      }
+    }
+    is(sRxSend) {
+      when(fire) {
+        rxState := sRxDelay1
+        rxData := 0.U
+      }.otherwise {
+        rxState := sRxSend
+        rxData := rxData
+      }
+    }
+    is(sRxDelay1) {
+      rxData := 0.U
+      when(fire) {
+        rxState := sRxDelay2
+      } otherwise {
+        rxState := sRxDelay1
+      }
+    }
+    is(sRxDelay2) {
+      rxData := 0.U
+      when(fire) {
+        rxState := sRxIdle
+      } otherwise {
+        rxState := sRxDelay2
+      }
+    }
+  }
+}
 
 // DOC include start: AirSim Bridge Target-Side Interface
-class RoseBridgeTargetIO() extends Bundle {
+class RoseBridgeTargetIO(params: RoseAdapterParams) extends Bundle {
   val clock = Input(Clock())
-  val airsimio = Flipped(new RosePortIO())
+  val airsimio = Flipped(new RosePortIO(params))
   val reset = Input(Bool())
   // Note this reset is optional and used only to reset target-state modelled
   // in the bridge This reset just like any other Bool included in your target
@@ -37,7 +93,7 @@ class RoseBridge()(implicit p: Parameters) extends BlackBox
     with Bridge[HostPortIO[RoseBridgeTargetIO], RoseBridgeModule] {
   // Since we're extending BlackBox this is the port will connect to in our target's RTL
   
-  val io = IO(new RoseBridgeTargetIO())
+  val io = IO(new RoseBridgeTargetIO(p(RoseAdapterKey).get))
   // Implement the bridgeIO member of Bridge using HostPort. This indicates that
   // we want to divide io, into a bidirectional token stream with the input
   // token corresponding to all of the inputs of this BlackBox, and the output token consisting of 
@@ -94,7 +150,7 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     val io = IO(new WidgetIO())
 
     // This creates the host-side interface of your TargetIO
-    val hPort = IO(HostPort(new RoseBridgeTargetIO()))
+    val hPort = IO(HostPort(new RoseBridgeTargetIO(p(RoseAdapterKey).get)))
 
     // Generate some FIFOs to capture tokens...
     val txfifo = Module(new Queue(UInt(32.W), 32))
@@ -146,69 +202,25 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     val (cycleCount, testWrap) = Counter(fire, 65535 * 256)
     // COSIM-CODE
 
-    val sRxIdle :: sRxRecv :: sRxSend :: sRxDelay1 :: sRxDelay2 :: Nil = Enum(5)
-    val rxState = RegInit(sRxIdle)
-    val rxData = Reg(UInt(32.W))
-
-    switch(rxState) {
-      is(sRxIdle) {
-        rxData := 0.U
-        when(target.enq.ready) {
-          rxState := sRxRecv
-        }.otherwise {
-          rxState := sRxIdle
-        }
-      }
-      is(sRxRecv) {
-        when(rxfifo.io.deq.valid) {
-          rxState := sRxSend
-          rxData := rxfifo.io.deq.bits
-        }.otherwise {
-          rxState := sRxRecv
-          rxData := 0.U
-        }
-      }
-      is(sRxSend) {
-        when(fire) {
-          rxState := sRxDelay1
-          rxData := 0.U
-        }.otherwise {
-          rxState := sRxSend
-          rxData := rxData
-        }
-      }
-      is(sRxDelay1) {
-        rxData := 0.U
-        when(fire) {
-          rxState := sRxDelay2
-        } otherwise {
-          rxState := sRxDelay1
-        }
-      }
-      is(sRxDelay2) {
-        rxData := 0.U
-        when(fire) {
-          rxState := sRxIdle
-        } otherwise {
-          rxState := sRxDelay2
-        }
-      }
+    // instantiate the rose arbiter
+    val rosearb = Module(new RoseAdapterArbiter(p(RoseAdapterKey).get))
+    rosearb.io.tx = rxfifo.io.deq
+    // for each dst_port, generate a shallow queue and connect it to the arbiter
+    for (i <- 0 until p(RoseAdapterKey).get.dst_ports.size) {
+      val dst_port = p(RoseAdapterKey).get.dst_ports(i)
+      val q = Module(new Queue(UInt(dst_port.width.W), 32))
+      // generate a rxcontroller for each dst_port
+      val rxctrl = Module(new rxcontroller(p(RoseAdapterKey).get))
+      q.io.enq <> rosearb.io.rx(i)
+      q.io.deq <> rxctrl.io.rx 
+      rxctrl.io.tx <> target.rx(i)
     }
     // Drive fifo signals from AirSimIO
-    txfifo.io.enq.valid := target.deq.valid && fire
+    txfifo.io.enq.valid := target.tx.valid && fire
+    txfifo.io.enq.bits  := target.tx.bits
+    target.tx.ready := txfifo.io.enq.ready
+    //TODO: vectorize the for loop to reduce or it for this use
     rxfifo.io.deq.ready := (rxState === sRxRecv)
-    txfifo.io.enq.bits  := target.deq.bits
-
-    // Drive AirSimIO signals from fifo
-    target.enq.valid := (rxState === sRxSend)
-    target.deq.ready := txfifo.io.enq.ready
-    target.enq.bits  := rxData
-
-    // // Drive fifo signals from AirSimIO
-    // txfifo.io.enq.valid := target.port_tx_deq_valid && fire
-    // rxfifo.io.deq.ready := target.port_rx_enq_ready && fire
-    // txfifo.io.enq.bits  := target.port_tx_deq_bits
-
     // // Drive AirSimIO signals from fifo
     // target.port_rx_enq_valid := rxfifo.io.deq.valid
     // target.port_tx_deq_ready := txfifo.io.enq.ready
