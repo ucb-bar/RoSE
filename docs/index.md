@@ -21,8 +21,6 @@ Our tool synchronizes two key parts: AirSim, which creates a realistic robotics 
         <th scope="row">June 19, 2023</th>
         <td>
           Our work was accepted by and will be presented at <a style="color:blue;"  href="https://www.iscaconf.org/isca2023/program/#ii-3a" target="_blank" rel="noopener noreferrer"> ISCA</a>! <a href="assets/pdf/RoSE_ISCA_2023.pdf" title="Paper PDF"><i class="fa-regular fa-file-pdf"></i></a> <a href="assets/pdf/rose-isca2023-slides.pptx" title="Slides"><i class="fa-regular fa-file-powerpoint"></i>
-        </td>
-      </tr>
       <tr>
         <th scope="row">Mar 10, 2022</th>
         <td>
@@ -44,7 +42,7 @@ Our tool synchronizes two key parts: AirSim, which creates a realistic robotics 
 ```
 @inproceedings{rose-isca,
   title={RoS{\'E}: A Hardware-Software Co-Simulation Infrastructure Enabling Pre-Silicon Full-Stack Robotics SoC Evaluation},
-  author={Nikiforov, Dima and Dong, Shengjun Chris and Zhang, Chengyi Lux and Kim, Seah and Nikolic, Borivoje and Shao, Yakun Sophia},
+  author={Nikiforov, Dima and Dong, Shengjun Kris and Zhang, Chengyi Lux and Kim, Seah and Nikolic, Borivoje and Shao, Yakun Sophia},
   booktitle={Proceedings of the 50th Annual International Symposium on Computer Architecture},
   pages={1--15},
   year={2023}
