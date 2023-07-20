@@ -222,3 +222,15 @@ After executing the prior experiments, figures can be generated using the CSV ou
 
 Additionally, new controller ONNX models can be trained using the provided dataset and evaluated using the provided `drone_test` executable. 
 
+## Citing RoSÉ
+
+```
+@inproceedings{rose-isca,
+  title={RoS{\'E}: A Hardware-Software Co-Simulation Infrastructure Enabling Pre-Silicon Full-Stack Robotics SoC Evaluation},
+  author={Nikiforov, Dima and Dong, Shengjun Kris and Zhang, Chengyi Lux and Kim, Seah and Nikolic, Borivoje and Shao, Yakun Sophia},
+  booktitle={Proceedings of the 50th Annual International Symposium on Computer Architecture},
+  pages={1--15},
+  year={2023}
+}
+```
+
