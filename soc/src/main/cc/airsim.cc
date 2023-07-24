@@ -1,8 +1,8 @@
 // See LICENSE for license details
 
 // Note: struct_guards just as in the headers
-// #ifdef AIRSIMBRIDGEMODULE_struct_guard
-#ifdef AIRSIMBRIDGEMODULE_struct_guard
+// #ifdef ROSEBRIDGEMODULE_struct_guard
+#ifdef ROSEBRIDGEMODULE_struct_guard
 
 #include "airsim.h"
 #include <sys/stat.h>
@@ -176,7 +176,7 @@ void * queue_func(void * arg){
         }
     }
 }
-airsim_t::airsim_t(simif_t *sim, AIRSIMBRIDGEMODULE_struct *mmio_addrs, int airsimno) : bridge_driver_t(sim)
+airsim_t::airsim_t(simif_t *sim, ROSEBRIDGEMODULE_struct *mmio_addrs, int airsimno) : bridge_driver_t(sim)
 {
     printf("[AIRSIM DRIVER] Initiated bridge driver!\n");
     this->mmio_addrs = mmio_addrs;
@@ -632,4 +632,4 @@ void cosim_packet_t::decode(char *buf)
     }
 }
 
-#endif // AIRSIMBRIDGEMODULE_struct_guard
+#endif // ROSEBRIDGEMODULE_struct_guard
