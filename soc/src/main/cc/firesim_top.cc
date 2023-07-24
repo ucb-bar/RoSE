@@ -13,6 +13,7 @@
 #include "bridges/autocounter.h"
 #include "bridges/reset_pulse.h"
 #include "bridges/dromajo.h"
+// #include "bridges/rose.h"
 
 // Golden Gate provided bridge drivers
 #include "bridges/fpga_model.h"

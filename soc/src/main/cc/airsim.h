@@ -49,7 +49,7 @@
 // The name of this class and its guards are always BridgeModule class name, in
 // all-caps, suffixed with "_struct" and "_struct_guard" respectively.
 
-#ifdef AIRSIMBRIDGEMODULE_struct_guard
+#ifdef ROSEBRIDGEMODULE_struct_guard
 class cosim_packet_t
 {
     public:
@@ -72,7 +72,7 @@ class cosim_packet_t
 class airsim_t: public bridge_driver_t
 {
     public:
-        airsim_t(simif_t* sim, AIRSIMBRIDGEMODULE_struct * mmio_addrs, int airsimno);
+        airsim_t(simif_t* sim, ROSEBRIDGEMODULE_struct * mmio_addrs, int airsimno);
         ~airsim_t();
         virtual void tick();
         // Our AIRSIM bridge's initialzation and teardown procedures don't
@@ -96,7 +96,7 @@ class airsim_t: public bridge_driver_t
         // ... and thus, never returns a non-zero exit code
         virtual int exit_code() { return 0; }
 
-        AIRSIMBRIDGEMODULE_struct * mmio_addrs;
+        ROSEBRIDGEMODULE_struct * mmio_addrs;
         serial_data_t<uint32_t> data;
 
         int inputfd;
@@ -126,6 +126,6 @@ class airsim_t: public bridge_driver_t
         void recv();
 };
 
-#endif // AIRSIMBRIDGEMODULE_struct_guard
+#endif // ROSEBRIDGEMODULE_struct_guard
 
 #endif // __AIRSIM_H

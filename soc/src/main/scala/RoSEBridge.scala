@@ -14,14 +14,18 @@ import rose.{RosePortIO, RoseAdapterParams, RoseAdapterKey, RoseAdapterArbiter}
 
 class rxcontroller(params: RoseAdapterParams) extends Module{
   val io = IO(new Bundle{
-    val rx = Flipped(Decoupled(params.width.W))
-    val tx = Decoupled(params.width.W)
+    val rx = Flipped(Decoupled(UInt(params.width.W)))
+    val tx = Decoupled(UInt(params.width.W))
     val fire = Input(Bool())
   })
 
   val sRxIdle :: sRxRecv :: sRxSend :: sRxDelay1 :: sRxDelay2 :: Nil = Enum(5)
   val rxState = RegInit(sRxIdle)
   val rxData = Reg(UInt(32.W))
+
+  io.tx.bits := rxData
+  io.tx.valid := (rxState === sRxSend)
+  io.rx.ready := io.tx.ready
 
   switch(rxState) {
     is(sRxIdle) {
@@ -42,7 +46,7 @@ class rxcontroller(params: RoseAdapterParams) extends Module{
       }
     }
     is(sRxSend) {
-      when(fire) {
+      when(io.fire) {
         rxState := sRxDelay1
         rxData := 0.U
       }.otherwise {
@@ -52,7 +56,7 @@ class rxcontroller(params: RoseAdapterParams) extends Module{
     }
     is(sRxDelay1) {
       rxData := 0.U
-      when(fire) {
+      when(io.fire) {
         rxState := sRxDelay2
       } otherwise {
         rxState := sRxDelay1
@@ -60,7 +64,7 @@ class rxcontroller(params: RoseAdapterParams) extends Module{
     }
     is(sRxDelay2) {
       rxData := 0.U
-      when(fire) {
+      when(io.fire) {
         rxState := sRxIdle
       } otherwise {
         rxState := sRxDelay2
@@ -85,14 +89,14 @@ class RoseBridgeTargetIO(params: RoseAdapterParams) extends Bundle {
 // metadata we'd like to pass to the host-side BridgeModule. Note, we need to
 // use a single case class to do so, even if it is simply to wrap a primitive
 // type, as is the case for AirSim (int)
-case class RoseKey(cycles: Int)
+case class RoseKey(roseparams: RoseAdapterParams)
 // DOC include end: AirSim Bridge Constructor Arg
 
 // DOC include start: AirSim Bridge Target-Side Module
 class RoseBridge()(implicit p: Parameters) extends BlackBox
     with Bridge[HostPortIO[RoseBridgeTargetIO], RoseBridgeModule] {
   // Since we're extending BlackBox this is the port will connect to in our target's RTL
-  
+  println(s"Got an implicit paramter of {${p(RoseAdapterKey).get}}")
   val io = IO(new RoseBridgeTargetIO(p(RoseAdapterKey).get))
   // Implement the bridgeIO member of Bridge using HostPort. This indicates that
   // we want to divide io, into a bidirectional token stream with the input
@@ -101,8 +105,8 @@ class RoseBridge()(implicit p: Parameters) extends BlackBox
   val bridgeIO = HostPort(io)
 
   // And then implement the constructorArg member
-  val constructorArg = Some(RoseKey(1000000))
-
+  val constructorArg = Some(RoseKey(p(RoseAdapterKey).get))
+  println(s"Got a constructor arg of {${constructorArg.get}}")
   // Finally, and this is critical, emit the Bridge Annotations -- without
   // this, this BlackBox would appear like any other BlackBox to Golden Gate
   generateAnnotations()
@@ -112,21 +116,9 @@ class RoseBridge()(implicit p: Parameters) extends BlackBox
 // DOC include start: AirSim Bridge Companion Object
 object RoseBridge {
   def apply(clock: Clock, airsimio: RosePortIO)(implicit p: Parameters): RoseBridge = {
- // def apply(airsimio: AirSimPortIO)(implicit p: Parameters): AirSimBridge = {
-    // TODO
-    //val clock: Clock = Wire(Clock())
-    //clock := false.B.asClock
     val rosebridge = Module(new RoseBridge())
     rosebridge.io.airsimio <> airsimio
     rosebridge.io.clock := clock
-    // println("ddddddddddddddddddddddddddddddd: AirSim")
-    // println("ep")
-    // println(ep)
-    // println("ep.io.airsimio")
-    // println(ep.io.airsimio)
-    // println("ep.io.clock")
-    // println(ep.io.clock)
-    // println("ddddddddddddddddddddddddddddddd")
     rosebridge
   }
 }
@@ -143,14 +135,15 @@ object RoseBridge {
 // don't match, you'll only find out later when Golden Gate attempts to generate your module.
 class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModule[HostPortIO[RoseBridgeTargetIO]]()(p) {
   lazy val module = new BridgeModuleImp(this) {
-    val cycles = key.cycles
+    val params = key.roseparams
+    // val cycles = key.cycles
     // This creates the interfaces for all of the host-side transport
     // AXI4-lite for the simulation control bus, =
     // AXI4 for DMA
     val io = IO(new WidgetIO())
 
     // This creates the host-side interface of your TargetIO
-    val hPort = IO(HostPort(new RoseBridgeTargetIO(p(RoseAdapterKey).get)))
+    val hPort = IO(HostPort(new RoseBridgeTargetIO(params)))
 
     // Generate some FIFOs to capture tokens...
     val txfifo = Module(new Queue(UInt(32.W), 32))
@@ -203,24 +196,23 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     // COSIM-CODE
 
     // instantiate the rose arbiter
-    val rosearb = Module(new RoseAdapterArbiter(p(RoseAdapterKey).get))
-    rosearb.io.tx = rxfifo.io.deq
+    val rosearb = Module(new RoseAdapterArbiter(params))
+    rosearb.io.tx <> rxfifo.io.deq
     // for each dst_port, generate a shallow queue and connect it to the arbiter
-    for (i <- 0 until p(RoseAdapterKey).get.dst_ports.size) {
-      val dst_port = p(RoseAdapterKey).get.dst_ports(i)
+    for (i <- 0 until params.dst_ports.seq.size) {
+      val dst_port = params.dst_ports.seq(i)
       val q = Module(new Queue(UInt(dst_port.width.W), 32))
       // generate a rxcontroller for each dst_port
-      val rxctrl = Module(new rxcontroller(p(RoseAdapterKey).get))
+      val rxctrl = Module(new rxcontroller(params))
       q.io.enq <> rosearb.io.rx(i)
       q.io.deq <> rxctrl.io.rx 
       rxctrl.io.tx <> target.rx(i)
+      rxctrl.io.fire := fire
     }
     // Drive fifo signals from AirSimIO
     txfifo.io.enq.valid := target.tx.valid && fire
     txfifo.io.enq.bits  := target.tx.bits
     target.tx.ready := txfifo.io.enq.ready
-    //TODO: vectorize the for loop to reduce or it for this use
-    rxfifo.io.deq.ready := (rxState === sRxRecv)
     // // Drive AirSimIO signals from fifo
     // target.port_rx_enq_valid := rxfifo.io.deq.valid
     // target.port_tx_deq_ready := txfifo.io.enq.ready

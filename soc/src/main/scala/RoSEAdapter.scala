@@ -22,20 +22,35 @@ import freechips.rocketchip.tilelink._
 import freechips.rocketchip.util.UIntIsOneOf
 import testchipip.TLHelper
 
+// A utility read-only register look up table that maps the id to the corresponding dst_port index
+class rolut(params: RoseAdapterParams) extends Module {
+  val io = IO(new Bundle{
+    val key = Input(UInt(params.width.W))
+    val value = Output(UInt(params.width.W))
+  })
+  // FIXME: hardcoded to 4 entries now, need to discuss and expand
+  var ram_seq = Seq.fill(4)(0.U(32.W))
+  for (i <- 0 until params.dst_ports.seq.length) {
+    for (j <- 0 until params.dst_ports.seq(i).IDs.length) {
+      ram_seq = ram_seq.updated(params.dst_ports.seq(i).IDs(j), i.U(32.W))
+    }
+  }
+  val ram = VecInit(ram_seq)
+  io.value := ram(io.key)
+}
+
 class RoseAdapterMMIOChiselModule(params: RoseAdapterParams) extends Module
 {
   val io = IO(new RoseAdapterIO(params))
   val txfifo = Module(new Queue(UInt(params.width.W), 64))
 
-  for (i <- 0 until params.dst_ports.size) {
-    if (params.dst_ports(i).port_type != "DMA") {
-      io.rx(i) <> txfifo.io.enq
-    }
-  } 
-
   io.tx.enq <> txfifo.io.enq
   io.tx.deq <> txfifo.io.deq
 
+  for (i <- 0 until params.dst_ports.seq.count(_.port_type != "DMA")) {
+    // TODO: am I correct?
+    io.rx(i).ready := true.B
+  }
 }
 
 class CamDMAEngine(param: DstParams)(implicit p: Parameters) extends LazyModule {
@@ -124,13 +139,13 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module {
   //   //flipped for rx
   //   val rx = Flipped(Decoupled(UInt(w.W)))
   // })
-  val io = IO(new RosePortIO(params))
+  val io = IO(Flipped(new RosePortIO(params)))
   //                        - cam.fifo
   // rx.fifo-----arbiter--- - something.fifo
   //                        - other.fifo
   //the buffer of rx deque data
   val buffer_next = Wire(UInt(w.W))
-  buffer_next := io.rx.bits
+  buffer_next := io.tx.bits
   //goal: io.rx.fire should be synced with io.target.fire
   val buffer = RegEnable(next = buffer_next, enable = io.tx.fire)
   //the counter of how many cycles of loads, decided by the second queue val
@@ -139,53 +154,59 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module {
   val state = RegInit(sIdle)
 
   // create a map with id as key and the corresponding dst_port index as value
-  val id_map = scala.collection.mutable.Map[Byte, DstParams]()
-  for (i <- 0 until params.dst_ports.length) {
-    for (j <- 0 until params.dst_ports(i).IDs.length) {
-      id_map += (params.dst_ports(i).IDs(j) -> i)
-    }
-  }
+  // val id_map = scala.collection.mutable.Map[Chisel.UInt, Int]()
+  // for (i <- 0 until params.dst_ports.seq.length) {
+  //   for (j <- 0 until params.dst_ports.seq(i).IDs.length) {
+  //     id_map += (params.dst_ports.seq(i).IDs(j).U -> i)
+  //   }
+  // }
 
-  var idx: Int
+  // create a sequence of vectors, with each vector representing one params.dst_ports.seq(i).IDs(j).U
+  // var id_collection = Seq[Chisel.Vec]()
+  // for (i <- 0 until params.dst_ports.seq.length) {
+  //   // create an iterator of chisel UInts from dst_ports.seq
+  //   val id_iter:Seq[Chisel.UInt] = for (j <- params.dst_ports.seq(i).IDs) yield j.U 
+  //   // convert the iterator to a vector
+  //   val id_vec = VecInit(id_iter)
+  //   id_collection = id_collection :+ id_vec
+  // }
+  val rolut = Module(new rolut(params))
+
   // general enque logic, applicable to both cam&others
   val tx_val = Wire(Bool())
-
+  val idx = RegInit(0.U(32.W))
   // if idx equals i, get tx_val, otherwise get 0
-  params.dst_ports.foreach(
-    i => i match {
-      case idx => io.rx(i).valid := tx_val
-      case _ => io.rx(i).valid := 0.U
-    }
-  ) 
+  params.dst_ports.seq.zipWithIndex.foreach {
+    case (dstParam, i) =>
+      when (i.U === idx) {
+        io.rx(i).valid := tx_val
+      } .otherwise {
+        io.rx(i).valid := false.B
+      }
+      io.rx(i).bits := buffer
+  }
+
   // io.cam.valid := Mux(flag, tx_val, 0.U)
   // io.other.valid := Mux(~flag, tx_val, 0.U)
 
-  io.cam.bits := buffer
-  io.other.bits := buffer
-
   tx_val := 0.U
   io.tx.ready := io.rx(idx).ready
-
+  rolut.io.key := buffer
   switch(state) {
     // heat up the buffer with the header
     is(sIdle) {
-      // what if the target fifo is not ready?
-      // notice that flag is not set here yet
-      when(io.cam.ready & io.other.ready) {
-        io.tx.ready := 1.U
-        state := Mux(io.tx.fire, sFlag, sIdle)
-      } .otherwise {
-        state := sIdle
-      }
+      // FIXME: would disregard the reday signal here - make sure to sink all requests!
+      io.tx.ready := 1.U
+      state := Mux(io.tx.fire, sFlag, sIdle)
     }
     // header is already in the buffer, now set flag
     is (sFlag) {
       // make sure the buffer does not change here
       io.tx.ready := 0.U
       // look up the id_map to get the index
-      val idx_wrapper = id_map(buffer.toString(16).take(2).toByte)
+      idx := rolut.io.value
       // get idx out of idx_wrapper
-      idx = idx_wrapper.getOrElse(0) // FIXME: would default to 0 
+      // idx = idx_wrapper.getOrElse(0) // FIXME: would default to 0 
       // flag := (buffer === 0x11.U)
       state := sHeader
     }
@@ -227,20 +248,20 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module {
 //topmost wrapper, connects to the bridge and the SoC
 trait RoseAdapterModule extends HasRegMap {
   // TODO: wrap this with IO(new Bundle) struct?
-  val io: RoseAdapterTopIO
-
   implicit val p: Parameters
   def params: RoseAdapterParams
+  
   val clock: Clock
   val reset: Reset
+  val io: RoseAdapterTopIO
 
   // TL Register Wires
-  val tx_data = Wire(new DecoupledIO(UInt(params.width.W)))
-  val rx_data = Vec(params.dst_ports.count(_.port_type != "DMA"), Wire(new DecoupledIO(UInt(params.width.W))))
-  val status = Wire(UInt((2 + params.dst_ports.size).W))
+  val tx_data = Wire(Decoupled(UInt(params.width.W)))
+  val rx_data = Wire(Vec(params.dst_ports.seq.count(_.port_type != "DMA"), UInt(params.width.W)))
+  val status = Wire(UInt((2 + params.dst_ports.seq.size).W))
 
   // FIXME: get the max value
-  val written_counter_max = Vec(params.dst_ports.count(_.port_type == "DMA"),RegInit(99999.U(32.W)))
+  val written_counter_max = RegInit(VecInit(Seq.fill(params.dst_ports.seq.count(_.port_type == "DMA"))(99999.U(32.W))))
 
   // Instantiate the internal RTL Module
   val impl = Module(new RoseAdapterMMIOChiselModule(params))
@@ -249,17 +270,35 @@ trait RoseAdapterModule extends HasRegMap {
   impl.io.reset := reset.asBool
 
   tx_data <> impl.io.tx.enq
-
+  
   // Create a sequence of all DMA cam buffers
   val cam_buffers:Seq[UInt] = Seq()
-  for (i <- 0 until params.dst_ports.count(_.port_type == "DMA")) {
+  for (i <- 0 until params.dst_ports.seq.count(_.port_type == "DMA")) {
     cam_buffers :+ impl.io.cam_buffer(i)
   }
 
+  var idx_map = Seq[Int]()
+  // generate all the DMA engines
+  var DMA_count = 0
+  var other_count = 0
+  params.dst_ports.seq.foreach(
+    i => i.port_type match {
+      case "DMA" => {
+        idx_map = idx_map :+ DMA_count
+        DMA_count += 1
+      }
+      case _ => {
+        idx_map = idx_map :+ other_count
+        other_count += 1
+      }
+    }
+  )
   // create a sequence of all rx valid signals
   val rx_valids:Seq[Bool] = Seq()
-  for (i <- 0 until params.dst_ports.count(_.port_type != "DMA")) {
+  for (i <- 0 until params.dst_ports.seq.count(_.port_type != "DMA")) {
     rx_valids :+ impl.io.rx(i).valid
+    rx_data(idx_map(i)) := impl.io.rx(i).bits
+    io.rx(idx_map(i)) <> impl.io.rx(i)
   }
 
   // Concat all cam buffers
@@ -270,26 +309,23 @@ trait RoseAdapterModule extends HasRegMap {
   status := Cat(cam_buffers_cat, rx_valids_cat, impl.io.tx.enq.ready)
 
   // Connect to top IO
-  for (i <- 0 until params.dst_ports.count(_.port_type != "DMA")) {
-    io.rx(i) <> impl.io.rx(i)
-    rx_data(i) <> impl.io.rx(i).deq
-  }
+  // io.rx <> impl.io.rx
   io.tx <> impl.io.tx.deq
 
-  for (i <- 0 until params.dst_ports.count(_.port_type == "DMA")) {
+  for (i <- 0 until params.dst_ports.seq.count(_.port_type == "DMA")) {
     io.cam_buffer(i) <> impl.io.cam_buffer(i)
     io.counter_max(i) <> written_counter_max(i)
   }
 
   val rx_datas =     
-  for (i <- 0 until params.dst_ports.count(_.port_type != "DMA")) yield {
+  for (i <- 0 until params.dst_ports.seq.count(_.port_type != "DMA")) yield {
       0x0C + i*4 -> Seq(
         RegField.r(params.width, rx_data(i))) // read-only, RoseAdapter.ready is set on read
   }
 
   val written_counters = 
-  for (i <- 0 until params.dst_ports.count(_.port_type == "DMA")) yield {
-      0x0C + (params.dst_ports.count(_.port_type != "DMA") + i)*4 -> Seq(
+  for (i <- 0 until params.dst_ports.seq.count(_.port_type == "DMA")) yield {
+      0x0C + (params.dst_ports.seq.count(_.port_type != "DMA") + i)*4 -> Seq(
         RegField.r(params.width, written_counter_max(i))) // read-only, RoseAdapter.ready is set on read
   }
 
@@ -297,7 +333,7 @@ trait RoseAdapterModule extends HasRegMap {
     (Seq(
     0x00 -> Seq(
       // only support leq 30 ports
-      RegField.r(2 + params.dst_ports.size, status)),
+      RegField.r(2 + params.dst_ports.seq.size, status)),
 
     0x08 -> Seq(
       RegField.w(params.width, tx_data))) ++ // write-only, y.valid is set on write
@@ -327,23 +363,23 @@ trait CanHavePeripheryRoseAdapter { this: BaseSubsystem =>
     pbus.toVariableWidthSlave(Some(portName)) { roseAdapterTL.node }
 
     // save all the DMA Engines for Inmodulebody use
-    val DMA_lazymods = Seq[CamDMAEngine]()
-    val idx_map = Seq[Int]()
+    var DMA_lazymods = Seq[CamDMAEngine]()
+    var idx_map = Seq[Int]()
     // generate all the DMA engines
     var DMA_count = 0
     var other_count = 0
-    params.dst_ports.foreach(
+    params.dst_ports.seq.foreach(
       i => i.port_type match {
         case "DMA" => {
           val camDMAEngine = LazyModule(new CamDMAEngine(i)(p))
           fbus.fromPort(Some(f"cam-dma-$DMA_count"))() := TLWidthWidget(4) := camDMAEngine.node
-          DMA_lazymods :+ camDMAEngine
-          idx_map :+ DMA_count
+          DMA_lazymods = DMA_lazymods :+ camDMAEngine
+          idx_map = idx_map :+ DMA_count
           DMA_count += 1
         }
         case _ => {
+          idx_map = idx_map :+ other_count
           other_count += 1
-          idx_map :+ other_count
         }
       }
     )
@@ -352,14 +388,15 @@ trait CanHavePeripheryRoseAdapter { this: BaseSubsystem =>
       val outer_io = IO(new ClockedIO(new RosePortIO(params))).suggestName(portName)
 
       outer_io.clock := roseAdapterTL.module.clock
-
-      for (i <- 0 until params.dst_ports.length) {
-        params.dst_ports(i).port_type match {
+      
+      for (i <- 0 until params.dst_ports.seq.length) {
+        outer_io.bits.rx(i) <> roseAdapterTL.module.io.rx(i)
+        params.dst_ports.seq(i).port_type match {
           case "DMA" => {
             outer_io.bits.rx(i) <> DMA_lazymods(idx_map(i)).module.io.rx
           }
           case _ => {
-            outer_io.bits.rx(i) <> roseAdapterTL.module.io.rx(idx_map(i))
+            // outer_io.bits.rx(i) <> roseAdapterTL.module.io.rx(idx_map(i))
           }
         }
       }
