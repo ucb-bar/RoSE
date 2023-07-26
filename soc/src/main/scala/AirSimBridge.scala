@@ -6,7 +6,7 @@ import midas.widgets._
 import chisel3._
 import chisel3.util._
 import chisel3.experimental.{DataMirror, Direction}
-import freechips.rocketchip.config.Parameters
+import org.chipsalliance.cde.config.{Parameters}
 import freechips.rocketchip.subsystem.PeripheryBusKey
 import sifive.blocks.devices.uart.{UARTPortIO, UARTParams}
 
@@ -56,7 +56,7 @@ class AirSimBridge()(implicit p: Parameters) extends BlackBox
 // DOC include start: AirSim Bridge Companion Object
 object AirSimBridge {
 
-  def apply(clock: Clock, airsimio: AirSimPortIO)(implicit p: Parameters): AirSimBridge = {
+  def apply(clock: Clock, airsimio: AirSimPortIO, reset: Bool)(implicit p: Parameters): AirSimBridge = {
  // def apply(airsimio: AirSimPortIO)(implicit p: Parameters): AirSimBridge = {
     // TODO
     //val clock: Clock = Wire(Clock())
@@ -65,6 +65,7 @@ object AirSimBridge {
     ep.io.airsimio <> airsimio
     
     ep.io.clock := clock
+    ep.io.reset := reset
     ep
   }
 }
@@ -238,5 +239,8 @@ class AirSimBridgeModule(key: AirSimKey)(implicit p: Parameters) extends BridgeM
     // the simulation control bus (AXI4-lite)
     genCRFile()
     // DOC include end: AirSim Bridge Footer
+    override def genHeader(base: BigInt, memoryRegions: Map[String, BigInt], sb: StringBuilder): Unit = {
+      genConstructor(base, sb, "airsim_t", "airsim")
+    }
   }
 }

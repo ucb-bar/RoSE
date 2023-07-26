@@ -21,48 +21,15 @@
 #    # in the base_recipe.
 #    #bit_builder_arg_overrides:
 #    #  <ARG>: <OVERRIDE>
-
-firesim_rocket_30MHz_singlecore_no_nic:
-    DESIGN: FireSim
-    TARGET_CONFIG: DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.RocketConfig
-    PLATFORM_CONFIG: F30MHz_BaseVitisConfig
-    deploy_triplet: null
-    post_build_hook: null
-    metasim_customruntimeconfig: null
-    bit_builder_recipe: bit-builder-recipes/vitis.yaml
-
-firesim-large-boom-fp32gemmini-singlecore-with-airsim-no-nic-l2-llc4mb-ddr3:
-    DESIGN: FireSim
-    TARGET_CONFIG: DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.AirSimIOTLFPGemminiLargeBoomConfig
-    PLATFORM_CONFIG: F30MHz_BaseVitisConfig
-    deploy_triplet: null
-    post_build_hook: null
-    metasim_customruntimeconfig: null
-    bit_builder_recipe: bit-builder-recipes/vitis.yaml
-
-firesim-large-boom-fp32gemmini-dualcore-with-airsim-no-nic-l2-llc4mb-ddr3:
-    DESIGN: FireSim
-    TARGET_CONFIG: DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.AirSimIOTLFPGemminiLargeDualBoomConfig
-    PLATFORM_CONFIG: F30MHz_BaseVitisConfig
-    deploy_triplet: null
-    post_build_hook: null
-    metasim_customruntimeconfig: null
-    bit_builder_recipe: bit-builder-recipes/vitis.yaml
-
-firesim-rocket-singlecore-fp32gemmini-with-airsim-no-nic-l2-llc4mb-ddr3:
-    DESIGN: FireSim
-    TARGET_CONFIG: DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.AirSimIOTLFPGemminiRocketConfig
-    PLATFORM_CONFIG: F30MHz_BaseVitisConfig
-    deploy_triplet: null
-    post_build_hook: null
-    metasim_customruntimeconfig: null
-    bit_builder_recipe: bit-builder-recipes/vitis.yaml
     
 firesim-rocket-singlecore-fp32gemmini-with-airsim-fast-no-nic-l2-llc4mb-ddr3:
     DESIGN: FireSim
-    TARGET_CONFIG: DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.AirSimIOTLFPGemminiRocketConfig
-    PLATFORM_CONFIG: F45MHz_BaseVitisConfig
+    TARGET_CONFIG: AirSimIOTLFPGemminiRocketMMIOOnlyConfig
+    PLATFORM_CONFIG: BaseVitisConfig
     deploy_triplet: null
+    platform_config_args:
+        fpga_frequency: 45
+        build_strategy: TIMING
     post_build_hook: null
     metasim_customruntimeconfig: null
     bit_builder_recipe: bit-builder-recipes/vitis.yaml

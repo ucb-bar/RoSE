@@ -1,6 +1,7 @@
-package chipyard
+package chipyard.config
 
-import freechips.rocketchip.config.{Config}
+import org.chipsalliance.cde.config.{Config}
+
 
 // ---------------------
 // BOOM Configs
@@ -22,6 +23,13 @@ class AirSimIOTLFPGemminiRocketConfig extends Config(
   new gemmini.GemminiFP32DefaultConfig ++                         // use FP32Gemmini systolic array GEMM accelerator
   new freechips.rocketchip.subsystem.WithNBigCores(1) ++
   new chipyard.config.AbstractConfig)
+
+class AirSimIOTLGemminiRocketConfig extends Config(
+  new chipyard.example.WithAirSimIO(useAXI4=false) ++          // Use GCD Chisel, connect Tilelink
+  new gemmini.DefaultGemminiConfig ++                         // use Int8Gemmini systolic array GEMM accelerator
+  new freechips.rocketchip.subsystem.WithNBigCores(1) ++
+  new chipyard.config.AbstractConfig)
+
 
 // class RoseTLRocketConfig extends Config(
 //   new rose.WithRoseAdapter(useAXI4=false, base=0x88000000L, width=32) ++          // Use GCD Chisel, connect Tilelink                      // use FP32Gemmini systolic array GEMM accelerator
