@@ -2,7 +2,6 @@
 #ifndef __AIRSIM_H
 #define __AIRSIM_H
 
-#include "serial.h"
 #include <signal.h>
 
 // COSIM-CODE

@@ -55,7 +55,7 @@ destinations=(
     "${CHIPYARD_DIR}/generators/chipyard/src/main/scala/config/AbstractConfig.scala"
     "${FIRESIM_DIR}/sim/firesim-lib/src/main/scala/bridges/AirSimBridge.scala"
     "${CHIPYARD_DIR}/generators/chipyard/src/main/scala/config/RoSEConfigs.scala"
-    "${CHIPYARD_DIR}/generators/chipyard/src/main/scala/config/RoSEFireSimConfigs.scala"
+    "${CHIPYARD_DIR}/generators/firechip/src/main/scala/RoSEFireSimConfigs.scala"
     #rose scala destinations
     # "${CHIPYARD_DIR}/generators/rose/src/main/scala/RoSEAdapter.scala"
     # "${FIRESIM_DIR}/sim/firesim-lib/src/main/scala/bridges/RoSEBridge.scala"
