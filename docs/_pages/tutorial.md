@@ -27,6 +27,10 @@ Date: Sunday, October 29th, 2023
 
 Time: 8 AM - 12 PM EDT
 
+**Registration**
+- Please register to attend (MICRO)[https://microarch.org/micro56/index.php].
+- Additionally, please fill out (this Google form)[https://forms.gle/5bqrZmRYvmHZC3RZ9] if you would like to attend our tutorial.
+
 ### Schedule (Tentative)
 
 #### Introduction to RoSÉ
