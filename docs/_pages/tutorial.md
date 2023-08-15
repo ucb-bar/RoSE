@@ -64,7 +64,7 @@ Participants will:
     - Integrate hardware schedulers to support the QoS targets of robotics applications.
 - Evaluate end-to-end applications using ROS
 
-## Simulation Deployment and Experimentation
+#### Simulation Deployment and Experimentation
 Participants will:
 - Learn to configure and launch simulations using RoSÉ, evaluating hardware and software design-spces.
 - Extract architectural performance metrics and robot sensor logs.
