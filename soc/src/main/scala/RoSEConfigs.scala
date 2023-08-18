@@ -1,8 +1,8 @@
 //These are the examples configs for the RoSE-supported SoC
 // *** Not to be mistaken with the configurations for the RoSE adapters ***
-package chipyard
+package chipyard.config
 
-import freechips.rocketchip.config.{Config}
+import org.chipsalliance.cde.config.{Config}
 
 class AbstractRoseConfig extends Config(
   new chipyard.iobinders.WithRoseIOPunchthrough ++
@@ -26,9 +26,15 @@ class AirSimIOTLFPGemminiRocketConfig extends Config(
   new freechips.rocketchip.subsystem.WithNBigCores(1) ++
   new chipyard.config.AbstractConfig)
 
+class AirSimIOTLGemminiRocketConfig extends Config(
+  new chipyard.example.WithAirSimIO(useAXI4=false) ++          // Use GCD Chisel, connect Tilelink
+  new gemmini.DefaultGemminiConfig ++                         // use Int8Gemmini systolic array GEMM accelerator
+  new freechips.rocketchip.subsystem.WithNBigCores(1) ++
+  new chipyard.config.AbstractConfig)
+
 class RoseTLRocketConfig extends Config(
   new rose.WithRoseAdapter() ++          // Use GCD Chisel, connect Tilelink                      // use FP32Gemmini systolic array GEMM accelerator
   new freechips.rocketchip.subsystem.WithNBigCores(1) ++
-  new chipyard.AbstractRoseConfig)
+  new chipyard.config.AbstractRoseConfig)
 
 

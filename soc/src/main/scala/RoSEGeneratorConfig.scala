@@ -9,7 +9,7 @@ import testchipip._
 import chisel3.experimental.{IO, IntParam, BaseModule}
 import freechips.rocketchip.amba.axi4._
 import freechips.rocketchip.subsystem.{BaseSubsystem, CacheBlockBytes}
-import freechips.rocketchip.config.{Parameters, Field, Config}
+import org.chipsalliance.cde.config.{Parameters, Field, Config}
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.tilelink._
 

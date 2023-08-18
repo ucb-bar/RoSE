@@ -2,7 +2,8 @@
 #ifndef __AIRSIM_H
 #define __AIRSIM_H
 
-#include "serial.h"
+#include "bridges/serial_data.h"
+#include "core/bridge_driver.h"
 #include <signal.h>
 
 // COSIM-CODE
@@ -40,16 +41,21 @@
 #define CS_REQ_DISARM  0x05
 #define CS_REQ_TAKEOFF  0x06
 
-// The definition of the primary constructor argument for a bridge is generated
-// by Golden Gate at compile time _iff_ the bridge is instantiated in the
-// target. As a result, all bridge driver definitions conditionally remove
-// their sources if the constructor class has been defined (the
-// <cname>_struct_guard macros are generated along side the class definition.)
-//
-// The name of this class and its guards are always BridgeModule class name, in
-// all-caps, suffixed with "_struct" and "_struct_guard" respectively.
+struct ROSEBRIDGEMODULE_struct {
+    uint64_t out_bits;
+    uint64_t out_valid;
+    uint64_t out_ready;
+    uint64_t in_bits;
+    uint64_t in_valid;
+    uint64_t in_ready;
+    uint64_t in_ctrl_bits;
+    uint64_t in_ctrl_valid;
+    uint64_t in_ctrl_ready;
+    uint64_t cycle_count;
+    uint64_t cycle_budget;
+    uint64_t cycle_step;
+};
 
-#ifdef ROSEBRIDGEMODULE_struct_guard
 class cosim_packet_t
 {
     public:
@@ -66,13 +72,11 @@ class cosim_packet_t
         uint32_t cmd;
         uint32_t num_bytes;
         uint32_t * data;
-
 };
 
-class airsim_t: public bridge_driver_t
-{
+class airsim_t final: public bridge_driver_t{
     public:
-        airsim_t(simif_t* sim, ROSEBRIDGEMODULE_struct * mmio_addrs, int airsimno);
+        airsim_t(simif_t &sim, const ROSEBRIDGEMODULE_struct &mmio_addrs, int airsimno, const std::vector<std::string> &args);
         ~airsim_t();
         virtual void tick();
         // Our AIRSIM bridge's initialzation and teardown procedures don't
@@ -96,7 +100,8 @@ class airsim_t: public bridge_driver_t
         // ... and thus, never returns a non-zero exit code
         virtual int exit_code() { return 0; }
 
-        ROSEBRIDGEMODULE_struct * mmio_addrs;
+	static char KIND;
+        ROSEBRIDGEMODULE_struct mmio_addrs;
         serial_data_t<uint32_t> data;
 
         int inputfd;
@@ -125,7 +130,5 @@ class airsim_t: public bridge_driver_t
         void send();
         void recv();
 };
-
-#endif // ROSEBRIDGEMODULE_struct_guard
 
 #endif // __AIRSIM_H

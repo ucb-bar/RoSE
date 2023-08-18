@@ -15,12 +15,12 @@ import testchipip._
 import chisel3.experimental.{IO, IntParam, BaseModule}
 import freechips.rocketchip.amba.axi4._
 import freechips.rocketchip.subsystem.{BaseSubsystem, CacheBlockBytes}
-import freechips.rocketchip.config.{Parameters, Field, Config}
+import org.chipsalliance.cde.config.{Parameters, Field, Config}
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.regmapper.{HasRegMap, RegField}
 import freechips.rocketchip.tilelink._
 import freechips.rocketchip.util.UIntIsOneOf
-import testchipip.TLHelper
+// import testchipip.TLHelper
 
 // A utility read-only register look up table that maps the id to the corresponding dst_port index
 class rolut(params: RoseAdapterParams) extends Module {
@@ -28,15 +28,14 @@ class rolut(params: RoseAdapterParams) extends Module {
     val key = Input(UInt(params.width.W))
     val value = Output(UInt(params.width.W))
   })
-  // FIXME: hardcoded to 4 entries now, need to discuss and expand
-  var ram_seq = Seq.fill(4)(0.U(32.W))
+  io.value := 0.U
   for (i <- 0 until params.dst_ports.seq.length) {
     for (j <- 0 until params.dst_ports.seq(i).IDs.length) {
-      ram_seq = ram_seq.updated(params.dst_ports.seq(i).IDs(j), i.U(32.W))
+      when (io.key === params.dst_ports.seq(i).IDs(j).U) {
+        io.value := i.U
+      }
     }
   }
-  val ram = VecInit(ram_seq)
-  io.value := ram(io.key)
 }
 
 class RoseAdapterMMIOChiselModule(params: RoseAdapterParams) extends Module
@@ -48,15 +47,14 @@ class RoseAdapterMMIOChiselModule(params: RoseAdapterParams) extends Module
   io.tx.deq <> txfifo.io.deq
 
   for (i <- 0 until params.dst_ports.seq.count(_.port_type != "DMA")) {
-    // TODO: am I correct?
     io.rx(i).ready := true.B
   }
 }
 
 class CamDMAEngine(param: DstParams)(implicit p: Parameters) extends LazyModule {
-  //TODO: use my own TLhelper
   val port_param = param
-  val node = TLHelper.makeClientNode(name = "cam-dma", sourceId = IdRange(0,1))
+  val node = TLClientNode(Seq(TLMasterPortParameters.v1(Seq(TLClientParameters(
+    name = "init-zero", sourceId = IdRange(0, 1))))))
   lazy val module = new CamDMAEngineModuleImp(this)
 }
 
@@ -360,7 +358,7 @@ trait CanHavePeripheryRoseAdapter { this: BaseSubsystem =>
     params =>
     // generate the lazymodule with regmap
     val roseAdapterTL = LazyModule(new RoseAdapterTL(params, pbus.beatBytes)(p))
-    pbus.toVariableWidthSlave(Some(portName)) { roseAdapterTL.node }
+    pbus.coupleTo(portName) { roseAdapterTL.node := TLFragmenter(pbus.beatBytes, pbus.blockBytes) := _ }
 
     // save all the DMA Engines for Inmodulebody use
     var DMA_lazymods = Seq[CamDMAEngine]()
@@ -372,7 +370,7 @@ trait CanHavePeripheryRoseAdapter { this: BaseSubsystem =>
       i => i.port_type match {
         case "DMA" => {
           val camDMAEngine = LazyModule(new CamDMAEngine(i)(p))
-          fbus.fromPort(Some(f"cam-dma-$DMA_count"))() := TLWidthWidget(4) := camDMAEngine.node
+          fbus.coupleFrom(f"cam-dma-$DMA_count") { _ := TLWidthWidget(4) := camDMAEngine.node}
           DMA_lazymods = DMA_lazymods :+ camDMAEngine
           idx_map = idx_map :+ DMA_count
           DMA_count += 1

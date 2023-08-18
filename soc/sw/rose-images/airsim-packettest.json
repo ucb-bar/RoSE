@@ -1,6 +1,8 @@
 {
-  "name": "airsim-packettest",
-  "base": "bare-base.json",
-  "host-init": "build.sh",
-  "bin": "airsimpackettest"
+	"benchmark_name": "airsim-packettest",
+	"common_simulation_outputs": [
+		"uartlog"
+	],
+	"common_bootbinary": "../../../../../sw/rose-images/airsim-packettest/airsim-packettest.riscv",
+	"common_rootfs": "../../../target-design/chipyard/software/firemarshal/boards/default/installers/firesim/dummy.rootfs"
 }
