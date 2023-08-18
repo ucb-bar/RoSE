@@ -3,9 +3,10 @@ DIR=$(dirname "$(realpath "$0")")
 echo $DIR
 PROJECT_ROOT="${DIR}/../.."
 echo "Project root: $PROJECT_ROOT"
-FIRESIM_DIR=${PROJECT_ROOT}/firesim
-CHIPYARD_DIR=${FIRESIM_DIR}/target-design/chipyard
 ROSE_DIR=${PROJECT_ROOT}/RoSE
+FIRESIM_DIR=${ROSE_DIR}/soc/sim/firesim
+CHIPYARD_DIR=${FIRESIM_DIR}/target-design/chipyard
+
 SCALA_DIR=${ROSE_DIR}/soc/src/main/scala
 FSIM_CC_DIR=${ROSE_DIR}/soc/src/main/cc
 
@@ -19,6 +20,7 @@ sources=(
     "${SCALA_DIR}/AbstractConfig.scala" 
     "${SCALA_DIR}/AirSimBridge.scala" 
     "${SCALA_DIR}/RoSEConfigs.scala"
+    "${SCALA_DIR}/RoSEFireSimConfigs.scala"
     #rose scala files
     "${SCALA_DIR}/RoSEAdapter.scala"
     "${SCALA_DIR}/RoSEBridge.scala"
@@ -29,10 +31,10 @@ sources=(
     "${FSIM_CC_DIR}/airsim.h"
     "${FSIM_CC_DIR}/firesim_top.cc"
     #simulation configs
-    "${ROSE_DIR}/soc/sim/config_runtime_local.yaml"
-    "${ROSE_DIR}/soc/sim/config_build_recipes_local.yaml"
-    "${ROSE_DIR}/soc/sim/config_build_local.yaml"
-    "${ROSE_DIR}/soc/sim/config_hwdb_local.yaml"
+    "${ROSE_DIR}/soc/sim/config/config_runtime_local.yaml"
+    "${ROSE_DIR}/soc/sim/config/config_build_recipes_local.yaml"
+    "${ROSE_DIR}/soc/sim/config/config_build_local.yaml"
+    "${ROSE_DIR}/soc/sim/config/config_hwdb_local.yaml"
     #workload configs
     "${ROSE_DIR}/soc/sim/airsim-driver-fed.json"
     "${ROSE_DIR}/soc/sim/airsim-control-fed.json"
@@ -48,6 +50,7 @@ destinations=(
     "${CHIPYARD_DIR}/generators/chipyard/src/main/scala/config/AbstractConfig.scala"
     "${FIRESIM_DIR}/sim/firesim-lib/src/main/scala/bridges/AirSimBridge.scala"
     "${CHIPYARD_DIR}/generators/chipyard/src/main/scala/config/RoSEConfigs.scala"
+    "${CHIPYARD_DIR}/generators/firechip/src/main/scala/RoSEFireSimConfigs.scala"
     #rose scala destinations
     "${CHIPYARD_DIR}/generators/rose/src/main/scala/RoSEAdapter.scala"
     "${FIRESIM_DIR}/sim/firesim-lib/src/main/scala/bridges/RoSEBridge.scala"

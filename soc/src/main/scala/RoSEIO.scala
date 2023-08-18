@@ -13,7 +13,7 @@ import chisel3._
 import chisel3.util._
 import testchipip._
 import chisel3.experimental.{IO, IntParam, BaseModule}
-import freechips.rocketchip.config.{Parameters, Field, Config}
+import org.chipsalliance.cde.config.{Parameters, Field, Config}
 
 // PortIO is used for bridge <--> SoC communication
 class RosePortIO(params: RoseAdapterParams) extends Bundle {

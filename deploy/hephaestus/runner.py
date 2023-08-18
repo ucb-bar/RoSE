@@ -11,8 +11,8 @@ import threading
 import time
 
 HOST = "localhost"  # Private aws IP
-# AIRSIM_IP = "zr-desktop.cs.berkeley.edu"
-AIRSIM_IP = "44.205.8.36"
+AIRSIM_IP = "zr-desktop.cs.berkeley.edu"
+# AIRSIM_IP = "44.205.8.36"
 
 SYNC_PORT = 10001  # Port to listen on (non-privileged ports are > 1023)
 DATA_PORT = 60002  # Port to listen on (non-privileged ports are > 1023)

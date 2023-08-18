@@ -6,7 +6,7 @@ import testchipip._
 import chisel3.experimental.{IO, IntParam, BaseModule}
 import freechips.rocketchip.amba.axi4._
 import freechips.rocketchip.subsystem.BaseSubsystem
-import freechips.rocketchip.config.{Parameters, Field, Config}
+import org.chipsalliance.cde.config.{Parameters, Field, Config}
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.regmapper.{HasRegMap, RegField}
 import freechips.rocketchip.tilelink._
@@ -177,7 +177,8 @@ trait CanHavePeripheryAirSimIO { this: BaseSubsystem =>
 
   val airsimio = p(AirSimIOKey).map { params =>
     val airsimmod = LazyModule(new AirSimIOTL(params, pbus.beatBytes)(p))
-    pbus.toVariableWidthSlave(Some(portName)) { airsimmod.node }
+    //pbus.toVariableWidthSlave(Some(portName)) { airsimmod.node }
+    pbus.coupleTo(portName) { airsimmod.node := TLFragmenter(pbus.beatBytes, pbus.blockBytes) := _ }
 
     val outer_io = InModuleBody {
       val outer_io = IO(new ClockedIO(new AirSimPortIO)).suggestName(portName)
