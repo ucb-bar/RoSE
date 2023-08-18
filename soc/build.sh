@@ -3,7 +3,7 @@ DIR=$(dirname "$(realpath "$0")")
 echo $DIR
 PROJECT_ROOT="${DIR}/../.."
 echo "Project root: $PROJECT_ROOT"
-FIRESIM_DIR=${PROJECT_ROOT}/firesim
+FIRESIM_DIR=${PROJECT_ROOT}/RoSE/soc/sim/firesim
 CHIPYARD_DIR=${FIRESIM_DIR}/target-design/chipyard
 ROSE_DIR=${PROJECT_ROOT}/RoSE
 
@@ -24,7 +24,7 @@ if [ ! -d ${FIRESIM_DIR}/deploy/workloads/airsim-control-fed ]; then
 fi
 
 if [ ! -d ${FIRESIM_DIR}/deploy/workloads/airsim-control-fed ]; then
-    mkdir -p ${FIRESIM_DIR}/deploy/workloads/airsim-control-fed
+    mkdir -p ${FIRESIM_DIR}/deploy/workloads/airsim-
 fi
 
 ln -s ${FIRESIM_DIR}/sw/firesim-software/images/airsim-driver-fed-bin  ${FIRESIM_DIR}/deploy/workloads/airsim-driver-fed/airsim-driver-fed-bin

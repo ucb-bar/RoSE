@@ -6,7 +6,7 @@ import midas.widgets._
 import chisel3._
 import chisel3.util._
 import chisel3.experimental.{DataMirror, Direction, IO}
-import freechips.rocketchip.config.Parameters
+import org.chipsalliance.cde.config.Parameters
 import freechips.rocketchip.subsystem.PeripheryBusKey
 import sifive.blocks.devices.uart.{UARTPortIO, UARTParams}
 
@@ -115,10 +115,11 @@ class RoseBridge()(implicit p: Parameters) extends BlackBox
 
 // DOC include start: AirSim Bridge Companion Object
 object RoseBridge {
-  def apply(clock: Clock, airsimio: RosePortIO)(implicit p: Parameters): RoseBridge = {
+  def apply(clock: Clock, airsimio: RosePortIO, reset: Bool)(implicit p: Parameters): RoseBridge = {
     val rosebridge = Module(new RoseBridge())
     rosebridge.io.airsimio <> airsimio
     rosebridge.io.clock := clock
+    rosebridge.io.reset := reset
     rosebridge
   }
 }
@@ -255,5 +256,9 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     // the simulation control bus (AXI4-lite)
     genCRFile()
     // DOC include end: AirSim Bridge Footer
+
+    override def genHeader(base: BigInt, memoryRegions: Map[String, BigInt], sb: StringBuilder): Unit = {
+      genConstructor(base, sb, "airsim_t", "airsim")
+    }
   }
 }

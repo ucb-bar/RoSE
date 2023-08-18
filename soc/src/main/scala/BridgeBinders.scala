@@ -3,12 +3,13 @@
 package firesim.firesim
 
 import chisel3._
-import chisel3.experimental.{annotate, IO}
+import chisel3.experimental.annotate
+import chisel3.experimental.{DataMirror, Direction}
 import chisel3.util.experimental.BoringUtils
 
-import freechips.rocketchip.config.{Field, Config, Parameters}
+import org.chipsalliance.cde.config.{Field, Config, Parameters}
 import freechips.rocketchip.diplomacy.{LazyModule}
-import freechips.rocketchip.devices.debug.{Debug, HasPeripheryDebugModuleImp}
+import freechips.rocketchip.devices.debug.{Debug, HasPeripheryDebug}
 import freechips.rocketchip.amba.axi4.{AXI4Bundle}
 import freechips.rocketchip.subsystem._
 import freechips.rocketchip.tile.{RocketTile}
@@ -30,7 +31,7 @@ import cva6.CVA6Tile
 import boom.common.{BoomTile}
 import barstools.iocell.chisel._
 import chipyard.iobinders.{IOBinders, OverrideIOBinder, ComposeIOBinder, GetSystemParameters, IOCellKey}
-import chipyard.{HasHarnessSignalReferences}
+import chipyard._
 import chipyard.harness._
 import chipyard.example._
 
@@ -38,7 +39,7 @@ import rose._
 
 object MainMemoryConsts {
   val regionNamePrefix = "MainMemory"
-  def globalName = s"${regionNamePrefix}_${NodeIdx()}"
+  def globalName()(implicit p: Parameters) = s"${regionNamePrefix}_${p(MultiChipIdx)}"
 }
 
 trait Unsupported {
@@ -71,15 +72,14 @@ class WithFireSimIOCellModels extends Config((site, here, up) => {
   case IOCellKey => FireSimIOCellParams()
 })
 
-class WithSerialBridge extends OverrideHarnessBinder({
+class WithTSIBridgeAndHarnessRAMOverSerialTL extends OverrideHarnessBinder({
   (system: CanHavePeripheryTLSerial, th: FireSim, ports: Seq[ClockedIO[SerialIO]]) => {
     ports.map { port =>
       implicit val p = GetSystemParameters(system)
-      val bits = SerialAdapter.asyncQueue(port, th.buildtopClock, th.buildtopReset)
-      val ram = withClockAndReset(th.buildtopClock, th.buildtopReset) {
-        SerialAdapter.connectHarnessRAM(system.serdesser.get, bits, th.buildtopReset)
-      }
-      SerialBridge(th.buildtopClock, ram.module.io.tsi_ser, p(ExtMem).map(_ => MainMemoryConsts.globalName))
+      val bits = port.bits
+      port.clock := th.harnessBinderClock
+      val ram = TSIHarness.connectRAM(system.serdesser.get, bits, th.harnessBinderReset)
+      TSIBridge(th.harnessBinderClock, ram.module.io.tsi, p(ExtMem).map(_ => MainMemoryConsts.globalName), th.harnessBinderReset.asBool)
     }
     Nil
   }
@@ -93,19 +93,6 @@ class WithNICBridge extends OverrideHarnessBinder({
   }
 })
 
-// TODO: copy ad do a WithRoseBridge
-class WithAirSimBridge extends OverrideHarnessBinder({
-  (system: CanHavePeripheryAirSimIO, th: FireSim, ports: Seq[ClockedIO[AirSimPortIO]]) => {
-  //(system: CanHavePeripheryAirSimIO, th: FireSim, ports: Seq[AirSimPortIO]) => {
-    val p: Parameters = GetSystemParameters(system)
-    ports.map { n => 
-      val airsim_b = AirSimBridge(n.clock, n.bits)(p) 
-      airsim_b
-    }
-    Nil
-  }
-})
-
 class WithUARTBridge extends OverrideHarnessBinder({
   (system: HasPeripheryUARTModuleImp, th: FireSim, ports: Seq[UARTPortIO]) =>
     val uartSyncClock = Wire(Clock())
@@ -113,46 +100,41 @@ class WithUARTBridge extends OverrideHarnessBinder({
     val pbusClockNode = system.outer.asInstanceOf[HasTileLinkLocations].locateTLBusWrapper(PBUS).fixedClockNode
     val pbusClock = pbusClockNode.in.head._1.clock
     BoringUtils.bore(pbusClock, Seq(uartSyncClock))
-    ports.map { p => UARTBridge(uartSyncClock, p)(system.p) }; Nil
+    ports.map { p => UARTBridge(uartSyncClock, p, th.harnessBinderReset.asBool)(system.p) }; Nil
 })
 
 class WithBlockDeviceBridge extends OverrideHarnessBinder({
   (system: CanHavePeripheryBlockDevice, th: FireSim, ports: Seq[ClockedIO[BlockDeviceIO]]) => {
     implicit val p: Parameters = GetSystemParameters(system)
-    ports.map { b => BlockDevBridge(b.clock, b.bits, th.buildtopReset.asBool) }
+    ports.map { b => BlockDevBridge(b.clock, b.bits, th.harnessBinderReset.asBool) }
     Nil
-  } })
+  }
+})
 
 class WithAXIOverSerialTLCombinedBridges extends OverrideHarnessBinder({
   (system: CanHavePeripheryTLSerial, th: FireSim, ports: Seq[ClockedIO[SerialIO]]) => {
     implicit val p = GetSystemParameters(system)
 
     p(SerialTLKey).map({ sVal =>
-      require(sVal.axiMemOverSerialTLParams.isDefined)
-      val axiDomainParams = sVal.axiMemOverSerialTLParams.get
-      require(sVal.isMemoryDevice)
-
+      val serialTLManagerParams = sVal.serialTLManagerParams.get
+      val axiDomainParams = serialTLManagerParams.axiMemOverSerialTLParams.get
+      require(serialTLManagerParams.isMemoryDevice)
       val memFreq = axiDomainParams.getMemFrequency(system.asInstanceOf[HasTileLinkLocations])
 
       ports.map({ port =>
-        val axiClock = p(ClockBridgeInstantiatorKey).requestClock("mem_over_serial_tl_clock", memFreq)
-        val axiClockBundle = Wire(new ClockBundle(ClockBundleParameters()))
-        axiClockBundle.clock := axiClock
-        axiClockBundle.reset := ResetCatchAndSync(axiClock, th.buildtopReset.asBool)
+        val axiClock = th.harnessClockInstantiator.requestClockHz("mem_over_serial_tl_clock", memFreq)
 
-        val serial_bits = SerialAdapter.asyncQueue(port, th.buildtopClock, th.buildtopReset)
-
-        val harnessMultiClockAXIRAM = withClockAndReset(th.buildtopClock, th.buildtopReset) {
-          SerialAdapter.connectHarnessMultiClockAXIRAM(
-            system.serdesser.get,
-            serial_bits,
-            axiClockBundle,
-            th.buildtopReset)
-        }
-        SerialBridge(th.buildtopClock, harnessMultiClockAXIRAM.module.io.tsi_ser, Some(MainMemoryConsts.globalName))
+        val serial_bits = port.bits
+        port.clock := th.harnessBinderClock
+        val harnessMultiClockAXIRAM = TSIHarness.connectMultiClockAXIRAM(
+          system.serdesser.get,
+          serial_bits,
+          axiClock,
+          ResetCatchAndSync(axiClock, th.harnessBinderReset.asBool))
+        TSIBridge(th.harnessBinderClock, harnessMultiClockAXIRAM.module.io.tsi, Some(MainMemoryConsts.globalName), th.harnessBinderReset.asBool)
 
         // connect SimAxiMem
-        (harnessMultiClockAXIRAM.mem_axi4 zip harnessMultiClockAXIRAM.memNode.edges.in).map { case (axi4, edge) =>
+        (harnessMultiClockAXIRAM.mem_axi4.get zip harnessMultiClockAXIRAM.memNode.get.edges.in).map { case (axi4, edge) =>
           val nastiKey = NastiParameters(axi4.bits.r.bits.data.getWidth,
                                         axi4.bits.ar.bits.addr.getWidth,
                                         axi4.bits.ar.bits.id.getWidth)
@@ -207,7 +189,7 @@ class WithDromajoBridge extends ComposeHarnessBinder({
 
 class WithTraceGenBridge extends OverrideHarnessBinder({
   (system: TraceGenSystemModuleImp, th: FireSim, ports: Seq[Bool]) =>
-    ports.map { p => GroundTestBridge(th.buildtopClock, p)(system.p) }; Nil
+    ports.map { p => GroundTestBridge(th.harnessBinderClock, p)(system.p) }; Nil
 })
 
 class WithFireSimMultiCycleRegfile extends ComposeIOBinder({
@@ -245,29 +227,51 @@ class WithFireSimFAME5 extends ComposeIOBinder({
   }
 })
 
+class WithAirSimBridge extends OverrideHarnessBinder({
+  (system: CanHavePeripheryAirSimIO, th: FireSim, ports: Seq[ClockedIO[AirSimPortIO]]) => {
+    val p: Parameters = GetSystemParameters(system)
+    ports.map { n => 
+      val airsim_b = AirSimBridge(n.clock, n.bits, th.harnessBinderReset.asBool)(p) 
+      airsim_b
+    }
+    Nil
+  }
+})
+
 class WithRoseBridge extends OverrideHarnessBinder({
   (system: CanHavePeripheryRoseAdapter, th: FireSim, ports: Seq[ClockedIO[RosePortIO]]) => {
     val p: Parameters = GetSystemParameters(system)
     ports.map { n => 
-      val rose_b = RoseBridge(n.clock, n.bits)(p) 
+      val rose_b = RoseBridge(n.clock, n.bits, th.harnessBinderReset.asBool)(p) 
       rose_b
     }
     Nil
   }
 })
 
-
 // Shorthand to register all of the provided bridges above
 class WithDefaultFireSimBridges extends Config(
-  new WithSerialBridge ++
+  new WithTSIBridgeAndHarnessRAMOverSerialTL ++
   new WithNICBridge ++
   new WithUARTBridge ++
-  new WithAirSimBridge ++
-  new WithRoseBridge ++
   new WithBlockDeviceBridge ++
   new WithFASEDBridge ++
   new WithFireSimMultiCycleRegfile ++
   new WithFireSimFAME5 ++
+  new WithAirSimBridge ++
   new WithTracerVBridge ++
+  new WithFireSimIOCellModels
+)
+
+// Shorthand to register all of the provided mmio-only bridges above
+class WithDefaultMMIOOnlyFireSimBridges extends Config(
+  new WithTSIBridgeAndHarnessRAMOverSerialTL ++
+  new WithUARTBridge ++
+  new WithBlockDeviceBridge ++
+  new WithFASEDBridge ++
+  new WithFireSimMultiCycleRegfile ++
+  new WithFireSimFAME5 ++
+  new WithAirSimBridge ++
+  new WithRoseBridge ++ 
   new WithFireSimIOCellModels
 )
