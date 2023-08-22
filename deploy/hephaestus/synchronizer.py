@@ -80,7 +80,8 @@ class CoSimLogger:
         self.start_time = time.time()
 
     def add_row(self, frame):
-        self.df = self.df.append({"frame": frame*self.frames, "cycles": frame*self.cycles, "real_time": time.time() - self.start_time}, ignore_index=True)
+        to_add = pd.DataFrame.from_dict({"frame": [frame*self.frames], "cycles": [frame*self.cycles], "real_time": [time.time() - self.start_time]})
+        self.df = pd.concat([self.df, to_add], ignore_index=True)
         # print(f"df row added: {self.df}")
 
     def log_targets(self, dat):
@@ -517,9 +518,9 @@ class Synchronizer:
             for row in png_arr:
                 png_packet_arr = row.view(np.uint32).tolist()
                 if k < 4:
-                    # print(len(png_packet_arr))
-                    #print([hex(x) for x in png_packet_arr])
-                    # print([(i, hex(png_packet_arr[i])) for i in range(len(png_packet_arr))])
+                    print(len(png_packet_arr))
+                    print([hex(x) for x in png_packet_arr])
+                    print([(i, hex(png_packet_arr[i])) for i in range(len(png_packet_arr))])
                     k += 1
                 # print(png_packet_arr)
                 packet = CoSimPacket()
