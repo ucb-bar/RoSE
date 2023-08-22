@@ -43,7 +43,7 @@ class RoseAdapterIO(params: RoseAdapterParams) extends Bundle {
 trait RoseAdapterTopIO extends Bundle {
     val params: RoseAdapterParams
     // SoC receive from bridge, a vector of flipped decoupled IOs
-    val rx = Vec(params.dst_ports.seq.count(_ => true), Flipped(Decoupled(UInt(32.W))))
+    val rx = Vec(params.dst_ports.seq.size, Flipped(Decoupled(UInt(32.W))))
     // SoC send to bridge, simple for now
     val tx = Decoupled(UInt(32.W))
     val cam_buffer = Vec(params.dst_ports.seq.count(_.port_type == "DMA"), Input(UInt(1.W)))
