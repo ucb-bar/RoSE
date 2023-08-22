@@ -290,7 +290,7 @@ void airsim_t::process_tcp_packet()
         switch (packet.cmd & 0xFF)
         {
         case CS_GRANT_TOKEN:
-            //printf("[AirSim Driver]: Got Sync Packet\n");
+            // printf("[AirSim Driver]: Got Sync Packet\n");
             this->grant_cycles();
             // printf("[AirSim Driver]: Reporting Stalls\n");
             // this->report_stall();
@@ -401,7 +401,7 @@ void airsim_t::check_stall()
     cosim_packet_t response;
 
     budget = read(this->mmio_addrs.cycle_budget);
-    //printf("budget: %u\n", budget);
+    // printf("[AirSim Driver]:budget: %u\n", budget);
     if(!budget){
         response.init(CS_RSP_STALL, 0, NULL);
         // response.encode(this->buf);

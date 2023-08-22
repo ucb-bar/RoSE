@@ -28,6 +28,7 @@ class rolut(params: RoseAdapterParams) extends Module {
     val key = Input(UInt(params.width.W))
     val value = Output(UInt(params.width.W))
   })
+  dontTouch(io)
   io.value := 0.U
   for (i <- 0 until params.dst_ports.seq.length) {
     for (j <- 0 until params.dst_ports.seq(i).IDs.length) {
@@ -41,6 +42,7 @@ class rolut(params: RoseAdapterParams) extends Module {
 class RoseAdapterMMIOChiselModule(params: RoseAdapterParams) extends Module
 {
   val io = IO(new RoseAdapterIO(params))
+  dontTouch(io)
   val txfifo = Module(new Queue(UInt(params.width.W), 64))
 
   io.tx.enq <> txfifo.io.enq
@@ -253,10 +255,11 @@ trait RoseAdapterModule extends HasRegMap {
   val reset: Reset
   val io: RoseAdapterTopIO
 
+  dontTouch(io)
   // TL Register Wires
   val tx_data = Wire(Decoupled(UInt(params.width.W)))
   val rx_data = Wire(Vec(params.dst_ports.seq.count(_.port_type != "DMA"), UInt(params.width.W)))
-  val status = Wire(UInt((2 + params.dst_ports.seq.size).W))
+  val status = Wire(UInt((1 + params.dst_ports.seq.size).W))
 
   // FIXME: get the max value
   val written_counter_max = RegInit(VecInit(Seq.fill(params.dst_ports.seq.count(_.port_type == "DMA"))(99999.U(32.W))))
@@ -270,42 +273,47 @@ trait RoseAdapterModule extends HasRegMap {
   tx_data <> impl.io.tx.enq
   
   // Create a sequence of all DMA cam buffers
-  val cam_buffers:Seq[UInt] = Seq()
+  var cam_buffers:Seq[UInt] = Seq()
   for (i <- 0 until params.dst_ports.seq.count(_.port_type == "DMA")) {
-    cam_buffers :+ impl.io.cam_buffer(i)
+    cam_buffers = cam_buffers :+ impl.io.cam_buffer(i)
   }
 
   var idx_map = Seq[Int]()
+  var reversed_idx_map = Seq[Int]()
   // generate all the DMA engines
   var DMA_count = 0
   var other_count = 0
-  params.dst_ports.seq.foreach(
-    i => i.port_type match {
-      case "DMA" => {
-        idx_map = idx_map :+ DMA_count
-        DMA_count += 1
-      }
-      case _ => {
-        idx_map = idx_map :+ other_count
-        other_count += 1
+  params.dst_ports.seq.zipWithIndex.foreach(
+    {case (i, n) => i.port_type match {
+        case "DMA" => {
+          idx_map = idx_map :+ DMA_count
+          DMA_count += 1
+        }
+        case _ => {
+          idx_map = idx_map :+ other_count
+          other_count += 1
+          reversed_idx_map = reversed_idx_map :+ n
+        }
       }
     }
   )
   // create a sequence of all rx valid signals
-  val rx_valids:Seq[Bool] = Seq()
+  var rx_valids:Seq[Bool] = Seq()
   for (i <- 0 until params.dst_ports.seq.count(_.port_type != "DMA")) {
-    rx_valids :+ impl.io.rx(i).valid
+    rx_valids = rx_valids :+ impl.io.rx(i).valid
     rx_data(idx_map(i)) := impl.io.rx(i).bits
-    io.rx(idx_map(i)) <> impl.io.rx(i)
+    io.rx(reversed_idx_map(i)) <> impl.io.rx(i)
   }
 
-  // Concat all cam buffers
-  val cam_buffers_cat = Cat(cam_buffers)
-  // Concat all rx valid signals
-  val rx_valids_cat = Cat(rx_valids)
+  // // Concat all cam buffers
+  // val cam_buffers_cat = Cat(cam_buffers)
+  // // Concat all rx valid signals
+  // val rx_valids_cat = Cat(rx_valids)
   // Concat all rx valid signals and cam buffers, and tx ready
-  status := Cat(cam_buffers_cat, rx_valids_cat, impl.io.tx.enq.ready)
-
+  val status_seq = cam_buffers ++ rx_valids ++ Seq(impl.io.tx.enq.ready) 
+  println("LUX DEBUG")
+  println(status_seq)
+  status := Cat(status_seq)
   // Connect to top IO
   // io.rx <> impl.io.rx
   io.tx <> impl.io.tx.deq
@@ -316,22 +324,34 @@ trait RoseAdapterModule extends HasRegMap {
   }
 
   val rx_datas =     
-  for (i <- 0 until params.dst_ports.seq.count(_.port_type != "DMA")) yield {
+  (for (i <- 0 until params.dst_ports.seq.count(_.port_type != "DMA")) yield {
       0x0C + i*4 -> Seq(
         RegField.r(params.width, rx_data(i))) // read-only, RoseAdapter.ready is set on read
-  }
+  }).toSeq
+
 
   val written_counters = 
-  for (i <- 0 until params.dst_ports.seq.count(_.port_type == "DMA")) yield {
+  (for (i <- 0 until params.dst_ports.seq.count(_.port_type == "DMA")) yield {
       0x0C + (params.dst_ports.seq.count(_.port_type != "DMA") + i)*4 -> Seq(
-        RegField.r(params.width, written_counter_max(i))) // read-only, RoseAdapter.ready is set on read
-  }
+        RegField.w(params.width, written_counter_max(i))) // read-only, RoseAdapter.ready is set on read
+  }).toSeq
 
+  // val statusreg = 0x00 -> Seq(
+  //   // only support leq 30 ports
+  //   RegField.r(1 + params.dst_ports.seq.size, status))
+
+  // val tx_datareg = 0x08 -> Seq(
+  //   RegField.w(params.width, tx_data)) // write-only, y.valid is set on write
+
+  // regmap(statusreg, tx_datareg)
+  // regmap((rx_datas): _*)
+  // regmap((written_counters): _*)
+  dontTouch(status)
   regmap(
     (Seq(
     0x00 -> Seq(
       // only support leq 30 ports
-      RegField.r(2 + params.dst_ports.seq.size, status)),
+      RegField.r(1 + params.dst_ports.seq.size, status)),
 
     0x08 -> Seq(
       RegField.w(params.width, tx_data))) ++ // write-only, y.valid is set on write
@@ -384,9 +404,9 @@ trait CanHavePeripheryRoseAdapter { this: BaseSubsystem =>
 
     val outer_io = InModuleBody {
       val outer_io = IO(new ClockedIO(new RosePortIO(params))).suggestName(portName)
-
+      dontTouch(outer_io)
       outer_io.clock := roseAdapterTL.module.clock
-      
+      outer_io.bits.tx <> roseAdapterTL.module.io.tx
       for (i <- 0 until params.dst_ports.seq.length) {
         outer_io.bits.rx(i) <> roseAdapterTL.module.io.rx(i)
         params.dst_ports.seq(i).port_type match {

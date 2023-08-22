@@ -25,7 +25,7 @@ class rxcontroller(params: RoseAdapterParams) extends Module{
 
   io.tx.bits := rxData
   io.tx.valid := (rxState === sRxSend)
-  io.rx.ready := io.tx.ready
+  io.rx.ready := (rxState === sRxRecv) 
 
   switch(rxState) {
     is(sRxIdle) {
@@ -178,7 +178,6 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     val targetReset = fire & hPort.hBits.reset
     rxfifo.reset := reset.asBool || targetReset
     txfifo.reset := reset.asBool || targetReset
-
 
     // COSIM-CODE
     // Add to the cycles the tool is permitted to run forward

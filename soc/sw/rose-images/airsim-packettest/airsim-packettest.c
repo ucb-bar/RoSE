@@ -35,58 +35,62 @@ uint32_t buf[56 * 56 * 3];
 
 void send_arm() {
     printf("Sending arm...\n");
-    while ((reg_read8(AIRSIM_STATUS) & 0x2) == 0) ;
+    while ((reg_read8(AIRSIM_STATUS) & 0x1) == 0) {
+      printf("DDDEBUG:%x\n", reg_read8(AIRSIM_STATUS));
+    };
+    printf("Sendeded arm...\n");
     reg_write32(AIRSIM_IN, CS_REQ_ARM);
-    while ((reg_read8(AIRSIM_STATUS) & 0x2) == 0) ;
+    while ((reg_read8(AIRSIM_STATUS) & 0x1) == 0) ;
+    printf("Sent arm...\n");
     reg_write32(AIRSIM_IN, 0);
 }
 
 void send_takeoff() {
     printf("Sending takeoff...\n");
-    while ((reg_read8(AIRSIM_STATUS) & 0x2) == 0) ;
+    while ((reg_read8(AIRSIM_STATUS) & 0x1) == 0) ;
     reg_write32(AIRSIM_IN, CS_REQ_TAKEOFF);
-    while ((reg_read8(AIRSIM_STATUS) & 0x2) == 0) ;
+    while ((reg_read8(AIRSIM_STATUS) & 0x1) == 0) ;
     reg_write32(AIRSIM_IN, 0);
 }
 
 void send_waypoint(float xcoord, float ycoord, float zcoord, float vel) {
     printf("Navigating to waypoint...\n",xcoord, ycoord, zcoord);
-    while ((reg_read8(AIRSIM_STATUS) & 0x2) == 0) ;
+    while ((reg_read8(AIRSIM_STATUS) & 0x1) == 0) ;
     reg_write32(AIRSIM_IN, CS_RSP_WAYPOINT);
-    while ((reg_read8(AIRSIM_STATUS) & 0x2) == 0) ;
+    while ((reg_read8(AIRSIM_STATUS) & 0x1) == 0) ;
     reg_write32(AIRSIM_IN, 16);
-    while ((reg_read8(AIRSIM_STATUS) & 0x2) == 0) ;
+    while ((reg_read8(AIRSIM_STATUS) & 0x1) == 0) ;
     reg_write32(AIRSIM_IN, *((uint32_t *) &xcoord));
-    while ((reg_read8(AIRSIM_STATUS) & 0x2) == 0) ;
+    while ((reg_read8(AIRSIM_STATUS) & 0x1) == 0) ;
     reg_write32(AIRSIM_IN, *((uint32_t *) &ycoord));
-    while ((reg_read8(AIRSIM_STATUS) & 0x2) == 0) ;
+    while ((reg_read8(AIRSIM_STATUS) & 0x1) == 0) ;
     reg_write32(AIRSIM_IN, *((uint32_t *) &zcoord));
-    while ((reg_read8(AIRSIM_STATUS) & 0x2) == 0) ;
+    while ((reg_read8(AIRSIM_STATUS) & 0x1) == 0) ;
     reg_write32(AIRSIM_IN, *((uint32_t *) &vel));
 }
 
 void send_target(float zcoord, float xvel, float yvel, float yawrate) {
     printf("Setting target %f, %f, %f, %f...\n", zcoord, xvel, yvel, yawrate);
 
-    while ((reg_read8(AIRSIM_STATUS) & 0x2) == 0) ;
+    while ((reg_read8(AIRSIM_STATUS) & 0x1) == 0) ;
     reg_write32(AIRSIM_IN, CS_SET_TARGETS);
-    while ((reg_read8(AIRSIM_STATUS) & 0x2) == 0) ;
+    while ((reg_read8(AIRSIM_STATUS) & 0x1) == 0) ;
     reg_write32(AIRSIM_IN, 16);
-    while ((reg_read8(AIRSIM_STATUS) & 0x2) == 0) ;
+    while ((reg_read8(AIRSIM_STATUS) & 0x1) == 0) ;
     reg_write32(AIRSIM_IN, *((uint32_t *) &zcoord));
-    while ((reg_read8(AIRSIM_STATUS) & 0x2) == 0) ;
+    while ((reg_read8(AIRSIM_STATUS) & 0x1) == 0) ;
     reg_write32(AIRSIM_IN, *((uint32_t *) &xvel));
-    while ((reg_read8(AIRSIM_STATUS) & 0x2) == 0) ;
+    while ((reg_read8(AIRSIM_STATUS) & 0x1) == 0) ;
     reg_write32(AIRSIM_IN, *((uint32_t *) &yvel));
-    while ((reg_read8(AIRSIM_STATUS) & 0x2) == 0) ;
+    while ((reg_read8(AIRSIM_STATUS) & 0x1) == 0) ;
     reg_write32(AIRSIM_IN, *((uint32_t *) &yawrate ));
 }
 
 void send_depth_req() {
     printf("Requesting depth...\n");
-    while ((reg_read8(AIRSIM_STATUS) & 0x2) == 0) ;
+    while ((reg_read8(AIRSIM_STATUS) & 0x1) == 0) ;
     reg_write32(AIRSIM_IN, CS_REQ_DEPTH);
-    while ((reg_read8(AIRSIM_STATUS) & 0x2) == 0) ;
+    while ((reg_read8(AIRSIM_STATUS) & 0x1) == 0) ;
     reg_write32(AIRSIM_IN, 0);
 }
 
@@ -102,9 +106,9 @@ float load_depth() {
   } while ((status & 0x1) == 0);
 
   uint32_t cmd = reg_read32(AIRSIM_OUT);
-  while ((reg_read8(AIRSIM_STATUS) & 0x1) == 0) ;
+  while ((reg_read8(AIRSIM_STATUS) & 0x2) == 0) ;
   uint32_t num_bytes = reg_read32(AIRSIM_OUT);
-  while ((reg_read8(AIRSIM_STATUS) & 0x1) == 0) ;
+  while ((reg_read8(AIRSIM_STATUS) & 0x2) == 0) ;
   raw_result = reg_read32(AIRSIM_OUT);
   result = *((float *) &raw_result);
   return result;
@@ -117,9 +121,9 @@ void configure_counter(){
 
 void send_img_req() {
     printf("Requesting image...\n");
-    while ((reg_read8(AIRSIM_STATUS) & 0x2) == 0) ;
+    while ((reg_read8(AIRSIM_STATUS) & 0x1) == 0) ;
     reg_write32(AIRSIM_IN, CS_REQ_IMG);
-    while ((reg_read8(AIRSIM_STATUS) & 0x2) == 0) ;
+    while ((reg_read8(AIRSIM_STATUS) & 0x1) == 0) ;
     reg_write32(AIRSIM_IN, 0);
 }
 
@@ -142,14 +146,14 @@ void recv_img() {
     status = reg_read8(AIRSIM_STATUS);
     printf("status: %x\n", status);
   } while ((status & 0x1) == 0);
-  // while ((reg_read8(AIRSIM_STATUS) & 0x1) == 0) ;
+  // while ((reg_read8(AIRSIM_STATUS) & 0x2) == 0) ;
   uint32_t cmd = reg_read32(AIRSIM_OUT);
   printf("Cmd: %x\n", cmd);
-  while ((reg_read8(AIRSIM_STATUS) & 0x1) == 0) ;
+  while ((reg_read8(AIRSIM_STATUS) & 0x2) == 0) ;
   uint32_t num_bytes = reg_read32(AIRSIM_OUT);
   printf("Num_bytes: %d\n", num_bytes);
   for(i = 0; i < num_bytes / 4; i++) {
-    while ((reg_read8(AIRSIM_STATUS) & 0x1) == 0) ;
+    while ((reg_read8(AIRSIM_STATUS) & 0x2) == 0) ;
     buf[i] = reg_read32(AIRSIM_OUT);
     printf("(%d, %x) ", i, buf[i]);
   }
@@ -225,19 +229,19 @@ int main(void)
 
   //for(i = 0; i < 100; i++) {
   //  // wait for peripheral to be ready
-  //  while ((reg_read8(AIRSIM_STATUS) & 0x2) == 0) ;
+  //  while ((reg_read8(AIRSIM_STATUS) & 0x1) == 0) ;
   //  reg_write32(AIRSIM_IN, data0);
   //  printf("SoC SENT DATA0\n");
-  //  while ((reg_read8(AIRSIM_STATUS) & 0x2) == 0) ;
+  //  while ((reg_read8(AIRSIM_STATUS) & 0x1) == 0) ;
   //  reg_write32(AIRSIM_IN, data1);
   //  printf("SoC SENT DATA1\n");
-  //  while ((reg_read8(AIRSIM_STATUS) & 0x2) == 0) ;
+  //  while ((reg_read8(AIRSIM_STATUS) & 0x1) == 0) ;
   //  reg_write32(AIRSIM_IN, data2);
   //  printf("SoC SENT DATA2\n");
   //  data2++;
   //  // wait for peripheral to complete
   //  for(j = 0; j < 3; j++) {
-  //    while ((reg_read8(AIRSIM_STATUS) & 0x1) == 0) ;
+  //    while ((reg_read8(AIRSIM_STATUS) & 0x2) == 0) ;
   //    result = reg_read32(AIRSIM_OUT);
   //    printf("SoC Got Data: 0x%x\n", result);
   //  }
@@ -249,21 +253,21 @@ int main(void)
   //   return 1;
   // }
 
-  // while ((reg_read8(AIRSIM_STATUS) & 0x1) == 0) ;
+  // while ((reg_read8(AIRSIM_STATUS) & 0x2) == 0) ;
   // result = reg_read32(AIRSIM_OUT);
   // if (result != data1) {
   //   printf("Hardware result %x does not match reference value %x\n", result, data1);
   //   return 1;
   // }
 
-  // while ((reg_read8(AIRSIM_STATUS) & 0x1) == 0) ;
+  // while ((reg_read8(AIRSIM_STATUS) & 0x2) == 0) ;
   // result = reg_read32(AIRSIM_OUT);
   // if (result != data2) {
   //   printf("Hardware result %x does not match reference value %x\n", result, data2);
   //   return 1;
   // }
 
-  // while ((reg_read8(AIRSIM_STATUS) & 0x1) == 0) ;
+  // while ((reg_read8(AIRSIM_STATUS) & 0x2) == 0) ;
   // result = reg_read32(AIRSIM_OUT);
   // if (result != data3) {
   //   printf("Hardware result %x does not match reference value %x\n", result, data3);
