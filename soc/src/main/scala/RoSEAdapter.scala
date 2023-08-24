@@ -27,13 +27,20 @@ class rolut(params: RoseAdapterParams) extends Module {
   val io = IO(new Bundle{
     val key = Input(UInt(params.width.W))
     val value = Output(UInt(params.width.W))
+    val keep_header = Output(Bool())
   })
   dontTouch(io)
   io.value := 0.U
+  io.keep_header := false.B
   for (i <- 0 until params.dst_ports.seq.length) {
     for (j <- 0 until params.dst_ports.seq(i).IDs.length) {
       when (io.key === params.dst_ports.seq(i).IDs(j).U) {
         io.value := i.U
+        if (params.dst_ports.seq(i).port_type == "reqrsp") {
+          io.keep_header := true.B
+        } else {
+          io.keep_header := false.B
+        } 
       }
     }
   }
@@ -147,7 +154,9 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module {
   val buffer_next = Wire(UInt(w.W))
   buffer_next := io.tx.bits
   //goal: io.rx.fire should be synced with io.target.fire
+  val rolut = Module(new rolut(params))
   val buffer = RegEnable(next = buffer_next, enable = io.tx.fire)
+  val keep_header = RegEnable(next=rolut.io.keep_header, enable = io.tx.fire)
   //the counter of how many cycles of loads, decided by the second queue val
   val counter = Reg(UInt(w.W))
   val sIdle :: sFlag :: sHeader :: sCounter :: sLoad :: Nil = Enum(5)
@@ -170,7 +179,7 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module {
   //   val id_vec = VecInit(id_iter)
   //   id_collection = id_collection :+ id_vec
   // }
-  val rolut = Module(new rolut(params))
+
 
   // general enque logic, applicable to both cam&others
   val tx_val = Wire(Bool())
@@ -213,7 +222,7 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module {
     // send the header packet to the right fifo according to the flag
     is(sHeader) {
       // if it is a camera header, throw it away, else transmit it
-      tx_val := false.B
+      tx_val := Mux(keep_header, io.tx.valid, false.B)
       state := Mux(io.tx.fire, sCounter, sHeader)
     }
     // set the value of counter to the desired cycles
@@ -221,7 +230,7 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module {
     is(sCounter) {
       counter := buffer >> 2
       // counter := Mux(buffer === 0.U, 0.U, 1.U << ((Log2(buffer) - (log2Ceil(w) - log2Ceil(8)).U) - 1.U))
-      tx_val := false.B
+      tx_val := Mux(keep_header, io.tx.valid, false.B)
       // don't bother to step into sLoad and do nothing and exit
       when (buffer === 0.U){
         io.tx.ready := 0.U
@@ -301,7 +310,7 @@ trait RoseAdapterModule extends HasRegMap {
   var rx_valids:Seq[Bool] = Seq()
   for (i <- 0 until params.dst_ports.seq.count(_.port_type != "DMA")) {
     rx_valids = rx_valids :+ impl.io.rx(i).valid
-    rx_data(idx_map(i)) := impl.io.rx(i).bits
+    rx_data(i) := impl.io.rx(i).bits
     io.rx(reversed_idx_map(i)) <> impl.io.rx(i)
   }
 
@@ -310,9 +319,7 @@ trait RoseAdapterModule extends HasRegMap {
   // // Concat all rx valid signals
   // val rx_valids_cat = Cat(rx_valids)
   // Concat all rx valid signals and cam buffers, and tx ready
-  val status_seq = cam_buffers ++ rx_valids ++ Seq(impl.io.tx.enq.ready) 
-  println("LUX DEBUG")
-  println(status_seq)
+  val status_seq = cam_buffers ++ rx_valids ++ Seq(impl.io.tx.enq.ready)
   status := Cat(status_seq)
   // Connect to top IO
   // io.rx <> impl.io.rx

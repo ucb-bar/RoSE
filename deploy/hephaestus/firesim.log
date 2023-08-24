@@ -1,0 +1,256 @@
+FireSim Manager. Docs: https://docs.fires.im
+Running: runworkload
+
+Creating the directory: /scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/deploy/results-workload/2023-08-24--01-17-04-airsim-packettest/
+[localhost] Checking if host instance is up...
+[localhost] Starting Metasim simulation for slot: 0.
+[2J
+FireSim Simulation Status @ 2023-08-24 01:17:11.206143
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/deploy/results-workload/2023-08-24--01-17-04-airsim-packettest/
+This run's log is located in:
+/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/deploy/logs/2023-08-24--01-17-04-runworkload-XJMC3AXMYH80T2T1.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: localhost | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: localhost | Job: airsim-packettest0 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2023-08-24 01:17:22.444963
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/deploy/results-workload/2023-08-24--01-17-04-airsim-packettest/
+This run's log is located in:
+/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/deploy/logs/2023-08-24--01-17-04-runworkload-XJMC3AXMYH80T2T1.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: localhost | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: localhost | Job: airsim-packettest0 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2023-08-24 01:17:33.669904
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/deploy/results-workload/2023-08-24--01-17-04-airsim-packettest/
+This run's log is located in:
+/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/deploy/logs/2023-08-24--01-17-04-runworkload-XJMC3AXMYH80T2T1.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: localhost | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: localhost | Job: airsim-packettest0 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2023-08-24 01:17:44.893136
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/deploy/results-workload/2023-08-24--01-17-04-airsim-packettest/
+This run's log is located in:
+/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/deploy/logs/2023-08-24--01-17-04-runworkload-XJMC3AXMYH80T2T1.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: localhost | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: localhost | Job: airsim-packettest0 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2023-08-24 01:17:56.121038
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/deploy/results-workload/2023-08-24--01-17-04-airsim-packettest/
+This run's log is located in:
+/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/deploy/logs/2023-08-24--01-17-04-runworkload-XJMC3AXMYH80T2T1.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: localhost | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: localhost | Job: airsim-packettest0 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2023-08-24 01:18:07.359772
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/deploy/results-workload/2023-08-24--01-17-04-airsim-packettest/
+This run's log is located in:
+/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/deploy/logs/2023-08-24--01-17-04-runworkload-XJMC3AXMYH80T2T1.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: localhost | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: localhost | Job: airsim-packettest0 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2023-08-24 01:18:18.599644
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/deploy/results-workload/2023-08-24--01-17-04-airsim-packettest/
+This run's log is located in:
+/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/deploy/logs/2023-08-24--01-17-04-runworkload-XJMC3AXMYH80T2T1.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: localhost | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: localhost | Job: airsim-packettest0 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2023-08-24 01:18:29.806901
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/deploy/results-workload/2023-08-24--01-17-04-airsim-packettest/
+This run's log is located in:
+/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/deploy/logs/2023-08-24--01-17-04-runworkload-XJMC3AXMYH80T2T1.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: localhost | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: localhost | Job: airsim-packettest0 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[localhost] Slot 0, Job airsim-packettest0 completed!
+!!! Parallel execution exception under host 'localhost':
+Process localhost:
+Fatal error.
+Traceback (most recent call last):
+  File "/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/deploy/firesim", line 530, in <module>
+    main(args)
+  File "/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/deploy/firesim", line 469, in main
+    t['task'](t['config'](args))
+  File "/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/deploy/firesim", line 258, in runworkload
+    runtime_conf.run_workload()
+  File "/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/deploy/runtools/runtime_config.py", line 912, in run_workload
+    self.firesim_topology_with_passes.run_workload_passes(use_mock_instances_for_testing)
+  File "/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/deploy/runtools/firesim_topology_with_passes.py", line 683, in run_workload_passes
+    instancestates = execute(monitor_jobs_wrapper,
+  File "/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/.conda-env/lib/python3.10/site-packages/fabric/tasks.py", line 383, in execute
+    ran_jobs = jobs.run()
+  File "/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/.conda-env/lib/python3.10/site-packages/fabric/job_queue.py", line 172, in run
+    time.sleep(ssh.io_sleep)
+KeyboardInterrupt
+The full log of this run is:
+/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/deploy/logs/2023-08-24--01-17-04-runworkload-XJMC3AXMYH80T2T1.log
+Traceback (most recent call last):
+  File "/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/.conda-env/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/.conda-env/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/.conda-env/lib/python3.10/site-packages/fabric/tasks.py", line 196, in _parallel_wrap
+    queue.put({'name': name, 'result': task.run(*args, **kwargs)})
+  File "/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/.conda-env/lib/python3.10/site-packages/fabric/tasks.py", line 147, in run
+    return self.wrapped(*args, **kwargs)
+  File "/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/.conda-env/lib/python3.10/site-packages/fabric/decorators.py", line 176, in inner
+    return func(*args, **kwargs)
+  File "/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/deploy/runtools/firesim_topology_with_passes.py", line 591, in monitor_jobs_wrapper
+    return my_node.instance_deploy_manager.monitor_jobs_instance(prior_completed_jobs, is_final_loop, is_networked, terminateoncompletion, job_results_dir)
+  File "/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/deploy/runtools/run_farm_deploy_managers.py", line 439, in monitor_jobs_instance
+    sim_slots[slotno].copy_back_job_results_from_run(slotno, has_sudo())
+  File "/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/deploy/runtools/firesim_topology_elements.py", line 442, in copy_back_job_results_from_run
+    mount(rfsname, mountpoint, dest_sim_slot_dir)
+  File "/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/deploy/runtools/firesim_topology_elements.py", line 411, in mount
+    run(f"""while [ ! "$(ls -A {mnt})" ]; do echo "Waiting for mount to finish"; sleep 1; done""", timeout=60*10)
+  File "/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/.conda-env/lib/python3.10/site-packages/fabric/network.py", line 688, in host_prompting_wrapper
+    return func(*args, **kwargs)
+  File "/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/.conda-env/lib/python3.10/site-packages/fabric/operations.py", line 1068, in run
+    return _run_command(
+  File "/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/.conda-env/lib/python3.10/site-packages/fabric/operations.py", line 919, in _run_command
+    result_stdout, result_stderr, status = _execute(
+  File "/scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/.conda-env/lib/python3.10/site-packages/fabric/operations.py", line 809, in _execute
+    time.sleep(ssh.io_sleep)
+KeyboardInterrupt

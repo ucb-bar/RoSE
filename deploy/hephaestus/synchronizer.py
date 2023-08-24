@@ -18,6 +18,7 @@ import traceback
 import control_drone
 import datetime
 
+import collections
 import pandas as pd
 
 CS_GRANT_TOKEN  = 0x80 
@@ -37,6 +38,8 @@ CS_RSP_IMG      = 0x11
 
 CS_REQ_DEPTH    = 0x12
 CS_RSP_DEPTH    = 0x13
+CS_REQ_DEPTH_STREAM = 0x14
+CS_RSP_DEPTH_STREAM = 0x15
 
 CS_SET_TARGETS  = 0x20
 
@@ -282,6 +285,8 @@ class Synchronizer:
         self.data_rxqueue = []
         self.sync_rxqueue = []
 
+        self.streaming_queue = collections.OrderedDict()
+
         self.cycle_limit = cycle_limit
         self.initial_y = initial_y
         self.terminal_x = terminal_x
@@ -407,6 +412,7 @@ class Synchronizer:
                     break
             while len(self.data_rxqueue) > 0:
                 self.process_fsim_data_packet()
+            self.process_streaming_queue()
             if count == 1:
                 start_time = time.time()
         socket_thread.join()
@@ -430,7 +436,6 @@ class Synchronizer:
                 self.sync_rxqueue.pop(0)
                 break
             
-    
     def get_firesim_cycles(self):
         packet = CoSimPacket()
         packet.init(CS_REQ_CYCLES, 0, None)
@@ -443,6 +448,17 @@ class Synchronizer:
     
     def send_test_firesim_data_packet(self):
         packet = CoSimPacket()
+    
+    def process_streaming_queue(self):
+        for key,enabled in self.streaming_queue.items():
+            if enabled:
+                if key == CS_RSP_DEPTH_STREAM:
+                    depth = self.client.getDistanceSensorData("Distance").distance
+                    packet = CoSimPacket()
+                    packet.init(CS_RSP_DEPTH_STREAM, 4, [depth])
+                    self.txqueue.append(packet)
+                else:
+                    pass
 
     def process_fsim_data_packet(self):
         packet = self.data_rxqueue.pop(0)
@@ -514,7 +530,6 @@ class Synchronizer:
             # print(png_arr)
             # png_arr = png.reshape((172_800))
             k = 0
-
             for row in png_arr:
                 png_packet_arr = row.view(np.uint32).tolist()
                 if k < 4:
@@ -535,13 +550,14 @@ class Synchronizer:
             packet = CoSimPacket()
             packet.init(CS_RSP_DEPTH, 4, [depth])
             self.txqueue.append(packet)
-
+        elif packet.cmd == CS_REQ_DEPTH_STREAM:
+            print("---------------------------------------------------")
+            print("Got depth streaming request...")
+            print("---------------------------------------------------") 
+            self.streaming_queue[CS_RSP_DEPTH_STREAM] = True
         else:
             pass
         
-
-
-
 if __name__ == "__main__":
     arg_list = argparse.ArgumentParser()
 
