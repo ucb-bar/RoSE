@@ -53,7 +53,7 @@ class FiresimThread(threading.Thread):
         os.system("firesim runworkload")
     def run_firesim(self):
         os.system("firesim infrasetup")
-        os.system("firesim runworkload > firesim.log")
+        os.system("firesim runworkload")
 
 if __name__ == "__main__":
     arg_list = argparse.ArgumentParser()

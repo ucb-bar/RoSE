@@ -10,22 +10,29 @@ import org.chipsalliance.cde.config.Parameters
 import freechips.rocketchip.subsystem.PeripheryBusKey
 import sifive.blocks.devices.uart.{UARTPortIO, UARTParams}
 
-import rose.{RosePortIO, RoseAdapterParams, RoseAdapterKey, RoseAdapterArbiter}
+import rose.{RosePortIO, RoseAdapterParams, RoseAdapterKey, RoseAdapterArbiter, DstParams}
 
-class rxcontroller(params: RoseAdapterParams) extends Module{
+class rxcontroller(params: DstParams) extends Module{
   val io = IO(new Bundle{
     val rx = Flipped(Decoupled(UInt(params.width.W)))
     val tx = Decoupled(UInt(params.width.W))
     val fire = Input(Bool())
+    val counter_reset = Input(Bool())
   })
 
   val sRxIdle :: sRxRecv :: sRxSend :: sRxDelay1 :: sRxDelay2 :: Nil = Enum(5)
   val rxState = RegInit(sRxIdle)
   val rxData = Reg(UInt(32.W))
 
+  val counter_next = Wire(UInt(params.width.W))
+  val counter : UInt = RegEnable(next = counter_next, init = 0.U(params.width.W), enable = io.tx.fire || io.counter_reset)
+  counter_next := Mux(io.counter_reset, 0.U, Mux((counter < params.bandwidth.U), counter + 4.U, counter)) 
+  val depleted = Wire(Bool())
+  depleted := counter === params.bandwidth.U 
+
   io.tx.bits := rxData
   io.tx.valid := (rxState === sRxSend)
-  io.rx.ready := (rxState === sRxRecv) 
+  io.rx.ready := (rxState === sRxRecv) && !depleted
 
   switch(rxState) {
     is(sRxIdle) {
@@ -37,7 +44,7 @@ class rxcontroller(params: RoseAdapterParams) extends Module{
       }
     }
     is(sRxRecv) {
-      when(io.rx.valid) {
+      when(io.rx.fire) {
         rxState := sRxSend
         rxData := io.rx.bits
       }.otherwise {
@@ -203,10 +210,11 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
       val dst_port = params.dst_ports.seq(i)
       val q = Module(new Queue(UInt(dst_port.width.W), 32))
       // generate a rxcontroller for each dst_port
-      val rxctrl = Module(new rxcontroller(params))
+      val rxctrl = Module(new rxcontroller(params.dst_ports.seq(i)))
       q.io.enq <> rosearb.io.rx(i)
       q.io.deq <> rxctrl.io.rx 
       rxctrl.io.tx <> target.rx(i)
+      rxctrl.io.counter_reset := cycleBudget === 0.U(32.W)
       rxctrl.io.fire := fire
     }
     // Drive fifo signals from AirSimIO
