@@ -23,6 +23,13 @@ class RosePortIO(params: RoseAdapterParams) extends Bundle {
   val tx = Decoupled(UInt(32.W))
 }
 
+class RoseAdapterArbiterIO(params: RoseAdapterParams) extends Bundle {
+    val rx = Vec(params.dst_ports.seq.size, Decoupled(UInt(32.W)))
+    val tx = Flipped(Decoupled(UInt(32.W)))
+    val budget = Flipped(Decoupled(UInt(32.W)))
+    val cycleBudget = Input(UInt(32.W))
+}
+
 // Core IO of the adapter
 class RoseAdapterIO(params: RoseAdapterParams) extends Bundle {
   val clock = Input(Clock())

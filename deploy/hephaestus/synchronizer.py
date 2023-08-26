@@ -21,6 +21,9 @@ import datetime
 import collections
 import pandas as pd
 
+from dataclasses import dataclass
+from heapq import *
+
 CS_GRANT_TOKEN  = 0x80 
 CS_REQ_CYCLES   = 0x81 
 CS_RSP_CYCLES   = 0x82 
@@ -75,8 +78,6 @@ class CoSimLogger:
         if filename is None:
             filename = f'./logs/runlog-angle-{yaw}-cycles-{cycles}-frames-{frames}-{datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}.csv'
         self.filename = filename
-        
-
     
     def start(self):
         self.started = True
@@ -140,10 +141,14 @@ class CoSimLogger:
         print(f"df logged to {self.filename}")
 
 class CoSimPacket:
+    cmd_latency_dict = {CS_RSP_IMG: 0.3, CS_RSP_DEPTH: 1.1}
+
     def __init__(self):
         self.cmd = None
         self.num_bytes = None
         self.data = None
+        self.latency_enabled = None
+        self.latency = None
 
     def __str__(self):
         return "[cmd: 0x{:02X}, num_bytes: {:04d}, data: {}]".format(self.cmd, self.num_bytes, self.data)
@@ -152,6 +157,8 @@ class CoSimPacket:
         self.cmd = cmd
         self.num_bytes = num_bytes
         self.data = data
+        self.latency_enabled = cmd in CoSimPacket.cmd_latency_dict.keys()
+        self.latency = CoSimPacket.cmd_latency_dict.get(cmd, 0)
 
     def decode(self, buffer):
         self.cmd = int.from_bytes(buffer[0:4], "little", signed="False")
@@ -165,14 +172,50 @@ class CoSimPacket:
         self.data = data_array
 
     def encode(self):
-        buffer = self.cmd.to_bytes(4, 'little') + self.num_bytes.to_bytes(4, 'little')
+        if self.latency_enabled:
+        # TODO: refactor the code to get firesim_step
+            buffer = self.cmd.to_bytes(4, 'little') + (round((self.latency)*CoSimPacket.firesim_step).to_bytes(4, 'little') if self.latency > 0 else (0).to_bytes(4, 'little')) + self.num_bytes.to_bytes(4, 'little')
+        else:
+            buffer = self.cmd.to_bytes(4, 'little') + self.num_bytes.to_bytes(4, 'little')
         if self.num_bytes > 0:
             for datum in self.data:
                 if self.cmd in INTCMDS:
                     buffer = buffer + datum.to_bytes(4, "little", signed=False)
                 else:                
                     buffer = buffer + struct.pack("f", datum) 
+        print(f"Encoded packet: {buffer}")
+        print("---------------------------------------------------")
         return buffer
+
+class Blob:
+    def __init__(self, latency, packet):
+        self.latency = latency
+        self.packet = packet
+
+    def __eq__(self, other):
+        if isinstance(other, Blob):
+            return self.latency == other.latency
+        return NotImplemented
+
+    def __lt__(self, other):
+        if isinstance(other, Blob):
+            return self.latency < other.latency
+        return NotImplemented
+    
+    def __gt__(self, other):
+        if isinstance(other, Blob):
+            return self.latency > other.latency
+        return NotImplemented
+    
+    def __le__(self, other):
+        if isinstance(other, Blob):
+            return self.latency <= other.latency
+        return NotImplemented
+    
+    def __ge__(self, other):
+        if isinstance(other, Blob):
+            return self.latency >= other.latency
+        return NotImplemented
 
 class SocketThread (threading.Thread):
    def __init__(self, syn):
@@ -259,16 +302,16 @@ class SocketThread (threading.Thread):
                         # print(f"recv error: {e}")
                         # traceback.print_exc()
                         pass
+                    #process the txqueue
                     if len(self.syn.txqueue) > 0:
                         packet = self.syn.txqueue.pop(0)
+                        # print(f"Sending packet: {packet}")
                         self.sync_conn.sendall(packet.encode())
                         # txfile.write(f"{packet.cmd}\n")
                         # txfile.write(f"{packet.num_bytes}\n")
                         # if packet.num_bytes > 0:
                         #     for datum in packet.data:
                         #         txfile.write(f"{datum}\n")
-
-
 
 class Synchronizer:
     def __init__(self, host, sync_port, data_port, firesim_step = 10000, airsim_step = 10, control=None, airsim_ip=AIRSIM_IP, cycle_limit=None, vehicle="drone", initial_y=0.0, terminal_x=None, logname=None):
@@ -282,6 +325,7 @@ class Synchronizer:
         self.airsim_step  = airsim_step
         self.packet = CoSimPacket()
         self.txqueue = []
+        self.txpq = [] 
         self.data_rxqueue = []
         self.sync_rxqueue = []
 
@@ -317,6 +361,8 @@ class Synchronizer:
         self.vid_width, self.vid_height = (224, 224)
         fourcc = cv2.VideoWriter_fourcc(*'DIVX')
         self.vid_stream = cv2.VideoWriter(self.log_video, fourcc, fps, (self.vid_width, self.vid_height))
+
+        CoSimPacket.firesim_step = firesim_step
     
     def run(self):
         socket_thread = SocketThread(self)
@@ -396,7 +442,6 @@ class Synchronizer:
                 # elif start_frame == 100:
                 #     self.vid_stream.release()
                 start_frame += 1
-
             if count % 20 == 0:
                 print("Stepping airsim")
                 if(self.logger.started):
@@ -407,12 +452,23 @@ class Synchronizer:
                 print(f"Granting fsim token: {count}")
             count = count + 1
             self.grant_firesim_token()
+            self.process_streaming_queue()
+            #process the latency aware queue
+            #peek at the top of the queue
+            while(len(self.txpq) > 0 and self.txpq[0].latency <= 1):
+                packet = heappop(self.txpq).packet 
+                self.txqueue.append(packet)
+                #self.sync_conn.sendall(self.packet.encode())
+            # Now, iterate through the rest of the queue, decrement latency by 1
+            for blobs in self.txpq:
+                blobs.latency = blobs.latency - 1
+                blobs.packet.latency = blobs.latency
             while True:
                 if (self.client.simIsPause()):
                     break
             while len(self.data_rxqueue) > 0:
                 self.process_fsim_data_packet()
-            self.process_streaming_queue()
+
             if count == 1:
                 start_time = time.time()
         socket_thread.join()
@@ -456,7 +512,8 @@ class Synchronizer:
                     depth = self.client.getDistanceSensorData("Distance").distance
                     packet = CoSimPacket()
                     packet.init(CS_RSP_DEPTH_STREAM, 4, [depth])
-                    self.txqueue.append(packet)
+                    blob = Blob(packet.latency, packet)
+                    heappush(self.txpq, blob)
                 else:
                     pass
 
@@ -540,7 +597,8 @@ class Synchronizer:
                 # print(png_packet_arr)
                 packet = CoSimPacket()
                 packet.init(CS_RSP_IMG, len(png_packet_arr)*4, png_packet_arr)
-                self.txqueue.append(packet)
+                blob = Blob(packet.latency, packet)
+                heappush(self.txpq, blob)
         elif packet.cmd == CS_REQ_DEPTH:
             print("---------------------------------------------------")
             print("Got depth request...")
@@ -549,7 +607,8 @@ class Synchronizer:
             depth = self.client.getDistanceSensorData("Distance").distance
             packet = CoSimPacket()
             packet.init(CS_RSP_DEPTH, 4, [depth])
-            self.txqueue.append(packet)
+            blob = Blob(packet.latency, packet)
+            heappush(self.txpq, blob) 
         elif packet.cmd == CS_REQ_DEPTH_STREAM:
             print("---------------------------------------------------")
             print("Got depth streaming request...")
