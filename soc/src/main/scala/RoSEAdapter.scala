@@ -230,7 +230,7 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module {
     is(sHeader) {
       // if it is a camera header, throw it away, else transmit it
       tx_val := Mux(keep_header, io.tx.valid, false.B)
-      val can_advance = step_passed || budget > io.cycleBudget
+      val can_advance = step_passed || budget < io.cycleBudget
       io.tx.ready := can_advance && io.rx(idx).ready
       state := Mux(can_advance, Mux(io.tx.fire, sCounter, sHeader), sHeader)
     }
