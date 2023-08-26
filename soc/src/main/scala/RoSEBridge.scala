@@ -12,6 +12,48 @@ import sifive.blocks.devices.uart.{UARTPortIO, UARTParams}
 
 import rose.{RosePortIO, RoseAdapterParams, RoseAdapterKey, RoseAdapterArbiter, DstParams}
 
+class softQueue (val entries: Int) extends Module {
+  val io = IO(new Bundle {
+    val enq = Flipped(Decoupled(UInt(32.W)))
+    val deq = Decoupled(UInt(32.W))
+    val soft_reset = Input(Bool())
+  })
+
+  val ram = Mem(entries, UInt(32.W))
+
+  val enq_ptr = Counter(entries)
+  val deq_ptr = Counter(entries)
+  val maybe_full = RegInit(false.B)
+  val ptr_match = enq_ptr.value === deq_ptr.value
+  val empty = ptr_match && !maybe_full
+  val full = ptr_match && maybe_full
+  val do_enq = WireDefault(io.enq.fire)
+  val do_deq = WireDefault(io.deq.fire)
+
+  when(do_enq) {
+    ram(enq_ptr.value) := io.enq.bits
+    enq_ptr.inc()
+  }
+  when(do_deq) {
+    deq_ptr.inc()
+  }
+  when(do_enq =/= do_deq) {
+    maybe_full := do_enq
+  }
+  // soft reset sets all entries to 0, but does not change pointers
+  // only at the posedge of soft_reset
+  val soft_reset_reg = RegNext(io.soft_reset)
+  when(soft_reset_reg === false.B && io.soft_reset === true.B) {
+    for (i <- 0 until entries) {
+      ram(i) := 0.U
+    }
+  }
+
+  io.deq.valid := !empty
+  io.enq.ready := !full
+  io.deq.bits := ram(deq_ptr.value)
+}
+
 class rxcontroller(params: DstParams) extends Module{
   val io = IO(new Bundle{
     val rx = Flipped(Decoupled(UInt(params.width.W)))
@@ -155,8 +197,8 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
 
     // Generate some FIFOs to capture tokens...
     val txfifo = Module(new Queue(UInt(32.W), 32))
-    val rxfifo = Module(new Queue(UInt(32.W), 32))
-
+    val rxfifo = Module(new Queue(UInt(32.W), 128))
+    val rx_budget_fifo = Module(new softQueue(64))
     // COSIM-CODE
     // Generate a FIFO to capture time step allocations
     val rx_ctrl_fifo = Module(new Queue(UInt(8.W), 16))
@@ -185,7 +227,7 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     val targetReset = fire & hPort.hBits.reset
     rxfifo.reset := reset.asBool || targetReset
     txfifo.reset := reset.asBool || targetReset
-
+    rx_budget_fifo.reset := reset.asBool || targetReset
     // COSIM-CODE
     // Add to the cycles the tool is permitted to run forward
     when(rx_ctrl_fifo.io.deq.valid) {
@@ -204,7 +246,10 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
 
     // instantiate the rose arbiter
     val rosearb = Module(new RoseAdapterArbiter(params))
+    rosearb.io.cycleBudget := cycleBudget
     rosearb.io.tx <> rxfifo.io.deq
+    rosearb.io.budget <> rx_budget_fifo.io.deq
+    rx_budget_fifo.io.soft_reset := cycleBudget === 0.U(32.W)
     // for each dst_port, generate a shallow queue and connect it to the arbiter
     for (i <- 0 until params.dst_ports.seq.size) {
       val dst_port = params.dst_ports.seq(i)
@@ -245,6 +290,10 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     Pulsify(genWORegInit(rxfifo.io.enq.valid, "in_valid", false.B), pulseLength = 1)
     genROReg(rxfifo.io.enq.ready, "in_ready")
 
+    // Generate regisers for the rx-side of the AirSim; this is eseentially the same as the above
+    genWOReg(rx_budget_fifo.io.enq.bits, "in_budget_bits")
+    Pulsify(genWORegInit(rx_budget_fifo.io.enq.valid, "in_budget_valid", false.B), pulseLength = 1)
+    genROReg(rx_budget_fifo.io.enq.ready, "in_budget_ready")
     // COSIM-CODE
     // Generate registers for reading in time step limits
     genWOReg(rx_ctrl_fifo.io.enq.bits, "in_ctrl_bits")
