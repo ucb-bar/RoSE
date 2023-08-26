@@ -348,6 +348,7 @@ void airsim_t::process_tcp_packet()
             m.lock();
             for (int i = 0; i < this->budget_rx_queue.size(); i++) {
                 this->budget_rx_queue[i]->budget = 0;
+                this->budget_rx_queue[i]->checked = true;
             }
             m.unlock();
             printf("[AirSim Driver]: Checkedoff Packets\n");
@@ -471,7 +472,7 @@ void airsim_t::check_stall()
 
     budget = read(this->mmio_addrs.cycle_budget);
     // printf("[AirSim Driver]:budget: %u\n", budget);
-    if(!budget){
+    if(budget == this->step_size){
         response.init(CS_RSP_STALL, 0, NULL);
         // response.encode(this->buf);
         // printf("[AirSim Driver]: Sending cycles packet: ");
@@ -545,7 +546,8 @@ void airsim_t::report_cycles()
 
 void airsim_t::schedule_firesim_data() {
     m.lock();
-    if (!this->budget_rx_queue.empty() && this->fsim_txbudget.empty() && this->fsim_txdata.empty()) {
+    while (!this->budget_rx_queue.empty() && ((this->fsim_txbudget.empty() && this->fsim_txdata.empty()) 
+    || (this->budget_rx_queue.front()->checked))) {
         printf("[AIRSIM DRIVER]: Entering schedule loop\n");
         this->fsim_txbudget.push_back(this->budget_rx_queue.front()->budget);
         printf("[AIRSIM DRIVER]: Pushed budget 0x%x\n", this->budget_rx_queue.front()->budget);
@@ -560,11 +562,11 @@ void airsim_t::schedule_firesim_data() {
                 this->fsim_txdata.push_back((this->budget_rx_queue.front()->data)[i]);
             }
         }
-        printf("[AIRSIM DRIVER]: Popping budget packet\n");
+        // printf("[AIRSIM DRIVER]: Popping budget packet\n");
         // free the fron to avoid leak
         delete this->budget_rx_queue.front();
         this->budget_rx_queue.pop_front();
-        printf("[AIRSIM DRIVER]: Popped budget packet\n");
+        // printf("[AIRSIM DRIVER]: Popped budget packet\n");
     }
     m.unlock();
 
@@ -665,6 +667,7 @@ budget_packet_t::budget_packet_t(){
     this->budget = 0;
     this->num_bytes = 0;
     this->data = NULL;
+    this->checked = false;
 }
 
 budget_packet_t::budget_packet_t(uint32_t cmd, uint32_t budget, uint32_t num_bytes, uint32_t * data)
@@ -681,11 +684,7 @@ budget_packet_t::budget_packet_t(uint32_t cmd, uint32_t budget, uint32_t num_byt
         }
         memcpy(this->data, data, num_bytes);
     }
-    printf("budget packet created successfully.\n");
-    printf("the data for this packet is: \n");
-    for (int i = 0; i < this->num_bytes / 4; i++)
-        printf("0x%x\n", this->data[i]);
-    printf("the pointer of data is pointing at: %p\n", this->data);
+    this->checked = false;
 }
 
 budget_packet_t::~budget_packet_t()

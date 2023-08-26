@@ -208,7 +208,7 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     val cycleBudget = RegInit(0.U(32.W))
 
     // Initialize amount to increment cycle budget by
-    val cycleStep   = RegInit(1000.U(32.W))
+    val cycleStep   = RegInit(0.U(32.W))
 
     // can add to budget every cycle
     rx_ctrl_fifo.io.deq.ready := true.B;
@@ -222,7 +222,7 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     val fire = hPort.toHost.hValid &&    // We have a valid input token: toHost ~= leaving the transformed RTL
                hPort.fromHost.hReady &&  // We have space to enqueue a new output token
                txfifo.io.enq.ready  &&   // We have space to capture new TX data
-               (cycleBudget > 0.U(32.W)) // still have cycles left in the budget
+               (cycleBudget < cycleStep) // still have cycles left in the budget
 
     val targetReset = fire & hPort.hBits.reset
     rxfifo.reset := reset.asBool || targetReset
@@ -231,9 +231,9 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     // COSIM-CODE
     // Add to the cycles the tool is permitted to run forward
     when(rx_ctrl_fifo.io.deq.valid) {
-        cycleBudget := cycleBudget + cycleStep
+        cycleBudget := 0.U(32.W) 
     }  .elsewhen(fire) {
-        cycleBudget := cycleBudget - 1.U(32.W)
+        cycleBudget := cycleBudget + 1.U(32.W)
     } .otherwise {
         cycleBudget := cycleBudget
     }
@@ -249,7 +249,7 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     rosearb.io.cycleBudget := cycleBudget
     rosearb.io.tx <> rxfifo.io.deq
     rosearb.io.budget <> rx_budget_fifo.io.deq
-    rx_budget_fifo.io.soft_reset := cycleBudget === 0.U(32.W)
+    rx_budget_fifo.io.soft_reset := cycleBudget === cycleStep
     // for each dst_port, generate a shallow queue and connect it to the arbiter
     for (i <- 0 until params.dst_ports.seq.size) {
       val dst_port = params.dst_ports.seq(i)

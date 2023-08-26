@@ -118,6 +118,7 @@ class budget_packet_t
         uint32_t cmd;
         uint32_t num_bytes;
         uint32_t * data;
+        bool checked;
 };
 
 struct CompareBudget
