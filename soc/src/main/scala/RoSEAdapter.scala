@@ -146,7 +146,7 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module {
   //   //flipped for rx
   //   val rx = Flipped(Decoupled(UInt(w.W)))
   // })
-  val io = IO(Flipped(new RosePortIO(params)))
+  val io = IO(new RoseAdapterArbiterIO(params))
   //                        - cam.fifo
   // rx.fifo-----arbiter--- - something.fifo
   //                        - other.fifo
@@ -156,11 +156,18 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module {
   //goal: io.rx.fire should be synced with io.target.fire
   val rolut = Module(new rolut(params))
   val buffer = RegEnable(next = buffer_next, enable = io.tx.fire)
+  val budget = RegEnable(next = io.budget.bits, enable = io.budget.fire)
   val keep_header = RegEnable(next=rolut.io.keep_header, enable = io.tx.fire)
   //the counter of how many cycles of loads, decided by the second queue val
   val counter = Reg(UInt(w.W))
   val sIdle :: sFlag :: sHeader :: sCounter :: sLoad :: Nil = Enum(5)
   val state = RegInit(sIdle)
+
+  val cycle_reset_next = Wire(Bool())
+  val cycle_reset_en = Wire(Bool())
+  cycle_reset_next := Mux(state === sIdle, false.B, io.cycleBudget === 0.U)
+  cycle_reset_en := state === sIdle || io.cycleBudget === 0.U
+  val step_passed = RegEnable(next = cycle_reset_next, enable = cycle_reset_en)
 
   // create a map with id as key and the corresponding dst_port index as value
   // val id_map = scala.collection.mutable.Map[Chisel.UInt, Int]()
@@ -179,7 +186,6 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module {
   //   val id_vec = VecInit(id_iter)
   //   id_collection = id_collection :+ id_vec
   // }
-
 
   // general enque logic, applicable to both cam&others
   val tx_val = Wire(Bool())
@@ -200,6 +206,7 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module {
 
   tx_val := 0.U
   io.tx.ready := io.rx(idx).ready
+  io.budget.ready := state === sFlag
   rolut.io.key := buffer
   switch(state) {
     // heat up the buffer with the header
@@ -223,7 +230,9 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module {
     is(sHeader) {
       // if it is a camera header, throw it away, else transmit it
       tx_val := Mux(keep_header, io.tx.valid, false.B)
-      state := Mux(io.tx.fire, sCounter, sHeader)
+      val can_advance = step_passed || budget > io.cycleBudget
+      io.tx.ready := can_advance && io.rx(idx).ready
+      state := Mux(can_advance, Mux(io.tx.fire, sCounter, sHeader), sHeader)
     }
     // set the value of counter to the desired cycles
     // the buffer now holds the counter value. notice that counter will be set at the next cycle. 
