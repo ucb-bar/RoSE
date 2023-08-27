@@ -348,7 +348,11 @@ void airsim_t::process_tcp_packet()
             m.lock();
             for (int i = 0; i < this->budget_rx_queue.size(); i++) {
                 this->budget_rx_queue[i]->budget = 0;
-                this->budget_rx_queue[i]->checked = true;
+                if (this->budget_rx_queue[i]->granted == false) {
+                    this->budget_rx_queue[i]->granted = true;
+                } else {
+                    this->budget_rx_queue[i]->checked = true;
+                }
             }
             m.unlock();
             printf("[AirSim Driver]: Checkedoff Packets\n");
@@ -556,14 +560,13 @@ void airsim_t::schedule_firesim_data() {
         this->fsim_txdata.push_back(this->budget_rx_queue.front()->num_bytes);
         printf("[AIRSIM DRIVER]: Pushed num_bytes 0x%x\n", this->budget_rx_queue.front()->num_bytes);
         if (this->budget_rx_queue.front()->num_bytes > 0) {
-            printf("the pointer of data is pointing at: %p\n", this->budget_rx_queue.front()->data);
             for(int i = 0; i < this->budget_rx_queue.front()->num_bytes/4; i++) {
                 printf("[AIRSIM DRIVER]: Got buf: 0x%x\n", (this->budget_rx_queue.front()->data)[i]);
                 this->fsim_txdata.push_back((this->budget_rx_queue.front()->data)[i]);
             }
         }
         // printf("[AIRSIM DRIVER]: Popping budget packet\n");
-        // free the fron to avoid leak
+        // free the front to avoid leak
         delete this->budget_rx_queue.front();
         this->budget_rx_queue.pop_front();
         // printf("[AIRSIM DRIVER]: Popped budget packet\n");
@@ -668,6 +671,7 @@ budget_packet_t::budget_packet_t(){
     this->num_bytes = 0;
     this->data = NULL;
     this->checked = false;
+    this->granted = false;
 }
 
 budget_packet_t::budget_packet_t(uint32_t cmd, uint32_t budget, uint32_t num_bytes, uint32_t * data)
@@ -685,6 +689,7 @@ budget_packet_t::budget_packet_t(uint32_t cmd, uint32_t budget, uint32_t num_byt
         memcpy(this->data, data, num_bytes);
     }
     this->checked = false;
+    this->granted = false;
 }
 
 budget_packet_t::~budget_packet_t()

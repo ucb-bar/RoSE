@@ -249,6 +249,7 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     rosearb.io.cycleBudget := cycleBudget
     rosearb.io.tx <> rxfifo.io.deq
     rosearb.io.budget <> rx_budget_fifo.io.deq
+    rosearb.io.cycleStep := cycleStep
     rx_budget_fifo.io.soft_reset := cycleBudget === cycleStep
     // for each dst_port, generate a shallow queue and connect it to the arbiter
     for (i <- 0 until params.dst_ports.seq.size) {
@@ -259,7 +260,7 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
       q.io.enq <> rosearb.io.rx(i)
       q.io.deq <> rxctrl.io.rx 
       rxctrl.io.tx <> target.rx(i)
-      rxctrl.io.counter_reset := cycleBudget === 0.U(32.W)
+      rxctrl.io.counter_reset := cycleBudget === cycleStep
       rxctrl.io.fire := fire
     }
     // Drive fifo signals from AirSimIO
