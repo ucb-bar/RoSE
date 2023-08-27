@@ -28,6 +28,7 @@ class RoseAdapterArbiterIO(params: RoseAdapterParams) extends Bundle {
     val tx = Flipped(Decoupled(UInt(32.W)))
     val budget = Flipped(Decoupled(UInt(32.W)))
     val cycleBudget = Input(UInt(32.W))
+    val cycleStep = Input(UInt(32.W))
 }
 
 // Core IO of the adapter

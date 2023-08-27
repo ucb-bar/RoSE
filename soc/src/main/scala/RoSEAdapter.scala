@@ -165,8 +165,8 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module {
 
   val cycle_reset_next = Wire(Bool())
   val cycle_reset_en = Wire(Bool())
-  cycle_reset_next := Mux(state === sIdle, false.B, io.cycleBudget === 0.U)
-  cycle_reset_en := state === sIdle || io.cycleBudget === 0.U
+  cycle_reset_next := Mux(state === sIdle, false.B, io.cycleBudget === io.cycleStep)
+  cycle_reset_en := state === sIdle || io.cycleBudget === io.cycleStep
   val step_passed = RegEnable(next = cycle_reset_next, enable = cycle_reset_en)
 
   // create a map with id as key and the corresponding dst_port index as value
@@ -230,7 +230,7 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module {
     is(sHeader) {
       // if it is a camera header, throw it away, else transmit it
       tx_val := Mux(keep_header, io.tx.valid, false.B)
-      val can_advance = step_passed || budget < io.cycleBudget
+      val can_advance = step_passed || ((budget < io.cycleBudget) && (io.cycleBudget =/= io.cycleStep)) 
       io.tx.ready := can_advance && io.rx(idx).ready
       state := Mux(can_advance, Mux(io.tx.fire, sCounter, sHeader), sHeader)
     }
