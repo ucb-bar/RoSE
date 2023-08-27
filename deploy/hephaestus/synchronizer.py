@@ -451,8 +451,9 @@ class Synchronizer:
             if count % 20 == 0:
                 print(f"Granting fsim token: {count}")
             count = count + 1
-            self.grant_firesim_token()
-            self.process_streaming_queue()
+            
+            # IMPORTANT: process the data queue before granting tokens
+            
             #process the latency aware queue
             #peek at the top of the queue
             while(len(self.txpq) > 0 and self.txpq[0].latency <= 1):
@@ -463,6 +464,10 @@ class Synchronizer:
             for blobs in self.txpq:
                 blobs.latency = blobs.latency - 1
                 blobs.packet.latency = blobs.latency
+
+            self.grant_firesim_token()
+            self.process_streaming_queue()
+
             while True:
                 if (self.client.simIsPause()):
                     break
