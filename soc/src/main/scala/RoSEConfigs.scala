@@ -37,4 +37,14 @@ class RoseTLRocketConfig extends Config(
   new freechips.rocketchip.subsystem.WithNBigCores(1) ++
   new chipyard.config.AbstractRoseConfig)
 
+class RoseTLBOOMConfig extends Config(
+  new rose.WithRoseAdapter() ++          // Use GCD Chisel, connect Tilelink                      // use FP32Gemmini systolic array GEMM accelerator
+  new boom.common.WithNLargeBooms(1) ++   
+  new chipyard.config.AbstractRoseConfig)
+
+class RoseTLBOOMGemminiConfig extends Config(
+  new rose.WithRoseAdapter() ++          // Use GCD Chisel, connect Tilelink                      // use FP32Gemmini systolic array GEMM accelerator
+  new gemmini.GemminiFP32DefaultConfig ++                         // use FP32Gemmini systolic array GEMM accelerator
+  new boom.common.WithNLargeBooms(1) ++   
+  new chipyard.config.AbstractRoseConfig)
 
