@@ -12,6 +12,21 @@ import sifive.blocks.devices.uart.{UARTPortIO, UARTParams}
 
 import rose.{RosePortIO, RoseAdapterParams, RoseAdapterKey, RoseAdapterArbiter, DstParams}
 
+class bandWidthWriter(params: RoseAdapterParams) extends Module{
+  val io = IO(new Bundle{
+    val config_bits = Input(UInt(32.W))
+    val config_valid = Input(Bool())
+    val config_destination = Input(UInt(32.W))
+    val output_bits = Vec(params.dst_ports.seq.size, Output(UInt(32.W)))
+    val output_valid = Vec(params.dst_ports.seq.size, Output(Bool()))
+  })
+
+  for (i <- 0 until params.dst_ports.seq.length) {
+    io.output_bits(i) := io.config_bits
+    io.output_valid(i) := io.config_valid && (io.config_destination === i.U)
+  }
+}
+
 class softQueue (val entries: Int) extends Module {
   val io = IO(new Bundle {
     val enq = Flipped(Decoupled(UInt(32.W)))
@@ -60,17 +75,21 @@ class rxcontroller(params: DstParams) extends Module{
     val tx = Decoupled(UInt(params.width.W))
     val fire = Input(Bool())
     val counter_reset = Input(Bool())
+    val bww_bits = Input(UInt(32.W))
+    val bww_valid = Input(Bool())
   })
 
   val sRxIdle :: sRxRecv :: sRxSend :: sRxDelay1 :: sRxDelay2 :: Nil = Enum(5)
   val rxState = RegInit(sRxIdle)
   val rxData = Reg(UInt(32.W))
 
+  val bandwidth_threshold = RegEnable(next = io.bww_bits, init = 0xFFFFFFFFL.U(32.W), enable = io.bww_valid)
+
   val counter_next = Wire(UInt(params.width.W))
   val counter : UInt = RegEnable(next = counter_next, init = 0.U(params.width.W), enable = io.tx.fire || io.counter_reset)
-  counter_next := Mux(io.counter_reset, 0.U, Mux((counter < params.bandwidth.U), counter + 4.U, counter)) 
+  counter_next := Mux(io.counter_reset, 0.U, Mux((counter < bandwidth_threshold), counter + 4.U, counter)) 
   val depleted = Wire(Bool())
-  depleted := counter === params.bandwidth.U 
+  depleted := counter === bandwidth_threshold
 
   io.tx.bits := rxData
   io.tx.valid := (rxState === sRxSend)
@@ -252,6 +271,7 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     rosearb.io.cycleStep := cycleStep
     rx_budget_fifo.io.soft_reset := cycleBudget === cycleStep
     // for each dst_port, generate a shallow queue and connect it to the arbiter
+    val bww = Module(new bandWidthWriter(params))
     for (i <- 0 until params.dst_ports.seq.size) {
       val dst_port = params.dst_ports.seq(i)
       val q = Module(new Queue(UInt(dst_port.width.W), 32))
@@ -262,6 +282,8 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
       rxctrl.io.tx <> target.rx(i)
       rxctrl.io.counter_reset := cycleBudget === cycleStep
       rxctrl.io.fire := fire
+      rxctrl.io.bww_bits := bww.io.output_bits(i)
+      rxctrl.io.bww_valid := bww.io.output_valid(i)
     }
     // Drive fifo signals from AirSimIO
     txfifo.io.enq.valid := target.tx.valid && fire
@@ -308,7 +330,9 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     // Generate registers for writing the step amount
     genWOReg(cycleStep, "cycle_step")
     // COSIM-CODE
-
+    genWOReg(bww.io.config_bits, "bww_config_bits")
+    Pulsify(genWORegInit(bww.io.config_valid, "bww_config_valid", false.B), pulseLength = 1)
+    genWOReg(bww.io.config_destination, "bww_config_destination")
     // This method invocation is required to wire up all of the MMIO registers to
     // the simulation control bus (AXI4-lite)
     genCRFile()

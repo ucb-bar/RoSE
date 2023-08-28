@@ -60,6 +60,7 @@ struct serial_cosmo_data_t {
 #define CS_RSP_CYCLES  0x82
 #define CS_DEFINE_STEP 0x83
 #define CS_RSP_STALL   0x84
+#define CS_CFG_BW      0x85
 
 // Data Commands
 #define CS_REQ_WAYPOINT 0x01
@@ -85,6 +86,9 @@ struct ROSEBRIDGEMODULE_struct {
     uint64_t cycle_count;
     uint64_t cycle_budget;
     uint64_t cycle_step;
+    uint64_t bww_config_bits;
+    uint64_t bww_config_valid;
+    uint64_t bww_config_destination;
 };
 
 class cosim_packet_t
@@ -150,6 +154,7 @@ class airsim_t final: public bridge_driver_t{
         void check_stall();
         void report_stall();
         void set_step_size(uint32_t step_size);
+        void config_bandwidth(uint32_t dest, uint32_t bandwidth);
         virtual void init() {};
         virtual void finish() {};
         // Our AIRSIM bridge never calls for the simulation to terminate

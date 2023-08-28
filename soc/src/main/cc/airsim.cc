@@ -157,7 +157,7 @@ void * queue_func(void * arg){
                 // printf("[AIRSIM DRIVER THREAD]: Finished receiving one packet\n");
                 for (int i = 0; i < num_bytes / 4; i++) {
                     buf[i] = ((uint32_t *) sim->buf)[i];
-                    printf("[AIRSIM DRIVER THREAD]: Got datum in multithreading: 0x%x\n", buf[i]);
+                    // printf("[AIRSIM DRIVER THREAD]: Got datum in multithreading: 0x%x\n", buf[i]);
                 }
                 if (num_bytes == 0) {
                     //allocate new budget_packet
@@ -169,9 +169,9 @@ void * queue_func(void * arg){
                 // printf("[AIRSIM DRIVER THREAD]: Pushing budget packet %x, %x, %x\n", budget_packet.cmd, budget_packet.budget, budget_packet.num_bytes);
                 m.lock();
                 sim->budget_rx_queue.push_back(budget_packet);
-                printf("[AIRSIM DRIVER THREAD]: current queue size: %d\n", sim->budget_rx_queue.size());
+                // printf("[AIRSIM DRIVER THREAD]: current queue size: %d\n", sim->budget_rx_queue.size());
                 m.unlock();
-                printf("[AIRSIM DRIVER THREAD]: Pushed budget packet\n");
+                // printf("[AIRSIM DRIVER THREAD]: Pushed budget packet\n");
             }
             // printf("[AIRSIM DRIVER THREAD]: Exiting RX task\n");
             // fflush(stdout);
@@ -342,7 +342,7 @@ void airsim_t::process_tcp_packet()
         switch (packet.cmd & 0xFF)
         {
         case CS_GRANT_TOKEN:
-            printf("[AirSim Driver]: Got Sync Packet\n");
+            // printf("[AirSim Driver]: Got Sync Packet\n");
             this->grant_cycles();
             // Iterate over budge rx queue and update all latency budgets to 0, without changing the order
             m.lock();
@@ -355,7 +355,7 @@ void airsim_t::process_tcp_packet()
                 }
             }
             m.unlock();
-            printf("[AirSim Driver]: Checkedoff Packets\n");
+            // printf("[AirSim Driver]: Checkedoff Packets\n");
             // printf("[AirSim Driver]: Reporting Stalls\n");
             // this->report_stall();
             // printf("[AirSim Driver]: Reported Stalls\n");
@@ -368,6 +368,11 @@ void airsim_t::process_tcp_packet()
             //printf("[AirSim Driver]: Got Step Size: %d\n", packet.data[0]);
 
             this->set_step_size(packet.data[0]);
+            break;
+        case CS_CFG_BW:
+            // printf("[AirSim Driver]: Got Destination: %d\n", packet.data[0]);
+            // printf("[AirSim Driver]: Got Bandwidth: %d\n", packet.data[1]);
+            this->config_bandwidth(packet.data[0], packet.data[1]);
             break;
         default:
             // TODO SEND DATA
@@ -552,16 +557,16 @@ void airsim_t::schedule_firesim_data() {
     m.lock();
     while (!this->budget_rx_queue.empty() && ((this->fsim_txbudget.empty() && this->fsim_txdata.empty()) 
     || (this->budget_rx_queue.front()->checked))) {
-        printf("[AIRSIM DRIVER]: Entering schedule loop\n");
+        // printf("[AIRSIM DRIVER]: Entering schedule loop\n");
         this->fsim_txbudget.push_back(this->budget_rx_queue.front()->budget);
-        printf("[AIRSIM DRIVER]: Pushed budget 0x%x\n", this->budget_rx_queue.front()->budget);
+        // printf("[AIRSIM DRIVER]: Pushed budget 0x%x\n", this->budget_rx_queue.front()->budget);
         this->fsim_txdata.push_back(this->budget_rx_queue.front()->cmd);
-        printf("[AIRSIM DRIVER]: Pushed cmd 0x%x\n", this->budget_rx_queue.front()->cmd);
+        // printf("[AIRSIM DRIVER]: Pushed cmd 0x%x\n", this->budget_rx_queue.front()->cmd);
         this->fsim_txdata.push_back(this->budget_rx_queue.front()->num_bytes);
-        printf("[AIRSIM DRIVER]: Pushed num_bytes 0x%x\n", this->budget_rx_queue.front()->num_bytes);
+        // printf("[AIRSIM DRIVER]: Pushed num_bytes 0x%x\n", this->budget_rx_queue.front()->num_bytes);
         if (this->budget_rx_queue.front()->num_bytes > 0) {
             for(int i = 0; i < this->budget_rx_queue.front()->num_bytes/4; i++) {
-                printf("[AIRSIM DRIVER]: Got buf: 0x%x\n", (this->budget_rx_queue.front()->data)[i]);
+                // printf("[AIRSIM DRIVER]: Got buf: 0x%x\n", (this->budget_rx_queue.front()->data)[i]);
                 this->fsim_txdata.push_back((this->budget_rx_queue.front()->data)[i]);
             }
         }
@@ -581,6 +586,14 @@ void airsim_t::set_step_size(uint32_t step_size)
     // printf("[AirSim Driver]: Setting step size to %d!\n", step_size);
     write(this->mmio_addrs.cycle_step, step_size);
     this->step_size = step_size;
+}
+
+void airsim_t::config_bandwidth(uint32_t dest, uint32_t bandwidth)
+{
+    // printf("[AirSim Driver]: Setting bandwidth to %d!\n", bandwidth);
+    write(this->mmio_addrs.bww_config_destination, dest);
+    write(this->mmio_addrs.bww_config_bits, bandwidth);
+    write(this->mmio_addrs.bww_config_valid, 1);
 }
 
 void airsim_t::tick()
@@ -621,7 +634,7 @@ void airsim_t::tick()
         data.budget.bits = this->fsim_txbudget.front();
         this->send_budget();
         if(data.budget.ready) {
-            printf("[AIRSIM DRIVER]: Transmitting firesim budget -- 0x%x\n", data.budget.bits);
+            // printf("[AIRSIM DRIVER]: Transmitting firesim budget -- 0x%x\n", data.budget.bits);
             this->fsim_txbudget.pop_front();
             m.unlock();
         } else {
@@ -635,7 +648,7 @@ void airsim_t::tick()
         data.in.bits = this->fsim_txdata.front();
         this->send();
         if(data.in.ready) {
-            printf("[AIRSIM DRIVER]: Transmitting firesim packet -- 0x%x\n", data.in.bits);
+            // printf("[AIRSIM DRIVER]: Transmitting firesim packet -- 0x%x\n", data.in.bits);
             this->fsim_txdata.pop_front();
             m.unlock();
         } else {

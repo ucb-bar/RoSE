@@ -29,6 +29,8 @@ CS_REQ_CYCLES   = 0x81
 CS_RSP_CYCLES   = 0x82 
 CS_DEFINE_STEP  = 0x83
 CS_RSP_STALL    = 0x84
+CS_CFG_BW       = 0x85
+
 CS_REQ_WAYPOINT = 0x01
 CS_RSP_WAYPOINT = 0x02
 CS_SEND_IMU     = 0x03
@@ -46,7 +48,7 @@ CS_RSP_DEPTH_STREAM = 0x15
 
 CS_SET_TARGETS  = 0x20
 
-INTCMDS = [CS_GRANT_TOKEN, CS_REQ_CYCLES, CS_RSP_CYCLES, CS_DEFINE_STEP, CS_RSP_STALL, CS_RSP_IMG]
+INTCMDS = [CS_GRANT_TOKEN, CS_REQ_CYCLES, CS_RSP_CYCLES, CS_DEFINE_STEP, CS_RSP_STALL, CS_RSP_IMG, CS_CFG_BW]
 
 #HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
 HOST = "localhost" # Private aws IP
@@ -183,8 +185,8 @@ class CoSimPacket:
                     buffer = buffer + datum.to_bytes(4, "little", signed=False)
                 else:                
                     buffer = buffer + struct.pack("f", datum) 
-        print(f"Encoded packet: {buffer}")
-        print("---------------------------------------------------")
+        # print(f"Encoded packet: {buffer}")
+        # print("---------------------------------------------------")
         return buffer
 
 class Blob:
@@ -369,6 +371,7 @@ class Synchronizer:
         socket_thread.start()
         start_time = time.time()
         self.send_firesim_step()
+        self.send_bw(0, 2048)
         self.control.launchStabilizer(self.airsim_ip)
         count = 0
         start_frame = 0
@@ -482,6 +485,12 @@ class Synchronizer:
         packet = CoSimPacket()
         packet.init(CS_DEFINE_STEP, 4, [self.firesim_step])
         # print(f"Enqueuing step size: {packet}")
+        self.txqueue.append(packet)
+        #self.sync_conn.sendall(self.packet.encode())
+    
+    def send_bw(self, dst, bw):
+        packet = CoSimPacket()
+        packet.init(CS_CFG_BW, 8, [dst, bw])
         self.txqueue.append(packet)
         #self.sync_conn.sendall(self.packet.encode())
 
