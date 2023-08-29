@@ -63,6 +63,15 @@ DATA_PORT = 60002  # Port to listen on (non-privileged ports are > 1023)
 
 INPUT_DIM = 56
 
+def stable_heap_push(heap, item):
+    heap.append(item)
+    return heap
+
+def stable_heap_pop(heap):
+    item = heap.pop(0)
+    heap.sort()
+    return item
+
 class CoSimLogger:
     
     def __init__(self, client, cycles, frames, filename=None):
@@ -192,9 +201,12 @@ class CoSimPacket:
         return buffer
 
 class Blob:
+    counter = 0
     def __init__(self, latency, packet):
         self.latency = latency
         self.packet = packet
+        self.counter = Blob.counter
+        Blob.counter += 1
 
     def __eq__(self, other):
         if isinstance(other, Blob):
@@ -462,7 +474,11 @@ class Synchronizer:
             #process the latency aware queue
             #peek at the top of the queue
             while(len(self.txpq) > 0 and self.txpq[0].latency <= 1):
-                packet = heappop(self.txpq).packet 
+                packet_blob = stable_heap_pop(self.txpq)
+                packet = packet_blob.packet
+                # print(f"DEBUG: the stable_heap_pop counter of this pop is: {packet_blob.counter}" )
+                # print(f"DEBUG: the latency for this packet is: {packet_blob.latency} ")
+                # print(f"DEBUG: the latency for this packet is: {packet_blob.packet.latency} ")
                 self.txqueue.append(packet)
                 #self.sync_conn.sendall(self.packet.encode())
             # Now, iterate through the rest of the queue, decrement latency by 1
@@ -529,7 +545,7 @@ class Synchronizer:
                     packet = CoSimPacket()
                     packet.init(CS_RSP_DEPTH_STREAM, 4, [depth])
                     blob = Blob(packet.latency, packet)
-                    heappush(self.txpq, blob)
+                    stable_heap_push(self.txpq, blob)
                 else:
                     pass
 
@@ -614,7 +630,7 @@ class Synchronizer:
                 packet = CoSimPacket()
                 packet.init(CS_RSP_IMG, len(png_packet_arr)*4, png_packet_arr)
                 blob = Blob(packet.latency, packet)
-                heappush(self.txpq, blob)
+                stable_heap_push(self.txpq, blob)
         elif packet.cmd == CS_REQ_IMG_POLL:
             print("---------------------------------------------------")
             print("Got image polling request...")
@@ -641,7 +657,7 @@ class Synchronizer:
                 packet = CoSimPacket()
                 packet.init(CS_RSP_IMG_POLL, len(png_packet_arr)*4, png_packet_arr)
                 blob = Blob(packet.latency, packet)
-                heappush(self.txpq, blob)
+                stable_heap_push(self.txpq, blob)
         elif packet.cmd == CS_REQ_DEPTH:
             print("---------------------------------------------------")
             print("Got depth request...")
@@ -651,7 +667,7 @@ class Synchronizer:
             packet = CoSimPacket()
             packet.init(CS_RSP_DEPTH, 4, [depth])
             blob = Blob(packet.latency, packet)
-            heappush(self.txpq, blob) 
+            stable_heap_push(self.txpq, blob) 
         elif packet.cmd == CS_REQ_DEPTH_STREAM:
             print("---------------------------------------------------")
             print("Got depth streaming request...")
