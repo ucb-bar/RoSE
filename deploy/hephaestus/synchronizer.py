@@ -201,12 +201,12 @@ class CoSimPacket:
         return buffer
 
 class Blob:
-    counter = 0
+    # counter = 0
     def __init__(self, latency, packet):
         self.latency = latency
         self.packet = packet
-        self.counter = Blob.counter
-        Blob.counter += 1
+        # self.counter = Blob.counter
+        # Blob.counter += 1
 
     def __eq__(self, other):
         if isinstance(other, Blob):
