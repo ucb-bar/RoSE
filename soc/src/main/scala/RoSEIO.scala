@@ -36,7 +36,10 @@ class RoseAdapterIO(params: RoseAdapterParams) extends Bundle {
   val clock = Input(Clock())
   val reset = Input(Bool())
   // Bridge -> SoC
-  val rx = Vec(params.dst_ports.seq.count(_.port_type != "DMA"), Flipped(Decoupled(UInt(32.W))))
+  val rx = new Bundle {
+    val enq = Vec(params.dst_ports.seq.count(_.port_type != "DMA"), Flipped(Decoupled(UInt(32.W))))
+    val deq = Vec(params.dst_ports.seq.count(_.port_type != "DMA"), Decoupled(UInt(32.W)))
+  }
   // SoC -> Bridge
   val tx = new Bundle{
     val enq = Flipped(Decoupled(UInt(params.width.W)))

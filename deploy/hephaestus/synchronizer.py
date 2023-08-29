@@ -40,6 +40,8 @@ CS_REQ_TAKEOFF  = 0x06
 
 CS_REQ_IMG      = 0x10
 CS_RSP_IMG      = 0x11
+CS_REQ_IMG_POLL = 0x16
+CS_RSP_IMG_POLL = 0x17
 
 CS_REQ_DEPTH    = 0x12
 CS_RSP_DEPTH    = 0x13
@@ -48,7 +50,7 @@ CS_RSP_DEPTH_STREAM = 0x15
 
 CS_SET_TARGETS  = 0x20
 
-INTCMDS = [CS_GRANT_TOKEN, CS_REQ_CYCLES, CS_RSP_CYCLES, CS_DEFINE_STEP, CS_RSP_STALL, CS_RSP_IMG, CS_CFG_BW]
+INTCMDS = [CS_GRANT_TOKEN, CS_REQ_CYCLES, CS_RSP_CYCLES, CS_DEFINE_STEP, CS_RSP_STALL, CS_RSP_IMG, CS_CFG_BW, CS_RSP_IMG_POLL]
 
 #HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
 HOST = "localhost" # Private aws IP
@@ -143,7 +145,7 @@ class CoSimLogger:
         print(f"df logged to {self.filename}")
 
 class CoSimPacket:
-    cmd_latency_dict = {CS_RSP_IMG: 0.3, CS_RSP_DEPTH: 1.1}
+    cmd_latency_dict = {CS_RSP_IMG: 0.0, CS_RSP_DEPTH: 0.0, CS_RSP_IMG_POLL: 0.0}
 
     def __init__(self):
         self.cmd = None
@@ -371,7 +373,7 @@ class Synchronizer:
         socket_thread.start()
         start_time = time.time()
         self.send_firesim_step()
-        self.send_bw(0, 2048)
+        # self.send_bw(0, 2048)
         self.control.launchStabilizer(self.airsim_ip)
         count = 0
         start_frame = 0
@@ -611,6 +613,33 @@ class Synchronizer:
                 # print(png_packet_arr)
                 packet = CoSimPacket()
                 packet.init(CS_RSP_IMG, len(png_packet_arr)*4, png_packet_arr)
+                blob = Blob(packet.latency, packet)
+                heappush(self.txpq, blob)
+        elif packet.cmd == CS_REQ_IMG_POLL:
+            print("---------------------------------------------------")
+            print("Got image polling request...")
+            print("---------------------------------------------------")
+            self.logger.log_event("img_req")
+            rawImage = self.client.simGetImage("0", airsim.ImageType.Scene)
+            # png = cv2.imdecode(airsim.string_to_uint8_array(rawImage), cv2.IMREAD_COLOR)
+            png = cv2.imdecode(airsim.string_to_uint8_array(rawImage), cv2.IMREAD_COLOR)
+            cv2.imwrite('img/img.png', png)
+            png = cv2.resize(png, (INPUT_DIM, INPUT_DIM))
+            png_arr = png.reshape((INPUT_DIM,INPUT_DIM*3))
+            # print(png_arr.shape)
+            # print(png_arr)
+            # png_arr = png.reshape((172_800))
+            k = 0
+            for row in png_arr:
+                png_packet_arr = row.view(np.uint32).tolist()
+                if k < 4:
+                    print(len(png_packet_arr))
+                    print([hex(x) for x in png_packet_arr])
+                    print([(i, hex(png_packet_arr[i])) for i in range(len(png_packet_arr))])
+                    k += 1
+                print(png_packet_arr)
+                packet = CoSimPacket()
+                packet.init(CS_RSP_IMG_POLL, len(png_packet_arr)*4, png_packet_arr)
                 blob = Blob(packet.latency, packet)
                 heappush(self.txpq, blob)
         elif packet.cmd == CS_REQ_DEPTH:

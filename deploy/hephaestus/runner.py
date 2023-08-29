@@ -54,6 +54,13 @@ class FiresimThread(threading.Thread):
     def run_firesim(self):
         os.system("firesim infrasetup")
         os.system("firesim runworkload")
+        # os.system("firesim kill")
+        os.system("firesim kill &")
+        os.system("sleep 10")
+        os.system("screen -XS guestmount quit")
+        os.system("guestunmount /scratch/iansseijelly/rose-parent-dir/sim_slot_0/mountpoint")
+        os.kill(os.getpid(), signal.SIGTERM)
+        exit()
 
 if __name__ == "__main__":
     arg_list = argparse.ArgumentParser()
