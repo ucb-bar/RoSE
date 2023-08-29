@@ -56,7 +56,9 @@ class RoseAdapterMMIOChiselModule(params: RoseAdapterParams) extends Module
   io.tx.deq <> txfifo.io.deq
 
   for (i <- 0 until params.dst_ports.seq.count(_.port_type != "DMA")) {
-    io.rx(i).ready := true.B
+    val rx_buffer_fifo = Module(new Queue(UInt(params.width.W), 8)) 
+    rx_buffer_fifo.io.enq <> io.rx.enq(i)
+    rx_buffer_fifo.io.deq <> io.rx.deq(i)
   }
 }
 
@@ -229,7 +231,7 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module {
     // send the header packet to the right fifo according to the flag
     is(sHeader) {
       // if it is a camera header, throw it away, else transmit it
-      tx_val := Mux(keep_header, io.tx.valid, false.B)
+      tx_val := Mux(rolut.io.keep_header || keep_header, io.tx.valid, false.B)
       val can_advance = step_passed || ((budget < io.cycleBudget) && (io.cycleBudget =/= io.cycleStep)) 
       io.tx.ready := can_advance && io.rx(idx).ready
       state := Mux(can_advance, Mux(io.tx.fire, sCounter, sHeader), sHeader)
@@ -239,7 +241,7 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module {
     is(sCounter) {
       counter := buffer >> 2
       // counter := Mux(buffer === 0.U, 0.U, 1.U << ((Log2(buffer) - (log2Ceil(w) - log2Ceil(8)).U) - 1.U))
-      tx_val := Mux(keep_header, io.tx.valid, false.B)
+      tx_val := Mux(rolut.io.keep_header || keep_header, io.tx.valid, false.B)
       // don't bother to step into sLoad and do nothing and exit
       when (buffer === 0.U){
         io.tx.ready := 0.U
@@ -276,7 +278,7 @@ trait RoseAdapterModule extends HasRegMap {
   dontTouch(io)
   // TL Register Wires
   val tx_data = Wire(Decoupled(UInt(params.width.W)))
-  val rx_data = Wire(Vec(params.dst_ports.seq.count(_.port_type != "DMA"), UInt(params.width.W)))
+  val rx_data = Wire(Vec(params.dst_ports.seq.count(_.port_type != "DMA"), Decoupled(UInt(params.width.W))))
   val status = Wire(UInt((1 + params.dst_ports.seq.size).W))
 
   // FIXME: get the max value
@@ -318,9 +320,9 @@ trait RoseAdapterModule extends HasRegMap {
   // create a sequence of all rx valid signals
   var rx_valids:Seq[Bool] = Seq()
   for (i <- 0 until params.dst_ports.seq.count(_.port_type != "DMA")) {
-    rx_valids = rx_valids :+ impl.io.rx(i).valid
-    rx_data(i) := impl.io.rx(i).bits
-    io.rx(reversed_idx_map(i)) <> impl.io.rx(i)
+    rx_valids = rx_valids :+ impl.io.rx.deq(i).valid
+    rx_data(i) <> impl.io.rx.deq(i)
+    io.rx(reversed_idx_map(i)) <> impl.io.rx.enq(i)
   }
 
   // // Concat all cam buffers
