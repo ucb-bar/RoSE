@@ -394,7 +394,7 @@ alveo_u250_firesim-boom-singlecore-with-rose-fast-no-nic-l2-llc4mb-ddr3:
     PLATFORM: xilinx_alveo_u250 
     TARGET_PROJECT: firesim
     DESIGN: FireSim
-    TARGET_CONFIG: RoseTLRocketMMIOOnlyConfig
+    TARGET_CONFIG: RoseTLBOOMMMIOOnlyConfig
     PLATFORM_CONFIG: BaseXilinxAlveoConfig 
     deploy_triplet: null
     platform_config_args:
@@ -408,7 +408,7 @@ alveo_u250_firesim-boom-gemmini-singlecore-with-rose-fast-no-nic-l2-llc4mb-ddr3:
     PLATFORM: xilinx_alveo_u250 
     TARGET_PROJECT: firesim
     DESIGN: FireSim
-    TARGET_CONFIG: RoseTLRocketMMIOOnlyConfig
+    TARGET_CONFIG: RoseTLBOOMGemminiMMIOOnlyConfig
     PLATFORM_CONFIG: BaseXilinxAlveoConfig 
     deploy_triplet: null
     platform_config_args:

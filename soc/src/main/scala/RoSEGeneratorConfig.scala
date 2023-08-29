@@ -31,7 +31,7 @@ case class RoseAdapterParams(
   // Sequence of Destination ports
   dst_ports: DstParams_Container = DstParams_Container(Seq(
     DstParams(port_type = "DMA", IDs = Seq(0x11), DMA_address = 0x88000000L, latency = 0, bandwidth = 2048),
-    DstParams(port_type = "reqrsp", IDs = Seq(0x13, 0x02), latency = 0, bandwidth = 32),
+    DstParams(port_type = "reqrsp", IDs = Seq(0x13, 0x02, 0x17), latency = 0, bandwidth = 32),
     DstParams(port_type = "streaming", IDs = Seq(0x15), latency = 0, bandwidth = 32)
   ))
   // require none of the dst params ID overlap

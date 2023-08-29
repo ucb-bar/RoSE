@@ -87,7 +87,18 @@ nitefury_firesim_rocket_singlecore_no_nic:
     bitstream_tar: https://raw.githubusercontent.com/firesim/firesim-public-bitstreams/b06e34569c2e4b350f8adeb96168244f2d43422b/rhsresearch_nitefury_ii/nitefury_firesim_rocket_singlecore_no_nic.tar.gz
     deploy_quintuplet_override: null
     custom_runtime_config: null
+
 alveo_u250_firesim-rocket-singlecore-with-rose-fast-no-nic-l2-llc4mb-ddr3:
-    bitstream_tar: file:///scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/deploy/results-build/2023-08-27--21-20-27-alveo_u250_firesim-rocket-singlecore-with-rose-fast-no-nic-l2-llc4mb-ddr3/cl_xilinx_alveo_u250-firesim-FireSim-RoseTLRocketMMIOOnlyConfig-BaseXilinxAlveoConfig/firesim.tar.gz
+    bitstream_tar: file:///scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/deploy/results-build/2023-08-29--06-14-16-alveo_u250_firesim-rocket-singlecore-with-rose-fast-no-nic-l2-llc4mb-ddr3/cl_xilinx_alveo_u250-firesim-FireSim-RoseTLRocketMMIOOnlyConfig-BaseXilinxAlveoConfig/firesim.tar.gz
+    deploy_quintuplet_override: null
+    custom_runtime_config: null
+
+alveo_u250_firesim-boom-gemmini-singlecore-with-rose-fast-no-nic-l2-llc4mb-ddr3:
+    bitstream_tar: file:///scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/deploy/results-build/2023-08-29--06-14-16-alveo_u250_firesim-boom-gemmini-singlecore-with-rose-fast-no-nic-l2-llc4mb-ddr3/cl_xilinx_alveo_u250-firesim-FireSim-RoseTLBOOMGemminiMMIOOnlyConfig-BaseXilinxAlveoConfig/firesim.tar.gz
+    deploy_quintuplet_override: null
+    custom_runtime_config: null
+
+alveo_u250_firesim-boom-singlecore-with-rose-fast-no-nic-l2-llc4mb-ddr3:
+    bitstream_tar: file:///scratch/iansseijelly/rose-parent-dir/RoSE/soc/sim/firesim/deploy/results-build/2023-08-29--06-14-16-alveo_u250_firesim-boom-singlecore-with-rose-fast-no-nic-l2-llc4mb-ddr3/cl_xilinx_alveo_u250-firesim-FireSim-RoseTLBOOMMMIOOnlyConfig-BaseXilinxAlveoConfig/firesim.tar.gz
     deploy_quintuplet_override: null
     custom_runtime_config: null
