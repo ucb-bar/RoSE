@@ -672,7 +672,16 @@ class Synchronizer:
             print("---------------------------------------------------")
             print("Got depth streaming request...")
             print("---------------------------------------------------") 
-            self.streaming_queue[CS_RSP_DEPTH_STREAM] = True
+            # self.streaming_queue[CS_RSP_DEPTH_STREAM] = True
+            depth = 100 # dummy data
+            packet_vanilla = CoSimPacket()
+            packet_chocolate = CoSimPacket()
+            packet_vanilla.init(CS_RSP_DEPTH_STREAM, 4, [depth])
+            packet_chocolate.init(CS_RSP_DEPTH, 4, [depth])
+            bloba_vanilla = Blob(packet_vanilla.latency, packet_vanilla)
+            bloba_chocolate = Blob(packet_chocolate.latency, packet_chocolate)
+            stable_heap_push(self.txpq, bloba_vanilla)
+            stable_heap_push(self.txpq, bloba_chocolate)
         else:
             pass
         
