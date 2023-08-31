@@ -385,7 +385,15 @@ class Synchronizer:
         socket_thread.start()
         start_time = time.time()
         self.send_firesim_step()
+        # read bw from bw.txt
+        try:
+            f = open('bw.txt', 'r')
+            bw = int(f.readline())
+            self.send_bw(0, round(bw * self.firesim_step / 1e9))
+        except:
+            pass
         # self.send_bw(0, 2048)
+        print("stepping beyond bw safely")
         self.control.launchStabilizer(self.airsim_ip)
         count = 0
         start_frame = 0
