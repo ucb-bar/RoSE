@@ -389,7 +389,11 @@ class Synchronizer:
         try:
             f = open('bw.txt', 'r')
             bw = int(f.readline())
-            self.send_bw(0, round(bw * self.firesim_step / 1e9))
+            # self.send_bw(0, round(bw * self.firesim_step / 1e9))
+            # self.send_bw(1, round(bw * self.firesim_step / 1e9))
+            self.send_bw(0, bw)
+            # print(f"bandwidth debug:{round(bw * self.firesim_step / 1e9)}")
+
         except:
             pass
         # self.send_bw(0, 2048)
