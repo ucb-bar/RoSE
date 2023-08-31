@@ -216,7 +216,8 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
 
     // Generate some FIFOs to capture tokens...
     val txfifo = Module(new Queue(UInt(32.W), 32))
-    val rxfifo = Module(new Queue(UInt(32.W), 128))
+    //val rxfifo = Module(new Queue(UInt(32.W), 128))
+    val rxfifo = Module(new Queue(UInt(32.W), 2560))
     val rx_budget_fifo = Module(new softQueue(64))
     // COSIM-CODE
     // Generate a FIFO to capture time step allocations
