@@ -55,7 +55,8 @@ INTCMDS = [CS_GRANT_TOKEN, CS_REQ_CYCLES, CS_RSP_CYCLES, CS_DEFINE_STEP, CS_RSP_
 #HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
 HOST = "localhost" # Private aws IP
 #HOST = "172.31.30.244"
-AIRSIM_IP = "zr-desktop.cs.berkeley.edu"
+#AIRSIM_IP = "zr-desktop.cs.berkeley.edu"
+AIRSIM_IP = "localhost"
 
 #PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
 SYNC_PORT = 10001  # Port to listen on (non-privileged ports are > 1023)
@@ -132,20 +133,50 @@ class CoSimLogger:
 
         self.record_row(dat)
     
-    def log_event(self, kind):
-        if kind not in self.df.columns:
-            self.df = self.df.assign(**{kind:np.nan}).copy()
-        if np.isnan(self.df.iloc[-1][kind]):
-            self.df.iloc[-1][kind] = 1
-        else:
-            self.df.iloc[-1][kind] += 1
+    # def log_event(self, kind):
+    #     if kind not in self.df.columns:
+    #         self.df = self.df.assign(**{kind:np.nan}).copy()
+    #     if np.isnan(self.df.iloc[-1][kind]):
+    #         self.df.iloc[-1][kind] = 1
+    #     else:
+    #         self.df.iloc[-1][kind] += 1
+    
 
+    def log_event(self, kind):
+        # Check if the column exists, and if not, create it
+        if kind not in self.df.columns:
+            self.df[kind] = np.nan
+        
+        # Check if the last value in the column is NaN
+        if np.isnan(self.df.loc[self.df.index[-1], kind]):
+            self.df.loc[self.df.index[-1], kind] = 1
+        else:
+            self.df.loc[self.df.index[-1], kind] += 1
+
+    # def record_row(self, data):
+    #     print('----------------------- dat')
+    #     print(data)
+    #     for k, v in data.items():
+    #         if k not in self.df.columns:
+    #             self.df = self.df.assign(**{k:np.nan}).copy()
+    #     for k, v in data.items():
+    #         self.df.iloc[-1][k] = v
+    #     print('======================== df')
+    #     print(self.df)
+    
     def record_row(self, data):
+        # print('----------------------- data')
+        # print(data)
+        
         for k, v in data.items():
             if k not in self.df.columns:
-                self.df = self.df.assign(**{k:np.nan}).copy()
+                self.df[k] = np.nan
+                
         for k, v in data.items():
-            self.df.iloc[-1][k] = v
+            self.df.loc[self.df.index[-1], k] = v
+        
+        # print('======================== df')
+        # print(self.df)
 
     def log_file(self):
         # print(self.df)
