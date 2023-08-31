@@ -74,7 +74,7 @@ class rxcontroller(params: DstParams) extends Module{
     val rx = Flipped(Decoupled(UInt(params.width.W)))
     val tx = Decoupled(UInt(params.width.W))
     val fire = Input(Bool())
-    val counter_reset = Input(Bool())
+    // val counter_reset = Input(Bool())
     val bww_bits = Input(UInt(32.W))
     val bww_valid = Input(Bool())
   })
@@ -83,17 +83,17 @@ class rxcontroller(params: DstParams) extends Module{
   val rxState = RegInit(sRxIdle)
   val rxData = Reg(UInt(32.W))
 
-  val bandwidth_threshold = RegEnable(next = io.bww_bits, init = 0xFFFFFFFFL.U(32.W), enable = io.bww_valid)
+  val bandwidth_threshold = RegEnable(next = io.bww_bits, init = 0.U(32.W), enable = io.bww_valid)
 
   val counter_next = Wire(UInt(params.width.W))
-  val counter : UInt = RegEnable(next = counter_next, init = 0.U(params.width.W), enable = io.tx.fire || io.counter_reset)
-  counter_next := Mux(io.counter_reset, 0.U, Mux((counter < bandwidth_threshold), counter + 4.U, counter)) 
+  val counter : UInt = RegEnable(next = counter_next, init = 0.U(params.width.W), enable = io.fire)
+  counter_next := Mux(io.tx.fire, 0.U, Mux((counter < bandwidth_threshold), counter + 1.U, counter))
   val depleted = Wire(Bool())
   depleted := counter === bandwidth_threshold
 
   io.tx.bits := rxData
   io.tx.valid := (rxState === sRxSend)
-  io.rx.ready := (rxState === sRxRecv) && !depleted
+  io.rx.ready := (rxState === sRxRecv) && depleted
 
   switch(rxState) {
     is(sRxIdle) {
@@ -281,7 +281,7 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
       q.io.enq <> rosearb.io.rx(i)
       q.io.deq <> rxctrl.io.rx 
       rxctrl.io.tx <> target.rx(i)
-      rxctrl.io.counter_reset := cycleBudget === cycleStep
+      // rxctrl.io.counter_reset := cycleBudget === cycleStep
       rxctrl.io.fire := fire
       rxctrl.io.bww_bits := bww.io.output_bits(i)
       rxctrl.io.bww_valid := bww.io.output_valid(i)
