@@ -18,8 +18,11 @@ VEL=9
 
 cd ${ROSE_DIR}/deploy/hephaestus
 
-BW=( 102400000 204800000 409600000 819200000 1638400000 )
-for (( i=0; i<${BW}; i++ ));
+# BW=( 'potato' 1638400000 819200000 409600000 204800000 102400000 )
+# BW=( 0 1 2 4 8 16 32 64 )
+BW=( 2 4 8 16 32 64 )
+LEN_BW=${#BW[@]}
+for (( i=0; i<${LEN_BW}; i++ ));
 do
     echo "Running RoSE simulation"
     echo ${BW[i]} > bw.txt
