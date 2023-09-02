@@ -424,7 +424,7 @@ bool airsim_t::read_firesim_packet(cosim_packet_t * packet)
         } else if(this->fsim_rxdata.size() >= (num_bytes/4) + 1) {
             m.lock();
             this->fsim_rxdata.pop_front();
-            for( int i = 0; i < num_bytes/4; i++ ){
+            for(int i = 0; i < num_bytes/4; i++ ){
                 buf[i] = this->fsim_rxdata.front();
                 this->fsim_rxdata.pop_front();
             }
