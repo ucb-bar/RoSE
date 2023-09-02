@@ -167,9 +167,15 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module {
 
   val cycle_reset_next = Wire(Bool())
   val cycle_reset_en = Wire(Bool())
-  cycle_reset_next := Mux(state === sIdle, false.B, io.cycleBudget === io.cycleStep)
-  cycle_reset_en := state === sIdle || io.cycleBudget === io.cycleStep
-  val step_passed = RegEnable(next = cycle_reset_next, enable = cycle_reset_en)
+  cycle_reset_next := Mux(state === sIdle, false.B, io.cycleBudget === 0.U)
+  cycle_reset_en := state === sIdle || io.cycleBudget === 0.U 
+  val cycle_reset = RegEnable(next = cycle_reset_next, enable = cycle_reset_en) 
+
+  val cycle_rest_twice_next = Wire(Bool())
+  val cycle_rest_twice_next_en = Wire(Bool())
+  cycle_rest_twice_next := Mux(state === sIdle, false.B, io.cycleBudget === 0.U && cycle_reset)
+  cycle_rest_twice_next_en := state === sIdle || (io.cycleBudget === 0.U && cycle_reset) 
+  val step_passed = RegEnable(next = cycle_rest_twice_next, enable = cycle_rest_twice_next_en)
 
   // create a map with id as key and the corresponding dst_port index as value
   // val id_map = scala.collection.mutable.Map[Chisel.UInt, Int]()
@@ -231,8 +237,8 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module {
     // send the header packet to the right fifo according to the flag
     is(sHeader) {
       // if it is a camera header, throw it away, else transmit it
-      tx_val := Mux(rolut.io.keep_header || keep_header, io.tx.valid, false.B)
-      val can_advance = step_passed || ((budget < io.cycleBudget) && (io.cycleBudget =/= io.cycleStep)) 
+      val can_advance = step_passed || ((budget < io.cycleBudget) && (io.cycleBudget =/= io.cycleStep))
+      tx_val := Mux(rolut.io.keep_header || keep_header, (io.tx.valid && can_advance), false.B)
       io.tx.ready := can_advance && io.rx(idx).ready
       state := Mux(can_advance, Mux(io.tx.fire, sCounter, sHeader), sHeader)
     }
