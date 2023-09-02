@@ -715,7 +715,7 @@ class Synchronizer:
             packet.init(CS_RSP_DEPTH, 4, [depth])
             blob = Blob(packet.latency, packet)
             stable_heap_push(self.txpq, blob) 
-            CoSimPacket.cmd_latency_dict[CS_RSP_DEPTH] += 0.25
+            # CoSimPacket.cmd_latency_dict[CS_RSP_DEPTH] += 0.25
         elif packet.cmd == CS_REQ_DEPTH_STREAM:
             print("---------------------------------------------------")
             print("Got depth streaming request...")
