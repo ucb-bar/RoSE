@@ -185,7 +185,7 @@ class CoSimLogger:
         print(f"df logged to {self.filename}")
 
 class CoSimPacket:
-    cmd_latency_dict = {CS_RSP_IMG: 0.0, CS_RSP_DEPTH: 0.0, CS_RSP_IMG_POLL: 0.0}
+    cmd_latency_dict = {CS_RSP_IMG: 0.0, CS_RSP_DEPTH: 0.0, CS_RSP_IMG_POLL: 0.0, CS_RSP_DEPTH_STREAM: 0.0}
 
     def __init__(self):
         self.cmd = None
@@ -422,7 +422,7 @@ class Synchronizer:
             bw = int(f.readline())
             # self.send_bw(0, round(bw * self.firesim_step / 1e9))
             # self.send_bw(1, round(bw * self.firesim_step / 1e9))
-            self.send_bw(0, bw)
+            self.send_bw(1, bw)
             # print(f"bandwidth debug:{round(bw * self.firesim_step / 1e9)}")
 
         except:
@@ -516,7 +516,7 @@ class Synchronizer:
             
             #process the latency aware queue
             #peek at the top of the queue
-            while(len(self.txpq) > 0 and self.txpq[0].latency <= 1):
+            while(len(self.txpq) > 0 and self.txpq[0].latency < 1):
                 packet_blob = stable_heap_pop(self.txpq)
                 packet = packet_blob.packet
                 # print(f"DEBUG: the stable_heap_pop counter of this pop is: {packet_blob.counter}" )
@@ -528,6 +528,7 @@ class Synchronizer:
             for blobs in self.txpq:
                 blobs.latency = blobs.latency - 1
                 blobs.packet.latency = blobs.latency
+                print("Debug: --")
 
             self.grant_firesim_token()
             self.process_streaming_queue()
@@ -705,12 +706,16 @@ class Synchronizer:
             print("---------------------------------------------------")
             print("Got depth request...")
             print("---------------------------------------------------")
-            
+            packet = CoSimPacket()
+            packet.init(CS_RSP_DEPTH_STREAM, 4, [1])
+            blob = Blob(packet.latency, packet) 
+            stable_heap_push(self.txpq, blob) 
             depth = self.client.getDistanceSensorData("Distance").distance
             packet = CoSimPacket()
             packet.init(CS_RSP_DEPTH, 4, [depth])
             blob = Blob(packet.latency, packet)
             stable_heap_push(self.txpq, blob) 
+            CoSimPacket.cmd_latency_dict[CS_RSP_DEPTH] += 0.25
         elif packet.cmd == CS_REQ_DEPTH_STREAM:
             print("---------------------------------------------------")
             print("Got depth streaming request...")
