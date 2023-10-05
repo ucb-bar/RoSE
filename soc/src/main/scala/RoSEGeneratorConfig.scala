@@ -30,9 +30,9 @@ case class RoseAdapterParams(
   width: Int = 32,
   // Sequence of Destination ports
   dst_ports: DstParams_Container = DstParams_Container(Seq(
-    DstParams(port_type = "DMA", IDs = Seq(0x11), DMA_address = 0x88000000L, latency = 0, bandwidth = 2048),
-    DstParams(port_type = "reqrsp", IDs = Seq(0x13, 0x02, 0x17), latency = 0, bandwidth = 32),
-    DstParams(port_type = "streaming", IDs = Seq(0x15), latency = 0, bandwidth = 32)
+    DstParams(port_type = "DMA", DMA_address = 0x88000000L),
+    DstParams(port_type = "reqrsp"),
+    DstParams(port_type = "streaming") 
   ))
   // require none of the dst params ID overlap
   // require(RoseAdapterParams().dst_ports.seq.map(_.IDs).flatten.distinct.size == RoseAdapterParams().dst_ports.seq.map(_.IDs).flatten.size)
@@ -50,10 +50,5 @@ case class DstParams_Container (seq: Seq[DstParams]) extends HasSerializationHin
 
 case class DstParams (
   val port_type: String = "reqrsp", // supported are stream, decoupled, interrupt, and DMA
-  val IDs: Seq[Int] = Seq(0), // sequence of ID bytes, must be non-overlapping
   val DMA_address: BigInt = 0x88000000L, // this is only used if port_type is DMA
-  val latency: Int = 0,
-  val bandwidth: Int = 32,
-  //re-iteration of width for convenience, do not modify
-  val width: Int = 32
 )

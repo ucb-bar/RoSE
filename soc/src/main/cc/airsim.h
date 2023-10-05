@@ -86,9 +86,14 @@ struct ROSEBRIDGEMODULE_struct {
     uint64_t cycle_count;
     uint64_t cycle_budget;
     uint64_t cycle_step;
+    // BWW
     uint64_t bww_config_bits;
     uint64_t bww_config_valid;
     uint64_t bww_config_destination;
+    // Routing
+    uint64_t config_routing_header;
+    uint64_t config_routing_valid;
+    uint64_t config_routing_channel;
 };
 
 class cosim_packet_t

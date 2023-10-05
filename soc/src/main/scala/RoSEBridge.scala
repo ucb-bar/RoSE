@@ -336,6 +336,9 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     genWOReg(bww.io.config_destination, "bww_config_destination")
     // This method invocation is required to wire up all of the MMIO registers to
     // the simulation control bus (AXI4-lite)
+    genWOReg(rosearb.config_routing_header, "config_routing_header")
+    Pulsify(genWORegInit(rosearb.config_routing_valid, "config_routing_valid", false.B), pulseLength = 1)
+    genWOReg(rosearb.config_routing_channel, "config_routing_channel")
     genCRFile()
     // DOC include end: AirSim Bridge Footer
 

@@ -596,6 +596,14 @@ void airsim_t::config_bandwidth(uint32_t dest, uint32_t bandwidth)
     write(this->mmio_addrs.bww_config_valid, 1);
 }
 
+void airsim_t::config_routing(uint32_t header, uint32_t channel)
+{
+    // printf("[AirSim Driver]: Setting routing to %d!\n", dest);
+    write(this->mmio_addrs.routing_config_header, header);
+    write(this->mmio_addrs.routing_config_destination, channel);
+    write(this->mmio_addrs.routing_config_valid, 1);
+}
+
 void airsim_t::tick()
 {
     cosim_packet_t packet;

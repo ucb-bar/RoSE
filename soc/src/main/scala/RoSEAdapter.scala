@@ -25,25 +25,28 @@ import freechips.rocketchip.util.UIntIsOneOf
 // A utility read-only register look up table that maps the id to the corresponding dst_port index
 class rolut(params: RoseAdapterParams) extends Module {
   val io = IO(new Bundle{
+    // Look up ports
     val key = Input(UInt(params.width.W))
     val value = Output(UInt(params.width.W))
     val keep_header = Output(Bool())
+    // Configuration ports
+    val config_header = Input(UInt(32.W))
+    val config_valid = Input(Bool())
+    val config_channel = Input(UInt(32.W))
   })
-  dontTouch(io)
-  io.value := 0.U
-  io.keep_header := false.B
+  // spawn a vector of registers, latching the configured routing values
+  val routing_table = RegInit(VecInit(Seq.fill(0x80)(0.U(params.width.W))))
+  var keep_header_table_seq = Seq[Bool]()
   for (i <- 0 until params.dst_ports.seq.length) {
-    for (j <- 0 until params.dst_ports.seq(i).IDs.length) {
-      when (io.key === params.dst_ports.seq(i).IDs(j).U) {
-        io.value := i.U
-        if (params.dst_ports.seq(i).port_type == "reqrsp") {
-          io.keep_header := true.B
-        } else {
-          io.keep_header := false.B
-        } 
-      }
-    }
+    keep_header_table = keep_header_table :+ params.dst_ports.seq(i) == "reqrsp"
   }
+  val keep_header_table = VecInit(keep_header_table_seq)
+  when (io.config_valid) {
+    routing_table(io.config_header) := io.config_channel
+  }
+  // look up the routing table
+  io.value := routing_table(io.key)
+  io.keep_header = keep_header_table(io.value)
 }
 
 class RoseAdapterMMIOChiselModule(params: RoseAdapterParams) extends Module
@@ -157,6 +160,10 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module {
   buffer_next := io.tx.bits
   //goal: io.rx.fire should be synced with io.target.fire
   val rolut = Module(new rolut(params))
+  rolut.io.config_header := io.config_routing_header
+  rolut.io.config_valid := io.config_routing_valid
+  rolut.io.config_channel := io.config_routing_channel
+
   val buffer = RegEnable(next = buffer_next, enable = io.tx.fire)
   val budget = RegEnable(next = io.budget.bits, enable = io.budget.fire)
   val keep_header = RegEnable(next=rolut.io.keep_header, enable = io.tx.fire)

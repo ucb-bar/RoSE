@@ -29,6 +29,9 @@ class RoseAdapterArbiterIO(params: RoseAdapterParams) extends Bundle {
     val budget = Flipped(Decoupled(UInt(32.W)))
     val cycleBudget = Input(UInt(32.W))
     val cycleStep = Input(UInt(32.W))
+    val config_routing_header = Input(UInt(32.W))
+    val config_routing_valid = Input(Bool())
+    val config_routing_channel = Input(UInt(32.W))
 }
 
 // Core IO of the adapter
