@@ -51,6 +51,13 @@ yq -i ".build_farm.recipe_arg_overrides.default_build_dir = \"${FIRESIM_BUILDDIR
 sed -i "s|/bitstream_dir|${ROSE_DIR}/soc/sim/bitstreams|g" ${ROSE_DIR}/soc/sim/config/config_hwdb_local.yaml
 
 cd ${ROSE_DIR}/
+git submodule update --init ${ROSE_DIR}/soc/sim/firesim
+
+yq -i ".build_farm.recipe_arg_overrides.default_build_dir = \"${FIRESIM_BUILDDIR}\"" ${ROSE_DIR}/soc/sim/config/config_build_local.yaml
+
+sed -i "s|/bitstream_dir|${ROSE_DIR}/soc/sim/bitstreams|g" ${ROSE_DIR}/soc/sim/config/config_hwdb_local.yaml
+
+cd ${ROSE_DIR}/
 # git submodule update --init ${ROSE_DIR}/soc/sim/firesim
 
 

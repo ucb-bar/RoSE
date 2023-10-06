@@ -1,6 +1,5 @@
 #!/bin/bash
-PROJECT_ROOT="/scratch/$(whoami)"
-ROSE_DIR=${PROJECT_ROOT}/RoSE
+ROSE_DIR=$(pwd)
 
 BOOM_CONFIG='firesim-dual-large-boom-fp32gemmini-singlecore-with-airsim-no-nic-l2-llc4mb-ddr3'
 ROCKET_CONFIG='firesim-rocket-singlecore-fp32gemmini-with-airsim-fast-no-nic-l2-llc4mb-ddr3'
@@ -22,8 +21,8 @@ cd ${ROSE_DIR}
 
 # Run Rocket Experiments
 echo "RoSE: Updating FireSim Runtime YAML"
-yq -i ".target_config.default_hw_config = \"${ROCKET_CONFIG}\"" ${ROSE_DIR}/soc/sim/config_runtime_local.yaml
-yq -i '.workload.workload_name = "airsim-control-fed.json"' ${ROSE_DIR}/soc/sim/config_runtime_local.yaml
+yq -i ".target_config.default_hw_config = \"${ROCKET_CONFIG}\"" ${ROSE_DIR}/soc/sim/config/config_runtime_local.yaml
+yq -i '.workload.workload_name = "airsim-control-fed.json"' ${ROSE_DIR}/soc/sim/config/config_runtime_local.yaml
 bash ${ROSE_DIR}/soc/setup.sh
 
 echo "RoSE: Updating FireMarshal workload YAML"
@@ -42,7 +41,7 @@ for (( i=0; i<${LEN_ANGLE}; i++ ));
 do
     echo "Running RoSE simulation"
     echo ${ANGLES[$i]}  > angle.txt
-    python3 runner.py -r FireSim -a ${AIRSIM_STEPS} -f ${FIRESIM_CYCLES} -y ${START_Y} -c ${END_CYCLE} -x ${END_X} -l ${ROSE_DIR}/deploy/hephaestus/logs/tunnel-exp-rocket-gemmini-${ANGLE_NAMES[$i]} # | tee ${ROSE_DIR}/deploy/hephaestus/logs/tunnel-exp-rocket-gemmini-${ANGLE_NAMES[$i]}.log
+    python3 runner.py -i ${AIRSIM_IP} -r FireSim -a ${AIRSIM_STEPS} -f ${FIRESIM_CYCLES} -y ${START_Y} -c ${END_CYCLE} -x ${END_X} -l ${ROSE_DIR}/deploy/hephaestus/logs/tunnel-exp-rocket-gemmini-${ANGLE_NAMES[$i]} # | tee ${ROSE_DIR}/deploy/hephaestus/logs/tunnel-exp-rocket-gemmini-${ANGLE_NAMES[$i]}.log
     firesim kill &
     pid=$!
     sleep 10
@@ -52,8 +51,8 @@ done
 
 # Run BOOM Experiments
 echo "RoSE: Updating FireSim Runtime YAML"
-yq -i ".target_config.default_hw_config = \"${BOOM_CONFIG}\"" ${ROSE_DIR}/soc/sim/config_runtime_local.yaml
-yq -i '.workload.workload_name = "airsim-control-fed.json"' ${ROSE_DIR}/soc/sim/config_runtime_local.yaml
+yq -i ".target_config.default_hw_config = \"${BOOM_CONFIG}\"" ${ROSE_DIR}/soc/sim/config/config_runtime_local.yaml
+yq -i '.workload.workload_name = "airsim-control-fed.json"' ${ROSE_DIR}/soc/sim/config/config_runtime_local.yaml
 bash ${ROSE_DIR}/soc/setup.sh
 
 # Run BOOM + Gemmini
@@ -62,7 +61,7 @@ for (( i=0; i<${LEN_ANGLE}; i++ ));
 do
     echo "Running RoSE simulation"
     echo ${ANGLES[$i]}  > angle.txt
-    python3 runner.py -r FireSim -a ${AIRSIM_STEPS} -f ${FIRESIM_CYCLES} -y ${START_Y} -c ${END_CYCLE} -x ${END_X} -l ${ROSE_DIR}/deploy/hephaestus/logs/tunnel-exp-boom-gemmini-${ANGLE_NAMES[$i]} # | tee ${ROSE_DIR}/deploy/hephaestus/logs/tunnel-exp-boom-gemmini-${ANGLE_NAMES[$i]}.log
+    python3 runner.py -i ${AIRSIM_IP} -r FireSim -a ${AIRSIM_STEPS} -f ${FIRESIM_CYCLES} -y ${START_Y} -c ${END_CYCLE} -x ${END_X} -l ${ROSE_DIR}/deploy/hephaestus/logs/tunnel-exp-boom-gemmini-${ANGLE_NAMES[$i]} # | tee ${ROSE_DIR}/deploy/hephaestus/logs/tunnel-exp-boom-gemmini-${ANGLE_NAMES[$i]}.log
     firesim kill &
     pid=$!
     sleep 10
@@ -85,7 +84,7 @@ for (( i=0; i<${LEN_ANGLE}; i++ ));
 do
     echo "Running RoSE simulation"
     echo ${ANGLES[$i]}  > angle.txt
-    python3 runner.py -r FireSim -a ${AIRSIM_STEPS} -f ${FIRESIM_CYCLES} -y ${START_Y} -c ${END_CYCLE} -x ${END_X} -l ${ROSE_DIR}/deploy/hephaestus/logs/tunnel-exp-boom-only-${ANGLE_NAMES[$i]} # | tee ${ROSE_DIR}/deploy/hephaestus/logs/tunnel-exp-boom-only-${ANGLE_NAMES[$i]}.log
+    python3 runner.py -i ${AIRSIM_IP} -r FireSim -a ${AIRSIM_STEPS} -f ${FIRESIM_CYCLES} -y ${START_Y} -c ${END_CYCLE} -x ${END_X} -l ${ROSE_DIR}/deploy/hephaestus/logs/tunnel-exp-boom-only-${ANGLE_NAMES[$i]} # | tee ${ROSE_DIR}/deploy/hephaestus/logs/tunnel-exp-boom-only-${ANGLE_NAMES[$i]}.log
     firesim kill &
     pid=$!
     sleep 10

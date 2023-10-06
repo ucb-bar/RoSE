@@ -8,7 +8,7 @@ run_farm:
     # how to run simulations on a run farm host.
     default_platform: VitisInstanceDeployManager
     # REQUIRED: default directory where simulations are run out of on the run farm hosts
-    default_simulation_dir: /scratch/rose-isca-ae-1/new_firesim_run_temp
+    default_simulation_dir: null
     run_farm_host_specs:
       - one_fpga_spec:
           num_fpgas: 1
