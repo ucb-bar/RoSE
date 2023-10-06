@@ -64,6 +64,8 @@ autocounter:
   read_rate: 0
 workload:
   workload_name: airsim-packettest.json
+  #workload_name: airsim-driver-fed.json
+  #workload_name: airsim-flight.json
   terminate_on_completion: no
   suffix_tag: null
 host_debug:
