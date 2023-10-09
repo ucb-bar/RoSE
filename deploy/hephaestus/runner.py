@@ -11,7 +11,8 @@ import threading
 import time
 
 HOST = "localhost"  # Private aws IP
-AIRSIM_IP = "zr-desktop.cs.berkeley.edu"
+# AIRSIM_IP = "zr-desktop.cs.berkeley.edu"
+AIRSIM_IP = "localhost"
 # AIRSIM_IP = "44.205.8.36"
 
 SYNC_PORT = 10001  # Port to listen on (non-privileged ports are > 1023)
@@ -58,7 +59,6 @@ class FiresimThread(threading.Thread):
         os.system("firesim kill &")
         os.system("sleep 10")
         os.system("screen -XS guestmount quit")
-        os.system("guestunmount /scratch/iansseijelly/rose-parent-dir/sim_slot_0/mountpoint")
         os.kill(os.getpid(), signal.SIGTERM)
         exit()
 
