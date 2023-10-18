@@ -1,1 +1,2 @@
-gym_env: 'AirSimEnv-v0'
+#gym_env: 'AirSimEnv-v0'
+gym_env: 'InvertedPendulumFine-v4'

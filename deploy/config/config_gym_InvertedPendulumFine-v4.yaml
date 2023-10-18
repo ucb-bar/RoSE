@@ -1,0 +1,17 @@
+packets:
+  - name: observation
+    id: 0x16
+    type: "reqrsp"
+    latency: 0
+    channel: 0
+    indices:
+  - name: action
+    id: 0x20
+    type: "action_latch"
+    latency: 0
+    channel: 0
+    indices:
+defaults:
+  action: [0]
+custom_config:
+

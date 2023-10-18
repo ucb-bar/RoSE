@@ -2,6 +2,7 @@ from rose_packet import RoSEPacket, Blob
 from socket_thread import SocketThread
 
 
+
 import collections
 import gymnasium as gym
 import register_envs
@@ -9,6 +10,8 @@ import time
 import numpy as np
 import os
 import yaml
+
+CS_RESET = 0x01
 
 CS_GRANT_TOKEN  = 0x80 
 CS_REQ_CYCLES   = 0x81 
@@ -37,11 +40,25 @@ def stable_heap_pop(heap):
     heap.sort()
     return item
 
+def default_action_for_space(space):
+    if isinstance(space, gym.spaces.Discrete):
+        return 0
+    elif isinstance(space, gym.spaces.Box):
+        return (space.high + space.low) / 2.0
+    elif isinstance(space, gym.spaces.MultiDiscrete):
+        return np.zeros_like(space.nvec, dtype=int)
+    elif isinstance(space, gym.spaces.MultiBinary):
+        return np.zeros(space.n, dtype=int)
+    elif isinstance(space, gym.spaces.Dict):
+        return {key: default_action_for_space(sub_space) for key, sub_space in space.spaces.items()}
+    else:
+        raise ValueError(f"Don't know how to create a default action for space of type {type(space)}")
+
 
 class Synchronizer: 
 
-    #def __init__(self, host=HOST, sync_port=SYNC_PORT, data_port=DATA_PORT, firesim_step=10000):
-    def __init__(self, host=HOST, sync_port=SYNC_PORT, data_port=DATA_PORT, firesim_step=10_000_000):
+    def __init__(self, host=HOST, sync_port=SYNC_PORT, data_port=DATA_PORT, firesim_step=10000):
+    #def __init__(self, host=HOST, sync_port=SYNC_PORT, data_port=DATA_PORT, firesim_step=10_000_000):
         self.txqueue = []
         self.txpq = [] 
         self.data_rxqueue = []
@@ -97,19 +114,17 @@ class Synchronizer:
         self.rew = 0
         
         # TODO get defaults from config
-        self.action = {
-            'targets': [0, 0, 0, 0],
-            'active': False
-        }
+        self.action = default_action_for_space(self.env.action_space)
+        self.default_action = default_action_for_space(self.env.action_space)
 
-        obs = self.env.reset()
+        obs, _ = self.env.reset()
 
         while True:
             # Check to see if sim is finished
             self.check_task_termination()
 
             # Step robotics simulator
-            self.obs, self.rew, self.done, _ =  self.env.step(self.action)
+            self.obs, self.rew, self.done, _, _ =  self.env.step(self.action)
 
             # Step RTL simulation
             self.grant_firesim_token()
@@ -181,20 +196,6 @@ class Synchronizer:
         response = self.sync_rxqueue.pop(0)
         return response.data[0]
 
-    def process_fsim_data_packet(self):
-        packet = self.data_rxqueue.pop(0)
-        print(f"Dequeued data packet: {packet}")
-        if packet.cmd == CS_REQ_IMG:
-            INPUT_DIM = 56
-            img_arr = self.obs['camera'].reshape(INPUT_DIM, INPUT_DIM * 3)
-
-            for row in img_arr:
-                img_packet_arr = row.view(np.uint32).tolist()
-                packet = RoSEPacket()
-                packet.init(CS_RSP_IMG, len(img_packet_arr)*4, img_packet_arr)
-                blob = Blob(packet.latency, packet)
-                stable_heap_push(self.txpq, blob)
-
     def process_fsim_data_packets(self):
         while len(self.data_rxqueue) > 0:
             self.process_fsim_data_packet()
@@ -202,7 +203,7 @@ class Synchronizer:
             packet_blob = stable_heap_pop(self.txpq)
             packet = packet_blob.packet
             self.txqueue.append(packet)
-            print(f"appended packet: {packet}")
+            # print(f"appended packet: {packet}")
 
     def load_config(self):
         # Determine the path to the directory containing the current script
@@ -225,6 +226,8 @@ class Synchronizer:
         with open(config_file, 'r') as f:
             gym_sim_config = yaml.safe_load(f)
         
+        print(f"loaded config: {gym_sim_config}")
+        
         self.packet_bindings = {}
         for packet in gym_sim_config['packets']:
             hex_id = packet['id']
@@ -233,40 +236,76 @@ class Synchronizer:
     # def process_fsim_data_packet(self):
     #     packet = self.data_rxqueue.pop(0)
     #     print(f"Dequeued data packet: {packet}")
+    #     if packet.cmd == CS_REQ_IMG:
+    #         INPUT_DIM = 56
+    #         img_arr = self.obs['camera'].reshape(INPUT_DIM, INPUT_DIM * 3)
 
-    #     packet_config = self.packet_bindings.get(packet.cmd)
-    #     if not packet_config:
-    #         print(f"Unknown packet cmd: {packet.cmd}")
-    #         return
-        
-    #     # Retrieve observation related to the packet name
-    #     if packet_config['type'] == 'reqrsp':
-    #         obs_data = self.obs
-    #         for idx in packet_config['indices']:
-    #             obs_data = obs_data[idx]
-    #         print(f"Extracted packet obs: {obs_data}")
-    #         if len(obs_data.shape) == 1:
-    #             # Just a 1D array, process accordingly (send one response packet)
-    #             # Assuming packet preparation is similar for all 1D arrays (to be modified if needed)
-    #             packet_arr = obs_data.tolist()
-    #             packet = RoSEPacket()  # You might need to adjust this based on actual RoSEPacket initialization
-    #             packet.init(packet.cmd, len(packet_arr) * 4, packet_arr)  # You might need to adjust the multiplier
+    #         for row in img_arr:
+    #             img_packet_arr = row.view(np.uint32).tolist()
+    #             # print(f"img_packet_arr: {img_packet_arr}")
+    #             packet = RoSEPacket()
+    #             packet.init(CS_RSP_IMG, len(img_packet_arr)*4, img_packet_arr)
     #             blob = Blob(packet.latency, packet)
     #             stable_heap_push(self.txpq, blob)
 
-                
-                
-    #         elif len(obs_data.shape) >= 2:
-    #             # 2D array, send the response in rows
-    #             INPUT_DIM = 56  # This is hardcoded, consider making it dynamic if necessary
-    #             packet_arr = obs_data.reshape(INPUT_DIM, INPUT_DIM * 3)
-    #             print(f"packet_arr: {packet_arr}")
-    #             for row in packet_arr:
-    #                 row_packet_arr = row.view(np.uint32).tolist()
-    #                 packet = RoSEPacket()  # You might need to adjust this
-    #                 packet.init(packet.cmd, len(row_packet_arr) * 4, row_packet_arr)  # You might need to adjust the multiplier
-    #                 blob = Blob(packet.latency, packet)
-    #                 stable_heap_push(self.txpq, blob)
+    def process_fsim_data_packet(self):
+        packet = self.data_rxqueue.pop(0)
+        cmd = packet.cmd
+        print(f"Dequeued data packet: {packet}")
+        
+        if cmd == CS_RESET:
+            print("Resetting environment")
+            self.obs = self.env.reset()
+            self.done = False
+            self.rew = 0
+            self.action = default_action_for_space(self.env.action_space)
+            self.default_action = default_action_for_space(self.env.action_space)
+            return
+
+        packet_config = self.packet_bindings.get(packet.cmd)
+        if not packet_config:
+            print(f"Unknown packet cmd: {packet.cmd}")
+            return
+        
+        # Retrieve observation related to the packet name
+        if packet_config['type'] == 'reqrsp':
+            obs_data = self.obs
+            if packet_config['indices'] is not None:
+                for idx in packet_config['indices']:
+                    obs_data = obs_data[idx]
+            if len(obs_data.shape) == 1:
+                # Just a 1D array, process accordingly (send one response packet)
+                #packet_arr = obs_data.view(np.uint32).tolist()
+                packet_arr = np.frombuffer(obs_data.tobytes(), dtype=np.uint32).tolist()
+                packet = RoSEPacket()  # You might need to adjust this based on actual RoSEPacket initialization
+                packet.init(cmd+1, len(packet_arr) * 4, packet_arr)  # You might need to adjust the multiplier
+                blob = Blob(0, packet)
+                stable_heap_push(self.txpq, blob)
+
+            else: 
+                # 2D array, send the response in rows
+                INPUT_DIM = obs_data.shape[0]
+                packet_arr = obs_data.reshape(INPUT_DIM, -1)
+                for row in packet_arr:
+                    row_packet_arr = row.view(np.uint32).tolist()
+                    # print(f"row_packet_arr: {row_packet_arr}")
+                    packet = RoSEPacket()  # You might need to adjust this
+                    packet.init(cmd+1, len(row_packet_arr) * 4, row_packet_arr)  # You might need to adjust the multiplier
+                    blob = Blob(0, packet)
+                    stable_heap_push(self.txpq, blob)
+        
+        if packet_config['type'] == 'action_latch':
+            action = self.action
+            if packet_config['indices'] is not None:
+                for idx in packet_config['indices']:
+                    action = action[idx]
+            self.default_action = action
+        if packet_config['type'] == 'action':
+            action = self.default_action
+            if packet_config['indices'] is not None:
+                for idx in packet_config['indices']:
+                    action = action[idx]
+            self.action = action
 
 
 if __name__ == "__main__":
