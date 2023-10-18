@@ -1,5 +1,5 @@
 #!/bin/bash
-ROSE_DIR=$(pwd)
+ROSE_DIR=$(pwd)/..
 FIRESIM_DIR=${ROSE_DIR}/soc/sim/firesim
 CHIPYARD_DIR=${FIRESIM_DIR}/target-design/chipyard
 SCALA_DIR=${ROSE_DIR}/soc/src/main/scala
