@@ -1,0 +1,8 @@
+{
+	"benchmark_name": "airsim-packettest",
+	"common_simulation_outputs": [
+		"uartlog"
+	],
+	"common_bootbinary": "airsim-packettest-latency.riscv",
+	"common_rootfs": "../../../target-design/chipyard/software/firemarshal/boards/default/installers/firesim/dummy.rootfs"
+}

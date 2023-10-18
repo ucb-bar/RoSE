@@ -35,12 +35,7 @@ object IOBinderTypes {
 import IOBinderTypes._
 
 import chipyard.example._
-<<<<<<< HEAD
 import rose._
-=======
-// import rose._
-
->>>>>>> main
 // System for instantiating binders based
 // on the scala type of the Target (_not_ its IO). This avoids needing to
 // duplicate harnesses (essentially test harnesses) for each target.
@@ -391,31 +386,6 @@ class WithNICIOPunchthrough extends OverrideIOBinder({
   }
 })
 
-<<<<<<< HEAD
-=======
-class WithAirSimIOPunchthrough extends OverrideIOBinder({
-  (system: CanHavePeripheryAirSimIO) => {
-    val ports: Seq[ClockedIO[AirSimPortIO]] = system.airsimio.map({ n =>
-      val p = IO(new ClockedIO(new AirSimPortIO)).suggestName("airsimio")
-      p <> n
-      p
-    }).toSeq
-    (ports, Nil)
-  }
-})
-
-// class WithRoseIOPunchthrough extends OverrideIOBinder({
-//   (system: CanHavePeripheryRoseAdapter) => {
-//     val ports: Seq[ClockedIO[RosePortIO]] = system.roseAdapter.map({ n =>
-//       val p = IO(new ClockedIO(new RosePortIO)).suggestName("roseAdapter")
-//       p <> n
-//       p
-//     }).toSeq
-//     (ports, Nil)
-//   }
-// })
-
->>>>>>> main
 class WithTraceGenSuccessPunchthrough extends OverrideIOBinder({
   (system: TraceGenSystemModuleImp) => {
     val success: Bool = IO(Output(Bool())).suggestName("success")

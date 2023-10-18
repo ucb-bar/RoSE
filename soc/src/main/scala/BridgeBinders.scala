@@ -33,8 +33,6 @@ import barstools.iocell.chisel._
 import chipyard.iobinders.{IOBinders, OverrideIOBinder, ComposeIOBinder, GetSystemParameters, IOCellKey}
 import chipyard._
 import chipyard.harness._
-import chipyard.example._
-
 import rose._
 
 object MainMemoryConsts {
@@ -92,28 +90,6 @@ class WithNICBridge extends OverrideHarnessBinder({
     Nil
   }
 })
-
-class WithAirSimBridge extends OverrideHarnessBinder({
-  (system: CanHavePeripheryAirSimIO, th: FireSim, ports: Seq[ClockedIO[AirSimPortIO]]) => {
-    val p: Parameters = GetSystemParameters(system)
-    ports.map { n => 
-      val airsim_b = AirSimBridge(n.clock, n.bits)(p) 
-      airsim_b
-    }
-    Nil
-  }
-})
-
-// class WithRoseBridge extends OverrideHarnessBinder({
-//   (system: CanHavePeripheryRoseAdapter, th: FireSim, ports: Seq[ClockedIO[RosePortIO]]) => {
-//     val p: Parameters = GetSystemParameters(system)
-//     ports.map { n => 
-//       val rose_b = RoseBridge(n.clock, n.bits)(p) 
-//       rose_b
-//     }
-//     Nil
-//   }
-// })
 
 class WithUARTBridge extends OverrideHarnessBinder({
   (system: HasPeripheryUARTModuleImp, th: FireSim, ports: Seq[UARTPortIO]) =>
@@ -248,18 +224,6 @@ class WithFireSimFAME5 extends ComposeIOBinder({
     (Nil, Nil)
   }
 })
-
-class WithAirSimBridge extends OverrideHarnessBinder({
-  (system: CanHavePeripheryAirSimIO, th: FireSim, ports: Seq[ClockedIO[AirSimPortIO]]) => {
-    val p: Parameters = GetSystemParameters(system)
-    ports.map { n => 
-      val airsim_b = AirSimBridge(n.clock, n.bits, th.harnessBinderReset.asBool)(p) 
-      airsim_b
-    }
-    Nil
-  }
-})
-
 class WithRoseBridge extends OverrideHarnessBinder({
   (system: CanHavePeripheryRoseAdapter, th: FireSim, ports: Seq[ClockedIO[RosePortIO]]) => {
     val p: Parameters = GetSystemParameters(system)
@@ -280,7 +244,6 @@ class WithDefaultFireSimBridges extends Config(
   new WithFASEDBridge ++
   new WithFireSimMultiCycleRegfile ++
   new WithFireSimFAME5 ++
-  new WithAirSimBridge ++
   new WithTracerVBridge ++
   new WithFireSimIOCellModels
 )
@@ -293,7 +256,6 @@ class WithDefaultMMIOOnlyFireSimBridges extends Config(
   new WithFASEDBridge ++
   new WithFireSimMultiCycleRegfile ++
   new WithFireSimFAME5 ++
-  new WithAirSimBridge ++
   new WithRoseBridge ++ 
   new WithFireSimIOCellModels
 )
