@@ -3,6 +3,7 @@
 package chipyard.config
 
 import org.chipsalliance.cde.config.{Config}
+import rose._
 
 class AbstractRoseConfig extends Config(
   new chipyard.iobinders.WithRoseIOPunchthrough ++

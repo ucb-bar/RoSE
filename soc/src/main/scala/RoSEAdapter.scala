@@ -299,7 +299,7 @@ trait RoseAdapterModule extends HasRegMap {
   tx_data <> impl.io.tx.enq
   
   // Create a sequence of all DMA cam buffers
-  var cam_buffers:Seq[UInt] = Seq()
+  var cam_buffers: Seq[UInt] = Seq()
   for (i <- 0 until params.dst_ports.seq.count(_.port_type == "DMA")) {
     cam_buffers = cam_buffers :+ impl.io.cam_buffer(i)
   }
