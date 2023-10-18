@@ -1,0 +1,6 @@
+{
+  "name": "airsim-packettest",
+  "base": "bare-base.json",
+  "host-init": "build.sh",
+  "bin": "airsim-packettest.riscv"
+}

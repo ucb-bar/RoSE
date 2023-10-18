@@ -1,8 +1,37 @@
 //See LICENSE for license details
+
+#ifndef __SERIAL_COSMO_DATA_H
+#define __SERIAL_COSMO_DATA_H
+
+template <class T>
+struct serial_cosmo_data_t {
+  struct {
+    T bits;
+    bool valid;
+    bool ready;
+    bool fire() { return valid && ready; }
+  } in;
+  struct {
+    T bits;
+    bool valid;
+    bool ready;
+    bool fire() { return valid && ready; }
+  } budget;
+  struct {
+    T bits;
+    bool ready;
+    bool valid;
+    bool fire() { return valid && ready; }
+  } out;
+
+};
+#endif // __SERIAL_COSMO_DATA_H
+
 #ifndef __AIRSIM_H
 #define __AIRSIM_H
 
-#include "serial.h"
+#include "bridges/serial_data.h"
+#include "core/bridge_driver.h"
 #include <signal.h>
 
 // COSIM-CODE
@@ -31,6 +60,7 @@
 #define CS_RSP_CYCLES  0x82
 #define CS_DEFINE_STEP 0x83
 #define CS_RSP_STALL   0x84
+#define CS_CFG_BW      0x85
 
 // Data Commands
 #define CS_REQ_WAYPOINT 0x01
@@ -40,16 +70,27 @@
 #define CS_REQ_DISARM  0x05
 #define CS_REQ_TAKEOFF  0x06
 
-// The definition of the primary constructor argument for a bridge is generated
-// by Golden Gate at compile time _iff_ the bridge is instantiated in the
-// target. As a result, all bridge driver definitions conditionally remove
-// their sources if the constructor class has been defined (the
-// <cname>_struct_guard macros are generated along side the class definition.)
-//
-// The name of this class and its guards are always BridgeModule class name, in
-// all-caps, suffixed with "_struct" and "_struct_guard" respectively.
+struct ROSEBRIDGEMODULE_struct {
+    uint64_t out_bits;
+    uint64_t out_valid;
+    uint64_t out_ready;
+    uint64_t in_bits;
+    uint64_t in_valid;
+    uint64_t in_ready;
+    uint64_t in_budget_bits;
+    uint64_t in_budget_valid;
+    uint64_t in_budget_ready;
+    uint64_t in_ctrl_bits;
+    uint64_t in_ctrl_valid;
+    uint64_t in_ctrl_ready;
+    uint64_t cycle_count;
+    uint64_t cycle_budget;
+    uint64_t cycle_step;
+    uint64_t bww_config_bits;
+    uint64_t bww_config_valid;
+    uint64_t bww_config_destination;
+};
 
-#ifdef AIRSIMBRIDGEMODULE_struct_guard
 class cosim_packet_t
 {
     public:
@@ -66,13 +107,37 @@ class cosim_packet_t
         uint32_t cmd;
         uint32_t num_bytes;
         uint32_t * data;
-
 };
 
-class airsim_t: public bridge_driver_t
+class budget_packet_t
 {
     public:
-        airsim_t(simif_t* sim, AIRSIMBRIDGEMODULE_struct * mmio_addrs, int airsimno);
+        budget_packet_t();
+        budget_packet_t(uint32_t cmd, uint32_t budget, uint32_t num_bytes, uint32_t * data);
+        ~budget_packet_t();
+
+        void print();
+
+        uint32_t budget;
+        uint32_t cmd;
+        uint32_t num_bytes;
+        uint32_t * data;
+        bool checked;
+        bool granted;
+};
+
+struct CompareBudget
+{
+    bool operator()(budget_packet_t const& p1, budget_packet_t const& p2)
+    {
+        // return "true" if "p1" is ordered before "p2", for example:
+        return p1.budget > p2.budget;
+    }
+};
+
+class airsim_t final: public bridge_driver_t{
+    public:
+        airsim_t(simif_t &sim, const ROSEBRIDGEMODULE_struct &mmio_addrs, int airsimno, const std::vector<std::string> &args);
         ~airsim_t();
         virtual void tick();
         // Our AIRSIM bridge's initialzation and teardown procedures don't
@@ -89,6 +154,7 @@ class airsim_t: public bridge_driver_t
         void check_stall();
         void report_stall();
         void set_step_size(uint32_t step_size);
+        void config_bandwidth(uint32_t dest, uint32_t bandwidth);
         virtual void init() {};
         virtual void finish() {};
         // Our AIRSIM bridge never calls for the simulation to terminate
@@ -96,13 +162,15 @@ class airsim_t: public bridge_driver_t
         // ... and thus, never returns a non-zero exit code
         virtual int exit_code() { return 0; }
 
-        AIRSIMBRIDGEMODULE_struct * mmio_addrs;
-        serial_data_t<uint32_t> data;
+	static char KIND;
+        ROSEBRIDGEMODULE_struct mmio_addrs;
+        serial_cosmo_data_t<uint32_t> data;
 
         int inputfd;
         int outputfd;
         int loggingfd;
 
+        uint32_t step_size;
         // COSIM-CODE
         int sync_sockfd, data_sockfd, sync_portno, data_portno, n;
         struct sockaddr_in sync_serveraddr;
@@ -117,15 +185,17 @@ class airsim_t: public bridge_driver_t
         
         std::deque<uint32_t> fsim_rxdata;
         std::deque<uint32_t> fsim_txdata;
+        std::deque<uint32_t> fsim_txbudget;
         std::deque<uint32_t> tcp_sync_rxdata;
         std::deque<uint32_t> tcp_data_rxdata;
         std::deque<uint32_t> tcp_txdata;
+        std::deque<budget_packet_t*> budget_rx_queue; 
+        // std::priority_queue<budget_packet_t, std::vector<budget_packet_t>, CompareBudget> budget_rx_queue; 
         // COSIM-CODE
 
         void send();
+        void send_budget();
         void recv();
 };
-
-#endif // AIRSIMBRIDGEMODULE_struct_guard
 
 #endif // __AIRSIM_H

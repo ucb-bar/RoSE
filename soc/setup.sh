@@ -1,5 +1,5 @@
 #!/bin/bash
-ROSE_DIR=$(pwd)
+ROSE_DIR=$(pwd)/..
 FIRESIM_DIR=${ROSE_DIR}/soc/sim/firesim
 CHIPYARD_DIR=${FIRESIM_DIR}/target-design/chipyard
 SCALA_DIR=${ROSE_DIR}/soc/src/main/scala
@@ -20,9 +20,12 @@ sources=(
     "${SCALA_DIR}/AbstractConfig.scala" 
     "${SCALA_DIR}/AirSimBridge.scala" 
     "${SCALA_DIR}/RoSEConfigs.scala"
+    "${SCALA_DIR}/RoSEFireSimConfigs.scala"
     #rose scala files
-    # "${SCALA_DIR}/RoSEAdapter.scala"
-    # "${SCALA_DIR}/RoSEBrdige.scala"
+    "${SCALA_DIR}/RoSEAdapter.scala"
+    "${SCALA_DIR}/RoSEBridge.scala"
+    "${SCALA_DIR}/RoSEIO.scala"
+    "${SCALA_DIR}/RoSEGeneratorConfig.scala"
     #C++ files
     "${FSIM_CC_DIR}/airsim.cc"
     "${FSIM_CC_DIR}/airsim.h"
@@ -54,9 +57,12 @@ destinations=(
     "${CHIPYARD_DIR}/generators/chipyard/src/main/scala/config/AbstractConfig.scala"
     "${FIRESIM_DIR}/sim/firesim-lib/src/main/scala/bridges/AirSimBridge.scala"
     "${CHIPYARD_DIR}/generators/chipyard/src/main/scala/config/RoSEConfigs.scala"
+    "${CHIPYARD_DIR}/generators/firechip/src/main/scala/RoSEFireSimConfigs.scala"
     #rose scala destinations
-    # "${CHIPYARD_DIR}/generators/rose/src/main/scala/RoSEAdapter.scala"
-    # "${FIRESIM_DIR}/sim/firesim-lib/src/main/scala/bridges/RoSEBridge.scala"
+    "${CHIPYARD_DIR}/generators/rose/src/main/scala/RoSEAdapter.scala"
+    "${FIRESIM_DIR}/sim/firesim-lib/src/main/scala/bridges/RoSEBridge.scala"
+    "${CHIPYARD_DIR}/generators/rose/src/main/scala/RoSEIO.scala"
+    "${CHIPYARD_DIR}/generators/rose/src/main/scala/RoSEGeneratorConfig.scala"
     #C++ destinations
     "${FIRESIM_DIR}/sim/firesim-lib/src/main/cc/bridges/airsim.cc"
     "${FIRESIM_DIR}/sim/firesim-lib/src/main/cc/bridges/airsim.h"
@@ -77,6 +83,11 @@ destinations=(
     "${ROSE_DIR}/soc/sw/onnxruntime-riscv/systolic_runner/imagenet_runner/src/mmio.h"
     "${ROSE_DIR}/soc/sw/onnxruntime-riscv/systolic_runner/imagenet_runner/Makefile"
 ) 
+
+# create rose if there is not one already
+if [ ! -d "${CHIPYARD_DIR}/generators/rose/src/main/scala/" ]; then
+  mkdir -p "${CHIPYARD_DIR}/generators/rose/src/main/scala/"
+fi
 
 # Iterate over the arrays and create symbolic links
 for ((i=0;i<${#sources[@]};++i)); do
@@ -129,7 +140,8 @@ if grep -q "lazy val rose" ${CHIPYARD_DIR}/build.sbt; then
   echo "rose found in chipyard sbt, not appending."
 else
   echo "rose not found in chipyard sbt, appending."
-  echo 'lazy val rose = (project in file("generators/rose"))
+  echo '
+  lazy val rose = (project in file("generators/rose"))
   .dependsOn(rocketchip, testchipip)
   .settings(libraryDependencies ++= rocketLibDeps.value)
   .settings(commonSettings)' >> ${CHIPYARD_DIR}/build.sbt

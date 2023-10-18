@@ -38,7 +38,7 @@ fi
 echo Sourcing Deps
 cd ${FIRESIM_DIR}
 source ${FIRESIM_DIR}/env.sh
-source ${FIRESIM_DIR}/sourceme-f1-manager.sh
+source ${FIRESIM_DIR}/sourceme-manager.sh --skip-ssh-setup
 cd ${ROSE_DIR}/build/cmake-3.26.0-linux-x86_64/
 export PATH=$(pwd)/bin/:$PATH
 export PATH=${ROSE_DIR}/build/yq_latest/:$PATH
@@ -53,5 +53,11 @@ sed -i "s|/bitstream_dir|${ROSE_DIR}/soc/sim/bitstreams|g" ${ROSE_DIR}/soc/sim/c
 cd ${ROSE_DIR}/
 git submodule update --init ${ROSE_DIR}/soc/sim/firesim
 
+yq -i ".build_farm.recipe_arg_overrides.default_build_dir = \"${FIRESIM_BUILDDIR}\"" ${ROSE_DIR}/soc/sim/config/config_build_local.yaml
+
+sed -i "s|/bitstream_dir|${ROSE_DIR}/soc/sim/bitstreams|g" ${ROSE_DIR}/soc/sim/config/config_hwdb_local.yaml
+
+cd ${ROSE_DIR}/
+# git submodule update --init ${ROSE_DIR}/soc/sim/firesim
 
 

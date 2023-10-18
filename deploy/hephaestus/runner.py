@@ -12,7 +12,8 @@ import time
 
 HOST = "localhost"  # Private aws IP
 # AIRSIM_IP = "zr-desktop.cs.berkeley.edu"
-AIRSIM_IP = "44.205.8.36"
+AIRSIM_IP = "localhost"
+# AIRSIM_IP = "44.205.8.36"
 
 SYNC_PORT = 10001  # Port to listen on (non-privileged ports are > 1023)
 DATA_PORT = 60002  # Port to listen on (non-privileged ports are > 1023)
@@ -49,11 +50,17 @@ class FiresimThread(threading.Thread):
         os.chdir(r"/scratch/$(whoami)/firesim/sim")
         os.system("echo printing directory")
         os.system("pwd")
-        os.system("make TARGET_CONFIG=DDR3FRFCFS_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.RoseTLRocketConfig SIM_BINARY=/scratch/$(whoami)/firesim/target-design/chipyard/tests/airsimpackettest.riscv run-verilator-debug")
-
+        # os.system("make TARGET_CONFIG=DDR3FRFCFS_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.RoseTLRocketConfig SIM_BINARY=/scratch/$(whoami)/firesim/target-design/chipyard/tests/airsimpackettest.riscv run-verilator-debug")
+        os.system("firesim runworkload")
     def run_firesim(self):
         os.system("firesim infrasetup")
-        os.system("firesim runworkload > firesim.log &")
+        os.system("firesim runworkload")
+        # os.system("firesim kill")
+        os.system("firesim kill &")
+        os.system("sleep 10")
+        os.system("screen -XS guestmount quit")
+        os.kill(os.getpid(), signal.SIGTERM)
+        exit()
 
 if __name__ == "__main__":
     arg_list = argparse.ArgumentParser()

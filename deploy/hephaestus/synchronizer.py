@@ -18,13 +18,19 @@ import traceback
 import control_drone
 import datetime
 
+import collections
 import pandas as pd
+
+from dataclasses import dataclass
+from heapq import *
 
 CS_GRANT_TOKEN  = 0x80 
 CS_REQ_CYCLES   = 0x81 
 CS_RSP_CYCLES   = 0x82 
 CS_DEFINE_STEP  = 0x83
 CS_RSP_STALL    = 0x84
+CS_CFG_BW       = 0x85
+
 CS_REQ_WAYPOINT = 0x01
 CS_RSP_WAYPOINT = 0x02
 CS_SEND_IMU     = 0x03
@@ -34,24 +40,38 @@ CS_REQ_TAKEOFF  = 0x06
 
 CS_REQ_IMG      = 0x10
 CS_RSP_IMG      = 0x11
+CS_REQ_IMG_POLL = 0x16
+CS_RSP_IMG_POLL = 0x17
 
 CS_REQ_DEPTH    = 0x12
 CS_RSP_DEPTH    = 0x13
+CS_REQ_DEPTH_STREAM = 0x14
+CS_RSP_DEPTH_STREAM = 0x15
 
 CS_SET_TARGETS  = 0x20
 
-INTCMDS = [CS_GRANT_TOKEN, CS_REQ_CYCLES, CS_RSP_CYCLES, CS_DEFINE_STEP, CS_RSP_STALL, CS_RSP_IMG]
+INTCMDS = [CS_GRANT_TOKEN, CS_REQ_CYCLES, CS_RSP_CYCLES, CS_DEFINE_STEP, CS_RSP_STALL, CS_RSP_IMG, CS_CFG_BW, CS_RSP_IMG_POLL]
 
 #HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
 HOST = "localhost" # Private aws IP
 #HOST = "172.31.30.244"
-AIRSIM_IP = "zr-desktop.cs.berkeley.edu"
+#AIRSIM_IP = "zr-desktop.cs.berkeley.edu"
+AIRSIM_IP = "localhost"
 
 #PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
 SYNC_PORT = 10001  # Port to listen on (non-privileged ports are > 1023)
 DATA_PORT = 60002  # Port to listen on (non-privileged ports are > 1023)
 
 INPUT_DIM = 56
+
+def stable_heap_push(heap, item):
+    heap.append(item)
+    return heap
+
+def stable_heap_pop(heap):
+    item = heap.pop(0)
+    heap.sort()
+    return item
 
 class CoSimLogger:
     
@@ -72,15 +92,14 @@ class CoSimLogger:
         if filename is None:
             filename = f'./logs/runlog-angle-{yaw}-cycles-{cycles}-frames-{frames}-{datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}.csv'
         self.filename = filename
-        
-
     
     def start(self):
         self.started = True
         self.start_time = time.time()
 
     def add_row(self, frame):
-        self.df = self.df.append({"frame": frame*self.frames, "cycles": frame*self.cycles, "real_time": time.time() - self.start_time}, ignore_index=True)
+        to_add = pd.DataFrame.from_dict({"frame": [frame*self.frames], "cycles": [frame*self.cycles], "real_time": [time.time() - self.start_time]})
+        self.df = pd.concat([self.df, to_add], ignore_index=True)
         # print(f"df row added: {self.df}")
 
     def log_targets(self, dat):
@@ -114,20 +133,50 @@ class CoSimLogger:
 
         self.record_row(dat)
     
-    def log_event(self, kind):
-        if kind not in self.df.columns:
-            self.df = self.df.assign(**{kind:np.nan}).copy()
-        if np.isnan(self.df.iloc[-1][kind]):
-            self.df.iloc[-1][kind] = 1
-        else:
-            self.df.iloc[-1][kind] += 1
+    # def log_event(self, kind):
+    #     if kind not in self.df.columns:
+    #         self.df = self.df.assign(**{kind:np.nan}).copy()
+    #     if np.isnan(self.df.iloc[-1][kind]):
+    #         self.df.iloc[-1][kind] = 1
+    #     else:
+    #         self.df.iloc[-1][kind] += 1
+    
 
+    def log_event(self, kind):
+        # Check if the column exists, and if not, create it
+        if kind not in self.df.columns:
+            self.df[kind] = np.nan
+        
+        # Check if the last value in the column is NaN
+        if np.isnan(self.df.loc[self.df.index[-1], kind]):
+            self.df.loc[self.df.index[-1], kind] = 1
+        else:
+            self.df.loc[self.df.index[-1], kind] += 1
+
+    # def record_row(self, data):
+    #     print('----------------------- dat')
+    #     print(data)
+    #     for k, v in data.items():
+    #         if k not in self.df.columns:
+    #             self.df = self.df.assign(**{k:np.nan}).copy()
+    #     for k, v in data.items():
+    #         self.df.iloc[-1][k] = v
+    #     print('======================== df')
+    #     print(self.df)
+    
     def record_row(self, data):
+        # print('----------------------- data')
+        # print(data)
+        
         for k, v in data.items():
             if k not in self.df.columns:
-                self.df = self.df.assign(**{k:np.nan}).copy()
+                self.df[k] = np.nan
+                
         for k, v in data.items():
-            self.df.iloc[-1][k] = v
+            self.df.loc[self.df.index[-1], k] = v
+        
+        # print('======================== df')
+        # print(self.df)
 
     def log_file(self):
         # print(self.df)
@@ -136,10 +185,14 @@ class CoSimLogger:
         print(f"df logged to {self.filename}")
 
 class CoSimPacket:
+    cmd_latency_dict = {CS_RSP_IMG: 0.0, CS_RSP_DEPTH: 0.0, CS_RSP_IMG_POLL: 0.0, CS_RSP_DEPTH_STREAM: 0.0}
+
     def __init__(self):
         self.cmd = None
         self.num_bytes = None
         self.data = None
+        self.latency_enabled = None
+        self.latency = None
 
     def __str__(self):
         return "[cmd: 0x{:02X}, num_bytes: {:04d}, data: {}]".format(self.cmd, self.num_bytes, self.data)
@@ -148,6 +201,8 @@ class CoSimPacket:
         self.cmd = cmd
         self.num_bytes = num_bytes
         self.data = data
+        self.latency_enabled = cmd in CoSimPacket.cmd_latency_dict.keys()
+        self.latency = CoSimPacket.cmd_latency_dict.get(cmd, 0)
 
     def decode(self, buffer):
         self.cmd = int.from_bytes(buffer[0:4], "little", signed="False")
@@ -161,14 +216,53 @@ class CoSimPacket:
         self.data = data_array
 
     def encode(self):
-        buffer = self.cmd.to_bytes(4, 'little') + self.num_bytes.to_bytes(4, 'little')
+        if self.latency_enabled:
+        # TODO: refactor the code to get firesim_step
+            buffer = self.cmd.to_bytes(4, 'little') + (round((self.latency)*CoSimPacket.firesim_step).to_bytes(4, 'little') if self.latency > 0 else (0).to_bytes(4, 'little')) + self.num_bytes.to_bytes(4, 'little')
+        else:
+            buffer = self.cmd.to_bytes(4, 'little') + self.num_bytes.to_bytes(4, 'little')
         if self.num_bytes > 0:
             for datum in self.data:
                 if self.cmd in INTCMDS:
                     buffer = buffer + datum.to_bytes(4, "little", signed=False)
                 else:                
                     buffer = buffer + struct.pack("f", datum) 
+        # print(f"Encoded packet: {buffer}")
+        # print("---------------------------------------------------")
         return buffer
+
+class Blob:
+    # counter = 0
+    def __init__(self, latency, packet):
+        self.latency = latency
+        self.packet = packet
+        # self.counter = Blob.counter
+        # Blob.counter += 1
+
+    def __eq__(self, other):
+        if isinstance(other, Blob):
+            return self.latency == other.latency
+        return NotImplemented
+
+    def __lt__(self, other):
+        if isinstance(other, Blob):
+            return self.latency < other.latency
+        return NotImplemented
+    
+    def __gt__(self, other):
+        if isinstance(other, Blob):
+            return self.latency > other.latency
+        return NotImplemented
+    
+    def __le__(self, other):
+        if isinstance(other, Blob):
+            return self.latency <= other.latency
+        return NotImplemented
+    
+    def __ge__(self, other):
+        if isinstance(other, Blob):
+            return self.latency >= other.latency
+        return NotImplemented
 
 class SocketThread (threading.Thread):
    def __init__(self, syn):
@@ -255,16 +349,16 @@ class SocketThread (threading.Thread):
                         # print(f"recv error: {e}")
                         # traceback.print_exc()
                         pass
+                    #process the txqueue
                     if len(self.syn.txqueue) > 0:
                         packet = self.syn.txqueue.pop(0)
+                        # print(f"Sending packet: {packet}")
                         self.sync_conn.sendall(packet.encode())
                         # txfile.write(f"{packet.cmd}\n")
                         # txfile.write(f"{packet.num_bytes}\n")
                         # if packet.num_bytes > 0:
                         #     for datum in packet.data:
                         #         txfile.write(f"{datum}\n")
-
-
 
 class Synchronizer:
     def __init__(self, host, sync_port, data_port, firesim_step = 10000, airsim_step = 10, control=None, airsim_ip=AIRSIM_IP, cycle_limit=None, vehicle="drone", initial_y=0.0, terminal_x=None, logname=None):
@@ -278,8 +372,11 @@ class Synchronizer:
         self.airsim_step  = airsim_step
         self.packet = CoSimPacket()
         self.txqueue = []
+        self.txpq = [] 
         self.data_rxqueue = []
         self.sync_rxqueue = []
+
+        self.streaming_queue = collections.OrderedDict()
 
         self.cycle_limit = cycle_limit
         self.initial_y = initial_y
@@ -311,12 +408,27 @@ class Synchronizer:
         self.vid_width, self.vid_height = (224, 224)
         fourcc = cv2.VideoWriter_fourcc(*'DIVX')
         self.vid_stream = cv2.VideoWriter(self.log_video, fourcc, fps, (self.vid_width, self.vid_height))
+
+        CoSimPacket.firesim_step = firesim_step
     
     def run(self):
         socket_thread = SocketThread(self)
         socket_thread.start()
         start_time = time.time()
         self.send_firesim_step()
+        # read bw from bw.txt
+        try:
+            f = open('bw.txt', 'r')
+            bw = int(f.readline())
+            # self.send_bw(0, round(bw * self.firesim_step / 1e9))
+            # self.send_bw(1, round(bw * self.firesim_step / 1e9))
+            self.send_bw(1, bw)
+            # print(f"bandwidth debug:{round(bw * self.firesim_step / 1e9)}")
+
+        except:
+            pass
+        # self.send_bw(0, 2048)
+        print("stepping beyond bw safely")
         self.control.launchStabilizer(self.airsim_ip)
         count = 0
         start_frame = 0
@@ -390,7 +502,6 @@ class Synchronizer:
                 # elif start_frame == 100:
                 #     self.vid_stream.release()
                 start_frame += 1
-
             if count % 20 == 0:
                 print("Stepping airsim")
                 if(self.logger.started):
@@ -400,12 +511,34 @@ class Synchronizer:
             if count % 20 == 0:
                 print(f"Granting fsim token: {count}")
             count = count + 1
+            
+            # IMPORTANT: process the data queue before granting tokens
+            
+            #process the latency aware queue
+            #peek at the top of the queue
+            while(len(self.txpq) > 0 and self.txpq[0].latency < 1):
+                packet_blob = stable_heap_pop(self.txpq)
+                packet = packet_blob.packet
+                # print(f"DEBUG: the stable_heap_pop counter of this pop is: {packet_blob.counter}" )
+                # print(f"DEBUG: the latency for this packet is: {packet_blob.latency} ")
+                # print(f"DEBUG: the latency for this packet is: {packet_blob.packet.latency} ")
+                self.txqueue.append(packet)
+                #self.sync_conn.sendall(self.packet.encode())
+            # Now, iterate through the rest of the queue, decrement latency by 1
+            for blobs in self.txpq:
+                blobs.latency = blobs.latency - 1
+                blobs.packet.latency = blobs.latency
+                print("Debug: --")
+
             self.grant_firesim_token()
+            self.process_streaming_queue()
+
             while True:
                 if (self.client.simIsPause()):
                     break
             while len(self.data_rxqueue) > 0:
                 self.process_fsim_data_packet()
+
             if count == 1:
                 start_time = time.time()
         socket_thread.join()
@@ -414,6 +547,12 @@ class Synchronizer:
         packet = CoSimPacket()
         packet.init(CS_DEFINE_STEP, 4, [self.firesim_step])
         # print(f"Enqueuing step size: {packet}")
+        self.txqueue.append(packet)
+        #self.sync_conn.sendall(self.packet.encode())
+    
+    def send_bw(self, dst, bw):
+        packet = CoSimPacket()
+        packet.init(CS_CFG_BW, 8, [dst, bw])
         self.txqueue.append(packet)
         #self.sync_conn.sendall(self.packet.encode())
 
@@ -429,7 +568,6 @@ class Synchronizer:
                 self.sync_rxqueue.pop(0)
                 break
             
-    
     def get_firesim_cycles(self):
         packet = CoSimPacket()
         packet.init(CS_REQ_CYCLES, 0, None)
@@ -442,6 +580,18 @@ class Synchronizer:
     
     def send_test_firesim_data_packet(self):
         packet = CoSimPacket()
+    
+    def process_streaming_queue(self):
+        for key,enabled in self.streaming_queue.items():
+            if enabled:
+                if key == CS_RSP_DEPTH_STREAM:
+                    depth = self.client.getDistanceSensorData("Distance").distance
+                    packet = CoSimPacket()
+                    packet.init(CS_RSP_DEPTH_STREAM, 4, [depth])
+                    blob = Blob(packet.latency, packet)
+                    stable_heap_push(self.txpq, blob)
+                else:
+                    pass
 
     def process_fsim_data_packet(self):
         packet = self.data_rxqueue.pop(0)
@@ -513,34 +663,76 @@ class Synchronizer:
             # print(png_arr)
             # png_arr = png.reshape((172_800))
             k = 0
-
             for row in png_arr:
                 png_packet_arr = row.view(np.uint32).tolist()
                 if k < 4:
-                    # print(len(png_packet_arr))
-                    #print([hex(x) for x in png_packet_arr])
-                    # print([(i, hex(png_packet_arr[i])) for i in range(len(png_packet_arr))])
+                    print(len(png_packet_arr))
+                    print([hex(x) for x in png_packet_arr])
+                    print([(i, hex(png_packet_arr[i])) for i in range(len(png_packet_arr))])
                     k += 1
                 # print(png_packet_arr)
                 packet = CoSimPacket()
                 packet.init(CS_RSP_IMG, len(png_packet_arr)*4, png_packet_arr)
-                self.txqueue.append(packet)
+                blob = Blob(packet.latency, packet)
+                stable_heap_push(self.txpq, blob)
+        elif packet.cmd == CS_REQ_IMG_POLL:
+            print("---------------------------------------------------")
+            print("Got image polling request...")
+            print("---------------------------------------------------")
+            self.logger.log_event("img_req")
+            rawImage = self.client.simGetImage("0", airsim.ImageType.Scene)
+            # png = cv2.imdecode(airsim.string_to_uint8_array(rawImage), cv2.IMREAD_COLOR)
+            png = cv2.imdecode(airsim.string_to_uint8_array(rawImage), cv2.IMREAD_COLOR)
+            cv2.imwrite('img/img.png', png)
+            png = cv2.resize(png, (INPUT_DIM, INPUT_DIM))
+            png_arr = png.reshape((INPUT_DIM,INPUT_DIM*3))
+            # print(png_arr.shape)
+            # print(png_arr)
+            # png_arr = png.reshape((172_800))
+            k = 0
+            for row in png_arr:
+                png_packet_arr = row.view(np.uint32).tolist()
+                if k < 4:
+                    print(len(png_packet_arr))
+                    print([hex(x) for x in png_packet_arr])
+                    print([(i, hex(png_packet_arr[i])) for i in range(len(png_packet_arr))])
+                    k += 1
+                print(png_packet_arr)
+                packet = CoSimPacket()
+                packet.init(CS_RSP_IMG_POLL, len(png_packet_arr)*4, png_packet_arr)
+                blob = Blob(packet.latency, packet)
+                stable_heap_push(self.txpq, blob)
         elif packet.cmd == CS_REQ_DEPTH:
             print("---------------------------------------------------")
             print("Got depth request...")
             print("---------------------------------------------------")
-            
+            packet = CoSimPacket()
+            packet.init(CS_RSP_DEPTH_STREAM, 4, [1])
+            blob = Blob(packet.latency, packet) 
+            stable_heap_push(self.txpq, blob) 
             depth = self.client.getDistanceSensorData("Distance").distance
             packet = CoSimPacket()
             packet.init(CS_RSP_DEPTH, 4, [depth])
-            self.txqueue.append(packet)
-
+            blob = Blob(packet.latency, packet)
+            stable_heap_push(self.txpq, blob) 
+            # CoSimPacket.cmd_latency_dict[CS_RSP_DEPTH] += 0.25
+        elif packet.cmd == CS_REQ_DEPTH_STREAM:
+            print("---------------------------------------------------")
+            print("Got depth streaming request...")
+            print("---------------------------------------------------") 
+            # self.streaming_queue[CS_RSP_DEPTH_STREAM] = True
+            depth = 100 # dummy data
+            packet_vanilla = CoSimPacket()
+            packet_chocolate = CoSimPacket()
+            packet_vanilla.init(CS_RSP_DEPTH_STREAM, 4, [depth])
+            packet_chocolate.init(CS_RSP_DEPTH, 4, [depth])
+            bloba_vanilla = Blob(packet_vanilla.latency, packet_vanilla)
+            bloba_chocolate = Blob(packet_chocolate.latency, packet_chocolate)
+            stable_heap_push(self.txpq, bloba_vanilla)
+            stable_heap_push(self.txpq, bloba_chocolate)
         else:
             pass
         
-
-
-
 if __name__ == "__main__":
     arg_list = argparse.ArgumentParser()
 

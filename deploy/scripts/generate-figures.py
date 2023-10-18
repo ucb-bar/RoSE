@@ -590,13 +590,42 @@ def plot_figure_16():
     plt.savefig("./deploy/figures/figure16.png", bbox_inches = 'tight')
     plt.show()
 
-    
+def plot_figure_1():  
+    gemmini_boom_files_complex = [
+        # r'./deploy/hephaestus/logs/rose-bw-sweep-boom-gemmini-102400000.csv',
+        r'./deploy/hephaestus/logs/rose-bw-sweep-boom-gemmini-0.csv',
+        # r'./deploy/hephaestus/logs/rose-bw-sweep-boom-gemmini-512.csv',
+        # r'./deploy/hephaestus/logs/rose-bw-sweep-boom-gemmini-2048.csv',
+        r'./deploy/hephaestus/logs/rose-bw-sweep-boom-gemmini-8192.csv',
+        r'./deploy/hephaestus/logs/rose-bw-sweep-boom-gemmini-32768.csv',
+        # r'./deploy/hephaestus/logs/rose-bw-sweep-boom-gemmini-256.csv',
+        # r'./deploy/hephaestus/logs/rose-bw-sweep-boom-gemmini-409600000.csv',
+        # r'./deploy/hephaestus/logs/rose-bw-sweep-boom-gemmini-819200000.csv',
+        # r'./deploy/hephaestus/logs/rose-bw-sweep-boom-gemmini-1638400000.csv',
+        # r'./deploy/hephaestus/logs/rose-bw-sweep-boom-gemmini-potato.csv',
+        # r'./deploy/hephaestus/logs/rose-hw-sw-sweep-boom-gemmini-resnet34.csv',
+  ]
+    gemmini_boom_labels_complex = ['ResNet6', 'ResNet11', 'ResNet14', 'ResNet18', 'ResNet34', 'Test (ResNet14)', 'Test']
+    gemmini_boom_labels_complex = [ 'infinite',
+                                    # 512,
+                                    # 2048,
+                                    8192,
+                                    32768,
+                                    1638400000
+                                    ]
+    gemmini_boom_colors_complex = ['#0033FF', '#0000FF', '#3300FF']
+    gemmini_boom_colors_complex = ['#ffa921', '#f87943', '#dc535b', '#af3d69', '#783368', '#402a58']
+    gemmini_boom_colors_complex = ['#AA9900', '#AB2328', '#4169E1', '#046A38', '#402A58', '#000000']
+    f = plt.figure()
+    f.set_figwidth(10)
+    f.set_figheight(6)
+    ax = plt.axes()
+    plot_trajectories_2d(ax, gemmini_boom_files_complex, gemmini_boom_labels_complex, gemmini_boom_colors_complex, events=False, path='s-shape')
+    plt.title("")
+    plt.grid()
+    plt.legend(loc='center left', bbox_to_anchor=(1, 0.45))
+    plt.savefig("./deploy/figures/figure1.png", bbox_inches = 'tight')
+    plt.show()  
 if __name__ == "__main__":
-    plot_figure_10()
-    plot_figure_11()
-    plot_figure_12()
-    plot_figure_13()
-    plot_figure_14()
-    plot_figure_16()
-    plot_figure_15()
+    plot_figure_1()
 
