@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PROJECT_ROOT="/scratch"
+PROJECT_ROOT="/scratch/iansseijelly"
 ROSE_DIR=${PROJECT_ROOT}/RoSE
 
 BOOM_CONFIG='firesim-dual-large-boom-fp32gemmini-singlecore-with-airsim-no-nic-l2-llc4mb-ddr3'
