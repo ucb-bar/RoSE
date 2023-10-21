@@ -73,7 +73,8 @@ endef
 install: default
 	@mkdir -p $(INSTALL_DIR)
 	$(foreach prog,$(PROGRAMS),$(call create_json,$(prog)))
-	$(foreach prog,$(PROGRAMS),cp $(prog).riscv $(INSTALL_DIR)/$(prog)/;)
+	$(foreach prog,$(PROGRAMS),mkdir -p $(INSTALL_DIR)/$(prog)/ && cp $(prog).riscv $(INSTALL_DIR)/$(prog)/;)
+
 
 #################################
 # Recipes
