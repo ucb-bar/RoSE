@@ -37,3 +37,10 @@ ln -s ${FIRESIM_DIR}/sw/firesim-software/images/airsim-driver-fed.img  ${FIRESIM
 
 ln -s ${FIRESIM_DIR}/sw/firesim-software/images/airsim-control-fed-bin  ${FIRESIM_DIR}/deploy/workloads/airsim-control-fed/airsim-control-fed-bin
 ln -s ${FIRESIM_DIR}/sw/firesim-software/images/airsim-control-fed.img  ${FIRESIM_DIR}/deploy/workloads/airsim-control-fed/airsim-control-fed.img
+
+# Build baremetal
+cd ${ROSE_DIR}/soc/sw/baremetal/
+make
+make install
+
+cd ${ROSE_DIR}

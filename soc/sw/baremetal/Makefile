@@ -60,20 +60,21 @@ spiflash.img: spiflash.py
 INSTALL_DIR = ../../sim/firesim/deploy/workloads/
 ROOTFS_PATH = ../../../target-design/chipyard/software/firemarshal/boards/default/installers/firesim/dummy.rootfs
 
-define create_json
-	@echo '{' > $(INSTALL_DIR)/$1.json
-	@echo '  "benchmark_name": "$1",' >> $(INSTALL_DIR)/$1.json
-	@echo '  "common_simulation_outputs": ["uartlog"],' >> $(INSTALL_DIR)/$1.json
-	@echo '  "common_bootbinary": "$1.riscv",' >> $(INSTALL_DIR)/$1.json
-	@echo '  "common_rootfs": "$(ROOTFS_PATH)"' >> $(INSTALL_DIR)/$1.json
-	@echo '}' >> $(INSTALL_DIR)/$1.json
-endef
-
 .PHONY: install
 install: default
 	@mkdir -p $(INSTALL_DIR)
-	$(foreach prog,$(PROGRAMS),$(call create_json,$(prog)))
-	$(foreach prog,$(PROGRAMS),mkdir -p $(INSTALL_DIR)/$(prog)/ && cp $(prog).riscv $(INSTALL_DIR)/$(prog)/;)
+	$(foreach prog,$(PROGRAMS), \
+		( \
+			mkdir -p $(INSTALL_DIR)/$(prog)/ && \
+			cp $(prog).riscv $(INSTALL_DIR)/$(prog)/ && \
+			echo '{' > $(INSTALL_DIR)/$(prog).json && \
+			echo '  "benchmark_name": "$(prog)",' >> $(INSTALL_DIR)/$(prog).json && \
+			echo '  "common_simulation_outputs": ["uartlog"],' >> $(INSTALL_DIR)/$(prog).json && \
+			echo '  "common_bootbinary": "$(prog).riscv",' >> $(INSTALL_DIR)/$(prog).json && \
+			echo '  "common_rootfs": "$(ROOTFS_PATH)"' >> $(INSTALL_DIR)/$(prog).json && \
+			echo '}' >> $(INSTALL_DIR)/$(prog).json \
+		);)
+
 
 
 #################################
