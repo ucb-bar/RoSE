@@ -226,16 +226,6 @@ class WithFireSimFAME5 extends ComposeIOBinder({
     (Nil, Nil)
   }
 })
-class WithRoseBridge extends OverrideHarnessBinder({
-  (system: CanHavePeripheryRoseAdapter, th: FireSim, ports: Seq[ClockedIO[RosePortIO]]) => {
-    val p: Parameters = GetSystemParameters(system)
-    ports.map { n => 
-      val rose_b = RoseBridge(n.clock, n.bits, th.harnessBinderReset.asBool)(p) 
-      rose_b
-    }
-    Nil
-  }
-})
 
 class WithAirSimBridge extends OverrideHarnessBinder({
   (system: CanHavePeripheryAirSimIO, th: FireSim, ports: Seq[ClockedIO[AirSimPortIO]]) => {
