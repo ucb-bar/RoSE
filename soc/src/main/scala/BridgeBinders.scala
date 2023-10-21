@@ -227,17 +227,6 @@ class WithFireSimFAME5 extends ComposeIOBinder({
   }
 })
 
-class WithAirSimBridge extends OverrideHarnessBinder({
-  (system: CanHavePeripheryAirSimIO, th: FireSim, ports: Seq[ClockedIO[AirSimPortIO]]) => {
-    val p: Parameters = GetSystemParameters(system)
-    ports.map { n => 
-      val airsim_b = AirSimBridge(n.clock, n.bits, th.harnessBinderReset.asBool)(p) 
-      airsim_b
-    }
-    Nil
-  }
-})
-
 class WithRoseBridge extends OverrideHarnessBinder({
   (system: CanHavePeripheryRoseAdapter, th: FireSim, ports: Seq[ClockedIO[RosePortIO]]) => {
     val p: Parameters = GetSystemParameters(system)
@@ -258,7 +247,6 @@ class WithDefaultFireSimBridges extends Config(
   new WithFASEDBridge ++
   new WithFireSimMultiCycleRegfile ++
   new WithFireSimFAME5 ++
-  new WithAirSimBridge ++
   new WithTracerVBridge ++
   new WithFireSimIOCellModels
 )
