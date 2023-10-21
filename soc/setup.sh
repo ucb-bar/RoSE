@@ -1,14 +1,14 @@
 #!/bin/bash
-DIR=$(dirname "$(realpath "$0")")
-echo $DIR
-PROJECT_ROOT="${DIR}/../.."
-echo "Project root: $PROJECT_ROOT"
-ROSE_DIR=${PROJECT_ROOT}/RoSE
+ROSE_DIR=$(pwd)/..
 FIRESIM_DIR=${ROSE_DIR}/soc/sim/firesim
 CHIPYARD_DIR=${FIRESIM_DIR}/target-design/chipyard
-
 SCALA_DIR=${ROSE_DIR}/soc/src/main/scala
 FSIM_CC_DIR=${ROSE_DIR}/soc/src/main/cc
+
+echo "Updating onnxruntime-riscv submodules"
+cd ${ROSE_DIR}
+git submodule update --init --recursive ${ROSE_DIR}/soc/sw/onnxruntime-riscv
+cd ${ROSE_DIR}
 
 # Create an array of source files
 sources=(
@@ -36,8 +36,15 @@ sources=(
     "${ROSE_DIR}/soc/sim/config/config_build_local.yaml"
     "${ROSE_DIR}/soc/sim/config/config_hwdb_local.yaml"
     #workload configs
-    "${ROSE_DIR}/soc/sim/airsim-driver-fed.json"
-    "${ROSE_DIR}/soc/sim/airsim-control-fed.json"
+    "${ROSE_DIR}/soc/sim/config/airsim-driver-fed.json"
+    "${ROSE_DIR}/soc/sim/config/airsim-control-fed.json"
+    #ONNX sources
+    "${ROSE_DIR}/soc/sw/dnn/cmd_args.h"
+    "${ROSE_DIR}/soc/sw/dnn/runner.cpp"
+    "${ROSE_DIR}/soc/sw/dnn/drone.cpp"
+    "${ROSE_DIR}/soc/sw/dnn/drone_dynamic.cpp"
+    "${ROSE_DIR}/soc/sw/dnn/mmio.h"
+    "${ROSE_DIR}/soc/sw/dnn/Makefile"
 )
 
 # Create an array of destination files
@@ -68,6 +75,13 @@ destinations=(
     #workload configs destinations
     "${FIRESIM_DIR}/deploy/workloads/airsim-driver-fed.json"
     "${FIRESIM_DIR}/deploy/workloads/airsim-control-fed.json"
+    #ONNX sources
+    "${ROSE_DIR}/soc/sw/onnxruntime-riscv/systolic_runner/imagenet_runner/src/cmd_args.h"
+    "${ROSE_DIR}/soc/sw/onnxruntime-riscv/systolic_runner/imagenet_runner/src/runner.cpp"
+    "${ROSE_DIR}/soc/sw/onnxruntime-riscv/systolic_runner/imagenet_runner/src/drone.cpp"
+    "${ROSE_DIR}/soc/sw/onnxruntime-riscv/systolic_runner/imagenet_runner/src/drone_dynamic.cpp"
+    "${ROSE_DIR}/soc/sw/onnxruntime-riscv/systolic_runner/imagenet_runner/src/mmio.h"
+    "${ROSE_DIR}/soc/sw/onnxruntime-riscv/systolic_runner/imagenet_runner/Makefile"
 ) 
 
 # create rose if there is not one already
@@ -133,10 +147,13 @@ else
   .settings(commonSettings)' >> ${CHIPYARD_DIR}/build.sbt
 fi
 
+echo "Updating build.sbt"
 sed -i 's/gemmini, icenet, tracegen, cva6, nvdla, sodor, ibex, fft_generator)/gemmini, icenet, tracegen, cva6, nvdla, sodor, ibex, fft_generator, rose)/g' ${CHIPYARD_DIR}/build.sbt
 
-cd ${ROSE_DIR}/soc/sw/onnxruntime-riscv
-git submodule update --init --recursive
+echo "Updating onnxruntime-riscv submodules"
+cd ${ROSE_DIR}
+git submodule update --init --recursive ${ROSE_DIR}/soc/sw/onnxruntime-riscv
+cd ${ROSE_DIR}
 
 
 

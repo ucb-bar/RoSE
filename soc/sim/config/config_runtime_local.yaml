@@ -9,7 +9,7 @@ run_farm:
     default_platform: XilinxAlveoU250InstanceDeployManager
     # REQUIRED: default directory where simulations are run out of on the run farm hosts
     #default_simulation_dir: /home/eecs/iansseijelly/FIRESIM_RUNS_DIR
-    default_simulation_dir: /scratch/iansseijelly/rose-parent-dir
+    default_simulation_dir: /scratch/iansseijelly/rose-fsim-runtmp
     # REQUIRED: List of unique hostnames/IP addresses, each with their
     # corresponding specification that describes the properties of the host.
     #
@@ -64,6 +64,11 @@ autocounter:
   read_rate: 0
 workload:
   workload_name: airsim-packettest.json
+<<<<<<< HEAD
+=======
+  #workload_name: airsim-driver-fed.json
+  #workload_name: airsim-flight.json
+>>>>>>> main
   terminate_on_completion: no
   suffix_tag: null
 host_debug:
