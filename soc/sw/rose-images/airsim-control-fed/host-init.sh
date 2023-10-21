@@ -6,7 +6,7 @@
 # this script may be called multiple times.
 
 PROJECT_ROOT="/scratch/$(whoami)"
-ROSE_DIR=${PROJECT_ROOT}/RoSE
+ROSE_DIR=${PROJECT_ROOT}/
 
 cd ${ROSE_DIR}/soc/
 # bash ./build.sh
