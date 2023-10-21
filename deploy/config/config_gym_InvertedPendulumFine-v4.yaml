@@ -13,5 +13,10 @@ packets:
     indices:
 defaults:
   action: [0]
-custom_config:
+# How env.step()'s time is interpreted by RoSE
+# e.g. in this case, frame_skip=2, sim_timestep=0.002, and custom_config.timestep=0.001
+# Units are in seconds.
+gym_timestep: 0.001
+gym_kwargs:
+  timestep: 0.0005
 

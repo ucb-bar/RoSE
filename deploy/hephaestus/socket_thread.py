@@ -71,10 +71,7 @@ class SocketThread (threading.Thread):
                                 while True:
                                     if num_bytes:
                                         datum = self.read_word()
-                                        if cmd in INTCMDS:
-                                            data.append(int.from_bytes(datum, "little", signed="False"))
-                                        else:
-                                            data.append(struct.unpack("f", datum)[0])
+                                        data.append(int.from_bytes(datum, "little", signed="False"))
                                         break
                             packet = RoSEPacket()
                             packet.init(cmd, num_bytes, data)
@@ -85,4 +82,5 @@ class SocketThread (threading.Thread):
                     #process the txqueue
                     if len(self.syn.txqueue) > 0:
                         packet = self.syn.txqueue.pop(0)
+                        # print(f"Sending packet: {packet}")
                         self.sync_conn.sendall(packet.encode())

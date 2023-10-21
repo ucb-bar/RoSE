@@ -6,10 +6,13 @@ from socket_thread import SocketThread
 import collections
 import gymnasium as gym
 import register_envs
+from utils.logger import GymLogger
 import time
 import numpy as np
 import os
 import yaml
+from functools import reduce
+
 
 CS_RESET = 0x01
 
@@ -57,7 +60,7 @@ def default_action_for_space(space):
 
 class Synchronizer: 
 
-    def __init__(self, host=HOST, sync_port=SYNC_PORT, data_port=DATA_PORT, firesim_step=10000):
+    def __init__(self, host=HOST, sync_port=SYNC_PORT, data_port=DATA_PORT, firesim_step=10000, firesim_freq=1_000_000_000):
     #def __init__(self, host=HOST, sync_port=SYNC_PORT, data_port=DATA_PORT, firesim_step=10_000_000):
         self.txqueue = []
         self.txpq = [] 
@@ -72,14 +75,20 @@ class Synchronizer:
 
         self.streaming_queue = collections.OrderedDict()
 
+        # Load general simulation configurations
+        self.firesim_freq = firesim_freq
+        self.firesim_step = firesim_step
         gym_env = self.load_config()
 
-        self.env = gym.make(gym_env)
-        self.load_gym_sim_config(gym_env)
 
-        # TODO Put this somewhere clean
-        self.firesim_step = firesim_step
-        RoSEPacket.firesim_step = firesim_step
+        self.load_gym_sim_config(gym_env)
+        self.env = gym.make(gym_env, render_mode='rgb_array', **self.gym_kwargs)
+        
+        # Check if firesim step in seconds is a multiple of gym timestep
+        self.firesim_period = self.firesim_step / self.firesim_freq
+        if self.firesim_period % self.gym_timestep != 0:
+            raise ValueError(f"Firesim period ({self.firesim_period}) must be a multiple of gym timestep ({self.gym_timestep})")
+        self.gym_step_per_firesim_step = round(self.firesim_period / self.gym_timestep)
 
         # TODO assign this from a config
         self.num_sockets = 1
@@ -95,13 +104,16 @@ class Synchronizer:
 
         self.obs = None
         self.done = None
-
+        print(f"Using firesim step: {self.firesim_step}, firesim freq: {self.firesim_freq}, gym timestep: {self.gym_timestep}, gym step per firesim step: {self.gym_step_per_firesim_step}")
 
     def run(self):
         # Start running threads for each RTL simulator
         for socket_thread in self.socket_threads:
             socket_thread.start()
         self.start_time = time.time()
+
+        # Initialize the logger
+        self.logger = GymLogger(self.env, self.firesim_period, self.start_time, self.packet_bindings)
 
         # TODO: This should take in a list of connections,
         # And send firesim steps to each
@@ -112,19 +124,31 @@ class Synchronizer:
         self.obs = self.env.reset()
         self.done = False
         self.rew = 0
-        
+    
         # TODO get defaults from config
         self.action = default_action_for_space(self.env.action_space)
         self.default_action = default_action_for_space(self.env.action_space)
 
         obs, _ = self.env.reset()
 
+        print("Starting RoSE Simulation Loop")
+
         while True:
             # Check to see if sim is finished
             self.check_task_termination()
 
             # Step robotics simulator
-            self.obs, self.rew, self.done, _, _ =  self.env.step(self.action)
+            for _ in range(self.gym_step_per_firesim_step):
+                # Ensure that if the action is not latched, only use it once
+                # before resetting to the default action
+                self.obs, self.rew, self.done, _, _ =  self.env.step(self.action)
+                self.action = self.default_action
+
+            # Log observation and action at this timestep
+            self.logger.log_data(self.obs, self.action)
+
+            # Log the rendered frame for this timestep
+            self.logger.log_rendering()
 
             # Step RTL simulation
             self.grant_firesim_token()
@@ -132,14 +156,23 @@ class Synchronizer:
             # Process data from firesim
             self.process_fsim_data_packets()
 
-            # TODO add logging code
+            # TODO add any additional logging
 
-            # Process counts for debuggng and logs
+            # Process counts for debugging and logs
             self.process_count()
+
+            # If simulation is done, break the loop
+            if self.done:
+                print("Simulation done!")
+                break
+
+        # Once the loop ends, close the logger to finalize logs and save video
+        self.logger.close()
 
     def process_count(self):
         if self.count % 20 == 0:
             print(f"Stepping simulation: {self.count} iters")
+            self.logger.save_video()
         # if self.count >= 40:
         #     exit(0)
         self.count += 1
@@ -166,6 +199,7 @@ class Synchronizer:
 
     def send_firesim_step(self):
         packet = RoSEPacket()
+        # packet.init(CS_DEFINE_STEP, 4, np.array([self.firesim_step], dtype=np.uint32))
         packet.init(CS_DEFINE_STEP, 4, [self.firesim_step])
         self.txqueue.append(packet)
 
@@ -175,9 +209,12 @@ class Synchronizer:
         self.txqueue.append(packet)
 
     def grant_firesim_token(self):
-        # print("Enqueuing new token")
         packet = RoSEPacket()
         packet.init(CS_GRANT_TOKEN, 0, None)
+        # print("Printing txqueue")
+        # for packet in self.txqueue:
+        #     print(f"txqueue: {packet}")
+        # print(f"Enqueuing new token: {packet}")
         self.txqueue.append(packet)
         #self.sync_conn.sendall(self.packet.encode())
 
@@ -214,6 +251,14 @@ class Synchronizer:
             config = yaml.safe_load(f)
             gym_env = config.get('gym_env', 'AirSimEnv-v0')  # Default to 'AirSimEnv-v0' if not found
         
+        # Load timing information from the config
+        if 'firesim_step' in config:
+            self.firesim_step = config['firesim_step']
+        if 'firesim_freq' in config:
+            self.firesim_freq = config['firesim_freq']
+        RoSEPacket.firesim_step = self.firesim_step
+        
+        
         print(f"Using Gym environment: {gym_env}")
         return gym_env
 
@@ -227,26 +272,21 @@ class Synchronizer:
             gym_sim_config = yaml.safe_load(f)
         
         print(f"loaded config: {gym_sim_config}")
+
+        # Load the gym_timestep. This represents how much simulation time passes per env.step()
+        if 'gym_timestep' in gym_sim_config:
+            self.gym_timestep = gym_sim_config['gym_timestep']
+        else:
+            raise ValueError("gym_timestep not found in config file")
+        
+        # Load the custom **kwargs for the gym environment
+        if 'gym_kwargs' in gym_sim_config:
+            self.gym_kwargs = gym_sim_config['gym_kwargs']
         
         self.packet_bindings = {}
         for packet in gym_sim_config['packets']:
             hex_id = packet['id']
             self.packet_bindings[hex_id] = packet  # bind the id to the packet configuration
-
-    # def process_fsim_data_packet(self):
-    #     packet = self.data_rxqueue.pop(0)
-    #     print(f"Dequeued data packet: {packet}")
-    #     if packet.cmd == CS_REQ_IMG:
-    #         INPUT_DIM = 56
-    #         img_arr = self.obs['camera'].reshape(INPUT_DIM, INPUT_DIM * 3)
-
-    #         for row in img_arr:
-    #             img_packet_arr = row.view(np.uint32).tolist()
-    #             # print(f"img_packet_arr: {img_packet_arr}")
-    #             packet = RoSEPacket()
-    #             packet.init(CS_RSP_IMG, len(img_packet_arr)*4, img_packet_arr)
-    #             blob = Blob(packet.latency, packet)
-    #             stable_heap_push(self.txpq, blob)
 
     def process_fsim_data_packet(self):
         packet = self.data_rxqueue.pop(0)
@@ -260,12 +300,14 @@ class Synchronizer:
             self.rew = 0
             self.action = default_action_for_space(self.env.action_space)
             self.default_action = default_action_for_space(self.env.action_space)
+            self.logger.count_reset()
             return
 
         packet_config = self.packet_bindings.get(packet.cmd)
         if not packet_config:
             print(f"Unknown packet cmd: {packet.cmd}")
             return
+        
         
         # Retrieve observation related to the packet name
         if packet_config['type'] == 'reqrsp':
@@ -294,18 +336,25 @@ class Synchronizer:
                     blob = Blob(0, packet)
                     stable_heap_push(self.txpq, blob)
         
-        if packet_config['type'] == 'action_latch':
-            action = self.action
-            if packet_config['indices'] is not None:
-                for idx in packet_config['indices']:
-                    action = action[idx]
-            self.default_action = action
-        if packet_config['type'] == 'action':
-            action = self.default_action
-            if packet_config['indices'] is not None:
-                for idx in packet_config['indices']:
-                    action = action[idx]
-            self.action = action
+        if 'action' in packet_config['type']:
+            indices = packet_config['indices']
+            data_to_assign = packet.data.view(self.action.dtype).copy()
+
+            if indices is not None:
+                # Use reduce to drill down into the nested structure
+                target = reduce(lambda arr, idx: arr[idx], indices, self.action)
+                target[:] = data_to_assign  # Modify the value in place
+            else:
+                self.action = data_to_assign
+
+            if 'latch' in packet_config['type']:
+                self.default_action = self.action.copy()
+            
+            print(f"action: {data_to_assign}")
+            print(f"self.default_action: {self.default_action}")
+            print(f"self.action: {self.action}")
+        
+        self.logger.count_packet(cmd)
 
 
 if __name__ == "__main__":

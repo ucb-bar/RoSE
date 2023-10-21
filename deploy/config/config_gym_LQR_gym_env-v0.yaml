@@ -6,7 +6,7 @@ packets:
     channel: 0
     indices: null
 #timestamp
-custom_config:
+gym_kwargs:
   init_x: 0
   init_y: 0
 

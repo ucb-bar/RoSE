@@ -412,7 +412,7 @@ alveo_u250_firesim-boom-gemmini-singlecore-with-rose-fast-no-nic-l2-llc4mb-ddr3:
     PLATFORM_CONFIG: BaseXilinxAlveoConfig 
     deploy_triplet: null
     platform_config_args:
-        fpga_frequency: 60
+        fpga_frequency: 40
         build_strategy: TIMING
     post_build_hook: null
     metasim_customruntimeconfig: null

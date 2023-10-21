@@ -1,2 +1,4 @@
 #gym_env: 'AirSimEnv-v0'
 gym_env: 'InvertedPendulumFine-v4'
+firesim_freq: 10_000_000
+firesim_step: 10_000
