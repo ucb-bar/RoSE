@@ -41,7 +41,9 @@ class InvertedPendulumEnv(MujocoEnv, utils.EzPickle):
         )
 
         if timestep is not None:
+            self.model.opt.timestep = timestep
             self.metadata['render_fps'] = int(1.0 / (timestep * self.frame_skip))
+
     def step(self, a):
         reward = 1.0
         self.do_simulation(a, self.frame_skip)

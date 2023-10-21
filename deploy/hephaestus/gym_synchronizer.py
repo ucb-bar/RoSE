@@ -86,8 +86,11 @@ class Synchronizer:
         
         # Check if firesim step in seconds is a multiple of gym timestep
         self.firesim_period = self.firesim_step / self.firesim_freq
-        if self.firesim_period % self.gym_timestep != 0:
+        tolerance = 1e-10  # define a small tolerance value
+        remainder = self.firesim_period % self.gym_timestep
+        if remainder > tolerance and self.gym_timestep - remainder > tolerance:  # checks if the remainder is significant
             raise ValueError(f"Firesim period ({self.firesim_period}) must be a multiple of gym timestep ({self.gym_timestep})")
+
         self.gym_step_per_firesim_step = round(self.firesim_period / self.gym_timestep)
 
         # TODO assign this from a config
