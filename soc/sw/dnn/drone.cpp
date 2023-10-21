@@ -433,7 +433,7 @@ int main(int argc, char* argv[]) {
   send_arm();
   send_takeoff();
   int sleep_dur = cmd["sleep"].as<int>();
-  if (sleep > 0) {
+  if (sleep_dur > 0) {
     sleep(sleep_dur);
   } 
   printf("Loading image\n");
