@@ -147,8 +147,11 @@ else
   .settings(commonSettings)' >> ${CHIPYARD_DIR}/build.sbt
 fi
 
+CHIPYARD_FILE="${CHIPYARD_DIR}/build.sbt"
+
+# Check if 'rose' is already a dependency under lazy val chipyard
 echo "Updating build.sbt"
-sed -i 's/gemmini, icenet, tracegen, cva6, nvdla, sodor, ibex, fft_generator)/gemmini, icenet, tracegen, cva6, nvdla, sodor, ibex, fft_generator, rose)/g' ${CHIPYARD_DIR}/build.sbt
+sed -i 's/gemmini, icenet, tracegen, cva6, nvdla, sodor, ibex, fft_generator,/gemmini, icenet, tracegen, cva6, nvdla, sodor, ibex, fft_generator, rose,/g' ${CHIPYARD_DIR}/build.sbt
 
 echo "Updating onnxruntime-riscv submodules"
 cd ${ROSE_DIR}
