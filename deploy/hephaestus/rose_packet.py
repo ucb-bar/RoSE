@@ -96,7 +96,8 @@ class Blob:
 #         return buffer
 
 class RoSEPacket:
-    cmd_latency_dict = {CS_RSP_IMG: 0.0, CS_RSP_DEPTH: 0.0, CS_RSP_IMG_POLL: 0.0, CS_RSP_DEPTH_STREAM: 0.0}
+    #cmd_latency_dict = {CS_RSP_IMG: 0.0, CS_RSP_DEPTH: 0.0, CS_RSP_IMG_POLL: 0.0, CS_RSP_DEPTH_STREAM: 0.0}
+    cmd_latency_dict = {}
 
     def __init__(self):
         self.cmd             = None
@@ -143,45 +144,3 @@ class RoSEPacket:
         # print("---------------------------------------------------")
         return buffer
 
-# class RoSEPacket:
-#     cmd_latency_dict = {CS_RSP_IMG: 0.0, CS_RSP_DEPTH: 0.0, CS_RSP_IMG_POLL: 0.0, CS_RSP_DEPTH_STREAM: 0.0}
-
-#     def __init__(self):
-#         self.cmd             = None
-#         self.num_bytes       = None
-#         self.data            = None
-#         self.latency_enabled = None
-#         self.latency         = None
-
-#     def __str__(self):
-#         return "[cmd: 0x{:02X}, num_bytes: {:04d}, data: {}]".format(self.cmd, self.num_bytes, self.data)
-
-#     def init(self, cmd, num_bytes, data=np.array([], dtype=np.uint32)):
-#         self.cmd       = cmd
-#         self.num_bytes = num_bytes
-#         # Convert the data into a np.uint32 array, ensuring byte-exactness
-#         if data is not None:
-#             self.data = np.frombuffer(data.tobytes(), dtype=np.uint32)
-#         else:
-#             data = np.array([], dtype=np.uint32)
-#         self.latency_enabled = cmd in RoSEPacket.cmd_latency_dict.keys()
-#         self.latency   = RoSEPacket.cmd_latency_dict.get(cmd, 0)
-
-#     def decode(self, buffer):
-#         self.cmd       = int.from_bytes(buffer[0:4], "little", signed=False)
-#         self.num_bytes = int.from_bytes(buffer[4:8], "little", signed=False)
-#         data_bytes = buffer[8:8+self.num_bytes]
-#         # Convert the byte buffer into a np.uint32 array
-#         self.data = np.frombuffer(data_bytes, dtype=np.uint32)
-
-#     def encode(self):
-#         buffer = self.cmd.to_bytes(4, 'little')
-#         if self.latency_enabled:
-#             header += (round((self.latency)*RoSEPacket.firesim_step).to_bytes(4, 'little') if self.latency > 0 else (0).to_bytes(4, 'little'))
-#         buffer += self.num_bytes.to_bytes(4, 'little')
-        
-#         # Convert the np.uint32 data into a byte buffer
-#         if self.num_bytes > 0:
-#             buffer += self.data.tobytes()
-#         print(f"Encoded packet: {buffer}, len: {len(buffer)}")
-#         return buffer

@@ -8,6 +8,7 @@ import gymnasium as gym
 import register_envs
 from utils.logger import GymLogger
 import time
+import datetime
 import numpy as np
 import os
 import yaml
@@ -93,6 +94,12 @@ class Synchronizer:
 
         self.gym_step_per_firesim_step = round(self.firesim_period / self.gym_timestep)
 
+        # Assign timing information to the RoSEPacket class
+        RoSEPacket.firesim_step = self.firesim_step
+        for cmd in self.packet_bindings.keys():
+            RoSEPacket.cmd_latency_dict[cmd] = self.packet_bindings[cmd]['latency'] / self.firesim_period
+            RoSEPacket.cmd_latency_dict[cmd+1] = self.packet_bindings[cmd]['latency'] / self.firesim_period
+
         # TODO assign this from a config
         self.num_sockets = 1
         self.cycle_limit = None
@@ -105,6 +112,10 @@ class Synchronizer:
         # intialize frame counter
         self.count = 0
 
+        # Initialize logger filenames
+        filename_base = f'runlog-{gym_env}-{datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}.csv'
+
+        # Initialize gym variables
         self.obs = None
         self.done = None
         print(f"Using firesim step: {self.firesim_step}, firesim freq: {self.firesim_freq}, gym timestep: {self.gym_timestep}, gym step per firesim step: {self.gym_step_per_firesim_step}")
@@ -114,6 +125,7 @@ class Synchronizer:
         for socket_thread in self.socket_threads:
             socket_thread.start()
         self.start_time = time.time()
+
 
         # Initialize the logger
         self.logger = GymLogger(self.env, self.firesim_period, self.start_time, self.packet_bindings)
@@ -244,6 +256,11 @@ class Synchronizer:
             packet = packet_blob.packet
             self.txqueue.append(packet)
             # print(f"appended packet: {packet}")
+        # Now, iterate through the rest of the queue, decrement latency by 1
+        for blobs in self.txpq:
+            blobs.latency = blobs.latency - 1
+            blobs.packet.latency = blobs.latency
+            print("Debug: --")
 
     def load_config(self):
         # Determine the path to the directory containing the current script
@@ -259,8 +276,7 @@ class Synchronizer:
             self.firesim_step = config['firesim_step']
         if 'firesim_freq' in config:
             self.firesim_freq = config['firesim_freq']
-        RoSEPacket.firesim_step = self.firesim_step
-        
+
         
         print(f"Using Gym environment: {gym_env}")
         return gym_env
@@ -324,7 +340,7 @@ class Synchronizer:
                 packet_arr = np.frombuffer(obs_data.tobytes(), dtype=np.uint32).tolist()
                 packet = RoSEPacket()  # You might need to adjust this based on actual RoSEPacket initialization
                 packet.init(cmd+1, len(packet_arr) * 4, packet_arr)  # You might need to adjust the multiplier
-                blob = Blob(0, packet)
+                blob = Blob(RoSEPacket.cmd_latency_dict.get(cmd+1,0), packet)
                 stable_heap_push(self.txpq, blob)
 
             else: 
@@ -336,7 +352,7 @@ class Synchronizer:
                     # print(f"row_packet_arr: {row_packet_arr}")
                     packet = RoSEPacket()  # You might need to adjust this
                     packet.init(cmd+1, len(row_packet_arr) * 4, row_packet_arr)  # You might need to adjust the multiplier
-                    blob = Blob(0, packet)
+                    blob = Blob(RoSEPacket.cmd_latency_dict.get(cmd+1, 0), packet)
                     stable_heap_push(self.txpq, blob)
         
         if 'action' in packet_config['type']:
