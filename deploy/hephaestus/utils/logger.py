@@ -84,14 +84,14 @@ class GymLogger:
         frame = self.env.render()
         self.frames.append(frame)
 
-    def save_video(self):
+    def save_video(self, period=0.02):
         if len(self.frames) == 0:
             return
 
         # Define codec using VideoWriter_fourcc and create VideoWriter object
         height, width, layers = self.frames[0].shape
         size = (width, height)
-        out = cv2.VideoWriter(self.video_path, cv2.VideoWriter_fourcc(*'DIVX'), 15, size)
+        out = cv2.VideoWriter(self.video_path, cv2.VideoWriter_fourcc(*'DIVX'), round(1/period), size)
 
         for frame in self.frames:
             # OpenCV expects colors in BGR format, so convert from RGB to BGR

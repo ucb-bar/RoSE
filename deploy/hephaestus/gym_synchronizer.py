@@ -187,7 +187,7 @@ class Synchronizer:
     def process_count(self):
         if self.count % 20 == 0:
             print(f"Stepping simulation: {self.count} iters")
-            self.logger.save_video()
+            self.logger.save_video(self.firesim_period)
         # if self.count >= 40:
         #     exit(0)
         self.count += 1
