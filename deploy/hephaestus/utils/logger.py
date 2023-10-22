@@ -84,19 +84,32 @@ class GymLogger:
         frame = self.env.render()
         self.frames.append(frame)
 
-    def save_video(self, period=0.02):
+
+    def save_video(self, max_fps=120):
         if len(self.frames) == 0:
             return
 
-        # Define codec using VideoWriter_fourcc and create VideoWriter object
         height, width, layers = self.frames[0].shape
         size = (width, height)
-        out = cv2.VideoWriter(self.video_path, cv2.VideoWriter_fourcc(*'DIVX'), round(1/period), size)
 
-        for frame in self.frames:
-            # OpenCV expects colors in BGR format, so convert from RGB to BGR
-            out.write(cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
+        # Calculate the original FPS
+        original_fps = round(1/self.firesim_period)
+
+        # Determine if we need to skip frames to reduce the FPS
+        if original_fps > max_fps:
+            skip_frames = round(original_fps / max_fps)
+            fps = max_fps
+        else:
+            skip_frames = 1
+            fps = original_fps
+
+        out = cv2.VideoWriter(self.video_path, cv2.VideoWriter_fourcc(*'DIVX'), fps, size)
+
+        for i, frame in enumerate(self.frames):
+            if i % skip_frames == 0:
+                out.write(cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
         out.release()
+
 
     def close(self):
         # Close CSV file
