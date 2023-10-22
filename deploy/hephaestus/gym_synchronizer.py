@@ -113,7 +113,7 @@ class Synchronizer:
         self.count = 0
 
         # Initialize logger filenames
-        filename_base = f'runlog-{gym_env}-{datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}.csv'
+        self.filename_base = f'{gym_env}-cycles-{self.firesim_step}-gym-step-{self.gym_timestep}-freq-{self.firesim_freq}-{datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}'
 
         # Initialize gym variables
         self.obs = None
@@ -128,7 +128,7 @@ class Synchronizer:
 
 
         # Initialize the logger
-        self.logger = GymLogger(self.env, self.firesim_period, self.start_time, self.packet_bindings)
+        self.logger = GymLogger(self.env, self.firesim_period, self.start_time, self.packet_bindings, log_filename=f'runlog-{self.filename_base}.csv', video_filename=f'recording-{self.filename_base}.avi')
 
         # TODO: This should take in a list of connections,
         # And send firesim steps to each
