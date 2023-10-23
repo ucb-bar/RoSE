@@ -37,8 +37,8 @@ class FiresimThread(threading.Thread):
         self.run_firesim()
 
     def run_firesim(self):
-        os.system("firesim kill")
-        os.system("firesim runworkload")
+        os.system("firesim kill > /dev/null")
+        os.system("firesim runworkload > /dev/null")
         # os.system("firesim kill")
         os.system("firesim kill &")
         os.system("sleep 10")
