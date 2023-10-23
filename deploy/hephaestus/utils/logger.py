@@ -152,7 +152,7 @@ class GymLogger:
 
         # Render images
         frame = self.env.render()
-        cv2.imshow(f'RoSE Frame {len(self.observations)}', frame)  # Convert RGB to BGR
+        cv2.imshow(f'RoSE Frame', frame)  # Convert RGB to BGR
         cv2.waitKey(1)  # 1 ms delay to give time for the image to be drawn
 
 
