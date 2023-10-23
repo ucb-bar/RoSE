@@ -17,10 +17,16 @@ Our tool synchronizes two key parts: AirSim, which creates a realistic robotics 
   <h2>News</h2>
   <div class="table-responsive">
     <table class="table table-sm table-borderless">
+        <tr>
+        <th scope="row">Sunday, October 29th, 2023</th>
+        <td>
+          We are running a half-day tutorial on RoSÉ, <a style="color:blue;"  href="https://microarch.org/micro56/index.php" target="_blank" rel="noopener noreferrer"> MICRO</a>! <a style="color:blue;" href="https://ucb-bar.github.io/RoSE/tutorial/"</i></a>
+        </td>
+      </tr>   
       <tr>
         <th scope="row">June 19, 2023</th>
         <td>
-          Our work was accepted by and will be presented at <a style="color:blue;"  href="https://www.iscaconf.org/isca2023/program/#ii-3a" target="_blank" rel="noopener noreferrer"> ISCA</a>! <a href="assets/pdf/RoSE_ISCA_2023.pdf" title="Paper PDF"><i class="fa-regular fa-file-pdf"></i></a> <a href="assets/pdf/rose-isca2023-slides.pptx" title="Slides"><i class="fa-regular fa-file-powerpoint"></i></a>
+          Our work was accepted by and was presented at <a style="color:blue;"  href="https://www.iscaconf.org/isca2023/program/#ii-3a" target="_blank" rel="noopener noreferrer"> ISCA</a>! <a href="assets/pdf/RoSE_ISCA_2023.pdf" title="Paper PDF"><i class="fa-regular fa-file-pdf"></i></a> <a href="assets/pdf/rose-isca2023-slides.pptx" title="Slides"><i class="fa-regular fa-file-powerpoint"></i></a>
         </td>
       </tr>
       <tr>
