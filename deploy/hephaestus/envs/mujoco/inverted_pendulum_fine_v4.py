@@ -59,7 +59,7 @@ class InvertedPendulumEnv(MujocoEnv, utils.EzPickle):
         angle = self.np_random.uniform(low=selected_range[0], high=selected_range[1])
         
         qpos = self.init_qpos.copy()
-        qpos[0] = angle  
+        qpos[1] = angle  
         qvel = self.init_qvel + self.np_random.uniform(
             size=self.model.nv, low=-0.01, high=0.01
         )
