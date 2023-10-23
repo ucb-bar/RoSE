@@ -20,7 +20,7 @@ Our tool synchronizes two key parts: AirSim, which creates a realistic robotics 
         <tr>
         <th scope="row">Sunday, October 29th, 2023</th>
         <td>
-          We are running a half-day tutorial on RoSÉ, <a style="color:blue;"href="https://microarch.org/micro56/index.php" target="_blank" rel="noopener noreferrer"> MICRO</a>! See schedule here <a style="color:blue;" href="https://ucb-bar.github.io/RoSE/tutorial/"</i></a>
+          We are running a half-day tutorial on RoSÉ, <a style="color:blue;"href="https://microarch.org/micro56/index.php" target="_blank" rel="noopener noreferrer"> MICRO</a>!</i></a>
         </td>
       </tr>   
       <tr>
