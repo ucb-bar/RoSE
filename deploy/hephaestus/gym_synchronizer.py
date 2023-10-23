@@ -97,8 +97,9 @@ class Synchronizer:
         # Assign timing information to the RoSEPacket class
         RoSEPacket.firesim_step = self.firesim_step
         for cmd in self.packet_bindings.keys():
-            RoSEPacket.cmd_latency_dict[cmd] = self.packet_bindings[cmd]['latency'] / self.firesim_period
-            RoSEPacket.cmd_latency_dict[cmd+1] = self.packet_bindings[cmd]['latency'] / self.firesim_period
+            if 'latency' in self.packet_bindings[cmd]:
+                RoSEPacket.cmd_latency_dict[cmd] = self.packet_bindings[cmd]['latency'] / self.firesim_period
+                RoSEPacket.cmd_latency_dict[cmd+1] = self.packet_bindings[cmd]['latency'] / self.firesim_period
 
         # TODO assign this from a config
         self.num_sockets = 1
