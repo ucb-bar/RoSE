@@ -22,7 +22,7 @@ class InvertedPendulumEnv(MujocoEnv, utils.EzPickle):
         "render_fps": 500,
     }
 
-    def __init__(self, timestep=None, **kwargs):
+    def __init__(self, mujoco_timestep=None, **kwargs):
         utils.EzPickle.__init__(self, **kwargs)
         observation_space = Box(low=-np.inf, high=np.inf, shape=(4,), dtype=np.float32)
 
@@ -40,9 +40,9 @@ class InvertedPendulumEnv(MujocoEnv, utils.EzPickle):
             **kwargs,
         )
 
-        if timestep is not None:
-            self.model.opt.timestep = timestep
-            self.metadata['render_fps'] = int(1.0 / (timestep * self.frame_skip))
+        if mujoco_timestep is not None:
+            self.model.opt.timestep = mujoco_timestep
+            self.metadata['render_fps'] = int(1.0 / (mujoco_timestep * self.frame_skip))
 
     def step(self, a):
         reward = 1.0

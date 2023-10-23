@@ -8,8 +8,6 @@ packets:
   - name: action
     id: 0x20
     type: "action_latch"
-    latency: 0
-    channel: 0
     indices:
 defaults:
   action: [0]
@@ -18,5 +16,5 @@ defaults:
 # Units are in seconds.
 gym_timestep: 0.001
 gym_kwargs:
-  timestep: 0.0005
+  mujoco_timestep: 0.0005
 
