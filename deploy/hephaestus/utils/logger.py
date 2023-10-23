@@ -147,19 +147,13 @@ class GymLogger:
             axs[num_obs + i].set_ylabel('Value')
 
         plt.tight_layout()
-        plt.show()
+        plt.show(block=False)
 
 
         # Render images
-        height, width, layers = self.frames[0].shape
-        size = (width, height)
-        out = cv2.VideoWriter('rendering.avi', cv2.VideoWriter_fourcc(*'DIVX'), round(1/self.firesim_period), size)
-        for frame in self.frames:
-            out.write(cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
-            cv2.imshow('Rendering', frame)
-            cv2.waitKey(int(1000*self.firesim_period))
-        out.release()
-        cv2.destroyAllWindows()
+        frame = self.env.render()
+        cv2.imshow('Current Frame', frame)  # Convert RGB to BGR
+        cv2.waitKey(1)  # 1 ms delay to give time for the image to be drawn
 
 
     def close(self):
