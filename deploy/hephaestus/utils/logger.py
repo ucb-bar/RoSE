@@ -3,6 +3,8 @@ import csv
 import numpy as np
 import cv2
 import time
+import matplotlib.pyplot as plt
+
 
 class GymLogger:
     def __init__(self, env, firesim_period, start_time, packet_bindings, log_dir='./logs', log_filename='data.csv', video_filename='rendering.avi'):
@@ -16,6 +18,9 @@ class GymLogger:
         self.frames = []
         self.sim_time = 0.0
         self.resets = 0
+        self.observations = []
+        self.actions = []
+
 
         # Create the logs directory if it doesn't exist
         if not os.path.exists(self.log_dir):
@@ -37,6 +42,9 @@ class GymLogger:
         # Convert observation and action to flat list for CSV logging
         obs_list = self._to_flat_list(obs)
         action_list = self._to_flat_list(action)
+        
+        self.observations.append(obs_list)
+        self.actions.append(action_list)
 
         # Calculate times
         self.sim_time += self.firesim_period
@@ -68,6 +76,8 @@ class GymLogger:
         self.packet_counts[packet_id] += 1
         
     def count_reset(self):
+        self.observations = []
+        self.actions = []
         self.resets += 1
 
     def _to_flat_list(self, item):
@@ -109,6 +119,47 @@ class GymLogger:
             if i % skip_frames == 0:
                 out.write(cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
         out.release()
+    
+    def display(self):
+        if len(self.observations) == 0 or len(self.actions) == 0:
+            print("No data to display.")
+            return
+        
+        time_points = np.arange(0, len(self.observations) * self.firesim_period, self.firesim_period)
+        obs_arr = np.array(self.observations)
+        action_arr = np.array(self.actions)
+
+        num_obs = obs_arr.shape[1]
+        num_actions = action_arr.shape[1]
+
+        fig, axs = plt.subplots(num_obs + num_actions, 1, figsize=(10, 2 * (num_obs + num_actions)))
+
+        for i in range(num_obs):
+            axs[i].plot(time_points, obs_arr[:, i])
+            axs[i].set_title(f'Observation {i}')
+            axs[i].set_xlabel('Time (s)')
+            axs[i].set_ylabel('Value')
+
+        for i in range(num_actions):
+            axs[num_obs + i].plot(time_points, action_arr[:, i], 'r')
+            axs[num_obs + i].set_title(f'Action {i}')
+            axs[num_obs + i].set_xlabel('Time (s)')
+            axs[num_obs + i].set_ylabel('Value')
+
+        plt.tight_layout()
+        plt.show()
+
+
+        # Render images
+        height, width, layers = self.frames[0].shape
+        size = (width, height)
+        out = cv2.VideoWriter('rendering.avi', cv2.VideoWriter_fourcc(*'DIVX'), round(1/self.firesim_period), size)
+        for frame in self.frames:
+            out.write(cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
+            cv2.imshow('Rendering', frame)
+            cv2.waitKey(int(1000*self.firesim_period))
+        out.release()
+        cv2.destroyAllWindows()
 
 
     def close(self):

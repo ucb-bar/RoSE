@@ -161,6 +161,7 @@ class Synchronizer:
 
             # Log observation and action at this timestep
             self.logger.log_data(self.obs, self.action)
+            self.logger.display()
 
             # Log the rendered frame for this timestep
             self.logger.log_rendering()
