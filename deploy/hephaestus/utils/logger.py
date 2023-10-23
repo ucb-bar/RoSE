@@ -121,33 +121,33 @@ class GymLogger:
         out.release()
     
     def display(self):
-        if len(self.observations) == 0 or len(self.actions) == 0:
-            print("No data to display.")
-            return
+        # if len(self.observations) == 0 or len(self.actions) == 0:
+        #     print("No data to display.")
+        #     return
         
-        time_points = np.arange(0, len(self.observations) * self.firesim_period, self.firesim_period)
-        obs_arr = np.array(self.observations)
-        action_arr = np.array(self.actions)
+        # time_points = np.arange(0, len(self.observations) * self.firesim_period, self.firesim_period)
+        # obs_arr = np.array(self.observations)
+        # action_arr = np.array(self.actions)
 
-        num_obs = obs_arr.shape[1]
-        num_actions = action_arr.shape[1]
+        # num_obs = obs_arr.shape[1]
+        # num_actions = action_arr.shape[1]
 
-        fig, axs = plt.subplots(num_obs + num_actions, 1, figsize=(10, 2 * (num_obs + num_actions)))
+        # fig, axs = plt.subplots(num_obs + num_actions, 1, figsize=(10, 2 * (num_obs + num_actions)))
 
-        for i in range(num_obs):
-            axs[i].plot(time_points, obs_arr[:, i])
-            axs[i].set_title(f'Observation {i}')
-            axs[i].set_xlabel('Time (s)')
-            axs[i].set_ylabel('Value')
+        # for i in range(num_obs):
+        #     axs[i].plot(time_points, obs_arr[:, i])
+        #     axs[i].set_title(f'Observation {i}')
+        #     axs[i].set_xlabel('Time (s)')
+        #     axs[i].set_ylabel('Value')
 
-        for i in range(num_actions):
-            axs[num_obs + i].plot(time_points, action_arr[:, i], 'r')
-            axs[num_obs + i].set_title(f'Action {i}')
-            axs[num_obs + i].set_xlabel('Time (s)')
-            axs[num_obs + i].set_ylabel('Value')
+        # for i in range(num_actions):
+        #     axs[num_obs + i].plot(time_points, action_arr[:, i], 'r')
+        #     axs[num_obs + i].set_title(f'Action {i}')
+        #     axs[num_obs + i].set_xlabel('Time (s)')
+        #     axs[num_obs + i].set_ylabel('Value')
 
-        plt.tight_layout()
-        plt.show(block=False)
+        # plt.tight_layout()
+        # plt.show(block=False)
 
 
         # Render images
