@@ -131,6 +131,7 @@ done
 
 # Init firemarshal submodules
 cd ${FIRESIM_DIR}/sw/firesim-software/
+git checkout ubuntu-add
 ./init-submodules.sh
 
 # Patch build script
