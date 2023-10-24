@@ -82,6 +82,7 @@ class Synchronizer:
         # Load general simulation configurations
         self.firesim_freq = firesim_freq
         self.firesim_step = firesim_step
+        self.render = False
         gym_env = self.load_config()
 
 
@@ -163,7 +164,8 @@ class Synchronizer:
 
             # Log observation and action at this timestep
             self.logger.log_data(self.obs, self.action)
-            self.logger.display()
+            if self.render:
+                self.logger.display()
 
             # Log the rendered frame for this timestep
             self.logger.log_rendering()
@@ -281,6 +283,8 @@ class Synchronizer:
             self.firesim_freq = config['firesim_freq']
         if 'max_sim_time' in config:
             self.cycle_limit = config['max_sim_time'] * self.firesim_freq
+        if 'render' in config:
+            self.render = config['render']
 
         
         print(f"Using Gym environment: {gym_env}")
