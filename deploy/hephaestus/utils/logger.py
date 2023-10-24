@@ -60,7 +60,7 @@ class GymLogger:
 
             num_obs = obs_arr.shape[1]
             num_actions = action_arr.shape[1]
-            self.fig, self.axs = plt.subplots(num_obs + num_actions, 1, figsize=(4, 2 * (num_obs + num_actions)))
+            self.fig, self.axs = plt.subplots(num_obs + num_actions, 1, figsize=(5, 2 * (num_obs + num_actions)))
 
         # Calculate times
         self.sim_time += self.firesim_period
@@ -157,7 +157,6 @@ class GymLogger:
                 ax.set_title(f'Action {i - num_obs}')
 
             ax.set_xlabel('Time (s)')
-            ax.set_ylabel('Value')
             if self.max_duration is not None:
                 ax.set_xlim([0, self.max_duration])
 
