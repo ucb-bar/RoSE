@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function run {
-    python3 ./deploy/hephaestus/rose.py &> /dev/null &
+    python3 ./deploy/hephaestus/rose.py 
 }
 
 function edit {
