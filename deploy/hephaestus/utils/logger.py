@@ -136,7 +136,7 @@ class GymLogger:
             print("No data to display.")
             return
             
-        time_points = np.arange(0, len(self.observations) * self.firesim_period, self.firesim_period)
+        time_points = np.arange(0, len(self.observations)) * self.firesim_period
         obs_arr = np.array(self.observations)
         action_arr = np.array(self.actions)
         num_obs = obs_arr.shape[1]
