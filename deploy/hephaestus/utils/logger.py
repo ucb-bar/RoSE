@@ -139,6 +139,7 @@ class GymLogger:
         time_points = np.arange(0, len(self.observations) * self.firesim_period, self.firesim_period)
         obs_arr = np.array(self.observations)
         action_arr = np.array(self.actions)
+        num_obs = obs_arr.shape[1]
 
         for i, ax in enumerate(self.axs):
             ax.clear()  # Clear current axis before updating
