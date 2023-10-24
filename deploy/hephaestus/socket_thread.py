@@ -34,6 +34,7 @@ class SocketThread (threading.Thread):
 
    def run(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             s.bind((self.syn.sync_host, self.syn.sync_port))
             s.listen()
             self.syn.server_started = True
