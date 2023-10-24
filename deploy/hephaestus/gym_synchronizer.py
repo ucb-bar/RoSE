@@ -76,6 +76,9 @@ class Synchronizer:
 
         self.streaming_queue = collections.OrderedDict()
 
+        self.num_sockets = 1
+        self.cycle_limit = None
+
         # Load general simulation configurations
         self.firesim_freq = firesim_freq
         self.firesim_step = firesim_step
@@ -101,11 +104,8 @@ class Synchronizer:
                 RoSEPacket.cmd_latency_dict[cmd] = self.packet_bindings[cmd]['latency'] / self.firesim_period
                 RoSEPacket.cmd_latency_dict[cmd+1] = self.packet_bindings[cmd]['latency'] / self.firesim_period
 
-        # TODO assign this from a config
-        self.num_sockets = 1
-        self.cycle_limit = None
 
-        # Initialize sockets for 
+        # Initialize sockets 
         self.socket_threads = []
         for i in range(self.num_sockets):
             self.socket_threads.append(SocketThread(self))
@@ -189,7 +189,7 @@ class Synchronizer:
 
     def process_count(self):
         if self.count % 20 == 0:
-            print(f"Stepping simulation: {self.count} iters")
+            print(f"Stepping simulation: {self.count} iters (sim time = {self.count * self.firesim_period}s)")
             self.logger.save_video()
         # if self.count >= 40:
         #     exit(0)
