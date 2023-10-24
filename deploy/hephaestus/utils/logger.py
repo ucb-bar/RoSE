@@ -103,7 +103,7 @@ class GymLogger:
         size = (width, height)
 
         # Calculate the original FPS
-        original_fps = round(1/self.firesim_period)
+        original_fps = round(1/(self.firesim_period*2))
 
         # Determine if we need to skip frames to reduce the FPS
         if original_fps > max_fps:

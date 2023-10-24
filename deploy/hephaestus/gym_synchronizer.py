@@ -185,6 +185,7 @@ class Synchronizer:
 
         # Once the loop ends, close the logger to finalize logs and save video
         self.logger.close()
+        exit()
 
     def process_count(self):
         if self.count % 20 == 0:
@@ -262,7 +263,6 @@ class Synchronizer:
         for blobs in self.txpq:
             blobs.latency = blobs.latency - 1
             blobs.packet.latency = blobs.latency
-            print("Debug: --")
 
     def load_config(self):
         # Determine the path to the directory containing the current script
@@ -278,6 +278,8 @@ class Synchronizer:
             self.firesim_step = config['firesim_step']
         if 'firesim_freq' in config:
             self.firesim_freq = config['firesim_freq']
+        if 'max_sim_time' in config:
+            self.cycle_limit = config['max_sim_time'] * self.firesim_freq
 
         
         print(f"Using Gym environment: {gym_env}")
@@ -372,8 +374,6 @@ class Synchronizer:
                 self.default_action = self.action.copy()
             
             print(f"action: {data_to_assign}")
-            print(f"self.default_action: {self.default_action}")
-            print(f"self.action: {self.action}")
         
         self.logger.count_packet(cmd)
 
