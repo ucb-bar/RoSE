@@ -36,6 +36,9 @@ class GymLogger:
         for key in self.packet_bindings.keys():
             self.packet_counts[key] = 0
         
+
+        self.fig, self.axs = None, None
+        
         print(f"Packet counts: {self.packet_counts}")
 
     def log_data(self, obs, action):
@@ -45,6 +48,14 @@ class GymLogger:
         
         self.observations.append(obs_list)
         self.actions.append(action_list)
+
+        if self.fig is None:
+            obs_arr = np.array(self.observations)
+            action_arr = np.array(self.actions)
+
+            num_obs = obs_arr.shape[1]
+            num_actions = action_arr.shape[1]
+            self.fig, self.axs = plt.subplots(num_obs + num_actions, 1, figsize=(10, 2 * (num_obs + num_actions)))
 
         # Calculate times
         self.sim_time += self.firesim_period
@@ -121,33 +132,29 @@ class GymLogger:
         out.release()
     
     def display(self):
-        # if len(self.observations) == 0 or len(self.actions) == 0:
-        #     print("No data to display.")
-        #     return
-        
-        # time_points = np.arange(0, len(self.observations) * self.firesim_period, self.firesim_period)
-        # obs_arr = np.array(self.observations)
-        # action_arr = np.array(self.actions)
+        if len(self.observations) == 0 or len(self.actions) == 0:
+            print("No data to display.")
+            return
+            
+        time_points = np.arange(0, len(self.observations) * self.firesim_period, self.firesim_period)
+        obs_arr = np.array(self.observations)
+        action_arr = np.array(self.actions)
 
-        # num_obs = obs_arr.shape[1]
-        # num_actions = action_arr.shape[1]
+        for i, ax in enumerate(self.axs):
+            ax.clear()  # Clear current axis before updating
+            
+            if i < num_obs:
+                ax.plot(time_points, obs_arr[:, i])
+                ax.set_title(f'Observation {i}')
+            else:
+                ax.plot(time_points, action_arr[:, i - num_obs], 'r')
+                ax.set_title(f'Action {i - num_obs}')
 
-        # fig, axs = plt.subplots(num_obs + num_actions, 1, figsize=(10, 2 * (num_obs + num_actions)))
+            ax.set_xlabel('Time (s)')
+            ax.set_ylabel('Value')
 
-        # for i in range(num_obs):
-        #     axs[i].plot(time_points, obs_arr[:, i])
-        #     axs[i].set_title(f'Observation {i}')
-        #     axs[i].set_xlabel('Time (s)')
-        #     axs[i].set_ylabel('Value')
-
-        # for i in range(num_actions):
-        #     axs[num_obs + i].plot(time_points, action_arr[:, i], 'r')
-        #     axs[num_obs + i].set_title(f'Action {i}')
-        #     axs[num_obs + i].set_xlabel('Time (s)')
-        #     axs[num_obs + i].set_ylabel('Value')
-
-        # plt.tight_layout()
-        # plt.show(block=False)
+        plt.tight_layout()
+        plt.pause(0.001)  # Use plt.pause instead of plt.show. This will redraw the updated figure
 
 
         # Render images
