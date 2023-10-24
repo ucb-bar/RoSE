@@ -4,10 +4,12 @@ import numpy as np
 import cv2
 import time
 import matplotlib.pyplot as plt
+import logging
+
 
 
 class GymLogger:
-    def __init__(self, env, firesim_period, start_time, packet_bindings, log_dir='./logs', log_filename='data.csv', video_filename='rendering.avi'):
+    def __init__(self, env, firesim_period, start_time, packet_bindings, log_dir='./logs', log_filename='data.csv', video_filename='rendering.avi', plot_filename='plot.png', max_duration = None):
         self.env = env
         self.firesim_period = firesim_period
         self.start_time = start_time
@@ -15,12 +17,15 @@ class GymLogger:
         self.log_dir = log_dir
         self.log_path = os.path.join(log_dir, log_filename)
         self.video_path = os.path.join(log_dir, video_filename)
+        self.plot_path = os.path.join(log_dir, plot_filename)
         self.frames = []
         self.sim_time = 0.0
         self.resets = 0
         self.observations = []
         self.actions = []
-
+        self.max_duration = max_duration
+        
+        logging.getLogger('matplotlib').setLevel(logging.ERROR)
 
         # Create the logs directory if it doesn't exist
         if not os.path.exists(self.log_dir):
@@ -55,7 +60,7 @@ class GymLogger:
 
             num_obs = obs_arr.shape[1]
             num_actions = action_arr.shape[1]
-            self.fig, self.axs = plt.subplots(num_obs + num_actions, 1, figsize=(10, 2 * (num_obs + num_actions)))
+            self.fig, self.axs = plt.subplots(num_obs + num_actions, 1, figsize=(4, 2 * (num_obs + num_actions)))
 
         # Calculate times
         self.sim_time += self.firesim_period
@@ -153,9 +158,12 @@ class GymLogger:
 
             ax.set_xlabel('Time (s)')
             ax.set_ylabel('Value')
+            if self.max_duration is not None:
+                ax.set_xlim([0, self.max_duration])
 
         plt.tight_layout()
         plt.pause(0.001)  # Use plt.pause instead of plt.show. This will redraw the updated figure
+        plt.savefig(self.plot_path) 
 
 
         # Render images
