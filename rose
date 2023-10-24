@@ -1,0 +1,50 @@
+#!/bin/bash
+
+function run() {
+    python3 ./deploy/hephaestus/rose.py
+}
+
+function edit() {
+    local config=$1
+    case $config in
+        "gym_conf")
+            gedit ./deploy/config/config_gym_InvertedPendulumFine-v4.yaml
+            ;;
+        "sim_conf")
+            gedit ./deploy/config/config_deploy_gym.yaml
+            ;;
+        "firesim_conf")
+            gedit ./soc/sim/config/config_runtime_local.yaml
+            ;;
+        "pid_sw")
+            gedit ./soc/sw/baremetal/inverted-pendulum-pid.c
+            ;;
+        *)
+            echo "Invalid option. Please choose from: gym_conf, sim_conf, firesim_conf, pid_sw."
+            ;;
+    esac
+}
+
+if [ $# -lt 1 ]; then
+    echo "Usage: rose <command> [arguments]"
+    echo "Commands:"
+    echo "  run             Run the main program"
+    echo "  edit <option>   Edit configuration files"
+    exit 1
+fi
+
+command=$1
+shift  # shift arguments to the left to process additional arguments if necessary
+
+case $command in
+    "run")
+        run
+        ;;
+    "edit")
+        edit "$@"
+        ;;
+    *)
+        echo "Invalid command. Use 'rose run' or 'rose edit <option>'."
+        exit 1
+        ;;
+esac

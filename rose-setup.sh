@@ -60,4 +60,6 @@ sed -i "s|/bitstream_dir|${ROSE_DIR}/soc/sim/bitstreams|g" ${ROSE_DIR}/soc/sim/c
 cd ${ROSE_DIR}/
 # git submodule update --init ${ROSE_DIR}/soc/sim/firesim
 
+export PATH=$PATH:${ROSE_DIR}/
+
 
