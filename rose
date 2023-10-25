@@ -2,6 +2,14 @@
 
 function run {
     python3 ./deploy/hephaestus/rose.py 
+    latest_png=$(ls -t ./deploy/hephaestus/logs/*.png | head -n 1)
+    latest_avi=$(ls -t ./deploy/hephaestus/logs/*.avi | head -n 1)
+    if [ -n "$latest_png" ]; then
+        eog "$latest_png" &> /dev/null &
+    fi
+    if [ -n "$latest_avi" ]; then
+        vlc "$latest_avi" &> /dev/null &
+    fi
 }
 
 function edit {
