@@ -47,7 +47,18 @@ class FiresimThread(threading.Thread):
         exit()
 
 if __name__ == "__main__":
-    
+    header = """
+============================
+  _____       _____ ______ 
+ |  __ \     / ____|  ____|
+ | |__) |___| (___ | |__   
+ |  _  // _ \\___ \|  __|  
+ | | \ \ (_) |___) | |____ 
+ |_|  \_\___/_____/|______|
+============================
+
+    """ 
+    print(header)
     print("Starting synchronizer thread")
     sync_thread = SyncThread(None)
     sync_thread.start()
