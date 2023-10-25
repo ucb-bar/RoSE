@@ -9,7 +9,7 @@ function run {
         eog "$latest_png" &> /dev/null &
     fi
     if [ -n "$latest_avi" ]; then
-        vlc "$latest_avi" &> /dev/null &
+        vlc --no-qt-fs-controller "$latest_avi" &> /dev/null &
     fi
 }
 
