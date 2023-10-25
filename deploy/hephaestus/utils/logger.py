@@ -6,6 +6,9 @@ import time
 import matplotlib.pyplot as plt
 import logging
 logging.getLogger('matplotlib').setLevel(logging.ERROR)
+import warnings
+warnings.filterwarnings("ignore", message="Starting a Matplotlib GUI outside of the main thread will likely fail.")
+
 
 
 
