@@ -37,6 +37,10 @@ function view_logs {
     nautilus ./deploy/hephaestus/logs/ &> /dev/null &
 }
 
+function vm_ros {
+    marshal launch ./soc/sw/rose-images/ros-ubuntu.json
+}
+
 case $1 in
     run)
         run
@@ -47,7 +51,14 @@ case $1 in
     view)
         view_logs
         ;;
+    vm)
+        if [ "$2" = "ros" ]; then
+            vm_ros
+        else
+            echo "Unknown VM command. Please specify one of: ros"
+        fi
+        ;;
     *)
-        echo "Unknown command. Please specify one of: run, edit, view"
+        echo "Unknown command. Please specify one of: run, edit, view, vm"
         ;;
 esac
