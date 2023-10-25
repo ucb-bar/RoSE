@@ -1,0 +1,8 @@
+{
+  "name" : "ros-ubuntu",
+  "base" : "ubuntu-base.json",
+  "overlay" : "overlay",
+  "rootfs-size": "16GB",
+  "host-init" : "host-init.sh",
+  "guest-init" : "guest-init.sh"
+}
