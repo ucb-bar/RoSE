@@ -1,6 +1,7 @@
 #!/bin/bash
 
 function run {
+    killall vlc eog &> /dev/null
     python3 ./deploy/hephaestus/rose.py 
     latest_png=$(ls -t ./deploy/hephaestus/logs/*.png | head -n 1)
     latest_avi=$(ls -t ./deploy/hephaestus/logs/*.avi | head -n 1)

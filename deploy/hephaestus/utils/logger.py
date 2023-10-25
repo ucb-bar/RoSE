@@ -5,6 +5,7 @@ import cv2
 import time
 import matplotlib.pyplot as plt
 import logging
+logging.getLogger('matplotlib').setLevel(logging.ERROR)
 
 
 
@@ -25,7 +26,6 @@ class GymLogger:
         self.actions = []
         self.max_duration = max_duration
         
-        logging.getLogger('matplotlib').setLevel(logging.ERROR)
 
         # Create the logs directory if it doesn't exist
         if not os.path.exists(self.log_dir):
