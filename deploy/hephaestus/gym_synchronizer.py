@@ -139,7 +139,6 @@ class Synchronizer:
 
         # TODO: Add bandwidth sending
 
-        self.obs = self.env.reset()
         self.done = False
         self.rew = 0
     
