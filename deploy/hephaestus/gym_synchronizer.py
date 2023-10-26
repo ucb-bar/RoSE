@@ -322,7 +322,7 @@ class Synchronizer:
         
         if cmd == CS_RESET:
             print("Resetting environment")
-            self.obs = self.env.reset()
+            self.obs, _ = self.env.reset()
             self.done = False
             self.rew = 0
             self.action = default_action_for_space(self.env.action_space)
