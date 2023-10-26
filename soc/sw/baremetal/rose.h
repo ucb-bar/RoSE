@@ -17,7 +17,7 @@
 #define ROSE_RESET 0x01
 
 void send_sim_reset() {
-	printf("Sending reset cmd...\n");
+	// printf("Sending reset cmd...\n");
     while ((reg_read8(ROSE_STATUS) & 0x1) == 0) ;
     reg_write32(ROSE_IN, ROSE_RESET);
     while ((reg_read8(ROSE_STATUS) & 0x1) == 0) ;
@@ -25,7 +25,7 @@ void send_sim_reset() {
 }
 
 void send_obs_req(uint8_t cmd) {
-    printf("Requesting cmd %02x...\n", cmd);
+    // printf("Requesting cmd %02x...\n", cmd);
     while ((reg_read8(ROSE_STATUS) & 0x1) == 0) ;
     reg_write32(ROSE_IN, cmd);
     while ((reg_read8(ROSE_STATUS) & 0x1) == 0) ;
@@ -39,13 +39,13 @@ void read_obs_rsp(void * buf) {
 	float result;
 
 	uint32_t * raw_buf = (uint32_t*) buf;
-	printf("Receiving obs...\n");
+	// printf("Receiving obs...\n");
 	while ((reg_read8(ROSE_STATUS) & 0x4) == 0) ;
 	uint32_t cmd = reg_read32(ROSE_OUT);
-	printf("Got cmd: %x\n", cmd);
+	// printf("Got cmd: %x\n", cmd);
 	while ((reg_read8(ROSE_STATUS) & 0x4) == 0) ;
 	uint32_t num_bytes = reg_read32(ROSE_OUT);
-	printf("Got num bytes: %d\n", num_bytes);
+	// printf("Got num bytes: %d\n", num_bytes);
 	for(i = 0; i < num_bytes / 4; i++) {
 		while ((reg_read8(ROSE_STATUS) & 0x4) == 0) ;
     	raw_buf[i] = reg_read32(ROSE_OUT);
@@ -54,11 +54,37 @@ void read_obs_rsp(void * buf) {
 	
 }
 
+int read_obs_rsp_nonblock(void * buf) {
+	uint32_t i;
+	uint8_t status;
+	uint32_t raw_result;
+	float result;
+
+	uint32_t * raw_buf = (uint32_t*) buf;
+	// printf("Receiving obs...\n");
+	if ((reg_read8(ROSE_STATUS) & 0x4) == 0) {
+		return 0;
+	}
+	uint32_t cmd = reg_read32(ROSE_OUT);
+	// printf("Got cmd: %x\n", cmd);
+	while ((reg_read8(ROSE_STATUS) & 0x4) == 0) ;
+	uint32_t num_bytes = reg_read32(ROSE_OUT);
+	// printf("Got num bytes: %d\n", num_bytes);
+	for(i = 0; i < num_bytes / 4; i++) {
+		while ((reg_read8(ROSE_STATUS) & 0x4) == 0) ;
+    	raw_buf[i] = reg_read32(ROSE_OUT);
+    	// printf("(%d, %x) ", i, buf[i]);
+	}
+	return 1;
+	
+}
+
+
 void send_action(void * buf, uint32_t cmd, uint32_t num_bytes) {
 	uint32_t i;
 	uint32_t * raw_buf = (uint32_t*) buf;
 
-	printf("Sending action %x...\n", cmd);
+	// printf("Sending action %x...\n", cmd);
     while ((reg_read8(ROSE_STATUS) & 0x1) == 0) ;
     reg_write32(ROSE_IN, cmd);
     while ((reg_read8(ROSE_STATUS) & 0x1) == 0) ;

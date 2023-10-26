@@ -27,9 +27,9 @@
 
 uint32_t buf[8];
 
-void read_pid_obs(float * obs) {
+int read_pid_obs_nonblock(float * obs) {
 	send_obs_req(ROSE_REQ_PID_OBS);
-  read_obs_rsp((void *) obs);
+  return read_obs_rsp_nonblock((void *) obs);
 }
 
 float calc_action(float * obs) {
@@ -46,7 +46,7 @@ float calc_action(float * obs) {
 int main(void)
 {
   uint32_t cnt = 0;
-  float obs[4];
+  float obs[4] = {0, 0, 0, 0};
   float action;
 
   // printf("Starting pd test code: KP: %f, KD: %f, KP_POS: %f, KD_POS: %f ...\n", KP_ANGLE, KD_ANGLE, KP_POS, KD_POS);
@@ -57,7 +57,7 @@ int main(void)
   while(1) {
 
     printf("Requesting observation %d\n", cnt);
-    read_pid_obs(obs);
+    read_pid_obs_nonblock(obs);
     //printf("Received observation %d: [%f, %f, %f, %f]\n", cnt, obs[0], obs[1], obs[2], obs[3]);
 
     action = calc_action(obs);

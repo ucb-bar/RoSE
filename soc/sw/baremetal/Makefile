@@ -27,7 +27,7 @@ LDFLAGS = -static
 
 include libgloss.mk
 
-PROGRAMS = airsim-packettest airsim-packettest-double-rdcycle airsim-packettest-single-rdcycle inverted-pendulum-pid
+PROGRAMS = airsim-packettest airsim-packettest-double-rdcycle airsim-packettest-single-rdcycle inverted-pendulum-pid inverted-pendulum-pid-nonblock
 
 
 .DEFAULT_GOAL := default
