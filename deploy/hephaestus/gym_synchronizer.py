@@ -264,7 +264,6 @@ class Synchronizer:
             # print(f"appended packet: {packet}")
         # Now, iterate through the rest of the queue, decrement latency by 1
         for blobs in self.txpq:
-            print(f"Debug -- packet: {blobs.packet}")
             blobs.latency = blobs.latency - 1
             blobs.packet.latency = blobs.latency
 
