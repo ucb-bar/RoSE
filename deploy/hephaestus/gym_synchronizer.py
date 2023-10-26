@@ -346,7 +346,7 @@ class Synchronizer:
             if len(obs_data.shape) == 1:
                 # Just a 1D array, process accordingly (send one response packet)
                 #packet_arr = obs_data.view(np.uint32).tolist()
-                packet_arr = np.frombuffer(obs_data.tobytes(), dtype=np.uint32).tolist()
+                packet_arr = np.frombuffer(obs_data.tobytes(), dtype=np.uint32).copy().tolist()
                 packet = RoSEPacket()  # You might need to adjust this based on actual RoSEPacket initialization
                 packet.init(cmd+1, len(packet_arr) * 4, packet_arr)  # You might need to adjust the multiplier
                 blob = Blob(RoSEPacket.cmd_latency_dict.get(cmd+1,0), packet)
@@ -357,7 +357,7 @@ class Synchronizer:
                 INPUT_DIM = obs_data.shape[0]
                 packet_arr = obs_data.reshape(INPUT_DIM, -1)
                 for row in packet_arr:
-                    row_packet_arr = row.view(np.uint32).tolist()
+                    row_packet_arr = row.view(np.uint32).copy().tolist()
                     # print(f"row_packet_arr: {row_packet_arr}")
                     packet = RoSEPacket()  # You might need to adjust this
                     packet.init(cmd+1, len(row_packet_arr) * 4, row_packet_arr)  # You might need to adjust the multiplier
