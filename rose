@@ -45,6 +45,27 @@ function infrasetup {
     firesim infrasetup
 }
 
+function dnn {
+    platform=$1
+    size=$2
+    
+    if [ "$platform" == "gemmini" ]; then
+        mode=2
+    elif [ "$platform" == "cpu" ]; then
+        mode=0
+    else
+        echo "Invalid platform. Please specify 'cpu' or 'gemmini'."
+        exit 1
+    fi
+    
+    if ! [[ $size =~ ^(6|14|34)$ ]]; then
+        echo "Invalid size. Please specify one of: 6, 14, 34."
+        exit 1
+    fi
+    
+    spike --extension=gemmini pk ./soc/sw/rose-images/airsim-driver-fed/overlay/root/drone_offline_test -m /soc/sw/rose-images/airsim-driver-fed/overlay/root/trail_resnet${size}_complex.onnx -i /soc/sw/rose-images/airsim-driver-fed/overlay/root/img/img_56.png -p unit -x ${mode} -O 99 -v 6.0
+}
+
 case $1 in
     run)
         run
@@ -65,7 +86,10 @@ case $1 in
     build)
         infrasetup
         ;;
+    dnn)
+        dnn $2 $3
+        ;;
     *)
-        echo "Unknown command. Please specify one of: run, build, edit, view, vm"
+        echo "Unknown command. Please specify one of: run, build, dnn, edit, view, vm"
         ;;
 esac
