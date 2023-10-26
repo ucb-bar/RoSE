@@ -62,6 +62,9 @@ function dnn {
         echo "Invalid size. Please specify one of: 6, 14, 34."
         exit 1
     fi
+
+    killall vlc eog &> /dev/null
+    eog "./soc/sw/rose-images/airsim-driver-fed/overlay/root/img/img_56.png" &> /dev/null &
     
     spike --extension=gemmini pk ./soc/sw/rose-images/airsim-driver-fed/overlay/root/drone_offline_test -m ./soc/sw/rose-images/airsim-driver-fed/overlay/root/trail_resnet${size}_complex.onnx -i ./soc/sw/rose-images/airsim-driver-fed/overlay/root/img/img_56.png -p unit -x ${mode} -O 99 -v 6.0
 }
