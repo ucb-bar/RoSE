@@ -12,5 +12,4 @@ packets:
 defaults:
   action: [0]
 gym_timestep: 0.04
-gym_kwargs:
-
+gym_kwargs: {}
