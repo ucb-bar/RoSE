@@ -54,7 +54,7 @@ class InvertedPendulumEnv(MujocoEnv, utils.EzPickle):
         return ob, reward, terminated, False, {}
 
     def reset_model(self):
-        angle_range = np.array([[-0.1, -0.05], [0.05, 0.1]])
+        angle_range = np.array([[-0.1, -0.09], [0.09, 0.1]])
         selected_range = angle_range[self.np_random.choice(len(angle_range))]
         angle = self.np_random.uniform(low=selected_range[0], high=selected_range[1])
         
@@ -69,3 +69,5 @@ class InvertedPendulumEnv(MujocoEnv, utils.EzPickle):
 
     def _get_obs(self):
         return np.array(np.concatenate([self.data.qpos, self.data.qvel]).ravel(), dtype=np.float32)
+    
+
