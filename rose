@@ -41,6 +41,10 @@ function vm_ros {
     marshal launch ./soc/sw/rose-images/ros-ubuntu.json
 }
 
+function infrasetup {
+    firesim infrasetup
+}
+
 case $1 in
     run)
         run
@@ -58,7 +62,10 @@ case $1 in
             echo "Unknown VM command. Please specify one of: ros"
         fi
         ;;
+    build)
+        infrasetup
+        ;;
     *)
-        echo "Unknown command. Please specify one of: run, edit, view, vm"
+        echo "Unknown command. Please specify one of: run, build, edit, view, vm"
         ;;
 esac
