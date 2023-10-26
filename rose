@@ -39,7 +39,7 @@ function view_logs {
 
 function view_dnn {
     size=$1
-    model_path="./soc/sw/rose-images/airsim-driver-fed/overlay/root/drone_offline_test -m ./soc/sw/rose-images/airsim-driver-fed/overlay/root/trail_resnet${size}_complex.onnx"
+    model_path="./soc/sw/rose-images/airsim-driver-fed/overlay/root/trail_resnet${size}_complex.onnx"
 
     killall netron &> /dev/null
     sleep 1
