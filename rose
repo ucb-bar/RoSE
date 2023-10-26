@@ -37,6 +37,21 @@ function view_logs {
     nautilus ./deploy/hephaestus/logs/ &> /dev/null &
 }
 
+function view_dnn {
+    size=$1
+    model_path="./soc/sw/rose-images/airsim-driver-fed/overlay/root/drone_offline_test -m ./soc/sw/rose-images/airsim-driver-fed/overlay/root/trail_resnet${size}_complex.onnx"
+
+    killall netron &> /dev/null
+    sleep 1
+    
+    if [ -f "$model_path" ]; then
+        netron "$model_path" &> /dev/null &
+    else
+        echo "Model file not found: $model_path"
+    fi
+}
+
+
 function vm_ros {
     marshal launch ./soc/sw/rose-images/ros-ubuntu.json
 }
@@ -78,7 +93,13 @@ case $1 in
         edit $2
         ;;
     view)
-        view_logs
+        if [ "$2" = "logs" ]; then
+            view_logs
+        elif [ "$2" = "dnn" ]; then
+            view_dnn $3
+        else
+            echo "Unknown view command. Please specify one of: logs, dnn"
+        fi
         ;;
     vm)
         if [ "$2" = "ros" ]; then
