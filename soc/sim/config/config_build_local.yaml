@@ -6,7 +6,7 @@ build_farm:
   base_recipe: build-farm-recipes/externally_provisioned.yaml
   recipe_arg_overrides:
     # REQUIRED: (replace this) default location of build directory on build host.
-    default_build_dir: /scratch/rose-isca-ae-1/firesim_build_temp
+    default_build_dir: null
     # REQUIRED: List of IP addresses (or "localhost"). Each can have an OPTIONAL
     # argument, called "override_build_dir", specifying to override the default
     # build directory.

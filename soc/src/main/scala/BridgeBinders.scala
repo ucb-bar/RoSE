@@ -35,6 +35,8 @@ import chipyard._
 import chipyard.harness._
 import rose._
 
+import rose._
+
 object MainMemoryConsts {
   val regionNamePrefix = "MainMemory"
   def globalName()(implicit p: Parameters) = s"${regionNamePrefix}_${p(MultiChipIdx)}"
@@ -224,6 +226,7 @@ class WithFireSimFAME5 extends ComposeIOBinder({
     (Nil, Nil)
   }
 })
+
 class WithRoseBridge extends OverrideHarnessBinder({
   (system: CanHavePeripheryRoseAdapter, th: FireSim, ports: Seq[ClockedIO[RosePortIO]]) => {
     val p: Parameters = GetSystemParameters(system)

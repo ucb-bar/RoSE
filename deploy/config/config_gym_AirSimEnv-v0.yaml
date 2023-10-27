@@ -1,0 +1,35 @@
+packets:
+  - name: camera
+    id: 0x10
+    type: "reqrsp"
+    latency: 0
+    channel: 0
+    indices:
+      - "camera"
+  - name: imu
+    id: 0x20
+    type: "reqrsp"
+    latency: 0
+    channel: 0
+    indices:
+      - "imu"
+  - name: 'accelerometer'
+    id: 0x22
+    type: "reqrsp"
+    latency: 0
+    channel: 0
+    indices:
+      - "imu"
+      - [0, 2]
+  - name: 'gyroscope'
+    id: 0x24
+    type: "reqrsp"
+    latency: 0
+    channel: 0
+    indices:
+      - "imu"
+      - [3, 5]
+gym_kwargs:
+  init_x: 0
+  init_y: 0
+

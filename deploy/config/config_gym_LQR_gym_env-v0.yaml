@@ -1,0 +1,12 @@
+packets:
+  - name: obs
+    id: 0x10
+    type: "reqrsp"
+    latency: 0
+    channel: 0
+    indices: null
+#timestamp
+gym_kwargs:
+  init_x: 0
+  init_y: 0
+

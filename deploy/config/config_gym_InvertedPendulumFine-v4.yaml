@@ -1,0 +1,20 @@
+packets:
+  - name: observation
+    id: 0x16
+    type: "reqrsp"
+    latency: 0
+    channel: 0
+    indices:
+  - name: action
+    id: 0x20
+    type: "action_latch"
+    indices:
+defaults:
+  action: [0]
+# How env.step()'s time is interpreted by RoSE
+# e.g. in this case, frame_skip=2, sim_timestep=0.002, and custom_config.timestep=0.001
+# Units are in seconds.
+gym_timestep: 0.001
+gym_kwargs:
+  mujoco_timestep: 0.0005
+

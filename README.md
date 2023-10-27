@@ -84,7 +84,7 @@ To begin installation, clone the repository:
 ```
     git clone https://github.com/ucb-bar/RoSE.git
     cd RoSE
-    git checkout isca-ae
+    git checkout main
 ```
 
 ### FireSim Installation
@@ -94,10 +94,10 @@ Begin by installing FireSim  by running the following commands within the RoSÉ 
 ```
     git submodule update --init ./soc/sim/firesim
     cd ./soc/sim/firesim
-    ./scripts/machine-launch-script.sh
+    ./scripts/machine-launch-script.sh --prefix [INSERT_CONDA_DIRECTORY_HERE]
     ./build-setup.sh
-    source sourceme-f1-manager.sh
-    firesim managerinit --platform vitis
+    source sourceme-manager.sh --skip-ssh-setup
+    firesim managerinit --platform xilinx_alveo_u250
 ```
 ### RoSÉ Installation
 

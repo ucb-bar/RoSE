@@ -1,0 +1,64 @@
+#!/bin/bash
+
+function run {
+    killall vlc eog &> /dev/null
+    python3 ./deploy/hephaestus/rose.py 
+    latest_png=$(ls -t ./deploy/hephaestus/logs/*.png | head -n 1)
+    latest_avi=$(ls -t ./deploy/hephaestus/logs/*.avi | head -n 1)
+    if [ -n "$latest_png" ]; then
+        eog "$latest_png" &> /dev/null &
+    fi
+    if [ -n "$latest_avi" ]; then
+        vlc --no-qt-fs-controller "$latest_avi" &> /dev/null &
+    fi
+}
+
+function edit {
+    case $1 in
+        gym_conf)
+            gedit ./deploy/config/config_gym_InvertedPendulumFine-v4.yaml &> /dev/null &
+            ;;
+        sim_conf)
+            gedit ./deploy/config/config_deploy_gym.yaml &> /dev/null &
+            ;;
+        firesim_conf)
+            gedit ./soc/sim/config/config_runtime_local.yaml &> /dev/null &
+            ;;
+        pid_sw)
+            gedit ./soc/sw/baremetal/inverted-pendulum-pid.c &> /dev/null &
+            ;;
+        *)
+            echo "Unknown configuration. Please specify one of: gym_conf, sim_conf, firesim_conf, pid_sw"
+            ;;
+    esac
+}
+
+function view_logs {
+    nautilus ./deploy/hephaestus/logs/ &> /dev/null &
+}
+
+function vm_ros {
+    marshal launch ./soc/sw/rose-images/ros-ubuntu.json
+}
+
+case $1 in
+    run)
+        run
+        ;;
+    edit)
+        edit $2
+        ;;
+    view)
+        view_logs
+        ;;
+    vm)
+        if [ "$2" = "ros" ]; then
+            vm_ros
+        else
+            echo "Unknown VM command. Please specify one of: ros"
+        fi
+        ;;
+    *)
+        echo "Unknown command. Please specify one of: run, edit, view, vm"
+        ;;
+esac
