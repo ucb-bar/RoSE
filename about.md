@@ -4,7 +4,7 @@
 Welcome to the RoSÉ tutorial! The interactive contents of the tutorial are provided in two formats:
 
 1) AWS instance (Recommended): To access the AWS instance
-    * Navigate to tinyurl.com/rose-micro
+    * Navigate to the URL Provided at the tutorial
     * Put down your initials in column B to claim an instance 
     * Follow the link provided. (NOTE: If prompted with a certificate/security warning, accept your browser's conditions to proceed)
     * Login with the following details
