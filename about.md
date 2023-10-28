@@ -11,13 +11,13 @@ Welcome to the RoSÉ tutorial! The interactive contents of the tutorial are prov
      * Username: ubuntu
      * Password: rose2023
  * Click on the RoSE icon in the sidebar to open the RoSE terminal session you will be using for the rest of the tutorial
- * Note: To paste copied text into the session, click the cliboard icon in the top left and paste into the text box. This copies your clipboard into the AWS clipboard
+ * Note: To paste copied text into the session, click the clipboard icon in the top left and paste it into the text box. This copies your clipboard into the AWS clipboard
 
 ### 2) VirtualBox: To follow the instructions offline/after the tutorial, we provide flash drives with VirtualBox images
  * Download and install VirtualBox 6.1 or newer
  * Open VirtualBox and select File > Import Appliance
  * Select `RoSE\_MICRO\_Tutorial.ova` and follow the instructions to import the image. Ensure you have sufficient disk space (64GB+) for storing the extracted contents. 
- * Note: The image has been set to use 8GB of RAM to run most of the exercises. If you wish to run the RISC-V linux image at the end of the tutorial, ensure to allocate at least 20GB
+ * Note: The image has been set to use 8GB of RAM to run most of the exercises. If you wish to run the RISC-V Linux image at the end of the tutorial, ensure to allocate at least 20GB
  * Launch the VirtualBox image
  * Login with the following details
      * Username: rose
@@ -28,19 +28,19 @@ We hope you enjoy the tutorial! We encourage you to ask any questions!
 
 Throughout the tutorial we have provided convenient commands for executing the experiments via `rose [cmd]`. Please refer to the notes for more detailed commands, locations of relevant files, and discussion.
 
-## Interactive Section 1: End-to-end RoSE flow with an CartPole/InvertedPendulum Robot
+## Interactive Section 1: End-to-end RoSE flow with a CartPole/InvertedPendulum Robot
 
 ### 1) Run a RoSE simulation
  * Ensure you have a RoSE terminal open by clicking on the RoSE icon in the sidebar.
      * Note: Alternatively this can be achieved by navigating to the RoSE root (`~/RoSE/Desktop/`) and running `source rose-setup.sh`
  * In your RoSE terminal, run `rose run`
-     * You should see an image open depicting the InvertedPendulum, and a plot of the observation/action measurements. This simulation will end if the pendulum loses balance (moves past 0.2 radians) or simulation time reaches 0.5s. 
+     * You should see an image open depicting the InvertedPendulum, and a plot of the observation/action measurements. This simulation will end if the pendulum loses balance (moves past 0.2 radians) or the simulation time reaches 0.5s. 
      * After the simulation is complete, a VLC window will open with a recording of the trajectory, followed by a plot.
      * Note: If using AWS, this can take slightly longer for the first execution 
      * Note: To run the simulation for scripting, use `python3 ./deploy/hephaestus/rose.py` 
      * Note: To directly view the logs, run `rose view logs` or navigate to `./deploy/hephaestus/logs/`. 
 
-### 2) Introduce sensor latency to scenario
+### 2) Introduce sensor latency to the scenario
  * In your RoSE terminal, run `rose edit gym_conf`. This will open a text editor window.
  * Modify the field `latency` (line 5) to be `0.05`. This introduces a delay of 50ms to the observation data.
  * Save the file, and then run `rose run` to start a new simulation
@@ -49,7 +49,7 @@ Throughout the tutorial we have provided convenient commands for executing the e
  * Note: Many real applications have varying latency and bandwidths for different sensor modalities (e.g. fast inertial data, but slow GPS data). To model such scenarios, consider defining multiple packets that access a subset of the observation space.
 
 ### 3) (Optional) View and modify SoC software.
- * Navigate to `./soc/sw/baremetal/`. This is a buid directory for baremetal code examples to run on the SoC
+ * Navigate to `./soc/sw/baremetal/`. This is a build directory for baremetal code examples to run on the SoC
  * To view the current code, open `inverted-pendulum-pid.c`. Note that the `read_pid_obs` function is blocking; after making an observation request, it continues to poll until a packet is returned to the SoC
  * To view a non-blocking example, open `inverted-pendulum-pid-nonblock.c`
  * To rebuild the binaries and update them within RoSE, run `make` and `make install`
@@ -67,13 +67,13 @@ Throughout the tutorial we have provided convenient commands for executing the e
      * Set `firesim_freq` to 200_000, setting the SoC's clock frequency to 200KHz
      * Save the file
      * Run `rose run` to start a new simulation
-         * Note: Does the simualation run for the full duration? 
-     * (Optional) Set the SoC's clock frequency to 400MHz and start a new simulation. What behavior do you observe for the robot?
+         * Note: Does the simulation run for the full duration? 
+     * (Optional) Set the SoC's clock frequency to 400MHz and start a new simulation. What behavior do you observe in the robot?
  * (Optional) Modify the SoC architecture
      * Currently the system uses an in-order Rocket Core. Suppose you want to improve the performance of the system by switching to a more powerful CPU.
-     * Run `rose edit firesim_conf` and navigate to `target_config.default_hw_config` (Line 49). Currently this points to a Rocket configuration; to switch to a superscalar BOOM core, comment this line and uncomment the line containing BOOM below.
+     * Run `rose edit firesim_conf` and navigate to `target_config.default_hw_config` (Line 49). Currently, this points to a Rocket configuration; to switch to a superscalar BOOM core, comment on this line and uncomment the line containing BOOM below.
      * To use this configuration in your RoSE simulation, save the file and run `rose build`
-     * Note: This workload is heavilly bottlenecked by IO. Is switching to a more powerful core expected to improve performance? Do simulation results match your expectations?
+     * Note: This workload is heavily bottlenecked by IO. Is switching to a more powerful core expected to improve performance? Do simulation results match your expectations?
      * Note: (FireSim users) To view or add new HW configs, edit `./soc/sim/config/config_hwdb_local.yaml`. 
      * Note: (FireSim users) Scala files for RoSE-enabled configurations are located in `./soc/src/main/scala/RoSEConfigs.scala` for configs that include the RoSE TileLink interface, and `./soc/src/main/scala/RoSEFireSimConfigs.scala` for configs that enable the RoSE bridges.
 
@@ -85,24 +85,24 @@ The previous section describes the basics needed to run an end-to-end simulation
 * Note: If using VirtualBox, ensure you have at least 20 GB of memory allocated for this step or the QEMU session cannot start. 
 * Ensure you have a RoSE terminal open by clicking on the RoSE icon in the sidebar.
 * Run `rose vm ros` 
- * This launches a RISC-V QEMU session allowing interactive access to the linux image that is deployed to the SoC.
+ * This launches a RISC-V QEMU session allowing interactive access to the Linux image that is deployed to the SoC.
  * Note: This is equivalent to the following FireMarshal command: `marshal launch ./soc/sw/rose-images/ros-ubuntu.json`
 * After the image finishes booting, you will see a login prompt. Enter the username `root` and the password `firesim`. 
-  * Note: Ubuntu might print diagnostic information on top of the login prompt. However, you can still login as usual. 
-* (Optional) run `uname -a` to view system informaton
+  * Note: Ubuntu might print diagnostic information on top of the login prompt. However, you can still log in as usual. 
+* (Optional) run `uname -a` to view system information
 * Navigate to the ROS1 workspace: `cd ./ros_catkin_ws/`. This contains the ROS1 build and installation directory
 * To set the ROS environment variables, run `source ./devel/setup.bash`
 * To start the ROS server, run `roscore` to validate that it's functional. Terminate with `^C`
-* (Optional) build a new ROS package from source:
+* (Optional) Build a new ROS package from the source:
   * TODO hector_mapping
 * Exit the QEMU session by running `poweroff`
 * (Optional) For more information on how to build workloads, please refer to the FireMarshal documentation: firemarshal.readthedocs.io/en/latest/
 
 ### 2) (Optional) Modify the build flow for the ROS1 image
  * Run `ls ./soc/sw/rose-images/ros-ubuntu/overlay/root/`. This contains any files that will be copied into the root directory when building your Linux image
- * Open `./soc/sw/rose-imges/ros-ubuntu/guest-init.sh`. This contains scripts that are executed when building the linux image within the emulated RISC-V session.
+ * Open `./soc/sw/rose-imges/ros-ubuntu/guest-init.sh`. This contains scripts that are executed when building the Linux image within the emulated RISC-V session.
      * Note: Since ROS1 is typically natively installed on a system with access to the system's package manager, we use a native build flow. All commands needed to build the core ROS system are in this file. 
-     * Note: We follow ROS' source-build flow; for more detailed information, refer to the documentation: wiki.ros.org/noetic/Installation/Source. ROS1's lisp integration is not well supported in RISC-V, so we patch this out. If you need to use lisp, please reach out to the tutorial organizers for the boostrapping process. 
+     * Note: We follow ROS' source-build flow; for more detailed information, refer to the documentation: wiki.ros.org/noetic/Installation/Source. ROS1's lisp integration is not well supported in RISC-V, so we patch this out. If you need to use lisp, please reach out to the tutorial organizers for the bootstrapping process. 
  * Open `./soc/sw/rose-imges/ros-ubuntu/guest-init.sh`. This contains scripts that are executed by the host building the images. Since we use a native build flow, this is unused. However, if using cross-compilation, relevant build scripts should be placed here.
  * To rebuild a new image, run `marshal build ./soc/sw/rose-images/ros-ubuntu.json`. Remember to run `rose build` afterward to update the newly updated image within RoSE. 
 
@@ -112,7 +112,7 @@ The previous section describes the basics needed to run an end-to-end simulation
      * (Optional) View other architectures, such as ResNet6 or ResNet34
  * (Optional) Open `./env/train/train_resnet.py` and go to line 248 to view how to export to a gemmini-compatible ONNX model with PyTorch
 
-### 4) Evaluate performance and accuracy of trail-navigation DNNs
+### 4) Evaluate the performance and accuracy of trail-navigation DNNs
  * Evaluate ResNet14 running on a CPU using the spike RISC-V ISA simulator by: `rose dnn cpu 14`. View the cycle count estimate and the classification results.
  * Evaluate ResNet14 using spike's Gemmini model: `rose dnn gemmini 14`. How does the performance compare to the CPU implementation?
- * Run ResNet6 on Gemmini with `rose dnn gemmini 6`, and compare the performance and the quality of the predicition. How about ResNet34?
+ * Run ResNet6 on Gemmini with `rose dnn gemmini 6`, and compare the performance and the quality of the prediction. How about ResNet34?
