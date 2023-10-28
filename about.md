@@ -1,253 +1,118 @@
----
-title: RoSÉ Tutorial
----
+# RoSÉ Tutorial Instructions: MICRO 2023
 
-This artifact appendix describes how to use RoSÉ to run end-to-end
-robotics simulations, and how to reproduce experimental results.
+## Prerequsites
+Welcome to the RoSÉ tutorial! The interactive contents of the tutorial are provided in two formats:
 
-The instructions assume that a user already has robotic applications and
-hardware configurations developed, and provides reference examples used
-in the evaluation of this work. While RoSÉ can be used to develop new
-hardware and software, instructions to do so are outside of the scope of
-the artifact evaluation.
+1) AWS instance (Recommended): To access the AWS instance
+    * Navigate to tinyurl.com/rose-micro
+    * Put down your initials in column B to claim an instance 
+    * Follow the link provided. (NOTE: If prompted with a certificate/security warning, accept your browser's conditions to proceed)
+    * Login with the following details
+        * Username: ubuntu
+        * Password: rose2023
+    * Click on the RoSE icon in the sidebar to open the RoSE terminal session you will be using for the rest of the tutorial
+    * Note: To paste copied text into the session, click the cliboard icon in the top left and paste into the text box. This copies your clipboard into the AWS clipboard
 
-Tutorial Meta-Information Checklist
-===================================
+2) VirtualBox: To follow the instructions offline/after the tutorial, we provide flash drives with VirtualBox images
+    * Download and install VirtualBox 6.1 or newer
+    * Open VirtualBox and select File > Import Appliance
+    * Select `RoSE\_MICRO\_Tutorial.ova` and follow the instructions to import the image. Ensure you have sufficient disk space (64GB+) for storing the extracted contents. 
+    * Note: The image has been set to use 8GB of RAM to run most of the exercises. If you wish to run the RISC-V linux image at the end of the tutorial, ensure to allocate at least 20GB
+    * Launch the VirtualBox image
+    * Login with the following details
+        * Username: rose
+        * Password: rose2023
+    * Click on the RoSE icon in the sidebar to open the RoSE terminal session you will be using for the rest of the tutorial
 
--   Runtime environment: Ubuntu 18.04.6 LTS, Vitis v2021.1
--   Hardware (FireSim Simulation): Intel Xeon Gold 6242, Xilinx U250
--   Hardware (AirSim Simulation): AWS EC2 Instance (g4dn.2xlarge), Intel
-    Xeon Platinum 8259CL, Tesla T4.
--   How much disk space is required?: 200GB
--   Experiments: AirSim/FireSim end-to-end full stack simulations of a
-    UAV using RoSE, running DNN-based controllers. Experiments evaluate
-    both UAV and simulator performance.
--   Program: Chisel (RTL), C++ (FireSim bridge drivers, robotic control
-    software), Python (Synchronizer and scheduler.)
--   Quantitative Metrics: DNN Latency, mission time, average flight
-    velocity, accelerator activity factor.
--   Qualitative Metrics: Flight trajectories, flight recordings.
--   Output: CSV logs from the synchronizer, tracking UAV dynamics,
-    sensing requests, and control targets.
--   How much time is needed to prepare the workflow?: 4 hours (scripted
-    installation).
--   How much time is needed to complete experiments?: 48 hours (scripted
-    run, scripted result parsing)
--   Publicly available: Yes.
--   Code licenses: Several, see download.
--   Contact for Artifact Evaluator: Contact SLICE support
-    (<slice-support@eecs.berkeley.edu>) if you need help setting up AWS
-    instances.
+We hope you enjoy the tutorial! We encourage you to ask any questions!
 
-Description
-===========
+Throughout the tutorial we have provided convenient commands for executing the experiments via `rose [cmd]`. Please refer to the notes for more detailed commands, locations of relevant files, and discussion.
 
-(1) How to access:
+## Interactive Section 1: End-to-end RoSE flow with an CartPole/InvertedPendulum Robot
 
-• The artifact consists of the core RoSÉ repos- itory, modifications to
-Firesim, Chipyard, and ONNX Runtime:
+1) Run a RoSE simulation
+    * Ensure you have a RoSE terminal open by clicking on the RoSE icon in the sidebar.
+        * Note: Alternatively this can be achieved by navigating to the RoSE root (`~/RoSE/Desktop/`) and running `source rose-setup.sh`
+    * In your RoSE terminal, run `rose run`
+        * You should see an image open depicting the InvertedPendulum, and a plot of the observation/action measurements. This simulation will end if the pendulum loses balance (moves past 0.2 radians) or simulation time reaches 0.5s. 
+        * After the simulation is complete, a VLC window will open with a recording of the trajectory, followed by a plot.
+        * Note: If using AWS, this can take slightly longer for the first execution 
+        * Note: To run the simulation for scripting, use `python3 ./deploy/hephaestus/rose.py` 
+        * Note: To directly view the logs, run `rose view logs` or navigate to `./deploy/hephaestus/logs/`. 
 
--   RoSÉ Core: Deployment, synchronization, and evaluation software, as
-    well as hardware configurations, and patches to FireSim and
-    Chipyard. (<https://github.com/CobbledSteel/RoSE>)
--   FireSim: Top-level FPGA-Accelerated RTL Simulation Environment
-    (<https://github.com/firesim/firesim>)
--   Chipyard: RISC-V SoC generation environment
-    (<https://github.com/ucb-bar/chipyard>)
--   RISCV ONNX Runtime: Software for executing HW-accelerated DNN
-    models, modified for use in UAV control
-    (<https://github.com/ucb-bar/onnxruntime-riscv/tree/onnx-rose>).
+2) Introduce sensor latency to scenario
+    * In your RoSE terminal, run `rose edit gym_conf`. This will open a text editor window.
+    * Modify the field `latency` (line 5) to be `0.05`. This introduces a delay of 50ms to the observation data.
+    * Save the file, and then run `rose run` to start a new simulation
+    * Note: Observe the arrival time of the first action. Does this match the latency? If there are differences, what might contribute? 
+    * Note: How does the action throughput compare to the previous experiment? What might this imply about how the SoC processes sensor data
+    * Note: Many real applications have varying latency and bandwidths for different sensor modalities (e.g. fast inertial data, but slow GPS data). To model such scenarios, consider defining multiple packets that access a subset of the observation space.
 
-Additionally, this evaluation builds upon the following infrastructures.
-For the purpose of the evaluation, binaries for simulators built from
-Unreal Engine and AirSim are provided.
+3) (Optional) View and modify SoC software.
+    * Navigate to `./soc/sw/baremetal/`. This is a buid directory for baremetal code examples to run on the SoC
+    * To view the current code, open `inverted-pendulum-pid.c`. Note that the `read_pid_obs` function is blocking; after making an observation request, it continues to poll until a packet is returned to the SoC
+    * To view a non-blocking example, open `inverted-pendulum-pid-nonblock.c`
+    * To rebuild the binaries and update them within RoSE, run `make` and `make install`
+    * Return to the RoSE root directory (`~/Desktop/RoSE`)
+    * To modify which software is being executed by RoSE, run `rose edit firesim_conf`
+        * This file configures the FireSim simulation used by RoSE. To modify tha software being executed on the SoC, navigate to to `workload.workload_name` (line 71)
+        * To run code defined in `[program].c`, set this to be `[program].json` (This file is automatically generated when you run `make_install` earlier). As an optional exercise, set this to `inverted-pendulum-pid-nonblock.json` to see how the action throughput is affected by using nonblocking sensor IO. 
+    * If you made any modifications, such as building new SW or changing the SW configuration, run `rose build`. This updates the RTL simulation to use the new software.
+        * Note: For FireSim users, this is equivalent to `firesim infrasetup` 
 
--   Unreal Engine: 3D Environment development, simulation, and rendering
-    platform (<https://www.unrealengine.com/en-US/ue-on-github>)
--   AirSim: UAV simulation plugin for Unreal Engine
-    (<https://github.com/microsoft/AirSim>)
+4) Modify the SoC's hardware configurations 
+    * Run `rose gym_conf` and reset the packet latency to 0.
+    * Modify the clock frequency
+        * Run `rose edit sim_conf`
+        * Set `firesim_freq` to 200_000, setting the SoC's clock frequency to 200KHz
+        * Save the file
+        * Run `rose run` to start a new simulation
+            * Note: Does the simualation run for the full duration? 
+        * (Optional) Set the SoC's clock frequency to 400MHz and start a new simulation. What behavior do you observe for the robot?
+    * (Optional) Modify the SoC architecture
+        * Currently the system uses an in-order Rocket Core. Suppose you want to improve the performance of the system by switching to a more powerful CPU.
+        * Run `rose edit firesim_conf` and navigate to `target_config.default_hw_config` (Line 49). Currently this points to a Rocket configuration; to switch to a superscalar BOOM core, comment this line and uncomment the line containing BOOM below.
+        * To use this configuration in your RoSE simulation, save the file and run `rose build`
+        * Note: This workload is heavilly bottlenecked by IO. Is switching to a more powerful core expected to improve performance? Do simulation results match your expectations?
+        * Note: (FireSim users) To view or add new HW configs, edit `./soc/sim/config/config_hwdb_local.yaml`. 
+        * Note: (FireSim users) Scala files for RoSE-enabled configurations are located in `./soc/src/main/scala/RoSEConfigs.scala` for configs that include the RoSE TileLink interface, and `./soc/src/main/scala/RoSEFireSimConfigs.scala` for configs that enable the RoSE bridges.
 
-(2) Dependencies - Hardware
+## Interactive Section 2: Full-stack SW flows 
 
-To run a full simulation with RoSÉ, access to a GPU and FPGA is
-required, although these can be hosted on separate computers. For this
-artifact evaluation, instructions for running simulations on a
-locally-provisioned FPGA are provided. However, RoSÉ can also be used
-using AWS EC2 FPGA instances (e.g. f1.2xlarge). In this artifact we
-provide build scripts for generating bitstreams for locally-provisioned
-FPGAs.
+The previous section describes the basics needed to run an end-to-end simulation with RoSE. However, most interesting workloads involve a more substantial SW/HW stack. This section defines how to build and configure ROS1, a widely-used framework for robotics applications. Next, this section describes the software flow for DNN-based robotics applications, including the trail navigation experiments in the RoSE paper. 
 
-Additionally, GPU access is needed in order to run robotics environment
-simulations with rendering. For this evaluation, AirSim binaries
-packaged using Unreal Engine are provided.
+1) Launching RISC-V Ubuntu 20.04 with ROS1 Noetic for your SoC 
+    * Note: If using VirtualBox, ensure you have at least 20 GB of memory allocated for this step or the QEMU session cannot start. 
+    * Ensure you have a RoSE terminal open by clicking on the RoSE icon in the sidebar.
+    * Run `rose vm ros` 
+       * This launches a RISC-V QEMU session allowing interactive access to the linux image that is deployed to the SoC.
+       * Note: This is equivalent to the following FireMarshal command: `marshal launch ./soc/sw/rose-images/ros-ubuntu.json`
+    * After the image finishes booting, you will see a login prompt. Enter the username `root` and the password `firesim`. 
+        * Note: Ubuntu might print diagnostic information on top of the login prompt. However, you can still login as usual. 
+    * (Optional) run `uname -a` to view system informaton
+    * Navigate to the ROS1 workspace: `cd ./ros_catkin_ws/`. This contains the ROS1 build and installation directory
+    * To set the ROS environment variables, run `source ./devel/setup.bash`
+    * To start the ROS server, run `roscore` to validate that it's functional. Terminate with `^C`
+    * (Optional) build a new ROS package from source:
+        * TODO hector_mapping
+    * Exit the QEMU session by running `poweroff`
+    * (Optional) For more information on how to build workloads, please refer to the FireMarshal documentation: firemarshal.readthedocs.io/en/latest/
 
-To use RoSÉ in the cloud, ne AWS EC2 c5.4xlarge instance (also referred
-to as "manager" instance), and one f1.2xlarge instance is required. The
-latter will be launched automatically by FireSim's manager.
+2) (Optional) Modify the build flow for the ROS1 image
+    * Run `ls ./soc/sw/rose-images/ros-ubuntu/overlay/root/`. This contains any files that will be copied into the root directory when building your Linux image
+    * Open `./soc/sw/rose-imges/ros-ubuntu/guest-init.sh`. This contains scripts that are executed when building the linux image within the emulated RISC-V session.
+        * Note: Since ROS1 is typically natively installed on a system with access to the system's package manager, we use a native build flow. All commands needed to build the core ROS system are in this file. 
+        * Note: We follow ROS' source-build flow; for more detailed information, refer ot the documentation: wiki.ros.org/noetic/Installation/Source. ROS1's lisp integration is not well supported in RISC-V, so we patch this out. If you need to use lisp, please reach out to the tutorial organizers for the boostrapping process. 
+    * Open `./soc/sw/rose-imges/ros-ubuntu/guest-init.sh`. This contains scripts that are executed by the host building the images. Since we use a native build flow, this is unused. However, if using cross-compilation, relevant build scripts should be placed here.
+    * To rebuild a new image, run `marshal build ./soc/sw/rose-images/ros-ubuntu.json`. Remember to run `rose build` afterward to update the newly updated image within RoSE. 
 
-(3) Dependencies - Software
+3) Visualize trail-navigation DNNs. 
+    * To hardware-accelerate DNN-based flows, we use the Gemmini systolic-array accelerator. We deploy DNN applications using the ONNX Runtime environment. 
+    * Run `rose view dnn 14` to launch a visualization of the ResNet14 model used in the trail navigation experiments in the RoSE paper. 
+        * (Optional) View other architectures, such as ResNet6 or ResNet34
+    * (Optional) Open `./env/train/train_resnet.py` and go to line 248 to view how to export to a gemmini-compatible ONNX model with PyTorch
 
-Use ssh or mosh on your local machine to remote access evaluation
-instances. All other requirements are automatically installed by scripts
-in the following sections.
-
-Installation
-============
-
-To begin installation, clone the repository:
-
-    git clone https://github.com/ucb-bar/RoSE.git
-    cd RoSE
-    git checkout isca-ae
-
-FireSim Installation
---------------------
-
-Begin by installing FireSim by running the following commands within the
-RoSÉ repository.
-
-    git submodule update --init ./soc/sim/firesim
-    cd ./soc/sim/firesim
-    ./scripts/machine-launch-script.sh
-    ./build-setup.sh
-    source sourceme-f1-manager.sh
-    firesim managerinit --platform vitis
-
-RoSÉ Installation
------------------
-
-Begin by cloning RoSÉ in the project directory:
-
-Next, within RoSÉ, run the setup script to set the proper environment
-variables. Make sure to run this script whenever starting a new
-interactive shell.
-
-    source rose-setup.sh
-
-After this is complete, run the following script to patch FireSim and
-Chipyard to support RoSÉ, and to instantiate submodules.
-
-    bash soc/setup.sh
-
-After this setup is complete, run the following script to build binaries
-for the trail-navigation controllers evaluated in Section IV for
-generating RISC-V Fedora images containing the controllers and ONNX
-models.
-
-    bash soc/build.sh
-
-Next, run the following script to install dependencies and configure
-parameters for the RoSÉ deployment scripts, using the IP address of the
-GPU system that will be used to run the provided AirSim binaries.
-
-    source deploy/setup.sh [AIRSIM IP]
-
-Bitstream Generation
---------------------
-
-To build bitstreams for Rocket+Gemmini and BOOM+Gemmini configurations,
-run the following.
-
-    bash soc/buildbitstreams.sh
-
-DNN Training
-------------
-
-This artifact provides pre-trained models for evaluation. To train new
-classifier DNNs using the provided datasets, run the following,
-selecting between the given ResNet configurations. Each training run
-will output an ONNX model named `trail_dnn_resnet[xy].onnx`.
-
-    bash env/train/train_resnet.py (6|11|14|18|34|50)
-
-Finally, the steps for building custom Unreal Engine maps are out of the
-scope of this evaluation. However, new environments can be built using
-the documentation provided at
-(<https://microsoft.github.io/AirSim/build_linux/>).
-
-Experiment Workflow
-===================
-
-Now that the environment has been set up and the target hardware and
-software have been built, one can run the experiments in this work by
-launching an AirSim simulation and running the following scripts. All
-the experiments can be executed by running `run-all.sh`. This will
-generate CSV files as well as videos recorded from the front-facing
-camera of the simulated UAV in `deploy/hephaestus/logs/`.
-
-``` {.sourceCode .bash}
-bash deploy/scripts/run-all.sh
-```
-
-To run individual experiments corresponding to the figures in this work,
-the following scripts are also provided (which are all included in the
-main script).
-
--   Figure 10:
-
-``` {.sourceCode .bash}
-bash deploy/scripts/tunnel-exp.sh
-```
-
--   Figures 15, 16:
-
-``` {.sourceCode .bash}
-bash deploy/scripts/rose-perf-sync-only.sh
-```
-
-``` {.sourceCode .bash}
-bash deploy/scripts/rose-perf-tunnel-exp.sh
-```
-
--   Figures 11, 14:
-
-``` {.sourceCode .bash}
-bash deploy/scripts/rose-hw-sw-sweep.sh
-```
-
--   Figure 12:
-
-``` {.sourceCode .bash}
-bash deploy/scripts/rose-velocity-sweep.sh
-```
-
--   Figure 13:
-
-``` {.sourceCode .bash}
-bash deploy/scripts/rose-dynamic-exp.sh
-```
-
-Figures and Evaluation
-======================
-
-After executing the prior experiments, figures can be generated using
-the CSV outputs by running the following command. The figures will be
-available as in `deploy/figures/`.
-
-``` {.sourceCode .python}
-python3 deploy/scripts/generate-figures.py
-```
-
-Experiment Customization
-========================
-
-• Building New FPGA Images In addition to the provided SoC
-configurations, users can evaluate other designs. To evaluate new
-designs, refer to the Chipyard documentation, as well as the example
-RoSÉ-annotated configs found in `soc/src/main/scala/RoSEConfigs.scala`.
-
-• Designing AirSim Environments If users install Unreal Engine as well
-as AirSim, it is possible to create new `maps/environments` for robot
-agents to interact with. By default, one can modify the
-`Blocks environment` provided by AirSim. Additional assets and maps can
-be designed by users, or obtained from the Unreal Marketplace.
-
-• Changing Simulation Parameters RoSEprovides flags that can be used to
-select different simulation parameters. To view available parameters for
-deploying simulations, refer to `deploy/hephaestus/runner.py`. Example
-configurations include changing simulation granularity, or deploying a
-car vs a drone simulation.
-
-Additionally, new controller ONNX models can be trained using the
-provided dataset and evaluated using the provided `drone_test`
-executable.
+4) Evaluate performance and accuracy of trail-navigation DNNs
+    * Evaluate ResNet14 running on a CPU using the spike RISC-V ISA simulator by: `rose dnn cpu 14`. View the cycle count estimate and the classification results.
+    * Evaluate ResNet14 using spike's Gemmini model: `rose dnn gemmini 14`. How does the performance compare to the CPU implementation?
+    * Run ResNet6 on Gemmini with `rose dnn gemmini 6`, and compare the performance and the quality of the predicition. How about ResNet34?
