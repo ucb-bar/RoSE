@@ -9,6 +9,8 @@ nav_order: 3
 
 ## RoSÉ Tutorial at MICRO 2023:
 **Designing, Deploying, and Evaluating Full-Stack Robotics Systems With RoSÉ**
+## [Post-Tutorial Survey](https://docs.google.com/forms/d/e/1FAIpQLScXSL7ogiHWAMcvXIrACl6B5Ai1es9O2yAp6BlVkbLYwzT2eQ/viewform)  
+## [Tutorial Slides](https://docs.google.com/presentation/d/1UTqPNv3bdMv9W9pQrDWWXQdtFAJoOtB8zObF0bANxEU/edit?usp=sharing)
 
 ### Overview
 We are running a half-day tutorial on RoSÉ, an open-source hardware-software co-simulation infrastructure that enables the evaluation of robotics system-on-chips (SoCs). 
