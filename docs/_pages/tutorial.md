@@ -32,17 +32,55 @@ Time: 8 AM - 12 PM EDT
 - Additionally, please fill out [this Google form](https://forms.gle/5bqrZmRYvmHZC3RZ9) if you would like to attend our tutorial.
 
 ### Schedule 
-| Time          | Activity                                           |
-|---------------|----------------------------------------------------|
-| 8:00-8:30     | Introduction                                       |
-| 8:30-8:45     | RoSE Infrastructure                                |
-| 8:45-9:00     | Coffee Break                                       |
-| 9:00-9:50     | Interactive Activity 1: Building a Complete RoSE Application |
-| 9:50-10:00    | Coffee Break                                       |
-| 10:00-10:20   | Sensor Modeling in RoSE with CoSMo                  |
-| 10:20-11:00   | Interactive Activity 2:  Advanced SW Flow with RoSE|
-| 11:00-11:15   | Coffee Break                                       |
-| 11:15-12:00   | Demos, Conclusion, and Q&A                          |
+
+<table>
+  <thead>
+    <tr>
+      <th>Time</th>
+      <th>Activity</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>8:00-8:30</td>
+      <td>Introduction</td>
+    </tr>
+    <tr>
+      <td>8:30-8:45</td>
+      <td>RoSE Infrastructure</td>
+    </tr>
+    <tr>
+      <td>8:45-9:00</td>
+      <td>Coffee Break</td>
+    </tr>
+    <tr>
+      <td>9:00-9:50</td>
+      <td>Interactive Activity 1: Building a Complete RoSE Application</td>
+    </tr>
+    <tr>
+      <td>9:50-10:00</td>
+      <td>Coffee Break</td>
+    </tr>
+    <tr>
+      <td>10:00-10:20</td>
+      <td>Sensor Modeling in RoSE with CoSMo</td>
+    </tr>
+    <tr>
+      <td>10:20-11:00</td>
+      <td>Interactive Activity 2: Advanced SW Flow with RoSE</td>
+    </tr>
+    <tr>
+      <td>11:00-11:15</td>
+      <td>Coffee Break</td>
+    </tr>
+    <tr>
+      <td>11:15-12:00</td>
+      <td>Demos, Conclusion, and Q&A</td>
+    </tr>
+  </tbody>
+</table>
+
+
 # RoSÉ Tutorial Instructions: MICRO 2023
 
 ## Prerequsites
