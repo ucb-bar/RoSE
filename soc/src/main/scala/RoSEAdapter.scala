@@ -62,14 +62,14 @@ class RoseAdapterMMIOChiselModule(params: RoseAdapterParams) extends Module
   }
 }
 
-class CamDMAEngine(param: DstParams)(implicit p: Parameters) extends LazyModule {
+class CosmoDMA(param: DstParams)(implicit p: Parameters) extends LazyModule {
   val port_param = param
   val node = TLClientNode(Seq(TLMasterPortParameters.v1(Seq(TLClientParameters(
-    name = "init-zero", sourceId = IdRange(0, 1))))))
-  lazy val module = new CamDMAEngineModuleImp(this)
+    name = "rose-dma", sourceId = IdRange(0, 1))))))
+  lazy val module = new CosmoDMAModuleImp(this)
 }
 
-class CamDMAEngineModuleImp(outer: CamDMAEngine) extends LazyModuleImp(outer){
+class CosmoDMAModuleImp(outer: CosmoDMA) extends LazyModuleImp(outer){
   val config = p(RoseAdapterKey).get
 
   val io = IO(new Bundle{
@@ -78,7 +78,6 @@ class CamDMAEngineModuleImp(outer: CamDMAEngine) extends LazyModuleImp(outer){
     val counter_max = Input(UInt(config.width.W))
   })
 
-  // TODO: find a suitable depth
   val fifo = Module(new Queue(UInt(config.width.W), 32))
   fifo.io.enq <> io.rx
 
@@ -96,9 +95,6 @@ class CamDMAEngineModuleImp(outer: CamDMAEngine) extends LazyModuleImp(outer){
   val buffer_next = Wire(UInt(config.width.W))
   buffer_next := fifo.io.deq.bits
   val buffer = RegEnable(next = buffer_next, enable = fifo.io.deq.fire)
-  //TODO: set this to something reasonable
-  // val counter_max = RegInit(32.U(config.width.W))
-  //TODO: add a size here
   val counter_enabled = Wire(Bool())
   // It does not like recursive definitions?
   val counter_next = Wire(UInt(config.width.W))
@@ -119,7 +115,6 @@ class CamDMAEngineModuleImp(outer: CamDMAEngine) extends LazyModuleImp(outer){
   data = buffer)._2
 
   addr := outer.port_param.DMA_address.U + counter
-
   counter_enabled := mem.a.fire && mstate === mWrite
 
   switch(mstate){
@@ -176,24 +171,6 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module {
   cycle_rest_twice_next := Mux(state === sIdle, false.B, io.cycleBudget === 0.U && cycle_reset)
   cycle_rest_twice_next_en := state === sIdle || (io.cycleBudget === 0.U && cycle_reset) 
   val step_passed = RegEnable(next = cycle_rest_twice_next, enable = cycle_rest_twice_next_en)
-
-  // create a map with id as key and the corresponding dst_port index as value
-  // val id_map = scala.collection.mutable.Map[Chisel.UInt, Int]()
-  // for (i <- 0 until params.dst_ports.seq.length) {
-  //   for (j <- 0 until params.dst_ports.seq(i).IDs.length) {
-  //     id_map += (params.dst_ports.seq(i).IDs(j).U -> i)
-  //   }
-  // }
-
-  // create a sequence of vectors, with each vector representing one params.dst_ports.seq(i).IDs(j).U
-  // var id_collection = Seq[Chisel.Vec]()
-  // for (i <- 0 until params.dst_ports.seq.length) {
-  //   // create an iterator of chisel UInts from dst_ports.seq
-  //   val id_iter:Seq[Chisel.UInt] = for (j <- params.dst_ports.seq(i).IDs) yield j.U 
-  //   // convert the iterator to a vector
-  //   val id_vec = VecInit(id_iter)
-  //   id_collection = id_collection :+ id_vec
-  // }
 
   // general enque logic, applicable to both cam&others
   val tx_val = Wire(Bool())
@@ -405,7 +382,7 @@ trait CanHavePeripheryRoseAdapter { this: BaseSubsystem =>
     pbus.coupleTo(portName) { roseAdapterTL.node := TLFragmenter(pbus.beatBytes, pbus.blockBytes) := _ }
 
     // save all the DMA Engines for Inmodulebody use
-    var DMA_lazymods = Seq[CamDMAEngine]()
+    var DMA_lazymods = Seq[CosmoDMA]()
     var idx_map = Seq[Int]()
     // generate all the DMA engines
     var DMA_count = 0
@@ -413,9 +390,9 @@ trait CanHavePeripheryRoseAdapter { this: BaseSubsystem =>
     params.dst_ports.seq.foreach(
       i => i.port_type match {
         case "DMA" => {
-          val camDMAEngine = LazyModule(new CamDMAEngine(i)(p))
-          fbus.coupleFrom(f"cam-dma-$DMA_count") { _ := TLWidthWidget(4) := camDMAEngine.node}
-          DMA_lazymods = DMA_lazymods :+ camDMAEngine
+          val cosmoDMA = LazyModule(new CosmoDMA(i)(p))
+          fbus.coupleFrom(f"cam-dma-$DMA_count") { _ := TLWidthWidget(4) := cosmoDMA.node}
+          DMA_lazymods = DMA_lazymods :+ cosmoDMA
           idx_map = idx_map :+ DMA_count
           DMA_count += 1
         }
