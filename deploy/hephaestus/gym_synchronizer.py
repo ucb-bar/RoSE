@@ -14,7 +14,6 @@ import os
 import yaml
 from functools import reduce
 
-
 CS_RESET = 0x01
 
 CS_GRANT_TOKEN  = 0x80 
@@ -62,13 +61,11 @@ def default_action_for_space(space):
 class Synchronizer: 
 
     def __init__(self, host=HOST, sync_port=SYNC_PORT, data_port=DATA_PORT, firesim_step=10000, firesim_freq=1_000_000_000):
-    #def __init__(self, host=HOST, sync_port=SYNC_PORT, data_port=DATA_PORT, firesim_step=10_000_000):
         self.txqueue = []
         self.txpq = [] 
         self.data_rxqueue = []
         self.sync_rxqueue = []
 
-        # TODO Remove unecessary ones
         self.host = host
         self.sync_host = host
         self.sync_port = sync_port
@@ -84,7 +81,6 @@ class Synchronizer:
         self.firesim_step = firesim_step
         self.render = False
         gym_env = self.load_config()
-
 
         self.load_gym_sim_config(gym_env)
         self.env = gym.make(gym_env, render_mode='rgb_array', **self.gym_kwargs)
@@ -104,7 +100,6 @@ class Synchronizer:
             if 'latency' in self.packet_bindings[cmd]:
                 RoSEPacket.cmd_latency_dict[cmd] = self.packet_bindings[cmd]['latency'] / self.firesim_period
                 RoSEPacket.cmd_latency_dict[cmd+1] = self.packet_bindings[cmd]['latency'] / self.firesim_period
-
 
         # Initialize sockets 
         self.socket_threads = []
