@@ -23,12 +23,23 @@ class RosePortIO(params: RoseAdapterParams) extends Bundle {
   val tx = Decoupled(UInt(32.W))
 }
 
+class ConfigRoutingIO() extends Bundle {
+  val config_routing_header = Input(UInt(32.W))
+  val config_routing_valid = Input(Bool())
+  val config_routing_channel = Input(UInt(32.W))
+}
+
 class RoseAdapterArbiterIO(params: RoseAdapterParams) extends Bundle {
     val rx = Vec(params.dst_ports.seq.size, Decoupled(UInt(32.W)))
     val tx = Flipped(Decoupled(UInt(32.W)))
+
     val budget = Flipped(Decoupled(UInt(32.W)))
+    // advancing counter
     val cycleBudget = Input(UInt(32.W))
+    // fixed step size
     val cycleStep = Input(UInt(32.W))
+
+    val config_routing = new ConfigRoutingIO()
 }
 
 // Core IO of the adapter

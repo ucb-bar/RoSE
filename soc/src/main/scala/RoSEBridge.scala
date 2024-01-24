@@ -17,12 +17,11 @@ class RoseArbTable(params: RoseAdapterParams) extends Module {
   val io = IO(new Bundle{
     // Look up ports
     val key = Input(UInt(params.width.W))
+    val key_valid = Input(Bool())
     val value = Output(UInt(params.width.W))
     val keep_header = Output(Bool())
     // Configuration ports
-    val config_header = Input(UInt(32.W))
-    val config_valid = Input(Bool())
-    val config_channel = Input(UInt(32.W))
+    val config_header = Input(UInt(params.width.W))
   })
 
   // spawn a vector of registers, storing the configured routing values
@@ -35,7 +34,7 @@ class RoseArbTable(params: RoseAdapterParams) extends Module {
   }
 
   // look up the routing table
-  io.value := routing_table(io.key)
+  io.value := Mux(io.key_valid, routing_table(io.key), 0.U)
   io.keep_header = keeping_table(io.value)
 }
 
@@ -49,119 +48,67 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module{
   val w = params.width
   val io = IO(new RoseAdapterArbiterIO(params))
 
-  val sIdle :: sFlag :: sHeader :: sCounter :: sLoad :: Nil = Enum(5)
+  val sIdle :: sHeader :: sCounter :: sLoad :: Nil = Enum(5)
   val state = RegInit(sIdle)
   val counter = Reg(UInt(w.W))
-}
 
-class RoseAdapterArbiter_old(params: RoseAdapterParams) extends Module {
-  val w = params.width
-  // val io = IO(new Bundle{
-  //   //valid and bits are output, ready is input in DecoupledIO
-  //   val cam = Decoupled(UInt(w.W))
-  //   val other = Decoupled(UInt(w.W))
-  //   //flipped for rx
-  //   val rx = Flipped(Decoupled(UInt(w.W)))
-  // })
-  val io = IO(new RoseAdapterArbiterIO(params))
-
-  //the buffer of rx deque data
-  val buffer_next = Wire(UInt(w.W))
-  buffer_next := io.tx.bits
-  //goal: io.rx.fire should be synced with io.target.fire
   val arb_table = Module(new RoseArbTable(params))
-  val buffer = RegEnable(next = buffer_next, enable = io.tx.fire)
-  val budget = RegEnable(next = io.budget.bits, enable = io.budget.fire)
-  val keep_header = RegEnable(next=arb_table.io.keep_header, enable = io.tx.fire)
-  //the counter of how many cycles of loads, decided by the second queue val
-  val counter = Reg(UInt(w.W))
-  val sIdle :: sFlag :: sHeader :: sCounter :: sLoad :: Nil = Enum(5)
-  val state = RegInit(sIdle)
+  io.config_routing <> arb_table.io.config_routing
+  arb_table.io.key := io.tx.bits
+  // storing the query result for future use
+  val latched_keep_header = RegEnable(next=arb_table.io.keep_header, enable = io.tx.fire)
+  val latched_idx = RegEnable(next=arb_table.io.value, enable = io.tx.fire)
 
-  val cycle_reset_next = Wire(Bool())
-  val cycle_reset_en = Wire(Bool())
-  cycle_reset_next := Mux(state === sIdle, false.B, io.cycleBudget === 0.U)
-  cycle_reset_en := state === sIdle || io.cycleBudget === 0.U 
-  val cycle_reset = RegEnable(next = cycle_reset_next, enable = cycle_reset_en) 
-
-  val cycle_reset_twice_next = Wire(Bool())
-  val cycle_reset_twice_next_en = Wire(Bool())
-  cycle_reset_twice_next := Mux(state === sIdle, false.B, io.cycleBudget === 0.U && cycle_reset)
-  cycle_reset_twice_next_en := state === sIdle || (io.cycleBudget === 0.U && cycle_reset) 
-  val step_passed = RegEnable(next = cycle_reset_twice_next, enable = cycle_reset_twice_next_en)
-
-  val tx_val = Wire(Bool())
-  val idx = RegInit(0.U(32.W))
-  // if idx equals i, get tx_val, otherwise get 0
+  val rx_val = Wire(Bool())
   params.dst_ports.seq.zipWithIndex.foreach {
-    case (dstParam, i) =>
-      when (i.U === idx) {
-        io.rx(i).valid := tx_val
-      } .otherwise {
-        io.rx(i).valid := false.B
-      }
-      io.rx(i).bits := buffer
+  case (dstParam, i) =>
+    when (i.U === latched_idx) {
+      io.rx(i).valid := rx_val
+    } .otherwise {
+      io.rx(i).valid := false.B
+    }
+    io.rx(i).bits := io.tx.bits 
   }
 
-  tx_val := 0.U
-  io.tx.ready := io.rx(idx).ready
-  io.budget.ready := state === sFlag
-  arb_table.io.key := buffer
+  io.tx.ready := io.rx(latched_idx).ready
+  io.budget.ready := false.B
+  io.arb_table.key_valid := (state === sIdle)
+
   switch(state) {
-    // heat up the buffer with the header
     is(sIdle) {
-      // FIXME: would disregard the reday signal here - make sure to sink all requests!
-      io.tx.ready := 1.U
-      state := Mux(io.tx.fire, sFlag, sIdle)
-    }
-    // header is already in the buffer, now set flag
-    is (sFlag) {
-      // make sure the buffer does not change here
-      io.tx.ready := 0.U
-      // look up the id_map to get the index
-      idx := arb_table.io.value
-      // get idx out of idx_wrapper
-      // idx = idx_wrapper.getOrElse(0) // FIXME: would default to 0 
-      // flag := (buffer === 0x11.U)
-      state := sHeader
-    }
-    // send the header packet to the right fifo according to the flag
+      def can_advance = io.budget.valid && ((io.budget.bits < io.cycleBudget) && (io.cycleBudget =/= io.cycleStep))
+      io.tx.ready := io.rx(arb_table.io.value).ready && can_advance
+      io.budget.ready := io.tx.ready
+      state := Mux(io.tx.fire, sHeader, sIdle)
+    } 
     is(sHeader) {
-      val can_advance = step_passed || ((budget < io.cycleBudget) && (io.cycleBudget =/= io.cycleStep))
-      tx_val := Mux(arb_table.io.keep_header || keep_header, (io.tx.valid && can_advance), false.B)
-      io.tx.ready := can_advance && io.rx(idx).ready
-      state := Mux(can_advance, Mux(io.tx.fire, sCounter, sHeader), sHeader)
+      rx_val := Mux(latched_keep_header, io.tx.valid, false.B)
+      state := Mux(io.tx.fire, sCounter, sHeader)
     }
-    // set the value of counter to the desired cycles
-    // the buffer now holds the counter value. notice that counter will be set at the next cycle. 
     is(sCounter) {
-      counter := buffer >> 2
-      // counter := Mux(buffer === 0.U, 0.U, 1.U << ((Log2(buffer) - (log2Ceil(w) - log2Ceil(8)).U) - 1.U))
-      tx_val := Mux(arb_table.io.keep_header || keep_header, io.tx.valid, false.B)
-      // don't bother to step into sLoad and do nothing and exit
-      when (buffer === 0.U){
-        io.tx.ready := 0.U
-        state := Mux(io.rx(idx).fire, sIdle, sCounter)
+      counter := io.tx.bits >> 2
+      rx_val := Mux(latched_keep_header, io.tx.valid, false.B)
+      when(io.tx.bits === 0.U) {
+        state := Mux(io.rx(latched_idx).fire, sIdle, sCounter)
       } .otherwise {
         state := Mux(io.tx.fire, sLoad, sCounter)
       }
     }
-    is(sLoad){
-      when(counter > 1.U){
-        tx_val := io.tx.valid
+    is(sLoad) {
+      when(counter > 1.U) {
+        rx_val := io.tx.valid
         counter := Mux(io.tx.fire, counter - 1.U, counter)
         state := sLoad
-        //when counter is strictly 1, there's one last thing to send. Go back to Idle after this
       } .otherwise {
-        io.tx.ready := 0.U
-        tx_val := true.B
-        state := Mux(io.rx(idx).fire, sIdle, sLoad)
+        rx_val := true.B
+        state := Mux(io.rx(latched_idx).fire, sIdle, sLoad)
       }
     }
+    
   }
 }
 
-class bandWidthWriter(params: RoseAdapterParams) extends Module{
+class BandWidthWriter(params: RoseAdapterParams) extends Module{
   val io = IO(new Bundle{
     val config_bits = Input(UInt(32.W))
     val config_valid = Input(Bool())
@@ -386,7 +333,7 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     rosearb.io.cycleStep := cycleStep
     rx_budget_fifo.io.soft_reset := cycleBudget === cycleStep
     // for each dst_port, generate a shallow queue and connect it to the arbiter
-    val bww = Module(new bandWidthWriter(params))
+    val bww = Module(new BandWidthWriter(params))
     for (i <- 0 until params.dst_ports.seq.size) {
       val dst_port = params.dst_ports.seq(i)
       val q = Module(new Queue(UInt(dst_port.width.W), 32))
