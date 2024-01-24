@@ -48,10 +48,5 @@ case class DstParams_Container (seq: Seq[DstParams]) extends HasSerializationHin
 
 case class DstParams (
   val port_type: String = "reqrsp", // supported are stream, decoupled, interrupt, and DMA
-  val IDs: Seq[Int] = Seq(0), // sequence of ID bytes, must be non-overlapping
   val DMA_address: BigInt = 0x88000000L, // this is only used if port_type is DMA
-  val latency: Int = 0,
-  val bandwidth: Int = 32,
-  //re-iteration of width for convenience, do not modify
-  val width: Int = 32
 )
