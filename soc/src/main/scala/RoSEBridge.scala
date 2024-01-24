@@ -10,9 +10,51 @@ import org.chipsalliance.cde.config.Parameters
 import freechips.rocketchip.subsystem.PeripheryBusKey
 import sifive.blocks.devices.uart.{UARTPortIO, UARTParams}
 
-import rose.{RosePortIO, RoseAdapterParams, RoseAdapterKey, DstParams}
+import rose.{RosePortIO, RoseAdapterParams, RoseAdapterKey, DstParams, RoseAdapterArbiterIO}
 
-class RoseAdapterArbiter(params: RoseAdapterParams) extends Module {
+// A utility register-based lookup table that maps the id to the corresponding dst_port index
+class RoseArbTable(params: RoseAdapterParams) extends Module {
+  val io = IO(new Bundle{
+    // Look up ports
+    val key = Input(UInt(params.width.W))
+    val value = Output(UInt(params.width.W))
+    val keep_header = Output(Bool())
+    // Configuration ports
+    val config_header = Input(UInt(32.W))
+    val config_valid = Input(Bool())
+    val config_channel = Input(UInt(32.W))
+  })
+
+  // spawn a vector of registers, storing the configured routing values
+  val routing_table = RegInit(VecInit(Seq.fill(0x80)(0.U(params.width.W))))
+  // A static vector storing the keep_header values
+  val keeping_table = VecInit(params.dst_ports.seq.map(port => port.port_type == "reqrsp"))
+
+  when (io.config_valid) {
+    routing_table(io.config_header) := io.config_channel
+  }
+
+  // look up the routing table
+  io.value := routing_table(io.key)
+  io.keep_header = keeping_table(io.value)
+}
+
+//                       +- cam.fifo
+//                       |
+// rx.fifo-----arbiter---+- something.fifo
+//                       |
+//                       +- other.fifo
+
+class RoseAdapterArbiter(params: RoseAdapterParams) extends Module{
+  val w = params.width
+  val io = IO(new RoseAdapterArbiterIO(params))
+
+  val sIdle :: sFlag :: sHeader :: sCounter :: sLoad :: Nil = Enum(5)
+  val state = RegInit(sIdle)
+  val counter = Reg(UInt(w.W))
+}
+
+class RoseAdapterArbiter_old(params: RoseAdapterParams) extends Module {
   val w = params.width
   // val io = IO(new Bundle{
   //   //valid and bits are output, ready is input in DecoupledIO
@@ -22,17 +64,15 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module {
   //   val rx = Flipped(Decoupled(UInt(w.W)))
   // })
   val io = IO(new RoseAdapterArbiterIO(params))
-  //                        - cam.fifo
-  // rx.fifo-----arbiter--- - something.fifo
-  //                        - other.fifo
+
   //the buffer of rx deque data
   val buffer_next = Wire(UInt(w.W))
   buffer_next := io.tx.bits
   //goal: io.rx.fire should be synced with io.target.fire
-  val rolut = Module(new rolut(params))
+  val arb_table = Module(new RoseArbTable(params))
   val buffer = RegEnable(next = buffer_next, enable = io.tx.fire)
   val budget = RegEnable(next = io.budget.bits, enable = io.budget.fire)
-  val keep_header = RegEnable(next=rolut.io.keep_header, enable = io.tx.fire)
+  val keep_header = RegEnable(next=arb_table.io.keep_header, enable = io.tx.fire)
   //the counter of how many cycles of loads, decided by the second queue val
   val counter = Reg(UInt(w.W))
   val sIdle :: sFlag :: sHeader :: sCounter :: sLoad :: Nil = Enum(5)
@@ -44,13 +84,12 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module {
   cycle_reset_en := state === sIdle || io.cycleBudget === 0.U 
   val cycle_reset = RegEnable(next = cycle_reset_next, enable = cycle_reset_en) 
 
-  val cycle_rest_twice_next = Wire(Bool())
-  val cycle_rest_twice_next_en = Wire(Bool())
-  cycle_rest_twice_next := Mux(state === sIdle, false.B, io.cycleBudget === 0.U && cycle_reset)
-  cycle_rest_twice_next_en := state === sIdle || (io.cycleBudget === 0.U && cycle_reset) 
-  val step_passed = RegEnable(next = cycle_rest_twice_next, enable = cycle_rest_twice_next_en)
+  val cycle_reset_twice_next = Wire(Bool())
+  val cycle_reset_twice_next_en = Wire(Bool())
+  cycle_reset_twice_next := Mux(state === sIdle, false.B, io.cycleBudget === 0.U && cycle_reset)
+  cycle_reset_twice_next_en := state === sIdle || (io.cycleBudget === 0.U && cycle_reset) 
+  val step_passed = RegEnable(next = cycle_reset_twice_next, enable = cycle_reset_twice_next_en)
 
-  // general enque logic, applicable to both cam&others
   val tx_val = Wire(Bool())
   val idx = RegInit(0.U(32.W))
   // if idx equals i, get tx_val, otherwise get 0
@@ -64,13 +103,10 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module {
       io.rx(i).bits := buffer
   }
 
-  // io.cam.valid := Mux(flag, tx_val, 0.U)
-  // io.other.valid := Mux(~flag, tx_val, 0.U)
-
   tx_val := 0.U
   io.tx.ready := io.rx(idx).ready
   io.budget.ready := state === sFlag
-  rolut.io.key := buffer
+  arb_table.io.key := buffer
   switch(state) {
     // heat up the buffer with the header
     is(sIdle) {
@@ -83,7 +119,7 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module {
       // make sure the buffer does not change here
       io.tx.ready := 0.U
       // look up the id_map to get the index
-      idx := rolut.io.value
+      idx := arb_table.io.value
       // get idx out of idx_wrapper
       // idx = idx_wrapper.getOrElse(0) // FIXME: would default to 0 
       // flag := (buffer === 0x11.U)
@@ -91,9 +127,8 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module {
     }
     // send the header packet to the right fifo according to the flag
     is(sHeader) {
-      // if it is a camera header, throw it away, else transmit it
       val can_advance = step_passed || ((budget < io.cycleBudget) && (io.cycleBudget =/= io.cycleStep))
-      tx_val := Mux(rolut.io.keep_header || keep_header, (io.tx.valid && can_advance), false.B)
+      tx_val := Mux(arb_table.io.keep_header || keep_header, (io.tx.valid && can_advance), false.B)
       io.tx.ready := can_advance && io.rx(idx).ready
       state := Mux(can_advance, Mux(io.tx.fire, sCounter, sHeader), sHeader)
     }
@@ -102,7 +137,7 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module {
     is(sCounter) {
       counter := buffer >> 2
       // counter := Mux(buffer === 0.U, 0.U, 1.U << ((Log2(buffer) - (log2Ceil(w) - log2Ceil(8)).U) - 1.U))
-      tx_val := Mux(rolut.io.keep_header || keep_header, io.tx.valid, false.B)
+      tx_val := Mux(arb_table.io.keep_header || keep_header, io.tx.valid, false.B)
       // don't bother to step into sLoad and do nothing and exit
       when (buffer === 0.U){
         io.tx.ready := 0.U
@@ -404,10 +439,16 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
 
     // Generate registers for writing the step amount
     genWOReg(cycleStep, "cycle_step")
-    // COSIM-CODE
+    
+    // Generate registers for configuring bandwidth
     genWOReg(bww.io.config_bits, "bww_config_bits")
     Pulsify(genWORegInit(bww.io.config_valid, "bww_config_valid", false.B), pulseLength = 1)
     genWOReg(bww.io.config_destination, "bww_config_destination")
+
+    // Generate registers for configuring routing table
+    genWOReg(rosearb.config_routing_header, "config_routing_header")
+    Pulsify(genWORegInit(rosearb.config_routing_valid, "config_routing_valid", false.B), pulseLength = 1)
+    genWOReg(rosearb.config_routing_channel, "config_routing_channel")
     // This method invocation is required to wire up all of the MMIO registers to
     // the simulation control bus (AXI4-lite)
     genCRFile()

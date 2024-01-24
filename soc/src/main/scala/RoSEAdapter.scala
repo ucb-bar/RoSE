@@ -22,30 +22,6 @@ import freechips.rocketchip.tilelink._
 import freechips.rocketchip.util.UIntIsOneOf
 // import testchipip.TLHelper
 
-// A utility read-only register look up table that maps the id to the corresponding dst_port index
-class rolut(params: RoseAdapterParams) extends Module {
-  val io = IO(new Bundle{
-    val key = Input(UInt(params.width.W))
-    val value = Output(UInt(params.width.W))
-    val keep_header = Output(Bool())
-  })
-  dontTouch(io)
-  io.value := 0.U
-  io.keep_header := false.B
-  for (i <- 0 until params.dst_ports.seq.length) {
-    for (j <- 0 until params.dst_ports.seq(i).IDs.length) {
-      when (io.key === params.dst_ports.seq(i).IDs(j).U) {
-        io.value := i.U
-        if (params.dst_ports.seq(i).port_type == "reqrsp") {
-          io.keep_header := true.B
-        } else {
-          io.keep_header := false.B
-        } 
-      }
-    }
-  }
-}
-
 class RoseAdapterMMIOChiselModule(params: RoseAdapterParams) extends Module
 {
   val io = IO(new RoseAdapterIO(params))
@@ -193,15 +169,9 @@ trait RoseAdapterModule extends HasRegMap {
     io.rx(reversed_idx_map(i)) <> impl.io.rx.enq(i)
   }
 
-  // // Concat all cam buffers
-  // val cam_buffers_cat = Cat(cam_buffers)
-  // // Concat all rx valid signals
-  // val rx_valids_cat = Cat(rx_valids)
   // Concat all rx valid signals and cam buffers, and tx ready
   val status_seq = cam_buffers ++ rx_valids ++ Seq(impl.io.tx.enq.ready)
   status := Cat(status_seq)
-  // Connect to top IO
-  // io.rx <> impl.io.rx
   io.tx <> impl.io.tx.deq
 
   for (i <- 0 until params.dst_ports.seq.count(_.port_type == "DMA")) {
@@ -215,23 +185,12 @@ trait RoseAdapterModule extends HasRegMap {
         RegField.r(params.width, rx_data(i))) // read-only, RoseAdapter.ready is set on read
   }).toSeq
 
-
   val written_counters = 
   (for (i <- 0 until params.dst_ports.seq.count(_.port_type == "DMA")) yield {
       0x0C + (params.dst_ports.seq.count(_.port_type != "DMA") + i)*4 -> Seq(
         RegField.w(params.width, written_counter_max(i))) // read-only, RoseAdapter.ready is set on read
   }).toSeq
 
-  // val statusreg = 0x00 -> Seq(
-  //   // only support leq 30 ports
-  //   RegField.r(1 + params.dst_ports.seq.size, status))
-
-  // val tx_datareg = 0x08 -> Seq(
-  //   RegField.w(params.width, tx_data)) // write-only, y.valid is set on write
-
-  // regmap(statusreg, tx_datareg)
-  // regmap((rx_datas): _*)
-  // regmap((written_counters): _*)
   dontTouch(status)
   regmap(
     (Seq(
@@ -242,8 +201,6 @@ trait RoseAdapterModule extends HasRegMap {
     0x08 -> Seq(
       RegField.w(params.width, tx_data))) ++ // write-only, y.valid is set on write
 
-    // create all rx_data output MMIO regs
-    // create all cam_buffer output MMIO regs
     rx_datas ++ written_counters): _*
   )
 }
@@ -256,11 +213,9 @@ class RoseAdapterTL(params: RoseAdapterParams, beatBytes: Int)(implicit p: Param
       new TLRegModule(params, _, _) with RoseAdapterModule)
 
 trait CanHavePeripheryRoseAdapter { this: BaseSubsystem =>
-
   private val portName = "RoseAdapter"
 
   val roseAdapter = p(RoseAdapterKey).map { 
-
     params =>
     // generate the lazymodule with regmap
     val roseAdapterTL = LazyModule(new RoseAdapterTL(params, pbus.beatBytes)(p))

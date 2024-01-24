@@ -30,16 +30,14 @@ case class RoseAdapterParams(
   width: Int = 32,
   // Sequence of Destination ports
   dst_ports: DstParams_Container = DstParams_Container(Seq(
-    DstParams(port_type = "DMA", IDs = Seq(0x11), DMA_address = 0x88000000L, latency = 0, bandwidth = 2048),
-    DstParams(port_type = "reqrsp", IDs = Seq(0x13, 0x02, 0x17), latency = 0, bandwidth = 32),
-    DstParams(port_type = "streaming", IDs = Seq(0x15), latency = 0, bandwidth = 32)
+    DstParams(port_type = "DMA", DMA_address = 0x88000000L),
+    DstParams(port_type = "reqrsp"),
+    DstParams(port_type = "streaming")
   ))
-  // require none of the dst params ID overlap
-  // require(RoseAdapterParams().dst_ports.seq.map(_.IDs).flatten.distinct.size == RoseAdapterParams().dst_ports.seq.map(_.IDs).flatten.size)
   // require less than 30 dst ports
-  // require(RoseAdapterParams().dst_ports.seq.size < 30)
+  require(RoseAdapterParams().dst_ports.seq.size < 30)
   // require all bandwidths to be a multiple of 4
-  // require(RoseAdapterParams().dst_ports.seq.map(_.bandwidth).forall(_ % 4 == 0))
+  require(RoseAdapterParams().dst_ports.seq.map(_.bandwidth).forall(_ % 4 == 0))
 ) extends HasSerializationHints {
   def typeHints: Seq[Class[_]] = Seq(classOf[DstParams_Container])
 }
