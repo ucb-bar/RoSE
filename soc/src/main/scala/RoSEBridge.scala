@@ -38,11 +38,6 @@ class RoseArbTable(params: RoseAdapterParams) extends Module {
   io.keep_header = keeping_table(io.value)
 }
 
-//                       +- cam.fifo
-//                       |
-// rx.fifo-----arbiter---+- something.fifo
-//                       |
-//                       +- other.fifo
 class RoseAdapterArbiter(params: RoseAdapterParams) extends Module{
   val w = params.width
   val io = IO(new RoseAdapterArbiterIO(params))
@@ -103,7 +98,6 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module{
         state := Mux(io.rx(latched_idx).fire, sIdle, sLoad)
       }
     }
-    
   }
 }
 

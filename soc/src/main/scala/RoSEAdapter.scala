@@ -94,7 +94,6 @@ class RoseAdapterTL(params: RoseAdapterParams, beatBytes: Int)(implicit p: Param
         node.regmap(
           (Seq(
             0x00 -> Seq(
-              // only support leq 30 ports
               RegField.r(1 + params.dst_ports.seq.size, status)),
 
             0x08 -> Seq(

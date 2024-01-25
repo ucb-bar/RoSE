@@ -51,7 +51,7 @@ sources=(
 destinations=(
     #scala destinations
     "${CHIPYARD_DIR}/generators/chipyard/src/main/scala/example/AirSimIO.scala"
-    "${CHIPYARD_DIR}/generators/chipyard/src/main/scala/IOBinders.scala"
+    "${CHIPYARD_DIR}/generators/chipyard/src/main/scala/iobinders/IOBinders.scala"
     "${CHIPYARD_DIR}/generators/firechip/src/main/scala/BridgeBinders.scala"
     "${CHIPYARD_DIR}/generators/chipyard/src/main/scala/DigitalTop.scala"
     "${CHIPYARD_DIR}/generators/chipyard/src/main/scala/config/AbstractConfig.scala"

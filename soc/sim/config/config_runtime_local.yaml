@@ -25,8 +25,12 @@ run_farm:
           num_fpgas: 1
           num_metasims: 1
           use_for_switch_only: 0
+      - one_metasims_spec:
+          num_fpgas: 0
+          num_metasims: 1
+          use_for_switch_only: 0
     run_farm_hosts_to_use:
-      - localhost: one_fpga_spec
+      - localhost: one_metasims_spec
 metasimulation:
   metasimulation_enabled: true
   # vcs or verilator. use vcs-debug or verilator-debug for waveform generation
