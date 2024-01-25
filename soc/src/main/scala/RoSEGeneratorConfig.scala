@@ -1,5 +1,3 @@
-// This is actually configurable the rose adapter
-
 package rose
 
 

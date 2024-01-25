@@ -1,12 +1,3 @@
-//    ____       U  ___ u   ____     U _____ u 
-// U |  _"\ u     \/"_ \/  / __"| u  \| ___"|/ 
-//  \| |_) |/     | | | | <\___ \/    |  _|"   
-//   |  _ <   .-,_| |_| |  u___) |    | |___   
-//   |_| \_\   \_)-\___/   |____/>>   |_____|  
-//   //   \\_       \\      )(  (__)  <<   >>  
-//  (__)  (__)     (__)    (__)      (__) (__) 
-// --- --- Get some RoSE adapter rolling --- ---
-
 package rose
 
 import chisel3._
@@ -111,7 +102,6 @@ class CosmoDMAModuleImp(outer: CosmoDMA) extends LazyModuleImp(outer){
 
 //topmost wrapper, connects to the bridge and the SoC
 trait RoseAdapterModule extends HasRegMap {
-  // TODO: wrap this with IO(new Bundle) struct?
   implicit val p: Parameters
   def params: RoseAdapterParams
   
@@ -120,7 +110,6 @@ trait RoseAdapterModule extends HasRegMap {
   val io: RoseAdapterTopIO
 
   dontTouch(io)
-  // TL Register Wires
   val tx_data = Wire(Decoupled(UInt(params.width.W)))
   val rx_data = Wire(Vec(params.dst_ports.seq.count(_.port_type != "DMA"), Decoupled(UInt(params.width.W))))
   val status = Wire(UInt((1 + params.dst_ports.seq.size).W))

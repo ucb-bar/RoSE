@@ -1,18 +1,9 @@
-//    ____       U  ___ u   ____     U _____ u 
-// U |  _"\ u     \/"_ \/  / __"| u  \| ___"|/ 
-//  \| |_) |/     | | | | <\___ \/    |  _|"   
-//   |  _ <   .-,_| |_| |  u___) |    | |___   
-//   |_| \_\   \_)-\___/   |____/>>   |_____|  
-//   //   \\_       \\      )(  (__)  <<   >>  
-//  (__)  (__)     (__)    (__)      (__) (__) 
-// --- --- Get some RoSE IOs rolling --- --- ---
-
 package rose
 
 import chisel3._
 import chisel3.util._
 import testchipip._
-import chisel3.experimental.{IO, IntParam, BaseModule}
+import chisel3.expesrimental.{IO, IntParam, BaseModule}
 import org.chipsalliance.cde.config.{Parameters, Field, Config}
 
 // PortIO is used for bridge <--> SoC communication

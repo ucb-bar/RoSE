@@ -43,7 +43,6 @@ class RoseArbTable(params: RoseAdapterParams) extends Module {
 // rx.fifo-----arbiter---+- something.fifo
 //                       |
 //                       +- other.fifo
-
 class RoseAdapterArbiter(params: RoseAdapterParams) extends Module{
   val w = params.width
   val io = IO(new RoseAdapterArbiterIO(params))
