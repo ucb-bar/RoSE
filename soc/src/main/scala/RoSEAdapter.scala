@@ -73,22 +73,23 @@ class RoseAdapterTL(params: RoseAdapterParams, beatBytes: Int)(implicit p: Param
         }     
 
         status = Cat(cam_buffers ++ rx_valids ++ Seq(impl.io.tx.enq.ready))
-          for (i <- 0 until params.dst_ports.seq.count(_.port_type == "DMA")) {
-            io.cam_buffer(i) <> impl.io.cam_buffer(i)
-            io.counter_max(i) <> written_counter_max(i)
-          }
+        
+        for (i <- 0 until params.dst_ports.seq.count(_.port_type == "DMA")) {
+          io.cam_buffer(i) <> impl.io.cam_buffer(i)
+          io.counter_max(i) <> written_counter_max(i)
+        }
 
-          val rx_datas =     
-          (for (i <- 0 until params.dst_ports.seq.count(_.port_type != "DMA")) yield {
-              0x0C + i*4 -> Seq(
-                RegField.r(params.width, rx_data(i))) // read-only, RoseAdapter.ready is set on read
-          }).toSeq
+        val rx_datas =     
+        (for (i <- 0 until params.dst_ports.seq.count(_.port_type != "DMA")) yield {
+            0x0C + i*4 -> Seq(
+              RegField.r(params.width, rx_data(i))) // read-only, RoseAdapter.ready is set on read
+        }).toSeq
 
-          val written_counters = 
-          (for (i <- 0 until params.dst_ports.seq.count(_.port_type == "DMA")) yield {
-              0x0C + (params.dst_ports.seq.count(_.port_type != "DMA") + i)*4 -> Seq(
-                RegField.w(params.width, written_counter_max(i))) // read-only, RoseAdapter.ready is set on read
-          }).toSeq
+        val written_counters = 
+        (for (i <- 0 until params.dst_ports.seq.count(_.port_type == "DMA")) yield {
+            0x0C + (params.dst_ports.seq.count(_.port_type != "DMA") + i)*4 -> Seq(
+              RegField.w(params.width, written_counter_max(i))) // read-only, RoseAdapter.ready is set on read
+        }).toSeq
 
         node.regmap(
           (Seq(
