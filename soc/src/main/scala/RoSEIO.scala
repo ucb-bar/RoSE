@@ -61,13 +61,3 @@ class RoseAdapterTopIO(params: RoseAdapterTopIO) extends Bundle {
     val cam_buffer = Vec(params.dst_ports.seq.count(_.port_type == "DMA"), Input(UInt(1.W)))
     val counter_max = Vec(params.dst_ports.seq.count(_.port_type == "DMA"), Output(UInt(32.W)))
 }
-
-// trait HasRoseAdapterIO extends BaseModule {
-//   val params: RoseAdapterParams
-//   val io = IO(new RoseAdapterIO(params))
-// }
-
-trait HasRosePortIO extends BaseModule {
-  val params: RoseAdapterParams
-  val port = IO(new RosePortIO(params))
-}

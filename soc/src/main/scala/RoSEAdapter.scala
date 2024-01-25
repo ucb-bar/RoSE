@@ -115,6 +115,7 @@ trait CanHavePeripheryRoseAdapter { this: BaseSubsystem =>
     params =>
     // generate the lazymodule with regmap
     val roseAdapterTL = LazyModule(new RoseAdapterTL(params, pbus.beatBytes)(p))
+    roseAdapterTL.clockNode := pbus.fixedClockNode
     pbus.coupleTo(portName) { roseAdapterTL.node := TLFragmenter(pbus.beatBytes, pbus.blockBytes) := _ }
 
     // save all the DMA Engines for Inmodulebody use
