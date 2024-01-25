@@ -53,8 +53,7 @@ class RoseAdapterIO(params: RoseAdapterParams) extends Bundle {
 
 // TopIO is used for Regmap communicating to the cam DMA engine & to the post-bridge, and the TL registers
 // TopIO RoseadApterModule is the wrapper for the actuall MMIOChiselModule
-trait RoseAdapterTopIO extends Bundle {
-    val params: RoseAdapterParams
+class RoseAdapterTopIO(params: RoseAdapterTopIO) extends Bundle {
     // SoC receive from bridge, a vector of flipped decoupled IOs
     val rx = Vec(params.dst_ports.seq.size, Flipped(Decoupled(UInt(32.W))))
     // SoC send to bridge, simple for now
