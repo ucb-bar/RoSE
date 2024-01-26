@@ -2,7 +2,8 @@ package rose
 
 import chisel3._
 import chisel3.util._
-import testchipip._
+// import testchipip._
+import testchipip.util.{ClockedIO}
 import chisel3.experimental.{IO, IntParam, BaseModule}
 import freechips.rocketchip.prci._
 import freechips.rocketchip.subsystem.{BaseSubsystem, CacheBlockBytes}
@@ -51,7 +52,7 @@ class RoseAdapterTL(params: RoseAdapterParams, beatBytes: Int)(implicit p: Param
       val rx_data = Wire(Vec(params.dst_ports.seq.count(_.port_type != "DMA"), Decoupled(UInt(params.width.W))))
       val status = Wire(UInt((1 + params.dst_ports.seq.size).W))
 
-      val written_counter_max = RegInit(VecInit(Seq.fill(params.dst_ports.seq.count(_.port_type == "DMA"))(0xFFFFFFFFl.U(32.W))))
+      val written_counter_max = RegInit(VecInit(Seq.fill(params.dst_ports.seq.count(_.port_type == "DMA"))(0xFFFFFFFFL.U(32.W))))
       tx_data <> impl.io.tx.enq
       io.tx <> impl.io.tx.deq
 
@@ -69,7 +70,7 @@ class RoseAdapterTL(params: RoseAdapterParams, beatBytes: Int)(implicit p: Param
 
       for (i <- 0 until params.dst_ports.seq.count(_.port_type != "DMA")) {
         rx_data(i) <> impl.io.rx.deq(i)
-        io.rx(reversed_idx_map(i)) <> impl.rx.enq(i)
+        io.rx(reversed_idx_map(i)) <> impl.io.rx.enq(i)
       }     
 
       status := Cat(cam_buffers ++ rx_valids ++ Seq(impl.io.tx.enq.ready))

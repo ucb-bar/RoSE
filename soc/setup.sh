@@ -12,13 +12,9 @@ cd ${ROSE_DIR}
 
 # Create an array of source files
 sources=(
-    #airsim scala files
-    "${SCALA_DIR}/AirSimIO.scala"
     "${SCALA_DIR}/IOBinders.scala" 
     "${SCALA_DIR}/BridgeBinders.scala" 
     "${SCALA_DIR}/DigitalTop.scala" 
-    "${SCALA_DIR}/AbstractConfig.scala" 
-    "${SCALA_DIR}/AirSimBridge.scala" 
     "${SCALA_DIR}/RoSEConfigs.scala"
     "${SCALA_DIR}/RoSEFireSimConfigs.scala"
     #rose scala files
@@ -50,12 +46,9 @@ sources=(
 # Create an array of destination files
 destinations=(
     #scala destinations
-    "${CHIPYARD_DIR}/generators/chipyard/src/main/scala/example/AirSimIO.scala"
     "${CHIPYARD_DIR}/generators/chipyard/src/main/scala/iobinders/IOBinders.scala"
     "${CHIPYARD_DIR}/generators/firechip/src/main/scala/BridgeBinders.scala"
     "${CHIPYARD_DIR}/generators/chipyard/src/main/scala/DigitalTop.scala"
-    "${CHIPYARD_DIR}/generators/chipyard/src/main/scala/config/AbstractConfig.scala"
-    "${FIRESIM_DIR}/sim/firesim-lib/src/main/scala/bridges/AirSimBridge.scala"
     "${CHIPYARD_DIR}/generators/chipyard/src/main/scala/config/RoSEConfigs.scala"
     "${CHIPYARD_DIR}/generators/firechip/src/main/scala/RoSEFireSimConfigs.scala"
     #rose scala destinations

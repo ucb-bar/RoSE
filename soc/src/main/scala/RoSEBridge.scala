@@ -8,8 +8,6 @@ import chisel3.util._
 import chisel3.experimental.{DataMirror, Direction, IO}
 import org.chipsalliance.cde.config.Parameters
 import freechips.rocketchip.subsystem.PeripheryBusKey
-import sifive.blocks.devices.uart.{UARTPortIO, UARTParams}
-
 import rose.{RosePortIO, RoseAdapterParams, RoseAdapterKey, DstParams, RoseAdapterArbiterIO}
 
 // A utility register-based lookup table that maps the id to the corresponding dst_port index
@@ -35,7 +33,7 @@ class RoseArbTable(params: RoseAdapterParams) extends Module {
 
   // look up the routing table
   io.value := Mux(io.key_valid, routing_table(io.key), 0.U)
-  io.keep_header = keeping_table(io.value)
+  io.keep_header := keeping_table(io.value)
 }
 
 class RoseAdapterArbiter(params: RoseAdapterParams) extends Module{
