@@ -26,10 +26,10 @@ sources=(
     "${SCALA_DIR}/RoSEBridge.scala"
     "${SCALA_DIR}/RoSEIO.scala"
     "${SCALA_DIR}/RoSEGeneratorConfig.scala"
+    "${SCALA_DIR}/RoSEDMA.scala"
     #C++ files
     "${FSIM_CC_DIR}/airsim.cc"
     "${FSIM_CC_DIR}/airsim.h"
-    "${FSIM_CC_DIR}/firesim_top.cc"
     #simulation configs
     "${ROSE_DIR}/soc/sim/config/config_runtime_local.yaml"
     "${ROSE_DIR}/soc/sim/config/config_build_recipes_local.yaml"
@@ -63,10 +63,10 @@ destinations=(
     "${FIRESIM_DIR}/sim/firesim-lib/src/main/scala/bridges/RoSEBridge.scala"
     "${CHIPYARD_DIR}/generators/rose/src/main/scala/RoSEIO.scala"
     "${CHIPYARD_DIR}/generators/rose/src/main/scala/RoSEGeneratorConfig.scala"
+    "${CHIPYARD_DIR}/generators/rose/src/main/scala/RoSEDMA.scala"
     #C++ destinations
     "${FIRESIM_DIR}/sim/firesim-lib/src/main/cc/bridges/airsim.cc"
     "${FIRESIM_DIR}/sim/firesim-lib/src/main/cc/bridges/airsim.h"
-    "${FIRESIM_DIR}/sim/src/main/cc/firesim/firesim_top.cc"
     #simulation configs destinations
     "${FIRESIM_DIR}/deploy/config_runtime.yaml"
     "${FIRESIM_DIR}/deploy/config_build_recipes.yaml"
@@ -142,7 +142,7 @@ if grep -q "lazy val rose" ${CHIPYARD_DIR}/build.sbt; then
 else
   echo "rose not found in chipyard sbt, appending."
   echo '
-  lazy val rose = (project in file("generators/rose"))
+lazy val rose = (project in file("generators/rose"))
   .dependsOn(rocketchip, testchipip)
   .settings(libraryDependencies ++= rocketLibDeps.value)
   .settings(commonSettings)' >> ${CHIPYARD_DIR}/build.sbt
