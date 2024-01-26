@@ -46,7 +46,7 @@ class RoseDMAModuleImp(outer: RoseDMA) extends LazyModuleImp(outer){
   val counter_enabled = Wire(Bool())
   // It does not like recursive definitions?
   val counter_next = Wire(UInt(config.width.W))
-  val counter : UInt = RegEnable(next = counter_next, init = 0.U(config.width.W), enable = counter_enabled)
+  val counter = RegEnable(next = counter_next, init = 0.U(config.width.W), enable = counter_enabled)
   counter_next := Mux((counter < io.counter_max + io.counter_max - 4.U), counter + 4.U, 0.U)
 
   io.cam_buffer := counter >= io.counter_max

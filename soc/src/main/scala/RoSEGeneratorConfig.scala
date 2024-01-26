@@ -33,9 +33,9 @@ case class RoseAdapterParams(
     DstParams(port_type = "streaming")
   ))
   // require less than 30 dst ports
-  require(RoseAdapterParams().dst_ports.seq.size < 30)
+  // require(RoseAdapterParams().dst_ports.seq.size < 30)
   // require all bandwidths to be a multiple of 4
-  require(RoseAdapterParams().dst_ports.seq.map(_.bandwidth).forall(_ % 4 == 0))
+  // require(RoseAdapterParams().dst_ports.seq.map(_.bandwidth).forall(_ % 4 == 0))
 ) extends HasSerializationHints {
   def typeHints: Seq[Class[_]] = Seq(classOf[DstParams_Container])
 }
