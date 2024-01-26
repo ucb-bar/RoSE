@@ -48,8 +48,8 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module{
   io.config_routing <> arb_table.io.config_routing
   arb_table.io.key := io.tx.bits
   // storing the query result for future use
-  val latched_keep_header = RegEnable(next=arb_table.io.keep_header, enable = io.tx.fire)
-  val latched_idx = RegEnable(next=arb_table.io.value, enable = io.tx.fire)
+  val latched_keep_header = RegEnable(arb_table.io.keep_header, io.tx.fire)
+  val latched_idx = RegEnable(arb_table.io.value, io.tx.fire)
 
   val rx_val = Wire(Bool())
   params.dst_ports.seq.zipWithIndex.foreach {
@@ -170,10 +170,10 @@ class rxcontroller(params: DstParams) extends Module{
   val rxState = RegInit(sRxIdle)
   val rxData = Reg(UInt(32.W))
 
-  val bandwidth_threshold = RegEnable(next = io.bww_bits, init = 0.U(32.W), enable = io.bww_valid)
+  val bandwidth_threshold = RegEnable(io.bww_bits, 0.U(32.W), io.bww_valid)
 
   val counter_next = Wire(UInt(params.width.W))
-  val counter : UInt = RegEnable(next = counter_next, init = 0.U(params.width.W), enable = io.fire)
+  val counter : UInt = RegEnable(counter_next, 0.U(params.width.W), io.fire)
   counter_next := Mux(io.tx.fire, 0.U, Mux((counter < bandwidth_threshold), counter + 1.U, counter))
   val depleted = Wire(Bool())
   depleted := counter === bandwidth_threshold
