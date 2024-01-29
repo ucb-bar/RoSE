@@ -31,6 +31,8 @@ import chipyard.iobinders._
 import chipyard._
 import chipyard.harness._
 
+import rose.RosePortIO
+
 object MainMemoryConsts {
   val regionNamePrefix = "MainMemory"
   def globalName(chipId: Int) = s"${regionNamePrefix}_$chipId"
@@ -136,14 +138,9 @@ class WithSuccessBridge extends HarnessBinder({
   }
 })
 
-class WithRoseBridge extends OverrideHarnessBinder({
-  (system: CanHavePeripheryRoseAdapter, th: FireSim, ports: Seq[ClockedIO[RosePortIO]]) => {
-    val p: Parameters = GetSystemParameters(system)
-    ports.map { n => 
-      val rose_b = RoseBridge(n.clock, n.bits, th.harnessBinderReset.asBool)(p) 
-      rose_b
-    }
-    Nil
+class WithRoseBridge extends HarnessBinder({
+  case (th: FireSim, port: RoseAdapterPort, chipId: Int) => {
+    RoseBridge(port.io.clock, port.io.bits, th.harnessBinderReset.asBool)(th.p) 
   }
 })
 
