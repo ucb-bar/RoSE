@@ -8,7 +8,7 @@ import chisel3.util._
 import chisel3.experimental.{DataMirror, Direction, IO}
 import org.chipsalliance.cde.config.Parameters
 import freechips.rocketchip.subsystem.PeripheryBusKey
-import rose.{RosePortIO, RoseAdapterParams, RoseAdapterKey, DstParams, RoseAdapterArbiterIO}
+import rose.{RosePortIO, RoseAdapterParams, RoseAdapterKey, DstParams, RoseAdapterArbiterIO, ConfigRoutingIO}
 
 // A utility register-based lookup table that maps the id to the corresponding dst_port index
 class RoseArbTable(params: RoseAdapterParams) extends Module {
@@ -19,16 +19,16 @@ class RoseArbTable(params: RoseAdapterParams) extends Module {
     val value = Output(UInt(params.width.W))
     val keep_header = Output(Bool())
     // Configuration ports
-    val config_header = Input(UInt(params.width.W))
+    val config_routing = new ConfigRoutingIO()
   })
 
   // spawn a vector of registers, storing the configured routing values
   val routing_table = RegInit(VecInit(Seq.fill(0x80)(0.U(params.width.W))))
   // A static vector storing the keep_header values
-  val keeping_table = VecInit(params.dst_ports.seq.map(port => port.port_type == "reqrsp"))
+  val keeping_table = VecInit(params.dst_ports.seq.map(port => (port.port_type == "reqrsp").B))
 
-  when (io.config_valid) {
-    routing_table(io.config_header) := io.config_channel
+  when (io.config_routing.valid) {
+    routing_table(io.config_routing.header) := io.config_routing.channel
   }
 
   // look up the routing table
@@ -64,7 +64,7 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module{
 
   io.tx.ready := io.rx(latched_idx).ready
   io.budget.ready := false.B
-  io.arb_table.key_valid := (state === sIdle)
+  arb_table.io.key_valid := (state === sIdle)
 
   switch(state) {
     is(sIdle) {
@@ -156,10 +156,10 @@ class softQueue (val entries: Int) extends Module {
   io.deq.bits := ram(deq_ptr.value)
 }
 
-class rxcontroller(params: DstParams) extends Module{
+class rxcontroller(params: DstParams, width: Int) extends Module{
   val io = IO(new Bundle{
-    val rx = Flipped(Decoupled(UInt(params.width.W)))
-    val tx = Decoupled(UInt(params.width.W))
+    val rx = Flipped(Decoupled(UInt(width.W)))
+    val tx = Decoupled(UInt(width.W))
     val fire = Input(Bool())
     // val counter_reset = Input(Bool())
     val bww_bits = Input(UInt(32.W))
@@ -172,8 +172,8 @@ class rxcontroller(params: DstParams) extends Module{
 
   val bandwidth_threshold = RegEnable(io.bww_bits, 0.U(32.W), io.bww_valid)
 
-  val counter_next = Wire(UInt(params.width.W))
-  val counter : UInt = RegEnable(counter_next, 0.U(params.width.W), io.fire)
+  val counter_next = Wire(UInt(width.W))
+  val counter: UInt = RegEnable(counter_next, 0.U(width.W), io.fire)
   counter_next := Mux(io.tx.fire, 0.U, Mux((counter < bandwidth_threshold), counter + 1.U, counter))
   val depleted = Wire(Bool())
   depleted := counter === bandwidth_threshold
@@ -327,9 +327,9 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     val bww = Module(new BandWidthWriter(params))
     for (i <- 0 until params.dst_ports.seq.size) {
       val dst_port = params.dst_ports.seq(i)
-      val q = Module(new Queue(UInt(dst_port.width.W), 32))
+      val q = Module(new Queue(UInt(params.width.W), 32))
       // generate a rxcontroller for each dst_port
-      val rxctrl = Module(new rxcontroller(params.dst_ports.seq(i)))
+      val rxctrl = Module(new rxcontroller(params.dst_ports.seq(i), params.width))
       q.io.enq <> rosearb.io.rx(i)
       q.io.deq <> rxctrl.io.rx 
       rxctrl.io.tx <> target.rx(i)
@@ -384,9 +384,9 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     genWOReg(bww.io.config_destination, "bww_config_destination")
 
     // Generate registers for configuring routing table
-    genWOReg(rosearb.config_routing_header, "config_routing_header")
-    Pulsify(genWORegInit(rosearb.config_routing_valid, "config_routing_valid", false.B), pulseLength = 1)
-    genWOReg(rosearb.config_routing_channel, "config_routing_channel")
+    genWOReg(rosearb.io.config_routing.header, "config_routing_header")
+    Pulsify(genWORegInit(rosearb.io.config_routing.valid, "config_routing_valid", false.B), pulseLength = 1)
+    genWOReg(rosearb.io.config_routing.channel, "config_routing_channel")
     // This method invocation is required to wire up all of the MMIO registers to
     // the simulation control bus (AXI4-lite)
     genCRFile()

@@ -15,9 +15,9 @@ class RosePortIO(params: RoseAdapterParams) extends Bundle {
 }
 
 class ConfigRoutingIO() extends Bundle {
-  val config_routing_header = Input(UInt(32.W))
-  val config_routing_valid = Input(Bool())
-  val config_routing_channel = Input(UInt(32.W))
+  val header = Input(UInt(32.W))
+  val valid = Input(Bool())
+  val channel = Input(UInt(32.W))
 }
 
 class RoseAdapterArbiterIO(params: RoseAdapterParams) extends Bundle {
