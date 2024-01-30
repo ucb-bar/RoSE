@@ -40,7 +40,7 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module{
   val w = params.width
   val io = IO(new RoseAdapterArbiterIO(params))
 
-  val sIdle :: sHeader :: sCounter :: sLoad :: Nil = Enum(5)
+  val sIdle :: sHeader :: sCounter :: sLoad :: Nil = Enum(4)
   val state = RegInit(sIdle)
   val counter = Reg(UInt(w.W))
 
@@ -65,6 +65,7 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module{
   io.tx.ready := io.rx(latched_idx).ready
   io.budget.ready := false.B
   arb_table.io.key_valid := (state === sIdle)
+  rx_val := false.B
 
   switch(state) {
     is(sIdle) {

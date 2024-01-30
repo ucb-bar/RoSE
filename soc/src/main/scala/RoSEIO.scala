@@ -35,8 +35,6 @@ class RoseAdapterArbiterIO(params: RoseAdapterParams) extends Bundle {
 
 // Core IO of the adapter
 class RoseAdapterIO(params: RoseAdapterParams) extends Bundle {
-  val clock = Input(Clock())
-  val reset = Input(Bool())
   // Bridge -> SoC
   val rx = new Bundle {
     val enq = Vec(params.dst_ports.seq.count(_.port_type != "DMA"), Flipped(Decoupled(UInt(32.W))))
@@ -55,7 +53,7 @@ class RoseAdapterIO(params: RoseAdapterParams) extends Bundle {
 // TopIO RoseadApterModule is the wrapper for the actuall MMIOChiselModule
 class RoseAdapterTopIO(params: RoseAdapterParams) extends Bundle {
     // SoC receive from bridge, a vector of flipped decoupled IOs
-    val rx = Vec(params.dst_ports.seq.size, Flipped(Decoupled(UInt(32.W))))
+    val rx = Vec(params.dst_ports.seq.count(_.port_type != "DMA"), Flipped(Decoupled(UInt(32.W))))
     // SoC send to bridge, simple for now
     val tx = Decoupled(UInt(32.W))
     val cam_buffer = Vec(params.dst_ports.seq.count(_.port_type == "DMA"), Input(UInt(1.W)))

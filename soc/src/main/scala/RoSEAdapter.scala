@@ -18,7 +18,6 @@ import freechips.rocketchip.util.UIntIsOneOf
 class RoseAdapterMMIOChiselModule(params: RoseAdapterParams) extends Module
 {
   val io = IO(new RoseAdapterIO(params))
-  dontTouch(io)
   val txfifo = Module(new Queue(UInt(params.width.W), 64))
 
   io.tx.enq <> txfifo.io.enq
@@ -58,19 +57,10 @@ class RoseAdapterTL(params: RoseAdapterParams, beatBytes: Int)(implicit p: Param
 
       val cam_buffers = params.dst_ports.seq.filter(_.port_type == "DMA").zipWithIndex.map{ case (_, i) => impl.io.cam_buffer(i) }
       val rx_valids = params.dst_ports.seq.filter(_.port_type != "DMA").zipWithIndex.map{ case (_, i) => impl.io.rx.deq(i).valid }
-      
-      // This is a mapping from dst_port index to non-DMA index
-      var reversed_idx_map = Seq[Int]()
-      params.dst_ports.seq.zipWithIndex.foreach(
-        {case (port, n) => port.port_type match {
-            case _ => reversed_idx_map = reversed_idx_map :+ n
-          }
-        }
-      )
 
       for (i <- 0 until params.dst_ports.seq.count(_.port_type != "DMA")) {
         rx_data(i) <> impl.io.rx.deq(i)
-        io.rx(reversed_idx_map(i)) <> impl.io.rx.enq(i)
+        io.rx(i) <> impl.io.rx.enq(i)
       }     
 
       status := Cat(cam_buffers ++ rx_valids ++ Seq(impl.io.tx.enq.ready))
@@ -117,23 +107,32 @@ trait CanHavePeripheryRoseAdapter { this: BaseSubsystem =>
 
       // save all the DMA Engines for Inmodulebody use
       var DMA_lazymods = Seq[RoseDMA]()
-      var idx_map = Seq[Int]()
       // generate all the DMA engines
-      var DMA_count = 0
-      var other_count = 0
       params.dst_ports.seq.foreach(
         i => i.port_type match {
           case "DMA" => {
             val roseDMA = LazyModule(new RoseDMA(i)(p))
             roseDMA.clockNode := fbus.fixedClockNode
-            fbus.coupleFrom(f"cam-dma-$DMA_count") { _ := TLWidthWidget(4) := roseDMA.node}
+            fbus.coupleFrom(f"cam-dma-$i") { _ := TLWidthWidget(4) := roseDMA.node}
             DMA_lazymods = DMA_lazymods :+ roseDMA
-            idx_map = idx_map :+ DMA_count
-            DMA_count += 1
           }
-          case _ => {
-            idx_map = idx_map :+ other_count
-            other_count += 1
+          case _ => None
+        }
+      )
+      
+      var idx_map = Seq[Int]()
+      var other_idx : Int = 0
+      var dma_idx : Int = 0
+      params.dst_ports.seq.zipWithIndex.foreach(
+        {case (port, n) => port.port_type match {
+            case "DMA" => {
+              idx_map = idx_map :+ dma_idx
+              dma_idx = dma_idx + 1
+            }
+            case _ => {
+              idx_map = idx_map :+ other_idx
+              other_idx = other_idx + 1
+            }
           }
         }
       )
@@ -144,12 +143,13 @@ trait CanHavePeripheryRoseAdapter { this: BaseSubsystem =>
         outer_io.clock := roseAdapterTL.module.clock
         outer_io.bits.tx <> roseAdapterTL.module.io.tx
         for (i <- 0 until params.dst_ports.seq.length) {
-          outer_io.bits.rx(i) <> roseAdapterTL.module.io.rx(i)
           params.dst_ports.seq(i).port_type match {
             case "DMA" => {
               outer_io.bits.rx(i) <> DMA_lazymods(idx_map(i)).module.io.rx
             }
-            case _ => None
+            case _ => {
+              outer_io.bits.rx(i) <> roseAdapterTL.module.io.rx(idx_map(i))
+            }
           }
         }
 
