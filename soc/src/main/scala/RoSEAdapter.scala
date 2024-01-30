@@ -108,65 +108,60 @@ class RoseAdapterTL(params: RoseAdapterParams, beatBytes: Int)(implicit p: Param
 }
 
 trait CanHavePeripheryRoseAdapter { this: BaseSubsystem =>
-  private val portName = "RoseAdapter"
+  val roseio = p(RoseAdapterKey) match { 
+    case Some(params) => {
+      // generate the lazymodule with regmap
+      val roseAdapterTL = LazyModule(new RoseAdapterTL(params, pbus.beatBytes)(p))
+      roseAdapterTL.clockNode := pbus.fixedClockNode
+      pbus.coupleTo("RoseAdapter") { roseAdapterTL.node := TLFragmenter(pbus.beatBytes, pbus.blockBytes) := _ }
 
-  val roseAdapter = p(RoseAdapterKey).map { 
-    params =>
-    // generate the lazymodule with regmap
-    val roseAdapterTL = LazyModule(new RoseAdapterTL(params, pbus.beatBytes)(p))
-    roseAdapterTL.clockNode := pbus.fixedClockNode
-    pbus.coupleTo(portName) { roseAdapterTL.node := TLFragmenter(pbus.beatBytes, pbus.blockBytes) := _ }
-
-    // save all the DMA Engines for Inmodulebody use
-    var DMA_lazymods = Seq[RoseDMA]()
-    var idx_map = Seq[Int]()
-    // generate all the DMA engines
-    var DMA_count = 0
-    var other_count = 0
-    params.dst_ports.seq.foreach(
-      i => i.port_type match {
-        case "DMA" => {
-          val roseDMA = LazyModule(new RoseDMA(i)(p))
-          fbus.coupleFrom(f"cam-dma-$DMA_count") { _ := TLWidthWidget(4) := roseDMA.node}
-          DMA_lazymods = DMA_lazymods :+ roseDMA
-          idx_map = idx_map :+ DMA_count
-          DMA_count += 1
-        }
-        case _ => {
-          idx_map = idx_map :+ other_count
-          other_count += 1
-        }
-      }
-    )
-
-    val outer_io = InModuleBody {
-      val outer_io = IO(new ClockedIO(new RosePortIO(params))).suggestName(portName)
-      dontTouch(outer_io)
-      outer_io.clock := roseAdapterTL.module.clock
-      outer_io.bits.tx <> roseAdapterTL.module.io.tx
-      for (i <- 0 until params.dst_ports.seq.length) {
-        outer_io.bits.rx(i) <> roseAdapterTL.module.io.rx(i)
-        params.dst_ports.seq(i).port_type match {
+      // save all the DMA Engines for Inmodulebody use
+      var DMA_lazymods = Seq[RoseDMA]()
+      var idx_map = Seq[Int]()
+      // generate all the DMA engines
+      var DMA_count = 0
+      var other_count = 0
+      params.dst_ports.seq.foreach(
+        i => i.port_type match {
           case "DMA" => {
-            outer_io.bits.rx(i) <> DMA_lazymods(idx_map(i)).module.io.rx
+            val roseDMA = LazyModule(new RoseDMA(i)(p))
+            roseDMA.clockNode := fbus.fixedClockNode
+            fbus.coupleFrom(f"cam-dma-$DMA_count") { _ := TLWidthWidget(4) := roseDMA.node}
+            DMA_lazymods = DMA_lazymods :+ roseDMA
+            idx_map = idx_map :+ DMA_count
+            DMA_count += 1
           }
           case _ => {
-            // outer_io.bits.rx(i) <> roseAdapterTL.module.io.rx(idx_map(i))
+            idx_map = idx_map :+ other_count
+            other_count += 1
           }
         }
-      }
+      )
 
-      // connect the DMA engines
-      for (i <- 0 until DMA_lazymods.length) {
-        DMA_lazymods(i).module.io.cam_buffer <> roseAdapterTL.module.io.cam_buffer(i)
-        DMA_lazymods(i).module.io.counter_max <> roseAdapterTL.module.io.counter_max(i)
+      val rose_outer_io = InModuleBody {
+        val outer_io = IO(new ClockedIO(new RosePortIO(params))).suggestName("RoseAdapter")
+        dontTouch(outer_io)
+        outer_io.clock := roseAdapterTL.module.clock
+        outer_io.bits.tx <> roseAdapterTL.module.io.tx
+        for (i <- 0 until params.dst_ports.seq.length) {
+          outer_io.bits.rx(i) <> roseAdapterTL.module.io.rx(i)
+          params.dst_ports.seq(i).port_type match {
+            case "DMA" => {
+              outer_io.bits.rx(i) <> DMA_lazymods(idx_map(i)).module.io.rx
+            }
+            case _ => None
+          }
+        }
+
+        // connect the DMA engines
+        for (i <- 0 until DMA_lazymods.length) {
+          DMA_lazymods(i).module.io.cam_buffer <> roseAdapterTL.module.io.cam_buffer(i)
+          DMA_lazymods(i).module.io.counter_max <> roseAdapterTL.module.io.counter_max(i)
+        }
+        outer_io
       }
-      outer_io
+      Some(rose_outer_io)
     }
-    outer_io
+    case None => None
   }
-}
-
-trait CanHavePeripheryRoseAdapterModuleImp extends LazyModuleImp {
-  val outer: CanHavePeripheryRoseAdapter
 }

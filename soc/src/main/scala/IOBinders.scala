@@ -534,11 +534,11 @@ class WithNMITiedOff extends ComposeIOBinder({
 
 class WithRoseIOPunchthrough extends OverrideIOBinder({
   (system: CanHavePeripheryRoseAdapter) => {
-    val params = GetSystemParameters(system)
-    val ports: Seq[ClockedIO[RosePortIO]] = system.roseAdapter.map({ n =>
-      val p = IO(new ClockedIO(new RosePortIO(params(RoseAdapterKey).get))).suggestName("roseAdapter")
-      p <> n
-      p
+    val ports = system.roseio.map ({ n =>
+      val params = GetSystemParameters(system)
+      val port = IO(new ClockedIO(new RosePortIO(params(RoseAdapterKey).get))).suggestName(s"roseAdapter")
+      port <> n
+      RoseAdapterPort(() => port, params(RoseAdapterKey).get)
     }).toSeq
     (ports, Nil)
   }
