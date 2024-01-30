@@ -29,6 +29,12 @@ packets:
     indices:
       - "imu"
       - [3, 5]
+
+channel_bandwidth: 
+  - 0
+  - 0
+  - 0
+  
 gym_kwargs:
   init_x: 0
   init_y: 0

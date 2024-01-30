@@ -6,6 +6,12 @@ packets:
     channel: 0
     indices: null
 #timestamp
+
+channel_bandwidth: 
+  - 0
+  - 0
+  - 0
+
 gym_kwargs:
   init_x: 0
   init_y: 0

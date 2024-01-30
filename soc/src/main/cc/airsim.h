@@ -61,6 +61,7 @@ struct serial_cosmo_data_t {
 #define CS_DEFINE_STEP 0x83
 #define CS_RSP_STALL   0x84
 #define CS_CFG_BW      0x85
+#define CS_CFG_ROUTE   0x86
 
 // Data Commands
 #define CS_REQ_WAYPOINT 0x01

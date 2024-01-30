@@ -22,6 +22,7 @@ CS_RSP_CYCLES   = 0x82
 CS_DEFINE_STEP  = 0x83
 CS_RSP_STALL    = 0x84
 CS_CFG_BW       = 0x85
+CS_CFG_ROUTE    = 0x86
 
 CS_REQ_IMG      = 0x10
 CS_RSP_IMG      = 0x11
@@ -31,7 +32,6 @@ CS_RSP_IMG_POLL = 0x17
 HOST = "localhost"
 SYNC_PORT = 10001
 DATA_PORT = 60002
-
 
 # Utility functions
 def stable_heap_push(heap, item):
@@ -56,7 +56,6 @@ def default_action_for_space(space):
         return {key: default_action_for_space(sub_space) for key, sub_space in space.spaces.items()}
     else:
         raise ValueError(f"Don't know how to create a default action for space of type {type(space)}")
-
 
 class Synchronizer: 
 
@@ -123,7 +122,6 @@ class Synchronizer:
             socket_thread.start()
         self.start_time = time.time()
 
-
         # Initialize the logger
         log_dir = f'{os.path.dirname(os.path.abspath(__file__))}/logs'
         self.logger = GymLogger(self.env, self.firesim_period, self.start_time, self.packet_bindings, log_dir=log_dir, log_filename=f'runlog-{self.filename_base}.csv', video_filename=f'recording-{self.filename_base}.avi', max_duration=self.cycle_limit/self.firesim_freq, plot_filename=f'plot-{self.filename_base}.png')
@@ -132,7 +130,11 @@ class Synchronizer:
         # And send firesim steps to each
         self.send_firesim_step()
 
-        # TODO: Add bandwidth sending
+        for i, bw in enumerate(self.channel_binding):
+            self.send_bw(i, bw)
+        
+        for i in self.packet_bindings.keys():
+            self.send_route(i, self.packet_bindings[i]['channel'])
 
         self.obs = self.env.reset()
         self.done = False
@@ -223,16 +225,16 @@ class Synchronizer:
         packet = RoSEPacket()
         packet.init(CS_CFG_BW, 8, [dst, bw])
         self.txqueue.append(packet)
+    
+    def send_route(self, header, channel):
+        packet = RoSEPacket()
+        packet.init(CS_CFG_ROUTE, 8, [header, channel])
+        self.txqueue.append(packet)
 
     def grant_firesim_token(self):
         packet = RoSEPacket()
         packet.init(CS_GRANT_TOKEN, 0, None)
-        # print("Printing txqueue")
-        # for packet in self.txqueue:
-        #     print(f"txqueue: {packet}")
-        # print(f"Enqueuing new token: {packet}")
         self.txqueue.append(packet)
-        #self.sync_conn.sendall(self.packet.encode())
 
         while True:
             if len(self.sync_rxqueue) > 0:
@@ -280,12 +282,11 @@ class Synchronizer:
             self.cycle_limit = config['max_sim_time'] * self.firesim_freq
         if 'render' in config:
             self.render = config['render']
-
         
         print(f"Using Gym environment: {gym_env}")
         return gym_env
 
-    def load_gym_sim_config(self, gym_env):
+    def load_gym_sim_config(self, gym_env, use_arguemented_yaml=False):
         # Determine the path to the directory containing the current script
         script_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -310,6 +311,8 @@ class Synchronizer:
         for packet in gym_sim_config['packets']:
             hex_id = packet['id']
             self.packet_bindings[hex_id] = packet  # bind the id to the packet configuration
+        
+        self.channel_binding = gym_sim_config['channel_bandwidth']
 
     def process_fsim_data_packet(self):
         packet = self.data_rxqueue.pop(0)
@@ -330,7 +333,6 @@ class Synchronizer:
         if not packet_config:
             print(f"Unknown packet cmd: {packet.cmd}")
             return
-        
         
         # Retrieve observation related to the packet name
         if packet_config['type'] == 'reqrsp':
@@ -382,4 +384,3 @@ if __name__ == "__main__":
 
     sync = Synchronizer()
     sync.run()
-        

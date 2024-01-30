@@ -348,6 +348,8 @@ void airsim_t::process_tcp_packet()
             // printf("[AirSim Driver]: Got Bandwidth: %d\n", packet.data[1]);
             this->config_bandwidth(packet.data[0], packet.data[1]);
             break;
+        case CS_CFG_ROUTE:
+            this->config_route(packet.data[0], packet.data[1]);
         default:
             // TODO SEND DATA
             // if(packet.cmd < 0x80) {
@@ -570,6 +572,14 @@ void airsim_t::config_bandwidth(uint32_t dest, uint32_t bandwidth)
     write(this->mmio_addrs.bww_config_valid, 1);
 }
 
+void airsim_t::config_route(uint32_t header, uint32_t channel)
+{
+    // printf("[AirSim Driver]: Setting route to %d!\n", route);
+    write(this->mmio_addrs.config_routing_header, header);
+    write(this->mmio_addrs.config_routing_channel, channel);
+    write(this->mmio_addrs.config_routing_valid, 1);
+}
+
 void airsim_t::tick()
 {
     cosim_packet_t packet;
@@ -630,26 +640,6 @@ void airsim_t::tick()
             break;
         }
     }
-    //do
-    //{
-    //    this->recv();
-
-    //    if (data.in.ready)
-    //    {
-    //        char inp;
-    //        int readamt;
-
-    //        if (data.out.fire())
-    //        {
-    //            printf("[AirSim Driver]: Sending data: %x\n", data.out.bits);
-    //            data.in.bits = data.out.bits;
-    //            data.in.valid = true;
-    //        }
-    //    }
-
-    //    this->send();
-    //    data.in.valid = false;
-    //} while (data.in.fire() || data.out.fire());
 }
 
 budget_packet_t::budget_packet_t(){
