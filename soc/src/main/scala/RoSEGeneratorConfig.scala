@@ -1,6 +1,5 @@
 package rose
 
-
 import chisel3._
 import chisel3.util._
 import testchipip._
@@ -10,9 +9,7 @@ import freechips.rocketchip.subsystem.{BaseSubsystem, CacheBlockBytes}
 import org.chipsalliance.cde.config.{Parameters, Field, Config}
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.tilelink._
-
 import firrtl.annotations.{HasSerializationHints}
-
 
 case object RoseAdapterKey extends Field[Option[RoseAdapterParams]](None)
 
@@ -30,12 +27,9 @@ case class RoseAdapterParams(
   dst_ports: DstParams_Container = DstParams_Container(Seq(
     DstParams(port_type = "DMA", DMA_address = 0x88000000L),
     DstParams(port_type = "reqrsp"),
-    DstParams(port_type = "streaming")
+    DstParams(port_type = "reqrsp")
   ))
-  // require less than 30 dst ports
-  // require(RoseAdapterParams().dst_ports.seq.size < 30)
-  // require all bandwidths to be a multiple of 4
-  // require(RoseAdapterParams().dst_ports.seq.map(_.bandwidth).forall(_ % 4 == 0))
+  require(dst_ports.seq.size < 30)
 ) extends HasSerializationHints {
   def typeHints: Seq[Class[_]] = Seq(classOf[DstParams_Container])
 }
@@ -45,6 +39,6 @@ case class DstParams_Container (seq: Seq[DstParams]) extends HasSerializationHin
 }
 
 case class DstParams (
-  val port_type: String = "reqrsp", // supported are stream, decoupled, interrupt, and DMA
-  val DMA_address: BigInt = 0x88000000L, // this is only used if port_type is DMA
+  val port_type: String = "reqrsp", // supported are DMA and reqrsp
+  val DMA_address: BigInt = 0x88000000L, // this attribute is only used if port_type is DMA
 )

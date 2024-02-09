@@ -48,27 +48,25 @@ class FiresimThread(threading.Thread):
 
 if __name__ == "__main__":
     header = """
-============================
-  _____       _____ ______ 
- |  __ \     / ____|  ____|
- | |__) |___| (___ | |__   
- |  _  // _ \\\___ \|  __|  
- | | \ \ (_) |___) | |____ 
- |_|  \_\___/_____/|______|
-============================
-
+    ============================
+    _____       _____ ______ 
+    |  __ \     / ____|  ____|
+    | |__) |___| (___ | |__   
+    |  _  // _ \\\___ \|  __|  
+    | | \ \ (_) |___) | |____ 
+    |_|  \_\___/_____/|______|
+    ============================
     """ 
     print(header)
-    print("Starting synchronizer thread")
+    print("[RoSE]:Starting synchronizer thread")
     sync_thread = SyncThread(None)
     sync_thread.start()
-    print("Starting firesim thread")
+    print("[RoSE]:Starting firesim thread")
     firesim_thread = FiresimThread(None)
     firesim_thread.start()
-    print("Joining synchronizer thread")
+    print("[RoSE]:Joining synchronizer thread")
     sync_thread.join()
-    print("Joining firesim thread")
+    print("[RoSE]:Joining firesim thread")
     os.kill(os.getpid(), signal.SIGTERM)
-
     
     firesim_thread.join()

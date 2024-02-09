@@ -121,8 +121,8 @@ trait CanHavePeripheryRoseAdapter { this: BaseSubsystem =>
       )
       
       var idx_map = Seq[Int]()
-      var other_idx : Int = 0
-      var dma_idx : Int = 0
+      var other_idx: Int = 0
+      var dma_idx: Int = 0
       params.dst_ports.seq.zipWithIndex.foreach(
         {case (port, n) => port.port_type match {
             case "DMA" => {

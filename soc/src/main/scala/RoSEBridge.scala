@@ -397,3 +397,10 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     }
   }
 }
+
+// def genRoseCHeader(): StringBuilder = {
+//   val sb = new StringBuilder("""
+  
+//   """)
+
+// }
