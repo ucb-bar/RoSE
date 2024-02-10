@@ -1,4 +1,4 @@
-from rose_packet import Packet, Blob
+from rose_packet import *
 from socket_thread import SocketThread
 
 import collections
