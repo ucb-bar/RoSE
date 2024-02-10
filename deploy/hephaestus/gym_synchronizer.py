@@ -211,19 +211,19 @@ class Synchronizer:
             exit()
 
     def send_firesim_step(self):
-        packet = Packet(CONTROL_HEADERS.CS_DEFINE_STEP, 4, [self.firesim_step])
+        packet = Control_Packet(CONTROL_HEADERS.CS_DEFINE_STEP, 4, [self.firesim_step])
         self.txqueue.append(packet)
 
     def send_bw(self, dst, bw):
-        packet = Packet(CONTROL_HEADERS.CS_CFG_BW, 8, [dst, bw])
+        packet = Control_Packet(CONTROL_HEADERS.CS_CFG_BW, 8, [dst, bw])
         self.txqueue.append(packet)
     
     def send_route(self, header, channel):
-        packet = Packet(CONTROL_HEADERS.CS_CFG_ROUTE, 8, [header, channel])
+        packet = Control_Packet(CONTROL_HEADERS.CS_CFG_ROUTE, 8, [header, channel])
         self.txqueue.append(packet)
 
     def grant_firesim_token(self):
-        packet = Packet(CONTROL_HEADERS.CS_GRANT_TOKEN, 0, None)
+        packet = Control_Packet(CONTROL_HEADERS.CS_GRANT_TOKEN, 0, None)
         self.txqueue.append(packet)
 
         while True:
@@ -232,7 +232,7 @@ class Synchronizer:
                 break
 
     def get_firesim_cycles(self):
-        packet = Packet(CONTROL_HEADERS.CS_REQ_CYCLES, 0, None)
+        packet = Control_Packet(CONTROL_HEADERS.CS_REQ_CYCLES, 0, None)
         self.txqueue.append(packet)
 
         while len(self.sync_rxqueue) == 0:
@@ -333,9 +333,8 @@ class Synchronizer:
                 # Just a 1D array, process accordingly (send one response packet)
                 #packet_arr = obs_data.view(np.uint32).tolist()
                 packet_arr = np.frombuffer(obs_data.tobytes(), dtype=np.uint32).tolist()
-                packet = Packet(cmd+1, len(packet_arr) * 4, packet_arr)  # You might need to adjust the multiplier
-                blob = Blob(Packet.cmd_latency_dict.get(cmd+1,0), packet)
-                stable_heap_push(self.txpq, blob)
+                packet = Payload_Packet(cmd+1, len(packet_arr) * 4, packet_arr)  # You might need to adjust the multiplier
+                stable_heap_push(self.txpq, packet)
 
             else: 
                 # 2D array, send the response in rows
@@ -344,9 +343,8 @@ class Synchronizer:
                 for row in packet_arr:
                     row_packet_arr = row.view(np.uint32).tolist()
                     # print(f"row_packet_arr: {row_packet_arr}")
-                    packet = Packet(cmd+1, len(row_packet_arr) * 4, row_packet_arr)  # You might need to adjust the multiplier
-                    blob = Blob(Packet.cmd_latency_dict.get(cmd+1, 0), packet)
-                    stable_heap_push(self.txpq, blob)
+                    packet = Payload_Packet(cmd+1, len(row_packet_arr) * 4, row_packet_arr)  # You might need to adjust the multiplier
+                    stable_heap_push(self.txpq, packet)
         
         if 'action' in packet_config['type']:
             indices = packet_config['indices']
