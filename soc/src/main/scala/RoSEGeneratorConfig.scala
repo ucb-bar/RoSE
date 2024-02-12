@@ -28,10 +28,29 @@ case class RoseAdapterParams(
     DstParams(port_type = "DMA", DMA_address = 0x88000000L),
     DstParams(port_type = "reqrsp"),
     DstParams(port_type = "reqrsp")
-  ))
+  ))) extends HasSerializationHints {
   require(dst_ports.seq.size < 30)
-) extends HasSerializationHints {
   def typeHints: Seq[Class[_]] = Seq(classOf[DstParams_Container])
+  
+  def genidxmap: Seq[Int] = {
+    var idx_map = Seq[Int]()
+    var other_idx: Int = 0
+    var dma_idx: Int = 0
+    dst_ports.seq.zipWithIndex.foreach(
+      {case (port, n) => port.port_type match {
+          case "DMA" => {
+            idx_map = idx_map :+ dma_idx
+            dma_idx = dma_idx + 1
+          }
+          case _ => {
+            idx_map = idx_map :+ other_idx
+            other_idx = other_idx + 1
+          }
+        }
+      }
+    )
+    idx_map
+  }
 }
 
 case class DstParams_Container (seq: Seq[DstParams]) extends HasSerializationHints {
@@ -41,4 +60,5 @@ case class DstParams_Container (seq: Seq[DstParams]) extends HasSerializationHin
 case class DstParams (
   val port_type: String = "reqrsp", // supported are DMA and reqrsp
   val DMA_address: BigInt = 0x88000000L, // this attribute is only used if port_type is DMA
+  val name: String = "anonymous" // optional name for the port
 )

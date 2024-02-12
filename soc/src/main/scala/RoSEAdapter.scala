@@ -120,22 +120,7 @@ trait CanHavePeripheryRoseAdapter { this: BaseSubsystem =>
         }
       )
       
-      var idx_map = Seq[Int]()
-      var other_idx: Int = 0
-      var dma_idx: Int = 0
-      params.dst_ports.seq.zipWithIndex.foreach(
-        {case (port, n) => port.port_type match {
-            case "DMA" => {
-              idx_map = idx_map :+ dma_idx
-              dma_idx = dma_idx + 1
-            }
-            case _ => {
-              idx_map = idx_map :+ other_idx
-              other_idx = other_idx + 1
-            }
-          }
-        }
-      )
+      val idx_map = params.genidxmap
 
       val rose_outer_io = InModuleBody {
         val outer_io = IO(new ClockedIO(new RosePortIO(params))).suggestName("RoseAdapter")
