@@ -405,7 +405,7 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
       sb.append("\n")
 
       sb.append(f"#define ROSE_TX_DATA_ADDR 0x${bridgeParams.address + 0x8}%x\n")
-      sb.append(s"#define ROSE_TX_ENQ_READY reg_read32(ROSE_STATUS) & 0x1\n")
+      sb.append(s"#define ROSE_TX_ENQ_READY (reg_read32(ROSE_STATUS) & 0x1)\n")
       sb.append("\n")
 
       val idx_map = bridgeParams.genidxmap
@@ -416,14 +416,14 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
             val index = idx_map(i) + bridgeParams.dst_ports.seq.count(_.port_type != "DMA")
             sb.append(f"#define ROSE_DMA_CONFIG_COUNTER_ADDR_$i 0x${bridgeParams.address + (index+3)*4}%x\n")
             sb.append(f"#define ROSE_DMA_BASE_ADDR_$i 0x${bridgeParams.dst_ports.seq(i).DMA_address}%x\n")
-            sb.append(f"#define ROSE_DMA_BUFFER_$i reg_read32(ROSE_STATUS) & 0x${1<<(index+1)}%x\n")
+            sb.append(f"#define ROSE_DMA_BUFFER_$i (reg_read32(ROSE_STATUS) & 0x${1<<(index+1)}%x)\n")
             sb.append("\n")
           }
           case "reqrsp" => {
             sb.append(s"//${port.port_type}_${port.name}_port_channel_$i\n")
             val index = idx_map(i)
             sb.append(f"#define ROSE_RX_DATA_ADDR_$i 0x${bridgeParams.address + 0xC + index*4}%x\n")
-            sb.append(f"#define ROSE_RX_DEQ_VALID_$i reg_read32(ROSE_STATUS) & 0x${1<<(index+1)}%x\n")
+            sb.append(f"#define ROSE_RX_DEQ_VALID_$i (reg_read32(ROSE_STATUS) & 0x${1<<(index+1)}%x)\n")
             sb.append("\n")
           }
         }
