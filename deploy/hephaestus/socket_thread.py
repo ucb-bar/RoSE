@@ -2,7 +2,7 @@ import threading
 import socket
 import struct
 
-from rose_packet import RoSEPacket
+from rose_packet import *
 
 # TODO SOLVE THIS
 INTCMDS = []
@@ -56,13 +56,9 @@ class SocketThread (threading.Thread):
                         if cmd_data:
                             queue = None
                             cmd = int.from_bytes(cmd_data, "little", signed="False")
-                            if cmd > 0x80:
-                                queue = self.syn.sync_rxqueue
-                            else:
-                                queue = self.syn.data_rxqueue
+                            queue = self.syn.sync_rxqueue if cmd > 0x80 else self.syn.data_rxqueue
                             num_bytes = None
                             while True:
-                                # num_bytes_data = self.sync_conn.recv(4)
                                 num_bytes_data = self.read_word()
                                 if num_bytes_data:
                                     num_bytes = int.from_bytes(num_bytes_data, "little", signed="False")
@@ -74,8 +70,7 @@ class SocketThread (threading.Thread):
                                         datum = self.read_word()
                                         data.append(int.from_bytes(datum, "little", signed="False"))
                                         break
-                            packet = RoSEPacket()
-                            packet.init(cmd, num_bytes, data)
+                            packet = Control_Packet(cmd, num_bytes, data) if (cmd > 0x80) else Payload_Packet(cmd, num_bytes, data)
                             # print(f"Got packet: {packet}")
                             queue.append(packet)
                     except Exception as e:

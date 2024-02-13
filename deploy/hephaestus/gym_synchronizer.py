@@ -125,7 +125,7 @@ class Synchronizer:
         # And send firesim steps to each
         self.send_firesim_step()
 
-        for i, bw in enumerate(self.channel_binding):
+        for i, bw in enumerate(self.channel_bandwidth):
             self.send_bw(i, bw)
         
         for i in self.packet_bindings.keys():
@@ -275,7 +275,7 @@ class Synchronizer:
         print(f"Using Gym environment: {gym_env}")
         return gym_env
 
-    def load_gym_sim_config(self, gym_env, use_arguemented_yaml=False):
+    def load_gym_sim_config(self, gym_env):
         # Determine the path to the directory containing the current script
         script_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -283,7 +283,6 @@ class Synchronizer:
         config_file = os.path.join(script_dir, f'../config/config_gym_{gym_env}.yaml')
         with open(config_file, 'r') as f:
             gym_sim_config = yaml.safe_load(f)
-        
         print(f"loaded config: {gym_sim_config}")
 
         # Load the gym_timestep. This represents how much simulation time passes per env.step()
@@ -301,7 +300,7 @@ class Synchronizer:
             hex_id = packet['id']
             self.packet_bindings[hex_id] = packet  # bind the id to the packet configuration
         
-        self.channel_binding = gym_sim_config['channel_bandwidth']
+        self.channel_bandwidth = gym_sim_config['channel_bandwidth']
 
     def process_fsim_data_packet(self):
         packet = self.data_rxqueue.pop(0)
@@ -363,6 +362,18 @@ class Synchronizer:
             print(f"action: {data_to_assign}")
         
         self.logger.count_packet(cmd)
+    
+    def genRoSECPacketHeader(self):
+        sb = ["//RoSE Control Packet Headers"]
+        for k,v in CONTROL_HEADERS.__dict__.items():
+            if not k.startswith("__"):
+                sb.append(f"#define {k} = 0x{v:02x}")
+        sb.append("//RoSE Payload Packet Headers")
+        for k,v in self.packet_bindings.items():
+            sb.append(f"#define CS_{v['name'].upper()} = 0x{k:02x}")
+
+        with open("/scratch/iansseijelly/RoSE/soc/generated-src/rose_c_header/rose_packet.h", "w") as f:
+            f.write("\n".join(sb))
 
 
 if __name__ == "__main__":
