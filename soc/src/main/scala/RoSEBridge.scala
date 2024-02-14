@@ -423,6 +423,7 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
             sb.append(s"//${port.port_type}_${port.name}_port_channel_$i\n")
             val index = idx_map(i)
             sb.append(f"#define ROSE_RX_DATA_ADDR_$i 0x${bridgeParams.address + 0xC + index*4}%x\n")
+            sb.append(f"#define ROSE_RX_DATA_$i (reg_read32(ROSE_RX_DATA_ADDR_$i))\n")
             sb.append(f"#define ROSE_RX_DEQ_VALID_$i (reg_read32(ROSE_STATUS) & 0x${1<<(index+1)}%x)\n")
             sb.append("\n")
           }
