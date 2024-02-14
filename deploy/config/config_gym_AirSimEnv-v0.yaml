@@ -34,6 +34,8 @@ channel_bandwidth:
   - 0
   - 0
   - 0
+
+gym_timestep: 0.001
   
 gym_kwargs:
   init_x: 0

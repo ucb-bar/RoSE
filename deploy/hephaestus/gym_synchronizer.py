@@ -52,7 +52,73 @@ def default_action_for_space(space):
     else:
         raise ValueError(f"Don't know how to create a default action for space of type {type(space)}")
 
-class Synchronizer: 
+# useful for building the packet header
+class DummySynchronizer:
+    def __init__(self):
+        pass
+
+    def load_config(self):
+        # Determine the path to the directory containing the current script
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+
+        # Load the gym environment name from config_deploy_gym.yaml
+        with open(os.path.join(script_dir, '../config/config_deploy_gym.yaml'), 'r') as f:
+            config = yaml.safe_load(f)
+            gym_env = config.get('gym_env', 'AirSimEnv-v0')  # Default to 'AirSimEnv-v0' if not found
+        
+        # Load timing information from the config
+        if 'firesim_step' in config:
+            self.firesim_step = config['firesim_step']
+        if 'firesim_freq' in config:
+            self.firesim_freq = config['firesim_freq']
+        if 'max_sim_time' in config:
+            self.cycle_limit = config['max_sim_time'] * self.firesim_freq
+        if 'render' in config:
+            self.render = config['render']
+        
+        print(f"Using Gym environment: {gym_env}")
+        return gym_env
+    
+    def load_gym_sim_config(self, gym_env):
+        # Determine the path to the directory containing the current script
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+
+        # Construct the file name and open the specific config
+        config_file = os.path.join(script_dir, f'../config/config_gym_{gym_env}.yaml')
+        with open(config_file, 'r') as f:
+            gym_sim_config = yaml.safe_load(f)
+        print(f"loaded config: {gym_sim_config}")
+
+        # Load the gym_timestep. This represents how much simulation time passes per env.step()
+        if 'gym_timestep' in gym_sim_config:
+            self.gym_timestep = gym_sim_config['gym_timestep']
+        else:
+            raise ValueError("gym_timestep not found in config file")
+        
+        # Load the custom **kwargs for the gym environment
+        if 'gym_kwargs' in gym_sim_config:
+            self.gym_kwargs = gym_sim_config['gym_kwargs']
+        
+        self.packet_bindings = {}
+        for packet in gym_sim_config['packets']:
+            hex_id = packet['id']
+            self.packet_bindings[hex_id] = packet  # bind the id to the packet configuration
+        
+        self.channel_bandwidth = gym_sim_config['channel_bandwidth']
+    
+    def genRoSECPacketHeader(self):
+        sb = ["//RoSE Control Packet Headers"]
+        for k,v in CONTROL_HEADERS.__dict__.items():
+            if not k.startswith("__"):
+                sb.append(f"#define {k} = 0x{v:02x}")
+        sb.append("//RoSE Payload Packet Headers")
+        for k,v in self.packet_bindings.items():
+            sb.append(f"#define CS_{v['name'].upper()} = 0x{k:02x}")
+
+        with open("/scratch/iansseijelly/RoSE/soc/sw/generated-src/rose_c_header/rose_packet.h", "w") as f:
+            f.write("\n".join(sb))
+
+class Synchronizer(DummySynchronizer): 
 
     def __init__(self, host=HOST, sync_port=SYNC_PORT, data_port=DATA_PORT, firesim_step=10000, firesim_freq=1_000_000_000):
         self.txqueue = []
@@ -244,8 +310,7 @@ class Synchronizer:
         while len(self.data_rxqueue) > 0:
             self.process_fsim_data_packet()
         while(len(self.txpq) > 0 and self.txpq[0].latency < 1):
-            packet_blob = stable_heap_pop(self.txpq)
-            packet = packet_blob.packet
+            packet = stable_heap_pop(self.txpq)
             self.txqueue.append(packet)
             # print(f"appended packet: {packet}")
         # Now, iterate through the rest of the queue, decrement latency by 1
@@ -253,54 +318,6 @@ class Synchronizer:
             blobs.latency = blobs.latency - 1
             blobs.packet.latency = blobs.latency
 
-    def load_config(self):
-        # Determine the path to the directory containing the current script
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-
-        # Load the gym environment name from config_deploy_gym.yaml
-        with open(os.path.join(script_dir, '../config/config_deploy_gym.yaml'), 'r') as f:
-            config = yaml.safe_load(f)
-            gym_env = config.get('gym_env', 'AirSimEnv-v0')  # Default to 'AirSimEnv-v0' if not found
-        
-        # Load timing information from the config
-        if 'firesim_step' in config:
-            self.firesim_step = config['firesim_step']
-        if 'firesim_freq' in config:
-            self.firesim_freq = config['firesim_freq']
-        if 'max_sim_time' in config:
-            self.cycle_limit = config['max_sim_time'] * self.firesim_freq
-        if 'render' in config:
-            self.render = config['render']
-        
-        print(f"Using Gym environment: {gym_env}")
-        return gym_env
-
-    def load_gym_sim_config(self, gym_env):
-        # Determine the path to the directory containing the current script
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-
-        # Construct the file name and open the specific config
-        config_file = os.path.join(script_dir, f'../config/config_gym_{gym_env}.yaml')
-        with open(config_file, 'r') as f:
-            gym_sim_config = yaml.safe_load(f)
-        print(f"loaded config: {gym_sim_config}")
-
-        # Load the gym_timestep. This represents how much simulation time passes per env.step()
-        if 'gym_timestep' in gym_sim_config:
-            self.gym_timestep = gym_sim_config['gym_timestep']
-        else:
-            raise ValueError("gym_timestep not found in config file")
-        
-        # Load the custom **kwargs for the gym environment
-        if 'gym_kwargs' in gym_sim_config:
-            self.gym_kwargs = gym_sim_config['gym_kwargs']
-        
-        self.packet_bindings = {}
-        for packet in gym_sim_config['packets']:
-            hex_id = packet['id']
-            self.packet_bindings[hex_id] = packet  # bind the id to the packet configuration
-        
-        self.channel_bandwidth = gym_sim_config['channel_bandwidth']
 
     def process_fsim_data_packet(self):
         packet = self.data_rxqueue.pop(0)
@@ -362,19 +379,6 @@ class Synchronizer:
             print(f"action: {data_to_assign}")
         
         self.logger.count_packet(cmd)
-    
-    def genRoSECPacketHeader(self):
-        sb = ["//RoSE Control Packet Headers"]
-        for k,v in CONTROL_HEADERS.__dict__.items():
-            if not k.startswith("__"):
-                sb.append(f"#define {k} = 0x{v:02x}")
-        sb.append("//RoSE Payload Packet Headers")
-        for k,v in self.packet_bindings.items():
-            sb.append(f"#define CS_{v['name'].upper()} = 0x{k:02x}")
-
-        with open("/scratch/iansseijelly/RoSE/soc/generated-src/rose_c_header/rose_packet.h", "w") as f:
-            f.write("\n".join(sb))
-
 
 if __name__ == "__main__":
 

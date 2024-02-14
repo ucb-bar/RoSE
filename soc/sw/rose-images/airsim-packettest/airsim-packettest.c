@@ -5,38 +5,8 @@
 #include <string.h>
 #include <riscv-pk/encoding.h>
 
-#define AIRSIM_STATUS 0x2000
-#define AIRSIM_WRITTEN_COUNTER_MAX 0x2014
-#define AIRSIM_IN 0x2008
-#define AIRSIM_OUT 0x200C
-
-//TODO: verify this is the correct address and cacheblockbytes
-#define AIRSIM_DMA 0x88000000
-#define CacheBlockBytes 64
-
-#define CS_GRANT_TOKEN 0x80
-#define CS_REQ_CYCLES  0x81
-#define CS_RSP_CYCLES  0x82
-#define CS_DEFINE_STEP 0x83
-
-#define CS_REQ_WAYPOINT 0x01
-#define CS_RSP_WAYPOINT 0x02
-#define CS_SEND_IMU 0x03
-#define CS_REQ_ARM  0x04
-#define CS_REQ_DISARM  0x05
-#define CS_REQ_TAKEOFF 0x06
-
-#define CS_REQ_IMG      0x10
-#define CS_RSP_IMG      0x11
-#define CS_REQ_IMG_POLL 0x16
-#define CS_RSP_IMG_POLL 0x17
-
-#define CS_REQ_DEPTH     0x12
-#define CS_RSP_DEPTH     0x13
-#define CS_REQ_DEPTH_STREAM 0x14
-#define CS_RSP_DEPTH_STREAM 0x15
-
-#define CS_SET_TARGETS  0x20
+#include <rose_port.h>
+#include <rose_packet.h>
 
 uint32_t buf[56 * 56 * 3];
 

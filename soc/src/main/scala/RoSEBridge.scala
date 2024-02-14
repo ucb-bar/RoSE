@@ -429,7 +429,7 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
         }
       }
 
-      val fileWriter = new FileWriter(new File("/scratch/iansseijelly/RoSE/soc/generated-src/rose_c_header/rose_port.h"))
+      val fileWriter = new FileWriter(new File("/scratch/iansseijelly/RoSE/soc/sw/generated-src/rose_c_header/rose_port.h"))
       fileWriter.write(sb.toString)
       fileWriter.close()
     }
