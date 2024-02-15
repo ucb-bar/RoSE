@@ -19,12 +19,6 @@ DATA_PORT = 60002
 class CONTROL_HEADERS:
     # fsim->gym
     CS_RESET        = 0xFF
-    CS_REQ_WAYPOINT = 0xF1
-    CS_RSP_WAYPOINT = 0xF2
-    CS_SEND_IMU     = 0xF3
-    CS_REQ_ARM      = 0xF4
-    CS_REQ_DISARM   = 0xF5
-    CS_REQ_TAKEOFF  = 0xF6
     # sync->fsim
     CS_GRANT_TOKEN  = 0x80 
     CS_REQ_CYCLES   = 0x81 

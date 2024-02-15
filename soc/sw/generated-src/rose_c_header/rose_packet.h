@@ -1,11 +1,5 @@
 //RoSE Control Packet Headers
 #define CS_RESET 0xff
-#define CS_REQ_WAYPOINT 0xf1
-#define CS_RSP_WAYPOINT 0xf2
-#define CS_SEND_IMU 0xf3
-#define CS_REQ_ARM 0xf4
-#define CS_REQ_DISARM 0xf5
-#define CS_REQ_TAKEOFF 0xf6
 #define CS_GRANT_TOKEN 0x80
 #define CS_REQ_CYCLES 0x81
 #define CS_RSP_CYCLES 0x82
@@ -18,3 +12,6 @@
 #define CS_IMU 0x20
 #define CS_ACCELEROMETER 0x22
 #define CS_GYROSCOPE 0x24
+#define CS_ARM 0x01
+#define CS_DISARM 0x02
+#define CS_TAKEOFF 0x04

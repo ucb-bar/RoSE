@@ -29,6 +29,13 @@ packets:
     indices:
       - "imu"
       - [3, 5]
+  # actions
+  - name: 'arm'
+    id: 0x01
+  - name: 'disarm'
+    id: 0x02
+  - name: 'takeoff'
+    id: 0x04
 
 channel_bandwidth: 
   - 0
