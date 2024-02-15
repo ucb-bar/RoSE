@@ -19,6 +19,12 @@ DATA_PORT = 60002
 class CONTROL_HEADERS:
     # fsim->gym
     CS_RESET        = 0xFF
+    CS_REQ_WAYPOINT = 0xF1
+    CS_RSP_WAYPOINT = 0xF2
+    CS_SEND_IMU     = 0xF3
+    CS_REQ_ARM      = 0xF4
+    CS_REQ_DISARM   = 0xF5
+    CS_REQ_TAKEOFF  = 0xF6
     # sync->fsim
     CS_GRANT_TOKEN  = 0x80 
     CS_REQ_CYCLES   = 0x81 
@@ -110,10 +116,10 @@ class DummySynchronizer:
         sb = ["//RoSE Control Packet Headers"]
         for k,v in CONTROL_HEADERS.__dict__.items():
             if not k.startswith("__"):
-                sb.append(f"#define {k} = 0x{v:02x}")
+                sb.append(f"#define {k} 0x{v:02x}")
         sb.append("//RoSE Payload Packet Headers")
         for k,v in self.packet_bindings.items():
-            sb.append(f"#define CS_{v['name'].upper()} = 0x{k:02x}")
+            sb.append(f"#define CS_{v['name'].upper()} 0x{k:02x}")
 
         with open("/scratch/iansseijelly/RoSE/soc/sw/generated-src/rose_c_header/rose_packet.h", "w") as f:
             f.write("\n".join(sb))

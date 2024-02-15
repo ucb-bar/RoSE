@@ -5,8 +5,8 @@
 #include <string.h>
 #include <riscv-pk/encoding.h>
 
-#include <rose_port.h>
-#include <rose_packet.h>
+#include "rose_port.h"
+#include "rose_packet.h"
 
 uint32_t buf[56 * 56 * 3];
 
@@ -29,7 +29,7 @@ void send_takeoff() {
 
 void configure_counter(){
   printf("Configuring counter...\n");
-  reg_write32(AIRSIM_WRITTEN_COUNTER_MAX, 56*56*3);
+  reg_write32(ROSE_DMA_CONFIG_COUNTER_ADDR_0, 56*56*3);
 }
 
 void send_img_req() {
@@ -45,7 +45,7 @@ void recv_img() {
   uint8_t status;
 
   do {
-    status = ROSE_RX_DEQ_VALID_1
+    status = ROSE_RX_DEQ_VALID_1;
   } while (status == 0);
   uint32_t cmd = ROSE_RX_DATA_1;
 
@@ -77,7 +77,7 @@ int main(void)
 
   while(img_rcvd < 32){
     uint64_t start = rdcycle();
-    send_img_req_poll();
+    send_img_req();
     for(i = 0; i < 180; i++) {
       recv_img();
     }

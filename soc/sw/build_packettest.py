@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # A script for building the target packettest application
 
 import os
@@ -10,6 +11,7 @@ ROSE_PACKET_HEADER = os.path.join(ROSE_HEADER_DIR, "rose_packet.h")
 
 PACKETTEST_SRC_DIR = os.path.join(ROSE_SW_DIR, "rose-images", "airsim-packettest")
 CY_TEST_DIR = os.path.join(ROSE_SW_DIR, "..", "sim", "firesim", "target-design", "chipyard", "tests")
+FSIM_WORKLOAD_DIR = os.path.join(ROSE_SW_DIR, "..", "sim", "firesim", "deploy", "workloads", "airsim-packettest")
 
 # argument parsing
 if __name__ == "__main__":
@@ -35,15 +37,18 @@ if __name__ == "__main__":
             if file.endswith(".c"):
                 os.system(f"cp -f {os.path.join(PACKETTEST_SRC_DIR, file)} {CY_TEST_DIR}")
 
-    # build the packettest application
+        # build the packettest application
         os.chdir(CY_TEST_DIR)
         os.system("make clean")
+
         if args.target != 'all':
-            os.system(f"make {args.target}")
+            os.system(f"export $PROGRAMS={args.target}")
+            os.system("make")
+            os.system(f"cp -f {args.target}.riscv {FSIM_WORKLOAD_DIR}")
             
         else:
             for file in os.listdir(CY_TEST_DIR):
                 if file.endswith(".c"):
-                    os.system(f"make {file[:-2]}")
-
-    
+                    os.system(f"export $PROGRAMS={file[:-2]}")
+                    os.system("make")
+                    os.system(f"cp -f {file[:-2]}.riscv {FSIM_WORKLOAD_DIR}")
