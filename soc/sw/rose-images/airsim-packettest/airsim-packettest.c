@@ -13,7 +13,7 @@ uint32_t buf[56 * 56 * 3];
 void send_arm() {
     printf("Sending arm...\n");
     while (ROSE_TX_ENQ_READY == 0);
-    reg_write32(ROSE_TX_DATA_ADDR, CS_REQ_ARM);
+    reg_write32(ROSE_TX_DATA_ADDR, CS_ARM);
     while (ROSE_TX_ENQ_READY == 0);
     printf("Sent arm...\n");
     reg_write32(ROSE_TX_DATA_ADDR, 0);
@@ -22,7 +22,7 @@ void send_arm() {
 void send_takeoff() {
     printf("Sending takeoff...\n");
     while (ROSE_TX_ENQ_READY == 0) ;
-    reg_write32(ROSE_TX_DATA_ADDR, CS_REQ_TAKEOFF);
+    reg_write32(ROSE_TX_DATA_ADDR, CS_TAKEOFF);
     while (ROSE_TX_ENQ_READY == 0) ;
     reg_write32(ROSE_TX_DATA_ADDR, 0);
 }

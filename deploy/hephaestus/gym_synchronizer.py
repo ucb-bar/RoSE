@@ -87,7 +87,7 @@ class DummySynchronizer:
         config_file = os.path.join(script_dir, f'../config/config_gym_{gym_env}.yaml')
         with open(config_file, 'r') as f:
             gym_sim_config = yaml.safe_load(f)
-        print(f"loaded config: {gym_sim_config}")
+        # print(f"loaded config: {gym_sim_config}")
 
         # Load the gym_timestep. This represents how much simulation time passes per env.step()
         if 'gym_timestep' in gym_sim_config:

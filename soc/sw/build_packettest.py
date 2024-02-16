@@ -37,18 +37,17 @@ if __name__ == "__main__":
             if file.endswith(".c"):
                 os.system(f"cp -f {os.path.join(PACKETTEST_SRC_DIR, file)} {CY_TEST_DIR}")
 
-        # build the packettest application
-        os.chdir(CY_TEST_DIR)
-        os.system("make clean")
+    # build the packettest application
+    os.chdir(CY_TEST_DIR)
+    os.system("make clean")
 
-        if args.target != 'all':
-            os.system(f"export $PROGRAMS={args.target}")
-            os.system("make")
-            os.system(f"cp -f {args.target}.riscv {FSIM_WORKLOAD_DIR}")
-            
-        else:
-            for file in os.listdir(CY_TEST_DIR):
-                if file.endswith(".c"):
-                    os.system(f"export $PROGRAMS={file[:-2]}")
-                    os.system("make")
-                    os.system(f"cp -f {file[:-2]}.riscv {FSIM_WORKLOAD_DIR}")
+    if args.target != 'all':
+        os.system(f"PROGRAMS={args.target} make")
+        os.system(f"cp -f {args.target}.riscv {FSIM_WORKLOAD_DIR}")
+        print("copied to " + FSIM_WORKLOAD_DIR)
+        
+    else:
+        for file in os.listdir(CY_TEST_DIR):
+            if file.endswith(".c"):
+                os.system(f"PROGRAMS={file[:-2]} make")
+                os.system(f"cp -f {file[:-2]}.riscv {FSIM_WORKLOAD_DIR}")

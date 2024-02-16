@@ -53,7 +53,7 @@ if __name__ == "__main__":
     |_|  \_\___/_____/|______|
     ============================
     """ 
-    print(header)
+    # print(header)
 
     if args.task == "build":
         print("[RoSE]:Building target file: " + args.target)
