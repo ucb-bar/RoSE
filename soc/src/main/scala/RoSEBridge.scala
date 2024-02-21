@@ -41,7 +41,7 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module{
   val w = params.width
   val io = IO(new RoseAdapterArbiterIO(params))
 
-  val sIdle :: sHeader :: sCounter :: sLoad :: Nil = Enum(4)
+  val sIdle :: sHeader :: sLoad :: Nil = Enum(3)
   val state = RegInit(sIdle)
   val counter = Reg(UInt(w.W))
 
@@ -49,13 +49,13 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module{
   io.config_routing <> arb_table.io.config_routing
   arb_table.io.key := io.tx.bits
   // storing the query result for future use
-  val latched_keep_header = RegEnable(arb_table.io.keep_header, io.tx.fire)
-  val latched_idx = RegEnable(arb_table.io.value, io.tx.fire)
+  val latched_keep_header = RegEnable(arb_table.io.keep_header, io.tx.fire && (state === sIdle))
+  val latched_idx = RegEnable(arb_table.io.value, io.tx.fire && (state === sIdle))
 
   val rx_val = Wire(Bool())
   params.dst_ports.seq.zipWithIndex.foreach {
   case (dstParam, i) =>
-    when (i.U === latched_idx) {
+    when (Mux(state === sIdle, i.U === arb_table.io.value, i.U === latched_idx)) {
       io.rx(i).valid := rx_val
     } .otherwise {
       io.rx(i).valid := false.B
@@ -73,19 +73,16 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module{
       def can_advance = io.budget.valid && ((io.budget.bits < io.cycleBudget) && (io.cycleBudget =/= io.cycleStep))
       io.tx.ready := io.rx(arb_table.io.value).ready && can_advance
       io.budget.ready := io.tx.ready
+      rx_val := Mux(io.tx.fire, arb_table.io.keep_header, false.B)
       state := Mux(io.tx.fire, sHeader, sIdle)
     } 
     is(sHeader) {
       rx_val := Mux(latched_keep_header, io.tx.valid, false.B)
-      state := Mux(io.tx.fire, sCounter, sHeader)
-    }
-    is(sCounter) {
       counter := io.tx.bits >> 2
-      rx_val := Mux(latched_keep_header, io.tx.valid, false.B)
       when(io.tx.bits === 0.U) {
-        state := Mux(io.rx(latched_idx).fire, sIdle, sCounter)
+        state := Mux(io.rx(latched_idx).fire, sIdle, sHeader)
       } .otherwise {
-        state := Mux(io.tx.fire, sLoad, sCounter)
+        state := Mux(io.tx.fire, sLoad, sHeader)
       }
     }
     is(sLoad) {
@@ -424,7 +421,7 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
             val index = idx_map(i)
             sb.append(f"#define ROSE_RX_DATA_ADDR_$i 0x${bridgeParams.address + 0xC + index*4}%x\n")
             sb.append(f"#define ROSE_RX_DATA_$i (reg_read32(ROSE_RX_DATA_ADDR_$i))\n")
-            sb.append(f"#define ROSE_RX_DEQ_VALID_$i (reg_read32(ROSE_STATUS_ADDR) & 0x${1<<(index+1)}%x)\n")
+            sb.append(f"#define ROSE_RX_DEQ_VALID_$i (reg_read32(ROSE_STATUS_ADDR) & 0x${1<<(params.dst_ports.seq.count(_.port_type != "DMA")-index)}%x)\n")
             sb.append("\n")
           }
         }

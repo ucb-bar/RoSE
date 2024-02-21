@@ -277,7 +277,7 @@ void airsim_t::process_tcp_packet()
         cmd = this->tcp_sync_rxdata.front();
         this->tcp_sync_rxdata.pop_front();
         m.unlock();
-        //printf("[Airsim Driver]: Got cmd from queue: 0x%x\n", cmd);
+        // printf("[Airsim Driver]: Got cmd from queue: 0x%x\n", cmd);
 
         //usleep(1);
         uint32_t i = 1;
@@ -574,7 +574,7 @@ void airsim_t::config_bandwidth(uint32_t dest, uint32_t bandwidth)
 
 void airsim_t::config_route(uint32_t header, uint32_t channel)
 {
-    // printf("[AirSim Driver]: Setting route to %d!\n", route);
+    // printf("[AirSim Driver]: Setting header to %d and channel to %d!\n", header, channel);
     write(this->mmio_addrs.config_routing_header, header);
     write(this->mmio_addrs.config_routing_channel, channel);
     write(this->mmio_addrs.config_routing_valid, 1);

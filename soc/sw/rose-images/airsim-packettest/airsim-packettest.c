@@ -70,10 +70,10 @@ int main(void)
   printf("Starting Test Code\n");
   configure_counter();
   printf("Configured counter...\n");
-  send_arm();
-  printf("Armed...\n");
-  send_takeoff();
-  printf("Took off...\n");
+  // send_arm();
+  // printf("Armed...\n");
+  // send_takeoff();
+  // printf("Took off...\n");
 
   while(img_rcvd < 32){
     uint64_t start = rdcycle();

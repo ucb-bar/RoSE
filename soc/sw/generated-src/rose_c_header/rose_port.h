@@ -14,10 +14,10 @@
 //reqrsp_anonymous_port_channel_1
 #define ROSE_RX_DATA_ADDR_1 0x200c
 #define ROSE_RX_DATA_1 (reg_read32(ROSE_RX_DATA_ADDR_1))
-#define ROSE_RX_DEQ_VALID_1 (reg_read32(ROSE_STATUS_ADDR) & 0x2)
+#define ROSE_RX_DEQ_VALID_1 (reg_read32(ROSE_STATUS_ADDR) & 0x4)
 
 //reqrsp_anonymous_port_channel_2
 #define ROSE_RX_DATA_ADDR_2 0x2010
 #define ROSE_RX_DATA_2 (reg_read32(ROSE_RX_DATA_ADDR_2))
-#define ROSE_RX_DEQ_VALID_2 (reg_read32(ROSE_STATUS_ADDR) & 0x4)
+#define ROSE_RX_DEQ_VALID_2 (reg_read32(ROSE_STATUS_ADDR) & 0x2)
 

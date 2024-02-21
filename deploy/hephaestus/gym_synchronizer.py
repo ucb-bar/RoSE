@@ -159,7 +159,6 @@ class Synchronizer(DummySynchronizer):
         for cmd in self.packet_bindings.keys():
             if 'latency' in self.packet_bindings[cmd]:
                 Packet.cmd_latency_dict[cmd] = self.packet_bindings[cmd]['latency'] / self.firesim_period
-                Packet.cmd_latency_dict[cmd+1] = self.packet_bindings[cmd]['latency'] / self.firesim_period
 
         # Initialize sockets 
         self.socket_threads = []
@@ -194,8 +193,10 @@ class Synchronizer(DummySynchronizer):
         for i, bw in enumerate(self.channel_bandwidth):
             self.send_bw(i, bw)
         
-        for i in self.packet_bindings.keys():
-            self.send_route(i, self.packet_bindings[i]['channel'])
+        for cmd in self.packet_bindings.keys():
+            if 'channel' in self.packet_bindings[cmd]:
+                print(f"Sending route for 0x{cmd:02x} to channel {self.packet_bindings[cmd]['channel']}")
+                self.send_route(cmd, self.packet_bindings[cmd]['channel'])
 
         self.obs = self.env.reset()
         self.done = False
@@ -221,12 +222,12 @@ class Synchronizer(DummySynchronizer):
                 self.action = self.default_action
 
             # Log observation and action at this timestep
-            self.logger.log_data(self.obs, self.action)
-            if self.render:
-                self.logger.display()
+            # self.logger.log_data(self.obs, self.action)
+            # if self.render:
+                # self.logger.display()
 
             # Log the rendered frame for this timestep
-            self.logger.log_rendering()
+            # self.logger.log_rendering()
 
             # Step RTL simulation
             self.grant_firesim_token()
@@ -349,7 +350,7 @@ class Synchronizer(DummySynchronizer):
                 # Just a 1D array, process accordingly (send one response packet)
                 #packet_arr = obs_data.view(np.uint32).tolist()
                 packet_arr = np.frombuffer(obs_data.tobytes(), dtype=np.uint32).tolist()
-                packet = Payload_Packet(cmd+1, len(packet_arr) * 4, packet_arr)  # You might need to adjust the multiplier
+                packet = Payload_Packet(cmd, len(packet_arr) * 4, packet_arr)  # You might need to adjust the multiplier
                 stable_heap_push(self.txpq, packet)
 
             else: 
@@ -359,7 +360,7 @@ class Synchronizer(DummySynchronizer):
                 for row in packet_arr:
                     row_packet_arr = row.view(np.uint32).tolist()
                     # print(f"row_packet_arr: {row_packet_arr}")
-                    packet = Payload_Packet(cmd+1, len(row_packet_arr) * 4, row_packet_arr)  # You might need to adjust the multiplier
+                    packet = Payload_Packet(cmd, len(row_packet_arr) * 4, row_packet_arr)  # You might need to adjust the multiplier
                     stable_heap_push(self.txpq, packet)
         
         if 'action' in packet_config['type']:
