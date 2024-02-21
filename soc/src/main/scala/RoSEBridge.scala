@@ -20,11 +20,12 @@ class RoseArbTable(params: RoseAdapterParams) extends Module {
     val value = Output(UInt(params.width.W))
     val keep_header = Output(Bool())
     // Configuration ports
-    val config_routing = new ConfigRoutingIO()
+    val config_routing = new ConfigRoutingIO(params)
   })
 
   // spawn a vector of registers, storing the configured routing values
-  val routing_table = RegInit(VecInit(Seq.fill(0x80)(0.U(params.width.W))))
+  // TODO: replace with a memory
+  val routing_table = RegInit(VecInit(Seq.fill(0x80)(0.U(log2Ceil(params.dst_ports.seq.size).W))))
   // A static vector storing the keep_header values
   val keeping_table = VecInit(params.dst_ports.seq.map(port => (port.port_type == "reqrsp").B))
 
@@ -410,10 +411,9 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
         case (port, i) => port.port_type match {
           case "DMA" => {
             sb.append(s"//${port.port_type}_${port.name}_port_channel_$i\n")
-            val index = idx_map(i) + bridgeParams.dst_ports.seq.count(_.port_type != "DMA")
-            sb.append(f"#define ROSE_DMA_CONFIG_COUNTER_ADDR_$i 0x${bridgeParams.address + (index+3)*4}%x\n")
+            sb.append(f"#define ROSE_DMA_CONFIG_COUNTER_ADDR_$i 0x${bridgeParams.address + (idx_map(i)+3+bridgeParams.dst_ports.seq.count(_.port_type != "DMA"))*4}%x\n")
             sb.append(f"#define ROSE_DMA_BASE_ADDR_$i 0x${bridgeParams.dst_ports.seq(i).DMA_address}%x\n")
-            sb.append(f"#define ROSE_DMA_BUFFER_$i (reg_read32(ROSE_STATUS_ADDR) & 0x${1<<(index+1)}%x)\n")
+            sb.append(f"#define ROSE_DMA_BUFFER_$i (reg_read32(ROSE_STATUS_ADDR) & 0x${1<<(bridgeParams.dst_ports.seq.length-idx_map(i))}%x)\n")
             sb.append("\n")
           }
           case "reqrsp" => {
@@ -426,8 +426,7 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
           }
         }
       }
-
-      val fileWriter = new FileWriter(new File("/scratch/iansseijelly/RoSE/soc/sw/generated-src/rose_c_header/rose_port.h"))
+      val fileWriter = new FileWriter(new File("../../../sw/generated-src/rose_c_header/rose_port.h"))
       fileWriter.write(sb.toString)
       fileWriter.close()
     }

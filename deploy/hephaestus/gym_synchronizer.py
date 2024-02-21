@@ -121,6 +121,7 @@ class DummySynchronizer:
 class Synchronizer(DummySynchronizer): 
 
     def __init__(self, host=HOST, sync_port=SYNC_PORT, data_port=DATA_PORT, firesim_step=10000, firesim_freq=1_000_000_000):
+        super().__init__()
         self.txqueue = []
         self.txpq = [] 
         self.data_rxqueue = []

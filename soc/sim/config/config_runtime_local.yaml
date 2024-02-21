@@ -8,8 +8,8 @@ run_farm:
     # how to run simulations on a run farm host.
     default_platform: XilinxAlveoU250InstanceDeployManager
     # REQUIRED: default directory where simulations are run out of on the run farm hosts
-    #default_simulation_dir: /home/eecs/iansseijelly/FIRESIM_RUNS_DIR
-    default_simulation_dir: none
+    default_simulation_dir: /scratch/iansseijelly/FIRESIM_RUNS_DIR
+    #default_simulation_dir: none
     # REQUIRED: List of unique hostnames/IP addresses, each with their
     # corresponding specification that describes the properties of the host.
     #

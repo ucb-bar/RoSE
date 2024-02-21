@@ -40,7 +40,7 @@ void send_img_req() {
     reg_write32(ROSE_TX_DATA_ADDR, 0);
 }
 
-void recv_img() {
+int recv_img(int start_byte) {
   uint32_t i;
   uint8_t status;
 
@@ -48,14 +48,17 @@ void recv_img() {
     status = ROSE_RX_DEQ_VALID_1;
   } while (status == 0);
   uint32_t cmd = ROSE_RX_DATA_1;
+  // printf("Got cmd: %d\n", cmd);
 
   while (ROSE_RX_DEQ_VALID_1 == 0) ;
   uint32_t num_bytes = ROSE_RX_DATA_1;
+  // printf("Got num_bytes: %d\n", num_bytes);
   
   for(i = 0; i < num_bytes / 4; i++) {
     while (ROSE_RX_DEQ_VALID_1 == 0) ;
-    buf[i] = ROSE_RX_DATA_1;
+    buf[i + start_byte] = ROSE_RX_DATA_1;
   }
+  return num_bytes;
 }
 
 int main(void)
@@ -66,24 +69,27 @@ int main(void)
   int i, j;
   int img_rcvd = 0;
   uint64_t cycles_measured[32] = {0};
+  int byte_read = 0;
 
-  printf("Starting Test Code\n");
+  // printf("Starting Test Code\n");
   configure_counter();
-  printf("Configured counter...\n");
+  // printf("Configured counter...\n");
   // send_arm();
   // printf("Armed...\n");
   // send_takeoff();
   // printf("Took off...\n");
 
-  while(img_rcvd < 32){
+  while(img_rcvd < 2){
     uint64_t start = rdcycle();
     send_img_req();
-    for(i = 0; i < 180; i++) {
-      recv_img();
+    while (byte_read < 56*56*3) {
+      byte_read += recv_img(byte_read);
     }
     uint64_t end = rdcycle();
     cycles_measured[img_rcvd] = end - start;
     img_rcvd++;
+    printf("Received image %d\n", img_rcvd);
+    byte_read = 0;
   }
 
   for (i = 0; i < 32; i++){
