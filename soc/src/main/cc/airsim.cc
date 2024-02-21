@@ -23,8 +23,6 @@ int count = 0;
 int thread_count = 0;
 std::mutex m;
 
-// COSIM-CODE
-// Add these functions due to overloading in the uart class
 ssize_t net_write(int fd, const void *buf, size_t count)
 {
     return send(fd, buf, count, 0);
@@ -32,15 +30,8 @@ ssize_t net_write(int fd, const void *buf, size_t count)
 
 ssize_t net_read(int fd, void *buf, size_t count)
 {
-    // int k = 0;
-    // for(in i = 0; i < count; i++) {
-
-    // }
-    // return k;
-    return recv(fd, buf, count, 0);
+   return recv(fd, buf, count, 0);
 }
-// COSIM-CODE
-
 
 void * queue_func(void * arg){
     airsim_t * sim = (airsim_t *) arg;
@@ -53,17 +44,10 @@ void * queue_func(void * arg){
 
     std::deque<uint32_t> * curr_q;
     cosim_packet_t packet;
-    budget_packet_t* budget_packet; // Declare the object outside the if-else block
-
-    // FILE * txfile;
-    // FILE * rxfile;
+    budget_packet_t* budget_packet; 
 
     uint32_t buf[ROBOTICS_COSIM_BUFSIZE];
 
-    // printf("[AirSim Driver Thread]: Entered thread\n");
-
-    // rxfile = fopen("/home/centos/bridge_rxdump.txt", "w");
-    // txfile = fopen("/home/centos/bridge_txdump.txt", "w");
     while(true) {
         thread_count++;
         if(thread_count > 50000) {
@@ -77,8 +61,7 @@ void * queue_func(void * arg){
             cmd = ((uint32_t *) sim->buf)[0];
             // printf("[AIRSIM DRIVER THREAD]: Got cmd in multithreading: 0x%x, %d\n", cmd, n);
             usleep(1);
-            // if(cmd < 0x80)
-            //    printf("[AIRSIM DRIVER THREAD]: Got data cmd in multithreading: 0x%x\n", cmd);
+            // if(cmd < 0x80) printf("[AIRSIM DRIVER THREAD]: Got data cmd in multithreading: 0x%x\n", cmd);
             curr_q = (cmd >= 0x80) ? &(sim->tcp_sync_rxdata) : &(sim->tcp_data_rxdata);
             // if this is a control sequence...
             if (cmd >= 0x80) {
@@ -216,11 +199,6 @@ void * queue_func(void * arg){
             }
             packet.encode(sim->buf);
             net_write(sim->sync_sockfd, sim->buf, packet.num_bytes + 8);
-            // fprintf(txfile, "%d\n", cmd);
-            // fprintf(txfile, "%d\n", num_bytes);
-            for(int i = 0; i < num_bytes / 4; i++) {
-                // fprintf(txfile, "%d\n", packet.data[i]);
-            }
             // printf("[AIRSIM DRIVER THREAD]: Exiting TX task\n");
         }
     }
@@ -237,10 +215,6 @@ airsim_t::airsim_t(simif_t &sim, const ROSEBRIDGEMODULE_struct &mmio_addrs, int 
     pthread_create(&(this->tcp_thread), NULL, &queue_func , this);
 }
 airsim_t::~airsim_t() = default;
-// {
-//     free(this->mmio_addrs);
-//     close(this->loggingfd);
-// }
 
 void airsim_t::connect_synchronizer()
 {
@@ -303,7 +277,7 @@ void airsim_t::process_tcp_packet()
         cmd = this->tcp_sync_rxdata.front();
         this->tcp_sync_rxdata.pop_front();
         m.unlock();
-        //printf("[Airsim Driver]: Got cmd from queue: 0x%x\n", cmd);
+        // printf("[Airsim Driver]: Got cmd from queue: 0x%x\n", cmd);
 
         //usleep(1);
         uint32_t i = 1;
@@ -374,6 +348,8 @@ void airsim_t::process_tcp_packet()
             // printf("[AirSim Driver]: Got Bandwidth: %d\n", packet.data[1]);
             this->config_bandwidth(packet.data[0], packet.data[1]);
             break;
+        case CS_CFG_ROUTE:
+            this->config_route(packet.data[0], packet.data[1]);
         default:
             // TODO SEND DATA
             // if(packet.cmd < 0x80) {
@@ -596,6 +572,14 @@ void airsim_t::config_bandwidth(uint32_t dest, uint32_t bandwidth)
     write(this->mmio_addrs.bww_config_valid, 1);
 }
 
+void airsim_t::config_route(uint32_t header, uint32_t channel)
+{
+    // printf("[AirSim Driver]: Setting header to %d and channel to %d!\n", header, channel);
+    write(this->mmio_addrs.config_routing_header, header);
+    write(this->mmio_addrs.config_routing_channel, channel);
+    write(this->mmio_addrs.config_routing_valid, 1);
+}
+
 void airsim_t::tick()
 {
     cosim_packet_t packet;
@@ -656,26 +640,6 @@ void airsim_t::tick()
             break;
         }
     }
-    //do
-    //{
-    //    this->recv();
-
-    //    if (data.in.ready)
-    //    {
-    //        char inp;
-    //        int readamt;
-
-    //        if (data.out.fire())
-    //        {
-    //            printf("[AirSim Driver]: Sending data: %x\n", data.out.bits);
-    //            data.in.bits = data.out.bits;
-    //            data.in.valid = true;
-    //        }
-    //    }
-
-    //    this->send();
-    //    data.in.valid = false;
-    //} while (data.in.fire() || data.out.fire());
 }
 
 budget_packet_t::budget_packet_t(){

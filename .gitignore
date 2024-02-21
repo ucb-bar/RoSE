@@ -9,3 +9,5 @@ soc/sim/firesim_build_temp
 deploy/hephaestus/logs/*
 deploy/hephaestus/img
 deploy/hephaestus/bw.txt
+/project
+soc/generated-src/*

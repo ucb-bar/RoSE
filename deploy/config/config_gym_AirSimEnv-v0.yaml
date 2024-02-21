@@ -3,21 +3,21 @@ packets:
     id: 0x10
     type: "reqrsp"
     latency: 0
-    channel: 0
+    channel: 1
     indices:
       - "camera"
   - name: imu
     id: 0x20
     type: "reqrsp"
     latency: 0
-    channel: 0
+    channel: 1
     indices:
       - "imu"
   - name: 'accelerometer'
     id: 0x22
     type: "reqrsp"
     latency: 0
-    channel: 0
+    channel: 1
     indices:
       - "imu"
       - [0, 2]
@@ -25,10 +25,34 @@ packets:
     id: 0x24
     type: "reqrsp"
     latency: 0
-    channel: 0
+    channel: 1
     indices:
       - "imu"
       - [3, 5]
+  # actions
+  - name: 'arm'
+    id: 0x01
+    type: "action_latch"
+    indices:
+      - "active"
+  - name: 'disarm'
+    id: 0x02
+    type: "action_latch"
+    indices:
+      - "active"
+  - name: 'takeoff'
+    id: 0x04
+    type: "action_latch"
+    indices:
+      - "active"
+
+channel_bandwidth: 
+  - 0
+  - 0
+  - 0
+
+gym_timestep: 0.001
+  
 gym_kwargs:
   init_x: 0
   init_y: 0

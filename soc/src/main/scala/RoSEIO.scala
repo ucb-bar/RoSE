@@ -1,18 +1,9 @@
-//    ____       U  ___ u   ____     U _____ u 
-// U |  _"\ u     \/"_ \/  / __"| u  \| ___"|/ 
-//  \| |_) |/     | | | | <\___ \/    |  _|"   
-//   |  _ <   .-,_| |_| |  u___) |    | |___   
-//   |_| \_\   \_)-\___/   |____/>>   |_____|  
-//   //   \\_       \\      )(  (__)  <<   >>  
-//  (__)  (__)     (__)    (__)      (__) (__) 
-// --- --- Get some RoSE IOs rolling --- --- ---
-
 package rose
 
 import chisel3._
 import chisel3.util._
 import testchipip._
-import chisel3.experimental.{IO, IntParam, BaseModule}
+import chisel3.experimental.IO
 import org.chipsalliance.cde.config.{Parameters, Field, Config}
 
 // PortIO is used for bridge <--> SoC communication
@@ -23,18 +14,27 @@ class RosePortIO(params: RoseAdapterParams) extends Bundle {
   val tx = Decoupled(UInt(32.W))
 }
 
+class ConfigRoutingIO(params: RoseAdapterParams) extends Bundle {
+  val header = Input(UInt(32.W))
+  val valid = Input(Bool())
+  val channel = Input(UInt(log2Ceil(params.dst_ports.seq.size).W))
+}
+
 class RoseAdapterArbiterIO(params: RoseAdapterParams) extends Bundle {
     val rx = Vec(params.dst_ports.seq.size, Decoupled(UInt(32.W)))
     val tx = Flipped(Decoupled(UInt(32.W)))
+
     val budget = Flipped(Decoupled(UInt(32.W)))
+    // advancing counter
     val cycleBudget = Input(UInt(32.W))
+    // fixed step size
     val cycleStep = Input(UInt(32.W))
+
+    val config_routing = new ConfigRoutingIO(params)
 }
 
 // Core IO of the adapter
 class RoseAdapterIO(params: RoseAdapterParams) extends Bundle {
-  val clock = Input(Clock())
-  val reset = Input(Bool())
   // Bridge -> SoC
   val rx = new Bundle {
     val enq = Vec(params.dst_ports.seq.count(_.port_type != "DMA"), Flipped(Decoupled(UInt(32.W))))
@@ -51,22 +51,11 @@ class RoseAdapterIO(params: RoseAdapterParams) extends Bundle {
 
 // TopIO is used for Regmap communicating to the cam DMA engine & to the post-bridge, and the TL registers
 // TopIO RoseadApterModule is the wrapper for the actuall MMIOChiselModule
-trait RoseAdapterTopIO extends Bundle {
-    val params: RoseAdapterParams
+class RoseAdapterTopIO(params: RoseAdapterParams) extends Bundle {
     // SoC receive from bridge, a vector of flipped decoupled IOs
-    val rx = Vec(params.dst_ports.seq.size, Flipped(Decoupled(UInt(32.W))))
+    val rx = Vec(params.dst_ports.seq.count(_.port_type != "DMA"), Flipped(Decoupled(UInt(32.W))))
     // SoC send to bridge, simple for now
     val tx = Decoupled(UInt(32.W))
     val cam_buffer = Vec(params.dst_ports.seq.count(_.port_type == "DMA"), Input(UInt(1.W)))
     val counter_max = Vec(params.dst_ports.seq.count(_.port_type == "DMA"), Output(UInt(32.W)))
-}
-
-// trait HasRoseAdapterIO extends BaseModule {
-//   val params: RoseAdapterParams
-//   val io = IO(new RoseAdapterIO(params))
-// }
-
-trait HasRosePortIO extends BaseModule {
-  val params: RoseAdapterParams
-  val port = IO(new RosePortIO(params))
 }

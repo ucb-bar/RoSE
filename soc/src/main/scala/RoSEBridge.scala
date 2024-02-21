@@ -8,11 +8,98 @@ import chisel3.util._
 import chisel3.experimental.{DataMirror, Direction, IO}
 import org.chipsalliance.cde.config.Parameters
 import freechips.rocketchip.subsystem.PeripheryBusKey
-import sifive.blocks.devices.uart.{UARTPortIO, UARTParams}
+import rose.{RosePortIO, RoseAdapterParams, RoseAdapterKey, DstParams, RoseAdapterArbiterIO, ConfigRoutingIO}
 
-import rose.{RosePortIO, RoseAdapterParams, RoseAdapterKey, RoseAdapterArbiter, DstParams}
+import java.io.{File, FileWriter}
+// A utility register-based lookup table that maps the id to the corresponding dst_port index
+class RoseArbTable(params: RoseAdapterParams) extends Module {
+  val io = IO(new Bundle{
+    // Look up ports
+    val key = Input(UInt(params.width.W))
+    val key_valid = Input(Bool())
+    val value = Output(UInt(params.width.W))
+    val keep_header = Output(Bool())
+    // Configuration ports
+    val config_routing = new ConfigRoutingIO(params)
+  })
 
-class bandWidthWriter(params: RoseAdapterParams) extends Module{
+  // spawn a vector of registers, storing the configured routing values
+  // TODO: replace with a memory
+  val routing_table = RegInit(VecInit(Seq.fill(0x80)(0.U(log2Ceil(params.dst_ports.seq.size).W))))
+  // A static vector storing the keep_header values
+  val keeping_table = VecInit(params.dst_ports.seq.map(port => (port.port_type == "reqrsp").B))
+
+  when (io.config_routing.valid) {
+    routing_table(io.config_routing.header) := io.config_routing.channel
+  }
+
+  // look up the routing table
+  io.value := Mux(io.key_valid, routing_table(io.key), 0.U)
+  io.keep_header := keeping_table(io.value)
+}
+
+class RoseAdapterArbiter(params: RoseAdapterParams) extends Module{
+  val w = params.width
+  val io = IO(new RoseAdapterArbiterIO(params))
+
+  val sIdle :: sHeader :: sLoad :: Nil = Enum(3)
+  val state = RegInit(sIdle)
+  val counter = Reg(UInt(w.W))
+
+  val arb_table = Module(new RoseArbTable(params))
+  io.config_routing <> arb_table.io.config_routing
+  arb_table.io.key := io.tx.bits
+  // storing the query result for future use
+  val latched_keep_header = RegEnable(arb_table.io.keep_header, io.tx.fire && (state === sIdle))
+  val latched_idx = RegEnable(arb_table.io.value, io.tx.fire && (state === sIdle))
+
+  val rx_val = Wire(Bool())
+  params.dst_ports.seq.zipWithIndex.foreach {
+  case (dstParam, i) =>
+    when (Mux(state === sIdle, i.U === arb_table.io.value, i.U === latched_idx)) {
+      io.rx(i).valid := rx_val
+    } .otherwise {
+      io.rx(i).valid := false.B
+    }
+    io.rx(i).bits := io.tx.bits 
+  }
+
+  io.tx.ready := io.rx(latched_idx).ready
+  io.budget.ready := false.B
+  arb_table.io.key_valid := (state === sIdle)
+  rx_val := false.B
+
+  switch(state) {
+    is(sIdle) {
+      def can_advance = io.budget.valid && ((io.budget.bits < io.cycleBudget) && (io.cycleBudget =/= io.cycleStep))
+      io.tx.ready := io.rx(arb_table.io.value).ready && can_advance
+      io.budget.ready := io.tx.ready
+      rx_val := Mux(io.tx.fire, arb_table.io.keep_header, false.B)
+      state := Mux(io.tx.fire, sHeader, sIdle)
+    } 
+    is(sHeader) {
+      rx_val := Mux(latched_keep_header, io.tx.valid, false.B)
+      counter := io.tx.bits >> 2
+      when(io.tx.bits === 0.U) {
+        state := Mux(io.rx(latched_idx).fire, sIdle, sHeader)
+      } .otherwise {
+        state := Mux(io.tx.fire, sLoad, sHeader)
+      }
+    }
+    is(sLoad) {
+      when(counter > 1.U) {
+        rx_val := io.tx.valid
+        counter := Mux(io.tx.fire, counter - 1.U, counter)
+        state := sLoad
+      } .otherwise {
+        rx_val := true.B
+        state := Mux(io.rx(latched_idx).fire, sIdle, sLoad)
+      }
+    }
+  }
+}
+
+class BandWidthWriter(params: RoseAdapterParams) extends Module{
   val io = IO(new Bundle{
     val config_bits = Input(UInt(32.W))
     val config_valid = Input(Bool())
@@ -69,10 +156,10 @@ class softQueue (val entries: Int) extends Module {
   io.deq.bits := ram(deq_ptr.value)
 }
 
-class rxcontroller(params: DstParams) extends Module{
+class rxcontroller(params: DstParams, width: Int) extends Module{
   val io = IO(new Bundle{
-    val rx = Flipped(Decoupled(UInt(params.width.W)))
-    val tx = Decoupled(UInt(params.width.W))
+    val rx = Flipped(Decoupled(UInt(width.W)))
+    val tx = Decoupled(UInt(width.W))
     val fire = Input(Bool())
     // val counter_reset = Input(Bool())
     val bww_bits = Input(UInt(32.W))
@@ -83,10 +170,10 @@ class rxcontroller(params: DstParams) extends Module{
   val rxState = RegInit(sRxIdle)
   val rxData = Reg(UInt(32.W))
 
-  val bandwidth_threshold = RegEnable(next = io.bww_bits, init = 0.U(32.W), enable = io.bww_valid)
+  val bandwidth_threshold = RegEnable(io.bww_bits, 0.U(32.W), io.bww_valid)
 
-  val counter_next = Wire(UInt(params.width.W))
-  val counter : UInt = RegEnable(next = counter_next, init = 0.U(params.width.W), enable = io.fire)
+  val counter_next = Wire(UInt(width.W))
+  val counter: UInt = RegEnable(counter_next, 0.U(width.W), io.fire)
   counter_next := Mux(io.tx.fire, 0.U, Mux((counter < bandwidth_threshold), counter + 1.U, counter))
   val depleted = Wire(Bool())
   depleted := counter === bandwidth_threshold
@@ -141,7 +228,6 @@ class rxcontroller(params: DstParams) extends Module{
   }
 }
 
-// DOC include start: AirSim Bridge Target-Side Interface
 class RoseBridgeTargetIO(params: RoseAdapterParams) extends Bundle {
   val clock = Input(Clock())
   val airsimio = Flipped(new RosePortIO(params))
@@ -150,38 +236,28 @@ class RoseBridgeTargetIO(params: RoseAdapterParams) extends Bundle {
   // in the bridge This reset just like any other Bool included in your target
   // interface, simply appears as another Bool in the input token.
 }
-// DOC include end: AirSim Bridge Target-Side Interface
 
-// DOC include start: AirSIm Bridge Constructor Arg
 // Out bridge module constructor argument. This captures all of the extra
 // metadata we'd like to pass to the host-side BridgeModule. Note, we need to
 // use a single case class to do so, even if it is simply to wrap a primitive
 // type, as is the case for AirSim (int)
 case class RoseKey(roseparams: RoseAdapterParams)
-// DOC include end: AirSim Bridge Constructor Arg
 
-// DOC include start: AirSim Bridge Target-Side Module
-class RoseBridge()(implicit p: Parameters) extends BlackBox
-    with Bridge[HostPortIO[RoseBridgeTargetIO], RoseBridgeModule] {
-  // Since we're extending BlackBox this is the port will connect to in our target's RTL
+class RoseBridge()(implicit p: Parameters) extends BlackBox with Bridge[HostPortIO[RoseBridgeTargetIO], RoseBridgeModule] {
+
   println(s"Got an implicit paramter of {${p(RoseAdapterKey).get}}")
   val io = IO(new RoseBridgeTargetIO(p(RoseAdapterKey).get))
-  // Implement the bridgeIO member of Bridge using HostPort. This indicates that
-  // we want to divide io, into a bidirectional token stream with the input
-  // token corresponding to all of the inputs of this BlackBox, and the output token consisting of 
-  // all of the outputs from the BlackBox
+
   val bridgeIO = HostPort(io)
 
-  // And then implement the constructorArg member
   val constructorArg = Some(RoseKey(p(RoseAdapterKey).get))
   println(s"Got a constructor arg of {${constructorArg.get}}")
+
   // Finally, and this is critical, emit the Bridge Annotations -- without
   // this, this BlackBox would appear like any other BlackBox to Golden Gate
   generateAnnotations()
 }
-// DOC include end: AirSim Bridge Target-Side Module
 
-// DOC include start: AirSim Bridge Companion Object
 object RoseBridge {
   def apply(clock: Clock, airsimio: RosePortIO, reset: Bool)(implicit p: Parameters): RoseBridge = {
     val rosebridge = Module(new RoseBridge())
@@ -191,24 +267,10 @@ object RoseBridge {
     rosebridge
   }
 }
-// DOC include end: AirSim Bridge Companion Object
 
-// DOC include start: AirSim Bridge Header
-// Our AirSimBridgeModule definition, note:
-// 1) it takes one parameter, key, of type AirSimKey --> the same case class we captured from the target-side
-// 2) It accepts one implicit parameter of type Parameters
-// 3) It extends BridgeModule passing the type of the HostInterface
-//
-// While the Scala type system will check if you parameterized BridgeModule
-// correctly, the types of the constructor arugument (in this case AirSimKey),
-// don't match, you'll only find out later when Golden Gate attempts to generate your module.
 class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModule[HostPortIO[RoseBridgeTargetIO]]()(p) {
   lazy val module = new BridgeModuleImp(this) {
     val params = key.roseparams
-    // val cycles = key.cycles
-    // This creates the interfaces for all of the host-side transport
-    // AXI4-lite for the simulation control bus, =
-    // AXI4 for DMA
     val io = IO(new WidgetIO())
 
     // This creates the host-side interface of your TargetIO
@@ -219,20 +281,13 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     //val rxfifo = Module(new Queue(UInt(32.W), 128))
     val rxfifo = Module(new Queue(UInt(32.W), 2560))
     val rx_budget_fifo = Module(new softQueue(64))
-    // COSIM-CODE
     // Generate a FIFO to capture time step allocations
     val rx_ctrl_fifo = Module(new Queue(UInt(8.W), 16))
 
-    // Create counters to track number of cycles elapsed
-    // Initialize number of cycles 
     val cycleBudget = RegInit(0.U(32.W))
-
-    // Initialize amount to increment cycle budget by
     val cycleStep   = RegInit(0.U(32.W))
 
-    // can add to budget every cycle
     rx_ctrl_fifo.io.deq.ready := true.B;
-    // COSIM-CODE
 
     val target = hPort.hBits.airsimio
     // In general, your BridgeModule will not need to do work every host-cycle. In simple Bridges,
@@ -248,7 +303,6 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     rxfifo.reset := reset.asBool || targetReset
     txfifo.reset := reset.asBool || targetReset
     rx_budget_fifo.reset := reset.asBool || targetReset
-    // COSIM-CODE
     // Add to the cycles the tool is permitted to run forward
     when(rx_ctrl_fifo.io.deq.valid) {
         cycleBudget := 0.U(32.W) 
@@ -257,12 +311,10 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     } .otherwise {
         cycleBudget := cycleBudget
     }
-
     rx_ctrl_fifo.reset := reset.asBool || targetReset
 
     // Count total elapsed cycles
     val (cycleCount, testWrap) = Counter(fire, 65535 * 256)
-    // COSIM-CODE
 
     // instantiate the rose arbiter
     val rosearb = Module(new RoseAdapterArbiter(params))
@@ -272,12 +324,12 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     rosearb.io.cycleStep := cycleStep
     rx_budget_fifo.io.soft_reset := cycleBudget === cycleStep
     // for each dst_port, generate a shallow queue and connect it to the arbiter
-    val bww = Module(new bandWidthWriter(params))
+    val bww = Module(new BandWidthWriter(params))
     for (i <- 0 until params.dst_ports.seq.size) {
       val dst_port = params.dst_ports.seq(i)
-      val q = Module(new Queue(UInt(dst_port.width.W), 32))
+      val q = Module(new Queue(UInt(params.width.W), 32))
       // generate a rxcontroller for each dst_port
-      val rxctrl = Module(new rxcontroller(params.dst_ports.seq(i)))
+      val rxctrl = Module(new rxcontroller(params.dst_ports.seq(i), params.width))
       q.io.enq <> rosearb.io.rx(i)
       q.io.deq <> rxctrl.io.rx 
       rxctrl.io.tx <> target.rx(i)
@@ -286,19 +338,14 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
       rxctrl.io.bww_bits := bww.io.output_bits(i)
       rxctrl.io.bww_valid := bww.io.output_valid(i)
     }
-    // Drive fifo signals from AirSimIO
+    
     txfifo.io.enq.valid := target.tx.valid && fire
     txfifo.io.enq.bits  := target.tx.bits
     target.tx.ready := txfifo.io.enq.ready
-    // // Drive AirSimIO signals from fifo
-    // target.port_rx_enq_valid := rxfifo.io.deq.valid
-    // target.port_tx_deq_ready := txfifo.io.enq.ready
-    // target.port_rx_enq_bits  := rxfifo.io.deq.bits
 
     hPort.toHost.hReady := fire
     hPort.fromHost.hValid := fire
 
-    // DOC include start: AirSim Bridge Footer
     // Exposed the head of the queue and the valid bit as a read-only registers
     // with name "out_bits" and out_valid respectively
     genROReg(txfifo.io.deq.bits, "out_bits")
@@ -330,17 +377,64 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
 
     // Generate registers for writing the step amount
     genWOReg(cycleStep, "cycle_step")
-    // COSIM-CODE
+    
+    // Generate registers for configuring bandwidth
     genWOReg(bww.io.config_bits, "bww_config_bits")
     Pulsify(genWORegInit(bww.io.config_valid, "bww_config_valid", false.B), pulseLength = 1)
     genWOReg(bww.io.config_destination, "bww_config_destination")
-    // This method invocation is required to wire up all of the MMIO registers to
-    // the simulation control bus (AXI4-lite)
-    genCRFile()
-    // DOC include end: AirSim Bridge Footer
 
+    // Generate registers for configuring routing table
+    genWOReg(rosearb.io.config_routing.header, "config_routing_header")
+    Pulsify(genWORegInit(rosearb.io.config_routing.valid, "config_routing_valid", false.B), pulseLength = 1)
+    genWOReg(rosearb.io.config_routing.channel, "config_routing_channel")
+
+    // This method invocation is required to wire up the bridge to the simulated software
     override def genHeader(base: BigInt, memoryRegions: Map[String, BigInt], sb: StringBuilder): Unit = {
       genConstructor(base, sb, "airsim_t", "airsim")
     }
+
+    // Emits a C header for this bridge construction
+    def genRoseCPortHeader(bridgeParams: RoseAdapterParams): Unit = {
+      val sb = new StringBuilder()
+      sb.append("//This file was generated by RoSEBridge.scala, based on RoseAdapterParams\n")
+      sb.append(s"#define ROSE_PORT_COUNT ${bridgeParams.dst_ports.seq.size}\n")
+      sb.append(s"#define ROSE_PORT_WIDTH ${bridgeParams.width}\n")
+      sb.append(f"#define ROSE_STATUS_ADDR 0x${bridgeParams.address}%x\n")
+      sb.append("\n")
+
+      sb.append(f"#define ROSE_TX_DATA_ADDR 0x${bridgeParams.address + 0x8}%x\n")
+      sb.append(s"#define ROSE_TX_ENQ_READY (reg_read32(ROSE_STATUS_ADDR) & 0x1)\n")
+      sb.append("\n")
+
+      val idx_map = bridgeParams.genidxmap
+      params.dst_ports.seq.zipWithIndex.foreach {
+        case (port, i) => port.port_type match {
+          case "DMA" => {
+            sb.append(s"//${port.port_type}_${port.name}_port_channel_$i\n")
+            sb.append(f"#define ROSE_DMA_CONFIG_COUNTER_ADDR_$i 0x${bridgeParams.address + (idx_map(i)+3+bridgeParams.dst_ports.seq.count(_.port_type != "DMA"))*4}%x\n")
+            sb.append(f"#define ROSE_DMA_BASE_ADDR_$i 0x${bridgeParams.dst_ports.seq(i).DMA_address}%x\n")
+            sb.append(f"#define ROSE_DMA_BUFFER_$i (reg_read32(ROSE_STATUS_ADDR) & 0x${1<<(bridgeParams.dst_ports.seq.length-idx_map(i))}%x)\n")
+            sb.append("\n")
+          }
+          case "reqrsp" => {
+            sb.append(s"//${port.port_type}_${port.name}_port_channel_$i\n")
+            val index = idx_map(i)
+            sb.append(f"#define ROSE_RX_DATA_ADDR_$i 0x${bridgeParams.address + 0xC + index*4}%x\n")
+            sb.append(f"#define ROSE_RX_DATA_$i (reg_read32(ROSE_RX_DATA_ADDR_$i))\n")
+            sb.append(f"#define ROSE_RX_DEQ_VALID_$i (reg_read32(ROSE_STATUS_ADDR) & 0x${1<<(params.dst_ports.seq.count(_.port_type != "DMA")-index)}%x)\n")
+            sb.append("\n")
+          }
+        }
+      }
+      val fileWriter = new FileWriter(new File("../../../sw/generated-src/rose_c_header/rose_port.h"))
+      fileWriter.write(sb.toString)
+      fileWriter.close()
+    }
+    genRoseCPortHeader(params)
+    // This method invocation is required to wire up all of the MMIO registers to
+    // the simulation control bus (AXI4-lite)
+    genCRFile()
   }
 }
+
+

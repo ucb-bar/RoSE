@@ -13,7 +13,6 @@ import freechips.rocketchip.subsystem._
 import freechips.rocketchip.devices.tilelink.{BootROMLocated, BootROMParams}
 import freechips.rocketchip.devices.debug.{DebugModuleParams, DebugModuleKey}
 import freechips.rocketchip.diplomacy.{LazyModule, AsynchronousCrossing}
-import testchipip.{BlockDeviceKey, BlockDeviceConfig, TracePortKey, TracePortParams}
 import sifive.blocks.devices.uart.{PeripheryUARTKey, UARTParams}
 import scala.math.{min, max}
 
@@ -22,24 +21,6 @@ import icenet._
 
 import firesim.bridges._
 import firesim.configs._
-
-class AirSimIOTLFPGemminiRocketMMIOOnlyConfig extends Config(
-  new WithDefaultMMIOOnlyFireSimBridges ++
-  new WithDefaultMemModel ++
-  new WithFireSimConfigTweaks ++
-  new chipyard.config.AirSimIOTLFPGemminiRocketConfig)
-
-class AirSimIOTLGemminiRocketMMIOOnlyConfig extends Config(
-  new WithDefaultMMIOOnlyFireSimBridges ++
-  new WithDefaultMemModel ++
-  new WithFireSimConfigTweaks ++
-  new chipyard.config.AirSimIOTLGemminiRocketConfig)
-
-class AirSimIOTLFPGemminiLargeBoomMMIOOnlyConfig extends Config(
-  new WithDefaultMMIOOnlyFireSimBridges ++
-  new WithDefaultMemModel ++
-  new WithFireSimConfigTweaks ++
-  new chipyard.config.AirSimIOTLFPGemminiLargeBoomConfig)
 
 class RoseTLRocketMMIOOnlyConfig extends Config(
   new WithDefaultMMIOOnlyFireSimBridges ++

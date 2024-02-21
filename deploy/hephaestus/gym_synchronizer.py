@@ -1,7 +1,5 @@
-from rose_packet import RoSEPacket, Blob
+from rose_packet import *
 from socket_thread import SocketThread
-
-
 
 import collections
 import gymnasium as gym
@@ -14,25 +12,21 @@ import os
 import yaml
 from functools import reduce
 
-
-CS_RESET = 0x01
-
-CS_GRANT_TOKEN  = 0x80 
-CS_REQ_CYCLES   = 0x81 
-CS_RSP_CYCLES   = 0x82 
-CS_DEFINE_STEP  = 0x83
-CS_RSP_STALL    = 0x84
-CS_CFG_BW       = 0x85
-
-CS_REQ_IMG      = 0x10
-CS_RSP_IMG      = 0x11
-CS_REQ_IMG_POLL = 0x16
-CS_RSP_IMG_POLL = 0x17
-
 HOST = "localhost"
 SYNC_PORT = 10001
 DATA_PORT = 60002
 
+class CONTROL_HEADERS:
+    # fsim->gym
+    CS_RESET        = 0xFF
+    # sync->fsim
+    CS_GRANT_TOKEN  = 0x80 
+    CS_REQ_CYCLES   = 0x81 
+    CS_RSP_CYCLES   = 0x82 
+    CS_DEFINE_STEP  = 0x83
+    CS_RSP_STALL    = 0x84
+    CS_CFG_BW       = 0x85
+    CS_CFG_ROUTE    = 0x86
 
 # Utility functions
 def stable_heap_push(heap, item):
@@ -58,17 +52,81 @@ def default_action_for_space(space):
     else:
         raise ValueError(f"Don't know how to create a default action for space of type {type(space)}")
 
+# useful for building the packet header
+class DummySynchronizer:
+    def __init__(self):
+        pass
 
-class Synchronizer: 
+    def load_config(self):
+        # Determine the path to the directory containing the current script
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+
+        # Load the gym environment name from config_deploy_gym.yaml
+        with open(os.path.join(script_dir, '../config/config_deploy_gym.yaml'), 'r') as f:
+            config = yaml.safe_load(f)
+            gym_env = config.get('gym_env', 'AirSimEnv-v0')  # Default to 'AirSimEnv-v0' if not found
+        
+        # Load timing information from the config
+        if 'firesim_step' in config:
+            self.firesim_step = config['firesim_step']
+        if 'firesim_freq' in config:
+            self.firesim_freq = config['firesim_freq']
+        if 'max_sim_time' in config:
+            self.cycle_limit = config['max_sim_time'] * self.firesim_freq
+        if 'render' in config:
+            self.render = config['render']
+        
+        print(f"Using Gym environment: {gym_env}")
+        return gym_env
+    
+    def load_gym_sim_config(self, gym_env):
+        # Determine the path to the directory containing the current script
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+
+        # Construct the file name and open the specific config
+        config_file = os.path.join(script_dir, f'../config/config_gym_{gym_env}.yaml')
+        with open(config_file, 'r') as f:
+            gym_sim_config = yaml.safe_load(f)
+        # print(f"loaded config: {gym_sim_config}")
+
+        # Load the gym_timestep. This represents how much simulation time passes per env.step()
+        if 'gym_timestep' in gym_sim_config:
+            self.gym_timestep = gym_sim_config['gym_timestep']
+        else:
+            raise ValueError("gym_timestep not found in config file")
+        
+        # Load the custom **kwargs for the gym environment
+        if 'gym_kwargs' in gym_sim_config:
+            self.gym_kwargs = gym_sim_config['gym_kwargs']
+        
+        self.packet_bindings = {}
+        for packet in gym_sim_config['packets']:
+            hex_id = packet['id']
+            self.packet_bindings[hex_id] = packet  # bind the id to the packet configuration
+        
+        self.channel_bandwidth = gym_sim_config['channel_bandwidth']
+    
+    def genRoSECPacketHeader(self):
+        sb = ["//RoSE Control Packet Headers"]
+        for k,v in CONTROL_HEADERS.__dict__.items():
+            if not k.startswith("__"):
+                sb.append(f"#define {k} 0x{v:02x}")
+        sb.append("//RoSE Payload Packet Headers")
+        for k,v in self.packet_bindings.items():
+            sb.append(f"#define CS_{v['name'].upper()} 0x{k:02x}")
+
+        with open("/scratch/iansseijelly/RoSE/soc/sw/generated-src/rose_c_header/rose_packet.h", "w") as f:
+            f.write("\n".join(sb))
+
+class Synchronizer(DummySynchronizer): 
 
     def __init__(self, host=HOST, sync_port=SYNC_PORT, data_port=DATA_PORT, firesim_step=10000, firesim_freq=1_000_000_000):
-    #def __init__(self, host=HOST, sync_port=SYNC_PORT, data_port=DATA_PORT, firesim_step=10_000_000):
+        super().__init__()
         self.txqueue = []
         self.txpq = [] 
         self.data_rxqueue = []
         self.sync_rxqueue = []
 
-        # TODO Remove unecessary ones
         self.host = host
         self.sync_host = host
         self.sync_port = sync_port
@@ -85,7 +143,6 @@ class Synchronizer:
         self.render = False
         gym_env = self.load_config()
 
-
         self.load_gym_sim_config(gym_env)
         self.env = gym.make(gym_env, render_mode='rgb_array', **self.gym_kwargs)
         
@@ -98,13 +155,11 @@ class Synchronizer:
 
         self.gym_step_per_firesim_step = round(self.firesim_period / self.gym_timestep)
 
-        # Assign timing information to the RoSEPacket class
-        RoSEPacket.firesim_step = self.firesim_step
+        # Assign timing information to the Packet class
+        Packet.firesim_step = self.firesim_step
         for cmd in self.packet_bindings.keys():
             if 'latency' in self.packet_bindings[cmd]:
-                RoSEPacket.cmd_latency_dict[cmd] = self.packet_bindings[cmd]['latency'] / self.firesim_period
-                RoSEPacket.cmd_latency_dict[cmd+1] = self.packet_bindings[cmd]['latency'] / self.firesim_period
-
+                Packet.cmd_latency_dict[cmd] = self.packet_bindings[cmd]['latency'] / self.firesim_period
 
         # Initialize sockets 
         self.socket_threads = []
@@ -128,7 +183,6 @@ class Synchronizer:
             socket_thread.start()
         self.start_time = time.time()
 
-
         # Initialize the logger
         log_dir = f'{os.path.dirname(os.path.abspath(__file__))}/logs'
         self.logger = GymLogger(self.env, self.firesim_period, self.start_time, self.packet_bindings, log_dir=log_dir, log_filename=f'runlog-{self.filename_base}.csv', video_filename=f'recording-{self.filename_base}.avi', max_duration=self.cycle_limit/self.firesim_freq, plot_filename=f'plot-{self.filename_base}.png')
@@ -137,7 +191,13 @@ class Synchronizer:
         # And send firesim steps to each
         self.send_firesim_step()
 
-        # TODO: Add bandwidth sending
+        for i, bw in enumerate(self.channel_bandwidth):
+            self.send_bw(i, bw)
+        
+        for cmd in self.packet_bindings.keys():
+            if 'channel' in self.packet_bindings[cmd]:
+                print(f"Sending route for 0x{cmd:02x} to channel {self.packet_bindings[cmd]['channel']}")
+                self.send_route(cmd, self.packet_bindings[cmd]['channel'])
 
         self.obs = self.env.reset()
         self.done = False
@@ -163,12 +223,12 @@ class Synchronizer:
                 self.action = self.default_action
 
             # Log observation and action at this timestep
-            self.logger.log_data(self.obs, self.action)
-            if self.render:
-                self.logger.display()
+            # self.logger.log_data(self.obs, self.action)
+            # if self.render:
+                # self.logger.display()
 
             # Log the rendered frame for this timestep
-            self.logger.log_rendering()
+            # self.logger.log_rendering()
 
             # Step RTL simulation
             self.grant_firesim_token()
@@ -219,25 +279,20 @@ class Synchronizer:
             exit()
 
     def send_firesim_step(self):
-        packet = RoSEPacket()
-        # packet.init(CS_DEFINE_STEP, 4, np.array([self.firesim_step], dtype=np.uint32))
-        packet.init(CS_DEFINE_STEP, 4, [self.firesim_step])
+        packet = Control_Packet(CONTROL_HEADERS.CS_DEFINE_STEP, 4, [self.firesim_step])
         self.txqueue.append(packet)
 
     def send_bw(self, dst, bw):
-        packet = RoSEPacket()
-        packet.init(CS_CFG_BW, 8, [dst, bw])
+        packet = Control_Packet(CONTROL_HEADERS.CS_CFG_BW, 8, [dst, bw])
+        self.txqueue.append(packet)
+    
+    def send_route(self, header, channel):
+        packet = Control_Packet(CONTROL_HEADERS.CS_CFG_ROUTE, 8, [header, channel])
         self.txqueue.append(packet)
 
     def grant_firesim_token(self):
-        packet = RoSEPacket()
-        packet.init(CS_GRANT_TOKEN, 0, None)
-        # print("Printing txqueue")
-        # for packet in self.txqueue:
-        #     print(f"txqueue: {packet}")
-        # print(f"Enqueuing new token: {packet}")
+        packet = Control_Packet(CONTROL_HEADERS.CS_GRANT_TOKEN, 0, None)
         self.txqueue.append(packet)
-        #self.sync_conn.sendall(self.packet.encode())
 
         while True:
             if len(self.sync_rxqueue) > 0:
@@ -245,8 +300,7 @@ class Synchronizer:
                 break
 
     def get_firesim_cycles(self):
-        packet = RoSEPacket()
-        packet.init(CS_REQ_CYCLES, 0, None)
+        packet = Control_Packet(CONTROL_HEADERS.CS_REQ_CYCLES, 0, None)
         self.txqueue.append(packet)
 
         while len(self.sync_rxqueue) == 0:
@@ -258,8 +312,7 @@ class Synchronizer:
         while len(self.data_rxqueue) > 0:
             self.process_fsim_data_packet()
         while(len(self.txpq) > 0 and self.txpq[0].latency < 1):
-            packet_blob = stable_heap_pop(self.txpq)
-            packet = packet_blob.packet
+            packet = stable_heap_pop(self.txpq)
             self.txqueue.append(packet)
             # print(f"appended packet: {packet}")
         # Now, iterate through the rest of the queue, decrement latency by 1
@@ -267,61 +320,13 @@ class Synchronizer:
             blobs.latency = blobs.latency - 1
             blobs.packet.latency = blobs.latency
 
-    def load_config(self):
-        # Determine the path to the directory containing the current script
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-
-        # Load the gym environment name from config_deploy_gym.yaml
-        with open(os.path.join(script_dir, '../config/config_deploy_gym.yaml'), 'r') as f:
-            config = yaml.safe_load(f)
-            gym_env = config.get('gym_env', 'AirSimEnv-v0')  # Default to 'AirSimEnv-v0' if not found
-        
-        # Load timing information from the config
-        if 'firesim_step' in config:
-            self.firesim_step = config['firesim_step']
-        if 'firesim_freq' in config:
-            self.firesim_freq = config['firesim_freq']
-        if 'max_sim_time' in config:
-            self.cycle_limit = config['max_sim_time'] * self.firesim_freq
-        if 'render' in config:
-            self.render = config['render']
-
-        
-        print(f"Using Gym environment: {gym_env}")
-        return gym_env
-
-    def load_gym_sim_config(self, gym_env):
-        # Determine the path to the directory containing the current script
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-
-        # Construct the file name and open the specific config
-        config_file = os.path.join(script_dir, f'../config/config_gym_{gym_env}.yaml')
-        with open(config_file, 'r') as f:
-            gym_sim_config = yaml.safe_load(f)
-        
-        print(f"loaded config: {gym_sim_config}")
-
-        # Load the gym_timestep. This represents how much simulation time passes per env.step()
-        if 'gym_timestep' in gym_sim_config:
-            self.gym_timestep = gym_sim_config['gym_timestep']
-        else:
-            raise ValueError("gym_timestep not found in config file")
-        
-        # Load the custom **kwargs for the gym environment
-        if 'gym_kwargs' in gym_sim_config:
-            self.gym_kwargs = gym_sim_config['gym_kwargs']
-        
-        self.packet_bindings = {}
-        for packet in gym_sim_config['packets']:
-            hex_id = packet['id']
-            self.packet_bindings[hex_id] = packet  # bind the id to the packet configuration
 
     def process_fsim_data_packet(self):
         packet = self.data_rxqueue.pop(0)
         cmd = packet.cmd
         print(f"Dequeued data packet: {packet}")
         
-        if cmd == CS_RESET:
+        if cmd == CONTROL_HEADERS.CS_RESET:
             print("Resetting environment")
             self.obs = self.env.reset()
             self.done = False
@@ -336,7 +341,6 @@ class Synchronizer:
             print(f"Unknown packet cmd: {packet.cmd}")
             return
         
-        
         # Retrieve observation related to the packet name
         if packet_config['type'] == 'reqrsp':
             obs_data = self.obs
@@ -347,10 +351,8 @@ class Synchronizer:
                 # Just a 1D array, process accordingly (send one response packet)
                 #packet_arr = obs_data.view(np.uint32).tolist()
                 packet_arr = np.frombuffer(obs_data.tobytes(), dtype=np.uint32).tolist()
-                packet = RoSEPacket()  # You might need to adjust this based on actual RoSEPacket initialization
-                packet.init(cmd+1, len(packet_arr) * 4, packet_arr)  # You might need to adjust the multiplier
-                blob = Blob(RoSEPacket.cmd_latency_dict.get(cmd+1,0), packet)
-                stable_heap_push(self.txpq, blob)
+                packet = Payload_Packet(cmd, len(packet_arr) * 4, packet_arr)  # You might need to adjust the multiplier
+                stable_heap_push(self.txpq, packet)
 
             else: 
                 # 2D array, send the response in rows
@@ -359,10 +361,8 @@ class Synchronizer:
                 for row in packet_arr:
                     row_packet_arr = row.view(np.uint32).tolist()
                     # print(f"row_packet_arr: {row_packet_arr}")
-                    packet = RoSEPacket()  # You might need to adjust this
-                    packet.init(cmd+1, len(row_packet_arr) * 4, row_packet_arr)  # You might need to adjust the multiplier
-                    blob = Blob(RoSEPacket.cmd_latency_dict.get(cmd+1, 0), packet)
-                    stable_heap_push(self.txpq, blob)
+                    packet = Payload_Packet(cmd, len(row_packet_arr) * 4, row_packet_arr)  # You might need to adjust the multiplier
+                    stable_heap_push(self.txpq, packet)
         
         if 'action' in packet_config['type']:
             indices = packet_config['indices']
@@ -382,9 +382,7 @@ class Synchronizer:
         
         self.logger.count_packet(cmd)
 
-
 if __name__ == "__main__":
 
     sync = Synchronizer()
     sync.run()
-        

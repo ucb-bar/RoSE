@@ -1,7 +1,4 @@
-// This is actually configurable the rose adapter
-
 package rose
-
 
 import chisel3._
 import chisel3.util._
@@ -12,9 +9,7 @@ import freechips.rocketchip.subsystem.{BaseSubsystem, CacheBlockBytes}
 import org.chipsalliance.cde.config.{Parameters, Field, Config}
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.tilelink._
-
 import firrtl.annotations.{HasSerializationHints}
-
 
 case object RoseAdapterKey extends Field[Option[RoseAdapterParams]](None)
 
@@ -30,18 +25,32 @@ case class RoseAdapterParams(
   width: Int = 32,
   // Sequence of Destination ports
   dst_ports: DstParams_Container = DstParams_Container(Seq(
-    DstParams(port_type = "DMA", IDs = Seq(0x11), DMA_address = 0x88000000L, latency = 0, bandwidth = 2048),
-    DstParams(port_type = "reqrsp", IDs = Seq(0x13, 0x02, 0x17), latency = 0, bandwidth = 32),
-    DstParams(port_type = "streaming", IDs = Seq(0x15), latency = 0, bandwidth = 32)
-  ))
-  // require none of the dst params ID overlap
-  // require(RoseAdapterParams().dst_ports.seq.map(_.IDs).flatten.distinct.size == RoseAdapterParams().dst_ports.seq.map(_.IDs).flatten.size)
-  // require less than 30 dst ports
-  // require(RoseAdapterParams().dst_ports.seq.size < 30)
-  // require all bandwidths to be a multiple of 4
-  // require(RoseAdapterParams().dst_ports.seq.map(_.bandwidth).forall(_ % 4 == 0))
-) extends HasSerializationHints {
+    DstParams(port_type = "DMA", DMA_address = 0x88000000L),
+    DstParams(port_type = "reqrsp"),
+    DstParams(port_type = "reqrsp")
+  ))) extends HasSerializationHints {
+  require(dst_ports.seq.size < 30)
   def typeHints: Seq[Class[_]] = Seq(classOf[DstParams_Container])
+  
+  def genidxmap: Seq[Int] = {
+    var idx_map = Seq[Int]()
+    var other_idx: Int = 0
+    var dma_idx: Int = 0
+    dst_ports.seq.zipWithIndex.foreach(
+      {case (port, n) => port.port_type match {
+          case "DMA" => {
+            idx_map = idx_map :+ dma_idx
+            dma_idx = dma_idx + 1
+          }
+          case _ => {
+            idx_map = idx_map :+ other_idx
+            other_idx = other_idx + 1
+          }
+        }
+      }
+    )
+    idx_map
+  }
 }
 
 case class DstParams_Container (seq: Seq[DstParams]) extends HasSerializationHints {
@@ -49,11 +58,7 @@ case class DstParams_Container (seq: Seq[DstParams]) extends HasSerializationHin
 }
 
 case class DstParams (
-  val port_type: String = "reqrsp", // supported are stream, decoupled, interrupt, and DMA
-  val IDs: Seq[Int] = Seq(0), // sequence of ID bytes, must be non-overlapping
-  val DMA_address: BigInt = 0x88000000L, // this is only used if port_type is DMA
-  val latency: Int = 0,
-  val bandwidth: Int = 32,
-  //re-iteration of width for convenience, do not modify
-  val width: Int = 32
+  val port_type: String = "reqrsp", // supported are DMA and reqrsp
+  val DMA_address: BigInt = 0x88000000L, // this attribute is only used if port_type is DMA
+  val name: String = "anonymous" // optional name for the port
 )

@@ -1,22 +1,11 @@
+#!/usr/bin/env python3
 import os
 import signal
-from tokenize import String
-from xmlrpc.client import Boolean
-import gym_synchronizer
-import control_drone
-import control_car
-
-import argparse
 import threading
-import time
+import argparse
+import gym_synchronizer
 
-HOST = "localhost"  # Private aws IP
-# AIRSIM_IP = "zr-desktop.cs.berkeley.edu"
-AIRSIM_IP = "localhost"
-# AIRSIM_IP = "44.205.8.36"
-
-SYNC_PORT = 10001  # Port to listen on (non-privileged ports are > 1023)
-DATA_PORT = 60002  # Port to listen on (non-privileged ports are > 1023)
+TASK = ["run", "build"]
 
 # Thread to track synchronization code
 class SyncThread(threading.Thread):
@@ -38,6 +27,7 @@ class FiresimThread(threading.Thread):
 
     def run_firesim(self):
         os.system("firesim kill > /dev/null")
+        # os.system("firesim infrasetup > /dev/null")
         os.system("firesim runworkload > /dev/null")
         # os.system("firesim kill")
         os.system("firesim kill &")
@@ -46,29 +36,49 @@ class FiresimThread(threading.Thread):
         os.kill(os.getpid(), signal.SIGTERM)
         exit()
 
+def construct_rose_argparser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--task', type=str, help='The task to perform', choices=TASK, default='run')
+    parser.add_argument('--target', type=str, help='[build]: The target C file to build', default='packettest')
+    return parser
+
 if __name__ == "__main__":
+    args = construct_rose_argparser().parse_args()
     header = """
-============================
-  _____       _____ ______ 
- |  __ \     / ____|  ____|
- | |__) |___| (___ | |__   
- |  _  // _ \\\___ \|  __|  
- | | \ \ (_) |___) | |____ 
- |_|  \_\___/_____/|______|
-============================
-
+    ============================
+    _____       _____ ______ 
+    |  __ \     / ____|  ____|
+    | |__) |___| (___ | |__   
+    |  _  // _ \\\___ \|  __|  
+    | | \ \ (_) |___) | |____ 
+    |_|  \_\___/_____/|______|
+    ============================
     """ 
-    print(header)
-    print("Starting synchronizer thread")
-    sync_thread = SyncThread(None)
-    sync_thread.start()
-    print("Starting firesim thread")
-    firesim_thread = FiresimThread(None)
-    firesim_thread.start()
-    print("Joining synchronizer thread")
-    sync_thread.join()
-    print("Joining firesim thread")
-    os.kill(os.getpid(), signal.SIGTERM)
+    # print(header)
 
+    if args.task == "build":
+        print("[RoSE]:Building target file: " + args.target)
+        dummy_sync = gym_synchronizer.DummySynchronizer()
+        gym_env = dummy_sync.load_config()
+        dummy_sync.load_gym_sim_config(gym_env)
+        dummy_sync.genRoSECPacketHeader()
+        # get current file directory
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        build_path = os.path.join(dir_path, "../..", "soc", "sw", "build_packettest.py")
+        os.system("python3 " + build_path + " --target " + args.target)
+        exit()
+
+    if args.task == "run":
+        print("[RoSE]:Running RoSE")
+        print("[RoSE]:Starting synchronizer thread")
+        sync_thread = SyncThread(None)
+        sync_thread.start()
+        print("[RoSE]:Starting firesim thread")
+        firesim_thread = FiresimThread(None)
+        firesim_thread.start()
+        print("[RoSE]:Joining synchronizer thread")
+        sync_thread.join()
+        print("[RoSE]:Joining firesim thread")
+        os.kill(os.getpid(), signal.SIGTERM)
     
-    firesim_thread.join()
+        firesim_thread.join()
