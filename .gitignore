@@ -6,6 +6,7 @@ soc/sim/bitstreams
 .vscode
 soc/sim/firesim_run_temp
 soc/sim/firesim_build_temp
+soc/sim/config
 deploy/hephaestus/logs/*
 deploy/hephaestus/img
 deploy/hephaestus/bw.txt
