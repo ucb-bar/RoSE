@@ -35,6 +35,8 @@ import testchipip.tsi.{CanHavePeripheryUARTTSI, UARTTSIIO}
 import icenet.{CanHavePeripheryIceNIC, SimNetwork, NicLoopback, NICKey, NICIOvonly}
 import chipyard.{CanHaveMasterTLMemPort, ChipyardSystem, ChipyardSystemModule}
 
+import rose.{CanHavePeripheryRoseAdapter, RoseAdapterKey, RoseAdapterParams, RosePortIO}
+
 import scala.reflect.{ClassTag}
 
 object IOBinderTypes {
@@ -515,7 +517,6 @@ class WithTLMemPunchthrough extends OverrideIOBinder({
     (Seq(TLMemPort(() => io_tl_mem_pins_temp)), Nil)
   }
 })
-
 
 class WithDontTouchPorts extends OverrideIOBinder({
   (system: DontTouch) => system.dontTouchPorts(); (Nil, Nil)

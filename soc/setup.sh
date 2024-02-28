@@ -97,33 +97,6 @@ for ((i=0;i<${#sources[@]};++i)); do
     ln -s "${sources[$i]}" "${destinations[$i]}"
 done
 
-# # Copy scala files
-# cp ${SCALA_DIR}/AirSimIO.scala ${CHIPYARD_DIR}/generators/chipyard/src/main/scala/example/
-# cp ${SCALA_DIR}/IOBinders.scala ${CHIPYARD_DIR}/generators/chipyard/src/main/scala/
-# cp ${SCALA_DIR}/BridgeBinders.scala ${CHIPYARD_DIR}/generators/firechip/src/main/scala/
-# cp ${SCALA_DIR}/DigitalTop.scala ${CHIPYARD_DIR}/generators/chipyard/src/main/scala/
-# cp ${SCALA_DIR}/AbstractConfig.scala ${CHIPYARD_DIR}/generators/chipyard/src/main/scala/config/
-# cp ${SCALA_DIR}/AirSimBridge.scala  ${FIRESIM_DIR}/sim/firesim-lib/src/main/scala/bridges/
-# cp ${SCALA_DIR}/RoSEConfigs.scala ${CHIPYARD_DIR}/generators/chipyard/src/main/scala/config/
-
-# # Copy C++ files
-# cp ${FSIM_CC_DIR}/airsim.cc ${FIRESIM_DIR}/sim/firesim-lib/src/main/cc/bridges/
-# # cp ${FSIM_CC_DIR}/heartbeat.cc ${FIRESIM_DIR}/sim/firesim-lib/src/main/cc/bridges/
-# cp ${FSIM_CC_DIR}/airsim.h ${FIRESIM_DIR}/sim/firesim-lib/src/main/cc/bridges/
-# # cp ${FSIM_CC_DIR}/heartbeat.h ${FIRESIM_DIR}/sim/firesim-lib/src/main/cc/bridges/
-# cp ${FSIM_CC_DIR}/firesim_top.cc ${FIRESIM_DIR}/sim/src/main/cc/firesim/
-
-
-# # Copy simulation configs
-# cp ${ROSE_DIR}/soc/sim/config_runtime_local.yaml        ${FIRESIM_DIR}/deploy/config_runtime.yaml
-# cp ${ROSE_DIR}/soc/sim/config_build_recipes_local.yaml  ${FIRESIM_DIR}/deploy/config_build_recipes.yaml
-# cp ${ROSE_DIR}/soc/sim/config_build_local.yaml          ${FIRESIM_DIR}/deploy/config_build.yaml
-# cp ${ROSE_DIR}/soc/sim/config_hwdb_local.yaml           ${FIRESIM_DIR}/deploy/config_hwdb.yaml
-
-# Copy workload configs
-# cp ${ROSE_DIR}/soc/sim/airsim-driver-fed.json ${FIRESIM_DIR}/deploy/workloads/
-# cp ${ROSE_DIR}/soc/sim/airsim-control-fed.json ${FIRESIM_DIR}/deploy/workloads/
-
 # Init firemarshal submodules
 cd ${FIRESIM_DIR}/sw/firesim-software/
 git checkout ubuntu-add
@@ -143,11 +116,20 @@ lazy val rose = (project in file("generators/rose"))
   .settings(commonSettings)' >> ${CHIPYARD_DIR}/build.sbt
 fi
 
-CHIPYARD_FILE="${CHIPYARD_DIR}/build.sbt"
-
 # Check if 'rose' is already a dependency under lazy val chipyard
-echo "Updating build.sbt"
+echo "Updating cy build.sbt"
 sed -i 's/gemmini, icenet, tracegen, cva6, nvdla, sodor, ibex, fft_generator,/gemmini, icenet, tracegen, cva6, nvdla, sodor, ibex, fft_generator, rose,/g' ${CHIPYARD_DIR}/build.sbt
+
+if grep -q "lazy val rose" ${FIRESIM_DIR}/sim/build.sbt; then
+  echo "rose found in firesim/sim sbt, not appending."
+else
+  echo "rose not found in firesim/sim sbt, appending."
+  echo '
+lazy val rose          = ProjectRef(chipyardDir, "rose")
+' >> ${FIRESIM_DIR}/sim/build.sbt
+fi
+echo "Updating fsim build.sbt"
+sed -i 's/.dependsOn(midas, icenet, testchipip, rocketchip_blocks)/.dependsOn(midas, icenet, testchipip, rocketchip_blocks, rose)/g' ${FIRESIM_DIR}/sim/build.sbt
 
 echo "Updating onnxruntime-riscv submodules"
 cd ${ROSE_DIR}

@@ -18,7 +18,7 @@ import freechips.rocketchip.subsystem.{MemoryPortParams, MasterPortParams, Slave
 import freechips.rocketchip.devices.debug.{ClockedDMIIO}
 import freechips.rocketchip.util.{HeterogeneousBag}
 import freechips.rocketchip.tilelink.{TLBundle}
-import rose.{RosePortIO}
+import rose.{RosePortIO, RoseAdapterParams}
 
 trait Port[T <: Data] {
   val getIO: () => T
@@ -110,5 +110,5 @@ case class JTAGResetPort   (val getIO: () => Reset)
 case class TLMemPort       (val getIO: () => HeterogeneousBag[TLBundle])
     extends Port[HeterogeneousBag[TLBundle]]
 
-case class RoseAdapterPort    (val getIO: () => ClockedIO[RosePortIO], val adapterID: Int)
+case class RoseAdapterPort    (val getIO: () => ClockedIO[RosePortIO], val params: RoseAdapterParams)
     extends Port[ClockedIO[RosePortIO]]
