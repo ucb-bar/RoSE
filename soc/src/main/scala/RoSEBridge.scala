@@ -5,10 +5,8 @@ import midas.widgets._
 
 import chisel3._
 import chisel3.util._
-import chisel3.experimental.{DataMirror, Direction, IO}
 import org.chipsalliance.cde.config.Parameters
-import freechips.rocketchip.subsystem.PeripheryBusKey
-import rose.{RosePortIO, RoseAdapterParams, RoseAdapterKey, CParam, RoseAdapterArbiterIO, ConfigRoutingIO}
+import rose.{RosePortIO, RoseAdapterParams, RoseAdapterKey, RoseAdapterArbiterIO, ConfigRoutingIO}
 
 import java.io.{File, FileWriter}
 // A utility register-based lookup table that maps the id to the corresponding dst_port index
@@ -54,8 +52,7 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module{
   val latched_idx = RegEnable(arb_table.io.value, io.tx.fire && (state === sIdle))
 
   val rx_val = Wire(Bool())
-  params.dst_ports.seq.zipWithIndex.foreach {
-  case (dstParam, i) =>
+  for (i <- 0 until params.dst_ports.seq.size) {
     when (Mux(state === sIdle, i.U === arb_table.io.value, i.U === latched_idx)) {
       io.rx(i).valid := rx_val
     } .otherwise {
@@ -156,7 +153,7 @@ class softQueue (val entries: Int) extends Module {
   io.deq.bits := ram(deq_ptr.value)
 }
 
-class rxcontroller(params: CParam, width: Int) extends Module{
+class rxcontroller(width: Int) extends Module{
   val io = IO(new Bundle{
     val rx = Flipped(Decoupled(UInt(width.W)))
     val tx = Decoupled(UInt(width.W))
@@ -314,7 +311,7 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     rx_ctrl_fifo.reset := reset.asBool || targetReset
 
     // Count total elapsed cycles
-    val (cycleCount, testWrap) = Counter(fire, 65535 * 256)
+    val (cycleCount, _) = Counter(fire, 65535 * 256)
 
     // instantiate the rose arbiter
     val rosearb = Module(new RoseAdapterArbiter(params))
@@ -325,11 +322,10 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     rx_budget_fifo.io.soft_reset := cycleBudget === cycleStep
     val bww = Module(new BandWidthWriter(params))
     for (i <- 0 until params.dst_ports.seq.size) {
-      val dst_port = params.dst_ports.seq(i)
       // for each dst_port, generate a shallow queue and connect it to the arbiter
       val q = Module(new Queue(UInt(params.width.W), 32))
       // generate a rxcontroller for each dst_port
-      val rxctrl = Module(new rxcontroller(params.dst_ports.seq(i), params.width))
+      val rxctrl = Module(new rxcontroller(params.width))
       q.io.enq <> rosearb.io.rx(i)
       q.io.deq <> rxctrl.io.rx 
       rxctrl.io.tx <> target.rx(i)
