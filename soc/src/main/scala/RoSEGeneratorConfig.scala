@@ -13,8 +13,16 @@ import firrtl.annotations.{HasSerializationHints}
 
 case object RoseAdapterKey extends Field[Option[RoseAdapterParams]](None)
 
-class WithRoseAdapter() extends Config((site, here, up) => {
-  case RoseAdapterKey => Some(RoseAdapterParams())
+class WithRoseAdapter(
+  address: BigInt = 0x2000,
+  width: Int = 32,
+  dst_ports: CParam_Container, 
+) extends Config((site, here, up) => {
+  case RoseAdapterKey => Some(RoseAdapterParams(
+    address = address,
+    width = width,
+    dst_ports = dst_ports
+  ))
 })
 
 // Parameter used accross the project
@@ -24,13 +32,10 @@ case class RoseAdapterParams(
   // This is the width of the queues
   width: Int = 32,
   // Sequence of Destination ports
-  dst_ports: DstParams_Container = DstParams_Container(Seq(
-    DstParams(port_type = "DMA", DMA_address = 0x88000000L),
-    DstParams(port_type = "reqrsp"),
-    DstParams(port_type = "reqrsp")
-  ))) extends HasSerializationHints {
-  require(dst_ports.seq.size < 30)
-  def typeHints: Seq[Class[_]] = Seq(classOf[DstParams_Container])
+  dst_ports: CParam_Container) extends HasSerializationHints {
+  // require(dst_ports.seq.size < 30)
+  // require(Seq("DMA", "reqrsp").contains(dst_ports.seq.map(_.port_type)))
+  def typeHints: Seq[Class[_]] = Seq(classOf[CParam_Container])
   
   def genidxmap: Seq[Int] = {
     var idx_map = Seq[Int]()
@@ -53,12 +58,35 @@ case class RoseAdapterParams(
   }
 }
 
-case class DstParams_Container (seq: Seq[DstParams]) extends HasSerializationHints {
-  def typeHints: Seq[Class[_]] = Seq(classOf[DstParams])
+case class CParam_Container (seq: Seq[CParam]) extends HasSerializationHints {
+  def typeHints: Seq[Class[_]] = Seq(classOf[CParam])
 }
 
-case class DstParams (
+case class CParam (
   val port_type: String = "reqrsp", // supported are DMA and reqrsp
   val DMA_address: BigInt = 0x88000000L, // this attribute is only used if port_type is DMA
-  val name: String = "anonymous" // optional name for the port
-)
+  val name: String = "anonymous", // optional name for the port
+  val df_keys: Option[Config] = None // optional configuration for the dataflow accelerators
+){
+  require(Seq("DMA", "reqrsp").contains(port_type), "unrecognized port type")
+}
+
+// *** some example CParam ***
+class SingleChannelReqRspParam extends CParam_Container(Seq(
+  CParam(port_type = "reqrsp", name = "reqrsp0"),
+))
+
+class SingleChannelDMAParam extends CParam_Container(Seq(
+  CParam(port_type = "DMA", DMA_address = 0x88000000L, name = "DMA0"),
+))
+
+class DualChannelReqRspParam extends CParam_Container(Seq(
+  CParam(port_type = "reqrsp", name = "reqrsp0"),
+  CParam(port_type = "reqrsp", name = "reqrsp1"),
+))
+
+class TripleChannelMixedParam extends CParam_Container(Seq(
+  CParam(port_type = "DMA", DMA_address = 0x88000000L, name = "DMA0"),
+  CParam(port_type = "reqrsp", name = "reqrsp0"),
+  CParam(port_type = "reqrsp", name = "reqrsp1"),
+))

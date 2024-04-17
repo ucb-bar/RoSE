@@ -12,7 +12,7 @@ import freechips.rocketchip.tilelink._
 import freechips.rocketchip.util.UIntIsOneOf
 import freechips.rocketchip.prci._
 
-class RoseDMA(param: DstParams)(implicit p: Parameters) extends ClockSinkDomain(ClockSinkParameters())(p){
+class RoseDMA(param: CParam)(implicit p: Parameters) extends ClockSinkDomain(ClockSinkParameters())(p){
   val port_param = param
   val node = TLClientNode(Seq(TLMasterPortParameters.v1(Seq(TLClientParameters(
     name = "rose-dma", sourceId = IdRange(0, 1))))))

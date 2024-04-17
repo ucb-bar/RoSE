@@ -23,7 +23,8 @@ sources=(
     "${SCALA_DIR}/RoSEBridge.scala"
     "${SCALA_DIR}/RoSEIO.scala"
     "${SCALA_DIR}/RoSEGeneratorConfig.scala"
-    "${SCALA_DIR}/RoSEDMA.scala"
+    "${SCALA_DIR}/RoSEDMA.scala" 
+    "${SCALA_DIR}/Dataflow.scala"
     #C++ files
     "${FSIM_CC_DIR}/airsim.cc"
     "${FSIM_CC_DIR}/airsim.h"
@@ -59,6 +60,7 @@ destinations=(
     "${CHIPYARD_DIR}/generators/rose/src/main/scala/RoSEIO.scala"
     "${CHIPYARD_DIR}/generators/rose/src/main/scala/RoSEGeneratorConfig.scala"
     "${CHIPYARD_DIR}/generators/rose/src/main/scala/RoSEDMA.scala"
+    "${CHIPYARD_DIR}/generators/rose/src/main/scala/Dataflow.scala"
     #C++ destinations
     "${FIRESIM_DIR}/sim/firesim-lib/src/main/cc/bridges/airsim.cc"
     "${FIRESIM_DIR}/sim/firesim-lib/src/main/cc/bridges/airsim.h"
