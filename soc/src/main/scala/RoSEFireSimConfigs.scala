@@ -14,10 +14,6 @@ import freechips.rocketchip.devices.tilelink.{BootROMLocated, BootROMParams}
 import freechips.rocketchip.devices.debug.{DebugModuleParams, DebugModuleKey}
 import freechips.rocketchip.diplomacy.{LazyModule, AsynchronousCrossing}
 import sifive.blocks.devices.uart.{PeripheryUARTKey, UARTParams}
-import scala.math.{min, max}
-
-import chipyard.clocking.{ChipyardPRCIControlKey}
-import icenet._
 
 import firesim.bridges._
 import firesim.configs._
@@ -27,6 +23,12 @@ class RoseTLRocketMMIOOnlyConfig extends Config(
   new WithDefaultMemModel ++
   new WithFireSimConfigTweaks ++
   new chipyard.config.RoseTLRocketConfig) 
+
+class RoseTLRocketStereoAccMMIOOnlyConfig extends Config(
+  new WithDefaultMMIOOnlyFireSimBridges ++
+  new WithDefaultMemModel ++
+  new WithFireSimConfigTweaks ++
+  new chipyard.config.RoseTLRocketStereoAccConfig) 
 
 class RoseTLBOOMMMIOOnlyConfig extends Config(
   new WithDefaultMMIOOnlyFireSimBridges ++
