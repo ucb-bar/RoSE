@@ -334,7 +334,7 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
           next.enq <> prev.deq
           next
         }
-        dataflows.tail.io.deq <> rxctrl.io.rx
+        dataflows.last.io.deq <> rxctrl.io.rx
       } else {
         q.io.deq <> rxctrl.io.rx
       }
