@@ -16,14 +16,14 @@ FSIM_WORKLOAD_DIR = os.path.join(ROSE_SW_DIR, "..", "sim", "firesim", "deploy", 
 # argument parsing
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--target', type=str, help='The target C file to build', default='all')
+    parser.add_argument("--target", type=str, help="The target C file to build", default="all")
     args = parser.parse_args()
    
     # copying the sources
     os.system(f"cp -f {ROSE_PORT_HEADER} {CY_TEST_DIR}")
     os.system(f"cp -f {ROSE_PACKET_HEADER} {CY_TEST_DIR}")
 
-    if args.target != 'all':
+    if args.target != "all":
         # make sure the target is in src_dir
         target_src = os.path.join(PACKETTEST_SRC_DIR, f"{args.target}.c")
         if not os.path.exists(target_src):
@@ -41,7 +41,7 @@ if __name__ == "__main__":
     os.chdir(CY_TEST_DIR)
     os.system("make clean")
 
-    if args.target != 'all':
+    if args.target != "all":
         os.system(f"PROGRAMS={args.target} make")
         os.system(f"cp -f {args.target}.riscv {FSIM_WORKLOAD_DIR}")
         print("copied to " + FSIM_WORKLOAD_DIR)

@@ -34,6 +34,7 @@ ssize_t net_read(int fd, void *buf, size_t count)
 }
 
 void * queue_func(void * arg){
+    printf("[AIRSIM DRIVER THREAD]: Starting RX/TX thread\n");
     airsim_t * sim = (airsim_t *) arg;
 
     uint32_t cmd;
@@ -559,14 +560,14 @@ void airsim_t::schedule_firesim_data() {
 
 void airsim_t::set_step_size(uint32_t step_size)
 {
-    // printf("[AirSim Driver]: Setting step size to %d!\n", step_size);
+    printf("[AirSim Driver]: Setting step size to %d!\n", step_size);
     write(this->mmio_addrs.cycle_step, step_size);
     this->step_size = step_size;
 }
 
 void airsim_t::config_bandwidth(uint32_t dest, uint32_t bandwidth)
 {
-    // printf("[AirSim Driver]: Setting bandwidth to %d!\n", bandwidth);
+    printf("[AirSim Driver]: Setting bandwidth to %d!\n", bandwidth);
     write(this->mmio_addrs.bww_config_destination, dest);
     write(this->mmio_addrs.bww_config_bits, bandwidth);
     write(this->mmio_addrs.bww_config_valid, 1);
@@ -574,7 +575,7 @@ void airsim_t::config_bandwidth(uint32_t dest, uint32_t bandwidth)
 
 void airsim_t::config_route(uint32_t header, uint32_t channel)
 {
-    // printf("[AirSim Driver]: Setting header to %d and channel to %d!\n", header, channel);
+    printf("[AirSim Driver]: Setting header to %d and channel to %d!\n", header, channel);
     write(this->mmio_addrs.config_routing_header, header);
     write(this->mmio_addrs.config_routing_channel, channel);
     write(this->mmio_addrs.config_routing_valid, 1);

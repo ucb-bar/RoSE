@@ -95,6 +95,34 @@ f1_firesim-rocket-singlecore-with-rose-stereoacc-fast-no-nic-l2-llc4mb-ddr3:
     metasim_customruntimeconfig: null
     bit_builder_recipe: bit-builder-recipes/f1.yaml
 
+f1_firesim-rocket-singlecore-with-rose-stereoacc-fast-yes-nic-l2-llc4mb-ddr3:
+    PLATFORM: f1
+    TARGET_PROJECT: firesim
+    DESIGN: FireSim
+    TARGET_CONFIG: RoseTLRocketStereoAccNICConfig
+    PLATFORM_CONFIG: BaseF1Config
+    deploy_triplet: null
+    platform_config_args:
+        fpga_frequency: 60
+        build_strategy: TIMING
+    post_build_hook: null
+    metasim_customruntimeconfig: null
+    bit_builder_recipe: bit-builder-recipes/f1.yaml
+
+f1_firesim-rocket-singlecore-nic-l2-llc4mb-ddr3:
+    PLATFORM: f1
+    TARGET_PROJECT: firesim
+    DESIGN: FireSim
+    TARGET_CONFIG: RocketNICConfig
+    PLATFORM_CONFIG: BaseF1Config
+    deploy_triplet: null
+    platform_config_args:
+        fpga_frequency: 60
+        build_strategy: TIMING
+    post_build_hook: null
+    metasim_customruntimeconfig: null
+    bit_builder_recipe: bit-builder-recipes/f1.yaml
+
 alveo_u250_firesim-rocket-singlecore-with-rose-fast-no-nic-l2-llc4mb-ddr3:
     PLATFORM: xilinx_alveo_u250 
     TARGET_PROJECT: firesim

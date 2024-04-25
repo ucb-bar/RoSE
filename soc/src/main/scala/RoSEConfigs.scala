@@ -22,9 +22,11 @@ class RoseTLRocketConfig extends Config(
 
 class RoseTLRocketStereoAccConfig extends Config(
   new rose.WithRoseAdapter(dst_ports = DstParams_Container(Seq(
-    DstParams(port_type="DMA", DMA_address = 0x88000000L, name="DMA0", df_params = Seq(
-      CompleteDataflowConfig(StereoAccParams()))),
-    DstParams(port_type="reqrsp", name="reqrsp0"),
+    DstParams(port_type="DMA", DMA_address = 0x88000000L, name="DMA0"),
+    DstParams(port_type="reqrsp", name="reqrsp0", 
+      df_params = 
+        Seq(CompleteDataflowConfig(StereoAccParams()))
+      ),
     DstParams(port_type="reqrsp", name="reqrsp1"),
   ))) ++        
   new freechips.rocketchip.subsystem.WithNBigCores(1) ++

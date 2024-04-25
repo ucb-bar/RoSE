@@ -19,24 +19,43 @@ import firesim.bridges._
 import firesim.configs._
 
 class RoseTLRocketMMIOOnlyConfig extends Config(
+  new WithRoseBridge ++
   new WithDefaultMMIOOnlyFireSimBridges ++
   new WithDefaultMemModel ++
   new WithFireSimConfigTweaks ++
   new chipyard.config.RoseTLRocketConfig) 
 
 class RoseTLRocketStereoAccMMIOOnlyConfig extends Config(
+  new WithRoseBridge ++
   new WithDefaultMMIOOnlyFireSimBridges ++
   new WithDefaultMemModel ++
   new WithFireSimConfigTweaks ++
   new chipyard.config.RoseTLRocketStereoAccConfig) 
 
+class RoseTLRocketStereoAccNICConfig extends Config(
+  new WithRoSENICFireSimBridges ++
+  new WithDefaultMemModel ++
+  new WithFireSimConfigTweaks ++
+  new WithNIC ++
+  new chipyard.config.RoseTLRocketStereoAccConfig) 
+
+class RocketNICConfig extends Config(
+  new WithDefaultFireSimBridges ++
+  new WithDefaultMemModel ++
+  new WithFireSimConfigTweaks ++
+  new WithNIC ++
+  new chipyard.RocketConfig
+)
+
 class RoseTLBOOMMMIOOnlyConfig extends Config(
+  new WithRoseBridge ++
   new WithDefaultMMIOOnlyFireSimBridges ++
   new WithDefaultMemModel ++
   new WithFireSimConfigTweaks ++
   new chipyard.config.RoseTLBOOMConfig) 
 
 class RoseTLBOOMGemminiMMIOOnlyConfig extends Config(
+  new WithRoseBridge ++
   new WithDefaultMMIOOnlyFireSimBridges ++
   new WithDefaultMemModel ++
   new WithFireSimConfigTweaks ++

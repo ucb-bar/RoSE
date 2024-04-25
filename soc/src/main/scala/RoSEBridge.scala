@@ -25,8 +25,8 @@ class RoseArbTable(params: RoseAdapterParams) extends Module {
   // spawn a vector of registers, storing the configured routing values
   // TODO: replace with a memory
   val routing_table = RegInit(VecInit(Seq.fill(0x80)(0.U(log2Ceil(params.dst_ports.seq.size).W))))
-  // A static vector storing the keep_header values
-  val keeping_table = VecInit(params.dst_ports.seq.map(port => (port.port_type == "reqrsp").B))
+  // Only keep headers if the port is a reqrsp port and has no dataflow
+  val keeping_table = VecInit(params.dst_ports.seq.map(port => (port.port_type == "reqrsp" && port.df_params.size == 0).B))
 
   when (io.config_routing.valid) {
     routing_table(io.config_routing.header) := io.config_routing.channel

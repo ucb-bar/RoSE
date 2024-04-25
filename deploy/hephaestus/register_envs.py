@@ -13,6 +13,11 @@ register(
 )
 
 register(
+    id='AirSimEnv-stereo-v0',
+    entry_point='envs.airsim-stereo.airsim_gym:AirSimEnv',
+)
+
+register(
     id='LQR_gym_env-v0',
     entry_point='envs.customized_env.LQR_gym_env:LQREnvironment',
 )
