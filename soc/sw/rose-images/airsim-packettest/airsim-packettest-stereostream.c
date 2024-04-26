@@ -91,7 +91,7 @@ int main(void) {
   // send_takeoff();
   // printf("Took off...\n");
 
-  while (img_rcvd < 2) {
+  while (img_rcvd < 1) {
     uint64_t start = rdcycle();
     send_img_req();
 
