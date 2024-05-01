@@ -63,6 +63,10 @@ class AirSimEnv(gym.Env):
         left_resized_grey_img = cv2.resize(left_grey_img, (self.image_dim, self.image_dim))
         right_resized_grey_img = cv2.resize(right_grey_img, (self.image_dim, self.image_dim))
 
+        # Save images for debugging
+        cv2.imwrite(f"/scratch/iansseijelly/RoSE/deploy/hephaestus/img/left.png", left_resized_grey_img)
+        cv2.imwrite(f"/scratch/iansseijelly/RoSE/deploy/hephaestus/img/right.png", right_resized_grey_img)
+
         # interleave left and right images row-wise
         camera_observation = np.empty((self.image_dim * 2, self.image_dim), dtype=np.uint8)
         camera_observation[0::2, :] = right_resized_grey_img

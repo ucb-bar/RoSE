@@ -28,6 +28,8 @@ class FiresimThread(threading.Thread):
     def run_firesim(self):
         os.system("firesim kill > /dev/null")
         # os.system("firesim infrasetup > /dev/null")
+        # os.system("screen -S switch0 -d -m 'gdb /scratch/iansseijelly/FIRESIM_RUNS_DIR/switch_slot0/switch0'")
+        # os.system("./scratch/iansseijelly/FIRESIM_RUNS_DIR/sim_slot0/sim-run.sh")
         os.system("firesim runworkload > /dev/null")
         # os.system("firesim kill")
         os.system("firesim kill &")

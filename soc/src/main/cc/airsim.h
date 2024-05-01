@@ -63,6 +63,9 @@ struct serial_cosmo_data_t {
 #define CS_CFG_BW      0x85
 #define CS_CFG_ROUTE   0x86
 
+// for capturing packets
+#define CAPTURE
+
 struct ROSEBRIDGEMODULE_struct {
     uint64_t out_bits;
     uint64_t out_valid;
@@ -133,66 +136,67 @@ struct CompareBudget
 
 class airsim_t final: public bridge_driver_t{
     public:
-        airsim_t(simif_t &sim, const ROSEBRIDGEMODULE_struct &mmio_addrs, int airsimno, const std::vector<std::string> &args);
-        ~airsim_t();
-        virtual void tick();
-        // Our AIRSIM bridge's initialzation and teardown procedures don't
-        // require interaction with the FPGA (i.e., MMIO), and so we don't need
-        // to define init and finish methods (we can do everything in the
-        // ctor/dtor)
-        void connect_synchronizer();
-        void process_tcp_packet();
-        void enqueue_firesim_data();
-        void schedule_firesim_data();
-        bool read_firesim_packet(cosim_packet_t * packet);
-        void grant_cycles();
-        void report_cycles();
-        void check_stall();
-        void report_stall();
-        void set_step_size(uint32_t step_size);
-        void config_bandwidth(uint32_t dest, uint32_t bandwidth);
-        void config_route(uint32_t header, uint32_t channel);
-        virtual void init() {};
-        virtual void finish() {};
-        // Our AIRSIM bridge never calls for the simulation to terminate
-        virtual bool terminate() { return false; }
-        // ... and thus, never returns a non-zero exit code
-        virtual int exit_code() { return 0; }
+      airsim_t(simif_t &sim, const ROSEBRIDGEMODULE_struct &mmio_addrs, int airsimno, const std::vector<std::string> &args);
+      ~airsim_t();
+      virtual void tick();
+      // Our AIRSIM bridge's initialzation and teardown procedures don't
+      // require interaction with the FPGA (i.e., MMIO), and so we don't need
+      // to define init and finish methods (we can do everything in the
+      // ctor/dtor)
+      void connect_synchronizer();
+      void process_tcp_packet();
+      void enqueue_firesim_data();
+      void schedule_firesim_data();
+      bool read_firesim_packet(cosim_packet_t * packet);
+      void grant_cycles();
+      void report_cycles();
+      void check_stall();
+      void report_stall();
+      void set_step_size(uint32_t step_size);
+      void config_bandwidth(uint32_t dest, uint32_t bandwidth);
+      void config_route(uint32_t header, uint32_t channel);
+      virtual void init() {};
+      virtual void finish() {};
+      // Our AIRSIM bridge never calls for the simulation to terminate
+      virtual bool terminate() { return false; }
+      // ... and thus, never returns a non-zero exit code
+      virtual int exit_code() { return 0; }
 
-	static char KIND;
-        ROSEBRIDGEMODULE_struct mmio_addrs;
-        serial_cosmo_data_t<uint32_t> data;
+	    static char KIND;
+      ROSEBRIDGEMODULE_struct mmio_addrs;
+      serial_cosmo_data_t<uint32_t> data;
 
-        int inputfd;
-        int outputfd;
-        int loggingfd;
+      FILE *capture;
+      int inputfd;
+      int outputfd;
+      int loggingfd;
 
-        uint32_t step_size;
-        // COSIM-CODE
-        int sync_sockfd, data_sockfd, sync_portno, data_portno, n;
-        struct sockaddr_in sync_serveraddr;
-        struct sockaddr_in data_serveraddr;
-        struct hostent *server;
-        char *hostname;
-        char buf[ROBOTICS_COSIM_BUFSIZE];
-    
-        pthread_t tcp_thread;
+      uint32_t step_size;
+      // COSIM-CODE
+      int sync_sockfd, data_sockfd, sync_portno, data_portno, n;
+      struct sockaddr_in sync_serveraddr;
+      struct sockaddr_in data_serveraddr;
+      struct hostent *server;
+      char *hostname;
+      char buf[ROBOTICS_COSIM_BUFSIZE];
+  
+      pthread_t tcp_thread;
 
-        bool checking_stall;
-        
-        std::deque<uint32_t> fsim_rxdata;
-        std::deque<uint32_t> fsim_txdata;
-        std::deque<uint32_t> fsim_txbudget;
-        std::deque<uint32_t> tcp_sync_rxdata;
-        std::deque<uint32_t> tcp_data_rxdata;
-        std::deque<uint32_t> tcp_txdata;
-        std::deque<budget_packet_t*> budget_rx_queue; 
-        // std::priority_queue<budget_packet_t, std::vector<budget_packet_t>, CompareBudget> budget_rx_queue; 
-        // COSIM-CODE
+      bool checking_stall;
+      
+      std::deque<uint32_t> fsim_rxdata;
+      std::deque<uint32_t> fsim_txdata;
+      std::deque<uint32_t> fsim_txbudget;
+      std::deque<uint32_t> tcp_sync_rxdata;
+      std::deque<uint32_t> tcp_data_rxdata;
+      std::deque<uint32_t> tcp_txdata;
+      std::deque<budget_packet_t*> budget_rx_queue; 
+      // std::priority_queue<budget_packet_t, std::vector<budget_packet_t>, CompareBudget> budget_rx_queue; 
+      // COSIM-CODE
 
-        void send();
-        void send_budget();
-        void recv();
+      void send();
+      void send_budget();
+      void recv();
 };
 
 #endif // __AIRSIM_H

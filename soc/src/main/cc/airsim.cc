@@ -110,7 +110,8 @@ void * queue_func(void * arg){
                     }
                 }
                 // printf("[AIRSIM DRIVER THREAD]: Exiting RX task\n");
-            } else { // if this is a data sequence... (cmd < 0x80)
+            // if this is a data sequence... (cmd < 0x80)
+            } else { 
                 // printf("[AIRSIM DRIVER THREAD]: Got data cmd in multithreading: 0x%x\n", cmd);
                 uint32_t i = 1;
                 while(!net_read(sim->sync_sockfd, sim->buf, 4))
@@ -212,6 +213,14 @@ airsim_t::airsim_t(simif_t &sim, const ROSEBRIDGEMODULE_struct &mmio_addrs, int 
     this->connect_synchronizer();
 
     this->checking_stall = false;
+    
+    #ifdef CAPTURE
+      this->capture = fopen("airsimcc_capture.txt", "w");
+        if (this->capture == NULL) {
+        fprintf(stderr, "failed to open capture file");
+        exit(1);
+    }
+    #endif
 
     pthread_create(&(this->tcp_thread), NULL, &queue_func , this);
 }
@@ -609,8 +618,17 @@ void airsim_t::tick()
         // printf("[AIRSIM DRIVER]: Pushing num_bytes%x\n", packet.num_bytes);
         for(int i = 0; i < packet.num_bytes/4; i++) {
             this->tcp_txdata.push_back(packet.data[i]);
+            #ifdef CAPTURE
+            for (int j = 0; j < 32; j+=8){
+                fprintf(this->capture, "%02x ", (packet.data[i] >> j) & 0xFF);
+            }
+            #endif
             // printf("[AIRSIM DRIVER]: Pushing datum%x\n", packet.data[i]);
         }
+        #ifdef CAPTURE
+            fputc('\n', this->capture);
+            fflush(this->capture);
+        #endif
         m.unlock();
     }
     while(this->fsim_txbudget.size() > 0){

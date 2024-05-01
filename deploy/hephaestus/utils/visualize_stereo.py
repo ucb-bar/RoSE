@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 # read the computed image
 if __name__ == '__main__':
 
-    width = 128-16
-    height = 128-8+1
+    width = 256-32 
+    height = 256-8
     # read raw disparity map bytes
     # Read the raw bytes from the file
     with open('capture.txt', 'rb') as f:

@@ -5,41 +5,44 @@
 #include <string.h>
 #include <riscv-pk/encoding.h>
 
-#include "nic.h"
+// #include "nic.h"
 
 #include "rose_port.h"
 #include "rose_packet.h"
 
-#define IMG_WIDTH 128
-#define IMG_HEIGHT 128
-#define SEARCH_RANGE 16
+#define IMG_WIDTH 256
+#define IMG_HEIGHT 256
+#define SEARCH_RANGE 32
 #define BLOCK_SIZE 8
 
+#define STEREO_IMG_WIDTH (IMG_WIDTH-SEARCH_RANGE)
+#define STEREO_IMG_HEIGHT (IMG_HEIGHT-BLOCK_SIZE)
+
 // byte addressed size
-#define STEREO_IMG_SIZE ((IMG_WIDTH-SEARCH_RANGE)*(IMG_HEIGHT-BLOCK_SIZE+1))
+#define STEREO_IMG_SIZE (STEREO_IMG_WIDTH*STEREO_IMG_HEIGHT)
 
 uint32_t buf[STEREO_IMG_SIZE/4];
 
-void send_arm() {
-    printf("Sending arm...\n");
-    while (ROSE_TX_ENQ_READY == 0);
-    reg_write32(ROSE_TX_DATA_ADDR, CS_ARM);
-    while (ROSE_TX_ENQ_READY == 0);
-    printf("Sent arm...\n");
-    reg_write32(ROSE_TX_DATA_ADDR, 0);
-}
+// void send_arm() {
+//     printf("Sending arm...\n");
+//     while (ROSE_TX_ENQ_READY == 0);
+//     reg_write32(ROSE_TX_DATA_ADDR, CS_ARM);
+//     while (ROSE_TX_ENQ_READY == 0);
+//     printf("Sent arm...\n");
+//     reg_write32(ROSE_TX_DATA_ADDR, 0);
+// }
 
-void send_takeoff() {
-    printf("Sending takeoff...\n");
-    while (ROSE_TX_ENQ_READY == 0);
-    reg_write32(ROSE_TX_DATA_ADDR, CS_TAKEOFF);
-    while (ROSE_TX_ENQ_READY == 0);
-    reg_write32(ROSE_TX_DATA_ADDR, 0);
-}
+// void send_takeoff() {
+//     printf("Sending takeoff...\n");
+//     while (ROSE_TX_ENQ_READY == 0);
+//     reg_write32(ROSE_TX_DATA_ADDR, CS_TAKEOFF);
+//     while (ROSE_TX_ENQ_READY == 0);
+//     reg_write32(ROSE_TX_DATA_ADDR, 0);
+// }
 
 void configure_counter() {
   printf("Configuring counter...\n");
-  reg_write32(ROSE_DMA_CONFIG_COUNTER_ADDR_0, 56*56*3);
+  reg_write32(ROSE_DMA_CONFIG_COUNTER_ADDR_0, STEREO_IMG_SIZE);
 }
 
 void send_img_req() {
@@ -48,6 +51,26 @@ void send_img_req() {
     reg_write32(ROSE_TX_DATA_ADDR, CS_CAMERA_STEREO);
     while (ROSE_TX_ENQ_READY == 0) ;
     reg_write32(ROSE_TX_DATA_ADDR, 0);
+}
+
+void send_img_loopback_1_row(int row) {
+    printf("Sending 1 row...\n");
+    while (ROSE_TX_ENQ_READY == 0) ;
+    reg_write32(ROSE_TX_DATA_ADDR, CS_CAMERA_LOOPBACK);
+    while (ROSE_TX_ENQ_READY == 0) ;
+    reg_write32(ROSE_TX_DATA_ADDR, (IMG_WIDTH-SEARCH_RANGE));
+    for (int i = 0; i < STEREO_IMG_WIDTH/4; i++) {
+      while (ROSE_TX_ENQ_READY == 0) ;
+      reg_write32(ROSE_TX_DATA_ADDR, buf[row * STEREO_IMG_WIDTH/4 + i]);
+    }
+}
+
+void send_img_loopback(uint32_t *img) {
+    // printf("Requesting image...\n");
+  for (int j = 0; j < (IMG_HEIGHT-BLOCK_SIZE); j++) {
+    send_img_loopback_1_row(j);
+  }
+  printf("Sent %d rows\n", IMG_HEIGHT-BLOCK_SIZE);
 }
 
 int recv_img(int start_byte) {
@@ -104,14 +127,17 @@ int main(void) {
     img_rcvd++;
     printf("Received image %d\n", img_rcvd);
 
-    // write image to nic
-    nic_send(buf, STEREO_IMG_SIZE);
+    // write image loopback
+    send_img_loopback(buf);
+    // send_img_loopback_1_row(buf); 
+
 
     byte_read = 0;
   }
-
-  for (i = 0; i < 32; i++) {
-    printf("cycle[%d], %" PRIu64 " cycles\n", i, cycles_measured[i]);
-  }
+  while(1);
+  
+  // for (i = 0; i < 32; i++) {
+  //   printf("cycle[%d], %" PRIu64 " cycles\n", i, cycles_measured[i]);
+  // }
 }
 

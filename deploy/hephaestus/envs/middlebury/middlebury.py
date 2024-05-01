@@ -6,7 +6,7 @@ import numpy as np
 
 class MiddleBuryEnv(gym.Env):
     def __init__(self, *args, **kwargs):
-        self.image_dim = 128
+        self.image_dim = 256
         self.observation_space = spaces.Dict({
             "camera": spaces.Box(low=0, high=255, shape=(self.image_dim, self.image_dim, 3), dtype=np.uint8),
         })
