@@ -8,7 +8,8 @@ class MiddleBuryEnv(gym.Env):
     def __init__(self, *args, **kwargs):
         self.image_dim = 256
         self.observation_space = spaces.Dict({
-            "camera": spaces.Box(low=0, high=255, shape=(self.image_dim, self.image_dim, 3), dtype=np.uint8),
+            "camera_lr": spaces.Box(low=0, high=255, shape=(self.image_dim, self.image_dim*2), dtype=np.uint8),
+            "camera_l": spaces.Box(low=0, high=255, shape=(self.image_dim, self.image_dim), dtype=np.uint8)
         })
         self.action_space = spaces.Discrete(1)
 
@@ -23,12 +24,16 @@ class MiddleBuryEnv(gym.Env):
         left_resized_grey_img = cv2.resize(left_grey_img, (self.image_dim, self.image_dim))
         right_resized_grey_img = cv2.resize(right_grey_img, (self.image_dim, self.image_dim))
 
-        camera_observation = np.empty((self.image_dim * 2, self.image_dim), dtype=np.uint8)
-        camera_observation[0::2, :] = left_resized_grey_img
-        camera_observation[1::2, :] = right_resized_grey_img
+        camera_lr_observation = np.empty((self.image_dim * 2, self.image_dim), dtype=np.uint8)
+        camera_lr_observation[0::2, :] = left_resized_grey_img
+        camera_lr_observation[1::2, :] = right_resized_grey_img
+
+        camera_left_observation = np.empty((self.image_dim, self.image_dim), dtype=np.uint8)
+        camera_left_observation = left_resized_grey_img
 
         observation = {
-            "camera": camera_observation,
+            "camera_lr": camera_lr_observation,
+            "camera_l": camera_left_observation
         }
 
         return observation

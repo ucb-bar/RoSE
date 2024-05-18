@@ -75,9 +75,8 @@ if __name__ == "__main__":
         print("[RoSE]:Running RoSE")
         print("[RoSE]:Starting synchronizer thread")
         sync_thread = SyncThread(None)
-        sync_thread.start()
 
-        server_thread = ServerThread(None)
+        server_thread = ServerThread(sync_thread.sync)
         server_thread.start()
         
         print("[RoSE]:Starting firesim thread")
@@ -85,11 +84,16 @@ if __name__ == "__main__":
         firesim_thread.start()
         print("[RoSE]:Joining server thread")
 
-        server_thread.join()
-        print("[RoSE]:Joining synchronizer thread")
+        while (server_thread.connected_sockets < server_thread.num_sockets):
+            pass
 
+        print("[RoSE]:Joining synchronizer thread")
+        sync_thread.start()
         sync_thread.join()
         print("[RoSE]:Joining firesim thread")
 
-        os.kill(os.getpid(), signal.SIGTERM)
+        server_thread.stop_event.set()
+        server_thread.join()
+        
         firesim_thread.join()
+        os.kill(os.getpid(), signal.SIGTERM)
