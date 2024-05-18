@@ -35,7 +35,7 @@ def stable_heap_push(heap, item):
 
 def stable_heap_pop(heap):
     item = heap.pop(0)
-    heap.sort()
+    heap.sort() # stable
     return item
 
 def default_action_for_space(space):
@@ -105,6 +105,7 @@ class DummySynchronizer:
             self.packet_bindings[hex_id] = packet  # bind the id to the packet configuration
         
         self.channel_bandwidth = gym_sim_config['channel_bandwidth']
+        self.n_fsim_nodes = gym_sim_config['n_fsim_nodes']
     
     def genRoSECPacketHeader(self):
         sb = ["//RoSE Control Packet Headers"]
@@ -122,10 +123,10 @@ class Synchronizer(DummySynchronizer):
 
     def __init__(self, host=HOST, sync_port=SYNC_PORT, data_port=DATA_PORT, firesim_step=10000, firesim_freq=1_000_000_000):
         super().__init__()
-        self.txqueue = []
-        self.txpq = [] 
-        self.data_rxqueue = []
-        self.sync_rxqueue = []
+
+        # this node list is always written by server_thread during setup, 
+        # and always only read by synchronizer on the main thread after server_thread exits
+        self.nodes = []
 
         self.host = host
         self.sync_host = host
@@ -134,7 +135,6 @@ class Synchronizer(DummySynchronizer):
 
         self.streaming_queue = collections.OrderedDict()
 
-        self.num_sockets = 1
         self.cycle_limit = None
 
         # Load general simulation configurations
@@ -161,11 +161,6 @@ class Synchronizer(DummySynchronizer):
             if 'latency' in self.packet_bindings[cmd]:
                 Packet.cmd_latency_dict[cmd] = self.packet_bindings[cmd]['latency'] / self.firesim_period
 
-        # Initialize sockets 
-        self.socket_threads = []
-        for i in range(self.num_sockets):
-            self.socket_threads.append(SocketThread(self))
-
         # intialize frame counter
         self.count = 0
 
@@ -179,7 +174,7 @@ class Synchronizer(DummySynchronizer):
 
     def run(self):
         # Start running threads for each RTL simulator
-        for socket_thread in self.socket_threads:
+        for socket_thread in self.nodes:
             socket_thread.start()
         self.start_time = time.time()
 
@@ -189,15 +184,18 @@ class Synchronizer(DummySynchronizer):
 
         # TODO: This should take in a list of connections,
         # And send firesim steps to each
-        self.send_firesim_step()
+        for t in self.nodes:
+            self.send_firesim_step(t)
 
-        for i, bw in enumerate(self.channel_bandwidth):
-            self.send_bw(i, bw)
+        for i, t in enumerate(self.nodes):
+            for j, bw in enumerate(self.channel_bandwidth[i]):
+                self.send_bw(j, bw, t)
         
         for cmd in self.packet_bindings.keys():
             if 'channel' in self.packet_bindings[cmd]:
                 print(f"Sending route for 0x{cmd:02x} to channel {self.packet_bindings[cmd]['channel']}")
-                self.send_route(cmd, self.packet_bindings[cmd]['channel'])
+                for t in self.nodes:
+                    self.send_route(cmd, self.packet_bindings[cmd]['channel'], t)
 
         self.obs = self.env.reset()
         self.done = False
@@ -209,7 +207,7 @@ class Synchronizer(DummySynchronizer):
 
         obs, _ = self.env.reset()
 
-        print("Starting RoSE Simulation Loop")
+        print("*** Starting RoSE Simulation Loop ***")
 
         while True:
             # Check to see if sim is finished
@@ -231,10 +229,15 @@ class Synchronizer(DummySynchronizer):
             # self.logger.log_rendering()
 
             # Step RTL simulation
-            self.grant_firesim_token()
+            for t in self.nodes:
+                self.grant_firesim_token(t)
+            
+            for t in self.nodes:
+                self.check_token_exhaustion(t)
 
             # Process data from firesim
-            self.process_fsim_data_packets()
+            for t in self.nodes:
+                self.process_fsim_data_packets(t)
 
             # TODO add any additional logging
 
@@ -278,25 +281,26 @@ class Synchronizer(DummySynchronizer):
             time.sleep(1)
             exit()
 
-    def send_firesim_step(self):
+    def send_firesim_step(self, target_thread):
         packet = Control_Packet(CONTROL_HEADERS.CS_DEFINE_STEP, 4, [self.firesim_step])
-        self.txqueue.append(packet)
+        target_thread.txqueue.append(packet)
 
-    def send_bw(self, dst, bw):
+    def send_bw(self, dst, bw, target_thread):
         packet = Control_Packet(CONTROL_HEADERS.CS_CFG_BW, 8, [dst, bw])
-        self.txqueue.append(packet)
+        target_thread.txqueue.append(packet)
     
-    def send_route(self, header, channel):
+    def send_route(self, header, channel, target_thread):
         packet = Control_Packet(CONTROL_HEADERS.CS_CFG_ROUTE, 8, [header, channel])
-        self.txqueue.append(packet)
+        target_thread.txqueue.append(packet)
 
-    def grant_firesim_token(self):
+    def grant_firesim_token(self, target_thread):
         packet = Control_Packet(CONTROL_HEADERS.CS_GRANT_TOKEN, 0, None)
-        self.txqueue.append(packet)
+        target_thread.txqueue.append(packet)
 
+    def check_token_exhaustion(self, target_thread):
         while True:
-            if len(self.sync_rxqueue) > 0:
-                self.sync_rxqueue.pop(0)
+            if len(target_thread.sync_rxqueue) > 0:
+                target_thread.sync_rxqueue.pop(0)
                 break
 
     def get_firesim_cycles(self):
@@ -308,21 +312,21 @@ class Synchronizer(DummySynchronizer):
         response = self.sync_rxqueue.pop(0)
         return response.data[0]
 
-    def process_fsim_data_packets(self):
-        while len(self.data_rxqueue) > 0:
-            self.process_fsim_data_packet()
-        while(len(self.txpq) > 0 and self.txpq[0].latency < 1):
-            packet = stable_heap_pop(self.txpq)
-            self.txqueue.append(packet)
+    def process_fsim_data_packets(self, target_thread):
+        while len(target_thread.data_rxqueue) > 0:
+            self.process_fsim_data_packet(target_thread)
+        while(len(target_thread.txpq) > 0 and target_thread.txpq[0].latency < 1):
+            packet = stable_heap_pop(target_thread.txpq)
+            target_thread.txqueue.append(packet)
             # print(f"appended packet: {packet}")
         # Now, iterate through the rest of the queue, decrement latency by 1
-        for blobs in self.txpq:
+        for blobs in target_thread.txpq:
             blobs.latency = blobs.latency - 1
             blobs.packet.latency = blobs.latency
 
 
-    def process_fsim_data_packet(self):
-        packet = self.data_rxqueue.pop(0)
+    def process_fsim_data_packet(self, target_thread):
+        packet = target_thread.data_rxqueue.pop(0)
         cmd = packet.cmd
         print(f"Dequeued data packet: {packet}")
         
@@ -352,8 +356,7 @@ class Synchronizer(DummySynchronizer):
                 #packet_arr = obs_data.view(np.uint32).tolist()
                 packet_arr = np.frombuffer(obs_data.tobytes(), dtype=np.uint32).tolist()
                 packet = Payload_Packet(cmd, len(packet_arr) * 4, packet_arr)  # You might need to adjust the multiplier
-                stable_heap_push(self.txpq, packet)
-
+                stable_heap_push(target_thread.txpq, packet)
             else: 
                 # 2D array, send the response in rows
                 INPUT_DIM = obs_data.shape[0]
@@ -362,7 +365,7 @@ class Synchronizer(DummySynchronizer):
                     row_packet_arr = row.view(np.uint32).tolist()
                     # print(f"row_packet_arr: {row_packet_arr}")
                     packet = Payload_Packet(cmd, len(row_packet_arr) * 4, row_packet_arr)  # You might need to adjust the multiplier
-                    stable_heap_push(self.txpq, packet)
+                    stable_heap_push(target_thread.txpq, packet)
         
         if 'action' in packet_config['type']:
             indices = packet_config['indices']
