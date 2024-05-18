@@ -4,6 +4,7 @@ import signal
 import threading
 import argparse
 import gym_synchronizer
+from socket_thread import ServerThread
 
 TASK = ["run", "build"]
 
@@ -75,12 +76,20 @@ if __name__ == "__main__":
         print("[RoSE]:Starting synchronizer thread")
         sync_thread = SyncThread(None)
         sync_thread.start()
+
+        server_thread = ServerThread(None)
+        server_thread.start()
+        
         print("[RoSE]:Starting firesim thread")
         firesim_thread = FiresimThread(None)
         firesim_thread.start()
+        print("[RoSE]:Joining server thread")
+
+        server_thread.join()
         print("[RoSE]:Joining synchronizer thread")
+
         sync_thread.join()
         print("[RoSE]:Joining firesim thread")
+
         os.kill(os.getpid(), signal.SIGTERM)
-    
         firesim_thread.join()

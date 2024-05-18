@@ -4,7 +4,7 @@ package chipyard.config
 
 import org.chipsalliance.cde.config.{Config}
 import rose._
-import stereoacc.{StereoAcc, StereoAccParams}
+import stereoacc._
 import javax.xml.crypto.Data
 
 class AbstractRoseConfig extends Config(
@@ -26,6 +26,18 @@ class RoseTLRocketStereoAccConfig extends Config(
     DstParams(port_type="reqrsp", name="reqrsp0", 
       df_params = 
         Seq(CompleteDataflowConfig(StereoAccParams()))
+      ),
+    DstParams(port_type="reqrsp", name="reqrsp1"),
+  ))) ++        
+  new freechips.rocketchip.subsystem.WithNBigCores(1) ++
+  new chipyard.config.AbstractRoseConfig)
+
+class RoseTLRocketEdgeDetAccConfig extends Config(
+  new rose.WithRoseAdapter(dst_ports = DstParams_Container(Seq(
+    DstParams(port_type="DMA", DMA_address = 0x88000000L, name="DMA0"),
+    DstParams(port_type="reqrsp", name="reqrsp0", 
+      df_params = 
+        Seq(CompleteDataflowConfig(EdgeDetAccParams()))
       ),
     DstParams(port_type="reqrsp", name="reqrsp1"),
   ))) ++        

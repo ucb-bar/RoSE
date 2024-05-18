@@ -32,6 +32,13 @@ class RoseTLRocketStereoAccMMIOOnlyConfig extends Config(
   new WithFireSimConfigTweaks ++
   new chipyard.config.RoseTLRocketStereoAccConfig) 
 
+class RoseTLRocketEdgeDetAccMMIOOnlyConfig extends Config(
+  new WithRoseBridge ++
+  new WithDefaultMMIOOnlyFireSimBridges ++
+  new WithDefaultMemModel ++
+  new WithFireSimConfigTweaks ++
+  new chipyard.config.RoseTLRocketEdgeDetAccConfig)  
+
 class RoseTLRocketStereoAccNICConfig extends Config(
   new WithRoSENICFireSimBridges ++
   new WithDefaultMemModel ++
