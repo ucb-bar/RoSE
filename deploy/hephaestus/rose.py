@@ -76,7 +76,9 @@ if __name__ == "__main__":
         print("[RoSE]:Starting synchronizer thread")
         sync_thread = SyncThread(None)
 
-        server_thread = ServerThread(sync_thread.sync)
+        condition = threading.Condition()
+
+        server_thread = ServerThread(sync_thread.sync, condition)
         server_thread.start()
         
         print("[RoSE]:Starting firesim thread")
@@ -92,7 +94,9 @@ if __name__ == "__main__":
         sync_thread.join()
         print("[RoSE]:Joining firesim thread")
 
-        server_thread.stop_event.set()
+        with condition:
+            condition.notify()
+
         server_thread.join()
         
         firesim_thread.join()

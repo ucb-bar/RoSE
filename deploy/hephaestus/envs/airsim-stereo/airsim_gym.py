@@ -15,7 +15,7 @@ class AirSimEnv(gym.Env):
         # Example: Action is a discrete choice of 3 possibilities
 
         # TODO Load from config:
-        self.image_dim = 128
+        self.image_dim = 256
         self.img_id = 0
 
         # Action
@@ -94,7 +94,7 @@ class AirSimEnv(gym.Env):
             yaw = float(f.readline()) * np.pi / 180
             pose.orientation = airsim.utils.to_quaternion(0,0,yaw)
         except:
-            pose.orientation = airsim.utils.to_quaternion(0,0, np.pi)
+            pose.orientation = airsim.utils.to_quaternion(0,0, 0)
 
         self.client.armDisarm(False)
         pose.position.x_val = self.initial_x

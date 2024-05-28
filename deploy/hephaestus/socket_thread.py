@@ -7,11 +7,12 @@ from rose_packet import *
 # This thread set and listens to socket connections
 # Will be joined by main after all nodes are connected
 class ServerThread (threading.Thread):
-    def __init__(self, syn):
+    def __init__(self, syn, pc):
         threading.Thread.__init__(self) 
         self.syn = syn
         self.connected_sockets = 0
         self.num_sockets = syn.n_fsim_nodes
+        self.pc = pc
 
     def run(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -25,7 +26,8 @@ class ServerThread (threading.Thread):
             self.syn.nodes.append(socket_thread)
             self.connected_sockets += 1
             # socket_thread.start()
-        self.stop_event.wait()
+        with self.pc:
+            self.pc.wait()
         for node in self.syn.nodes:
             node.kill()
             node.join()
