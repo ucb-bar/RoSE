@@ -8,7 +8,18 @@
 #include <rose_port.h>
 #include <rose_packet.h>
 
-uint32_t buf[56 * 56 * 3];
+#define IMG_WIDTH 256
+#define IMG_HEIGHT 256
+#define SEARCH_RANGE 32
+#define BLOCK_SIZE 8
+
+#define STEREO_IMG_WIDTH (IMG_WIDTH-SEARCH_RANGE)
+#define STEREO_IMG_HEIGHT (IMG_HEIGHT-BLOCK_SIZE)
+
+// byte addressed size
+#define STEREO_IMG_SIZE (STEREO_IMG_WIDTH*STEREO_IMG_HEIGHT)
+
+uint32_t buf[STEREO_IMG_SIZE/4];
 
 void send_arm() {
     printf("Sending arm...\n");
@@ -29,13 +40,13 @@ void send_takeoff() {
 
 void configure_counter(){
   printf("Configuring counter...\n");
-  reg_write32(AIRSIM_WRITTEN_COUNTER_MAX, 56*56*3);
+  reg_write32(AIRSIM_WRITTEN_COUNTER_MAX, STEREO_IMG_SIZE);
 }
 
 void send_img_req() {
     // printf("Requesting image...\n");
     while (ROSE_TX_ENQ_READY == 0) ;
-    reg_write32(ROSE_TX_DATA_ADDR, CS_CAMERA);
+    reg_write32(ROSE_TX_DATA_ADDR, CS_CAMERA_STEREO);
     while (ROSE_TX_ENQ_READY == 0) ;
     reg_write32(ROSE_TX_DATA_ADDR, 0);
 }
@@ -43,9 +54,9 @@ void send_img_req() {
 void recv_img_dma(int offset){
   uint32_t i;
   uint8_t *pointer;
-  pointer = ROSE_DMA_BASE_ADDR_0 + offset * 56*56*3;
+  pointer = ROSE_DMA_BASE_ADDR_0 + offset * STEREO_IMG_SIZE;
   printf("offset for this access is: %d", offset);
-  memcpy(buf, pointer, 56*56*3);
+  memcpy(buf, pointer, STEREO_IMG_SIZE);
 }
 
 int main(void)
@@ -75,7 +86,7 @@ int main(void)
     do
     {
       status_prev = status;
-      status = ROSE_DMA_BUFFER_0
+      status = ROSE_DMA_BUFFER_0;
     } while (status == status_prev);
 
     recv_img_dma(status_prev);
