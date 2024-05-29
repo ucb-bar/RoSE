@@ -27,6 +27,7 @@ class ServerThread (threading.Thread):
             self.connected_sockets += 1
             # socket_thread.start()
         with self.pc:
+            print("Entered server pc waiting")
             self.pc.wait()
         for node in self.syn.nodes:
             node.kill()

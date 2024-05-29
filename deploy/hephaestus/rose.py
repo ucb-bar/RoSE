@@ -84,7 +84,6 @@ if __name__ == "__main__":
         print("[RoSE]:Starting firesim thread")
         firesim_thread = FiresimThread(None)
         firesim_thread.start()
-        print("[RoSE]:Joining server thread")
 
         while (server_thread.connected_sockets < server_thread.num_sockets):
             pass
@@ -98,6 +97,7 @@ if __name__ == "__main__":
             condition.notify()
 
         server_thread.join()
+        print("[RoSE]:Joining server thread")
         
         firesim_thread.join()
         os.kill(os.getpid(), signal.SIGTERM)

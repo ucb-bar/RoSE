@@ -2,6 +2,7 @@
 package firesim.bridges
 
 import midas.widgets._
+import midas.AbstractClockGate
 
 import chisel3._
 import chisel3.util._
@@ -292,7 +293,7 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     // output token
     val fire = hPort.toHost.hValid &&    // We have a valid input token: toHost ~= leaving the transformed RTL
                hPort.fromHost.hReady &&  // We have space to enqueue a new output token
-               txfifo.io.enq.ready  &&   // We have space to capture new TX data
+              //  txfifo.io.enq.ready  &&   // We have space to capture new TX data
                (cycleBudget < cycleStep) // still have cycles left in the budget
 
     val targetReset = fire & hPort.hBits.reset
@@ -320,6 +321,11 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     rosearb.io.cycleStep := cycleStep
     rx_budget_fifo.io.soft_reset := cycleBudget === cycleStep
     val bww = Module(new BandWidthWriter(params))
+
+    val acg = Module(new AbstractClockGate)
+    acg.I := clock
+    acg.CE := fire
+    
     for (i <- 0 until params.dst_ports.seq.size) {
       // for each dst_port, generate a shallow queue and connect it to the arbiter
       val q = Module(new Queue(UInt(params.width.W), 32))
@@ -335,6 +341,11 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
           next
         }
         dataflows.last.io.deq <> rxctrl.io.rx
+        // clock gate the dataflows          
+
+        foreach(dataflows){
+          _.clock := acg.O.asClock
+        }
       } else {
         q.io.deq <> rxctrl.io.rx
       }
