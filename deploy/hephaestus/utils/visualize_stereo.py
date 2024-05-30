@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 # read the computed image
 if __name__ == '__main__':
 
-    width = 256-32 
+    width = 256-32-8
     height = 256-8
     # read raw disparity map bytes
     # Read the raw bytes from the file
@@ -20,7 +20,8 @@ if __name__ == '__main__':
     # print the first 10 values
     print(data_array[:10])
     # reshape to original shape
-    disp = data_array.reshape(int(height), int(width))
+    curr_height = data_array.shape[0] / width
+    disp = data_array.reshape(int(curr_height), width)
     print(f"max: {np.max(disp)}, min: {np.min(disp)}, mean: {np.mean(disp)}")
     # generate a distribution of the values
     plt.hist(disp.ravel())
