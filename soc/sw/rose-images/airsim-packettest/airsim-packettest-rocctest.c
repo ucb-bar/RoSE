@@ -37,6 +37,7 @@ void COMPUTE_STEREO (void) {
 }
 
 uint32_t origin_buf[ORIGIN_IMG_SIZE/4];
+uint32_t test_buf[ORIGIN_IMG_SIZE/4];
 uint32_t stereo_buf[STEREO_IMG_SIZE/4];
 
 void configure_counter() {
@@ -50,6 +51,12 @@ void send_img_req() {
     reg_write32(ROSE_TX_DATA_ADDR, CS_CAMERA_STEREO);
     while (ROSE_TX_ENQ_READY == 0) ;
     reg_write32(ROSE_TX_DATA_ADDR, 0);
+}
+
+void populate_test_buf() {
+  for (int i = 0; i < ORIGIN_IMG_SIZE/4; i++) {
+    test_buf[i] = i;
+  }
 }
 
 void send_img_loopback_1_row(int row) {
@@ -66,10 +73,10 @@ void send_img_loopback_1_row(int row) {
 
 void send_img_loopback(uint32_t *img) {
     // printf("Requesting image...\n");
-  for (int j = 0; j < (IMG_HEIGHT-BLOCK_SIZE); j++) {
+  for (int j = 0; j < STEREO_IMG_HEIGHT; j++) {
     send_img_loopback_1_row(j);
   }
-  printf("Sent %d rows\n", IMG_HEIGHT-BLOCK_SIZE);
+  printf("Sent %d rows\n", STEREO_IMG_HEIGHT);
 }
 
 void recv_img_dma(int offset){
@@ -90,20 +97,12 @@ int main(void) {
   printf("Starting Test Code\n");
   configure_counter();
 
-  CONFIG_DMA_R_ADDR(origin_buf);
+  CONFIG_DMA_R_ADDR(test_buf);
   CONFIG_DMA_W_ADDR(stereo_buf);
 
 while(img_rcvd < 1){
-    send_img_req();
+    populate_test_buf();
     uint64_t start = rdcycle();
-    do
-    {
-      status_prev = status;
-      status = ROSE_DMA_BUFFER_0;
-    } while (status == status_prev);
-
-    recv_img_dma(status_prev);
-    printf("Received image\n");
 
     COMPUTE_STEREO();
     rocc_fence();
