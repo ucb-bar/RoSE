@@ -20,6 +20,12 @@ class RoseTLRocketConfig extends Config(
   new freechips.rocketchip.subsystem.WithNBigCores(1) ++
   new chipyard.config.AbstractRoseConfig)
 
+class RocketStereoAccRoCCConfig extends Config(
+  new freechips.rocketchip.subsystem.WithNBigCores(1) ++
+  new stereoacc.WithDefaultStereoAccConfig() ++
+  new chipyard.config.AbstractRoseConfig
+)
+
 class RoseTLRocketStereoAccRoccConfig extends Config(
   new rose.WithRoseAdapter(dst_ports = new DstParams_Container(Seq(
     DstParams(port_type="DMA", DMA_address = 0x88000000L, name="DMA0"),

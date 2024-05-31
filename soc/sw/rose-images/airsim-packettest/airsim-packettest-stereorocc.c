@@ -41,7 +41,7 @@ uint32_t stereo_buf[STEREO_IMG_SIZE/4];
 
 void configure_counter() {
   printf("Configuring counter...\n");
-  reg_write32(ROSE_DMA_CONFIG_COUNTER_ADDR_0, ORIGIN_IMG_SIZE/4);
+  reg_write32(ROSE_DMA_CONFIG_COUNTER_ADDR_0, ORIGIN_IMG_SIZE);
 }
 
 void send_img_req() {

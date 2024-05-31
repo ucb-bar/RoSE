@@ -2,7 +2,7 @@
 package firesim.bridges
 
 import midas.widgets._
-import midas.AbstractClockGate
+import midas.models.AbstractClockGate
 
 import chisel3._
 import chisel3.util._
@@ -337,14 +337,12 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
       if (dataflows.nonEmpty) {
         // connect the dataflows one after the other
         dataflows.map(_.io).foldLeft(q.io) { case (prev, next) =>
-          next.enq <> prev.deq
+          next.enq <> prev.deq // chaining
           next
         }
-        dataflows.last.io.deq <> rxctrl.io.rx
-        // clock gate the dataflows          
-
-        foreach(dataflows){
-          _.clock := acg.O.asClock
+        dataflows.last.io.deq <> rxctrl.io.rx // tail case
+        dataflows.foreach { df =>
+          df.clock := acg.O // clock gating
         }
       } else {
         q.io.deq <> rxctrl.io.rx
