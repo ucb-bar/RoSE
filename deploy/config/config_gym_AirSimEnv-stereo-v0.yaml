@@ -6,6 +6,11 @@ packets:
     channel: 1
     indices:
       - "camera"
+  - name: 'camera_loopback'
+    id: 0x11
+    type: "loopback"
+    indices:
+      - "camera"
   # actions
   - name: 'arm'
     id: 0x01
