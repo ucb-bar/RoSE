@@ -6,7 +6,7 @@ build_farm:
   base_recipe: build-farm-recipes/externally_provisioned.yaml
   recipe_arg_overrides:
     # REQUIRED: (replace this) default location of build directory on build host.
-    default_build_dir: null
+    default_build_dir: /scratch/iansseijelly/FIRESIM_BUILD_DIR
     # REQUIRED: List of IP addresses (or "localhost"). Each can have an OPTIONAL
     # argument, called "override_build_dir", specifying to override the default
     # build directory.
@@ -36,8 +36,10 @@ builds_to_run:
     # - firesim_rocket_singlecore_no_nic
     # - firesim-dual-large-boom-fp32gemmini-singlecore-with-airsim-no-nic-l2-llc4mb-ddr3
     # - firesim-large-boom-25mhz-fp32gemmini-singlecore-with-airsim-no-nic-l2-llc4mb-ddr3
-    - alveo_u250_firesim-boom-gemmini-singlecore-with-rose-fast-no-nic-l2-llc4mb-ddr3
-
+    # - alveo_u250_firesim-boom-gemmini-singlecore-with-rose-fast-no-nic-l2-llc4mb-ddr3
+    # - f1_firesim-rocket-singlecore-with-rose-stereoacc-fast-no-nic-l2-llc4mb-ddr3
+    # - alveo-u250_firesim-rocket-singlecore-with-rose-stereoacc-fast-no-nic-l2-llc4mb-ddr3
+    - alveo-u250_firesim-boom-dual-dma-fast-no-nic-l2-llc4mb-ddr3
     # - firesim-rocket-singlecore-fp32gemmini-with-airsim-no-nic-l2-llc4mb-ddr3
     # - firesim-rocket-singlecore-fp32gemmini-with-airsim-fast-no-nic-l2-llc4mb-ddr3
 
