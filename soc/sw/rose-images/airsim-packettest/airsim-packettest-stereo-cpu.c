@@ -7,6 +7,8 @@
 
 #include "rose_port.h"
 #include "rose_packet.h"
+#include <math.h>
+#include <stdlib.h>
 
 #define IMG_WIDTH 256
 #define IMG_HEIGHT 256
@@ -137,8 +139,11 @@ void compute_dispartiy(uint8_t *left, uint8_t *right, uint8_t *stereo_buf, int m
 int main(void) {
   int i;
   int img_rcvd = 0;
-  uint8_t l_status, l_status_prev;
-  uint8_t r_status, r_status_prev;
+  uint8_t l_status = 0;
+  uint8_t l_status_prev = 0;
+  uint8_t r_status = 0;
+  uint8_t r_status_prev = 0;
+
   uint64_t cycles_measured[32] = {0};
   int byte_read = 0;
 

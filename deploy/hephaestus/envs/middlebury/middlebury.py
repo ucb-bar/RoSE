@@ -9,7 +9,8 @@ class MiddleBuryEnv(gym.Env):
         self.image_dim = 256
         self.observation_space = spaces.Dict({
             "camera_lr": spaces.Box(low=0, high=255, shape=(self.image_dim, self.image_dim*2), dtype=np.uint8),
-            "camera_l": spaces.Box(low=0, high=255, shape=(self.image_dim, self.image_dim), dtype=np.uint8)
+            "camera_l": spaces.Box(low=0, high=255, shape=(self.image_dim, self.image_dim), dtype=np.uint8),
+            "camera_r": spaces.Box(low=0, high=255, shape=(self.image_dim, self.image_dim), dtype=np.uint8)
         })
         self.action_space = spaces.Discrete(1)
 
@@ -31,9 +32,13 @@ class MiddleBuryEnv(gym.Env):
         camera_left_observation = np.empty((self.image_dim, self.image_dim), dtype=np.uint8)
         camera_left_observation = left_resized_grey_img
 
+        camera_right_observation = np.empty((self.image_dim, self.image_dim), dtype=np.uint8)
+        camera_right_observation = right_resized_grey_img
+
         observation = {
             "camera_lr": camera_lr_observation,
-            "camera_l": camera_left_observation
+            "camera_l": camera_left_observation,
+            "camera_r": camera_right_observation,
         }
 
         return observation

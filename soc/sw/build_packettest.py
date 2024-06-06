@@ -42,7 +42,7 @@ if __name__ == "__main__":
     os.system("make clean")
 
     if args.target != "all":
-        os.system(f"PROGRAMS={args.target} make")
+        os.system(f"make PROGRAMS={args.target}")
         os.system(f"cp -f {args.target}.riscv {FSIM_WORKLOAD_DIR}")
         print("copied to " + FSIM_WORKLOAD_DIR)
         
