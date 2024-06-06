@@ -215,8 +215,13 @@ airsim_t::airsim_t(simif_t &sim, const ROSEBRIDGEMODULE_struct &mmio_addrs, int 
     this->checking_stall = false;
     
     #ifdef CAPTURE
-      this->capture = fopen("airsimcc_capture.txt", "w");
-        if (this->capture == NULL) {
+    this->fsim_rx_capture = fopen("airsimcc_fsim_rxcapture.txt", "w");
+        if (this->fsim_rx_capture == NULL) {
+        fprintf(stderr, "failed to open capture file");
+        exit(1);
+    }
+     this->fsim_tx_capture = fopen("airsimcc_fsim_txcapture.txt", "w");
+        if (this->fsim_tx_capture == NULL) {
         fprintf(stderr, "failed to open capture file");
         exit(1);
     }
@@ -287,7 +292,7 @@ void airsim_t::process_tcp_packet()
         cmd = this->tcp_sync_rxdata.front();
         this->tcp_sync_rxdata.pop_front();
         m.unlock();
-        // printf("[Airsim Driver]: Got cmd from queue: 0x%x\n", cmd);
+	//  printf("[Airsim Driver]: Got cmd from queue: 0x%x\n", cmd);
 
         //usleep(1);
         uint32_t i = 1;
@@ -584,7 +589,7 @@ void airsim_t::config_bandwidth(uint32_t dest, uint32_t bandwidth)
 
 void airsim_t::config_route(uint32_t header, uint32_t channel)
 {
-    printf("[AirSim Driver]: Setting header to %d and channel to %d!\n", header, channel);
+    printf("[AirSim Driver]: Setting header to 0x%x and channel to %d!\n", header, channel);
     write(this->mmio_addrs.config_routing_header, header);
     write(this->mmio_addrs.config_routing_channel, channel);
     write(this->mmio_addrs.config_routing_valid, 1);
@@ -620,14 +625,14 @@ void airsim_t::tick()
             this->tcp_txdata.push_back(packet.data[i]);
             #ifdef CAPTURE
             for (int j = 0; j < 32; j+=8){
-                fprintf(this->capture, "%02x ", (packet.data[i] >> j) & 0xFF);
+                fprintf(this->fsim_rx_capture, "%02x ", (packet.data[i] >> j) & 0xFF);
             }
             #endif
             // printf("[AIRSIM DRIVER]: Pushing datum%x\n", packet.data[i]);
         }
         #ifdef CAPTURE
-            fputc('\n', this->capture);
-            fflush(this->capture);
+            fputc('\n', this->fsim_rx_capture);
+            fflush(this->fsim_rx_capture);
         #endif
         m.unlock();
     }
@@ -651,6 +656,11 @@ void airsim_t::tick()
         data.in.bits = this->fsim_txdata.front();
         this->send();
         if(data.in.ready) {
+	    #ifdef CAPTURE
+            fprintf(this->fsim_tx_capture, "%08x ", data.in.bits);
+            fputc('\n', this->fsim_tx_capture);
+            fflush(this->fsim_tx_capture);
+            #endif
             // printf("[AIRSIM DRIVER]: Transmitting firesim packet -- 0x%x\n", data.in.bits);
             this->fsim_txdata.pop_front();
             m.unlock();
@@ -660,6 +670,7 @@ void airsim_t::tick()
         }
     }
 }
+
 
 budget_packet_t::budget_packet_t(){
     this->cmd = 0x00;

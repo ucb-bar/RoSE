@@ -166,7 +166,8 @@ class airsim_t final: public bridge_driver_t{
       ROSEBRIDGEMODULE_struct mmio_addrs;
       serial_cosmo_data_t<uint32_t> data;
 
-      FILE *capture;
+      FILE *fsim_tx_capture;
+      FILE *fsim_rx_capture;
       int inputfd;
       int outputfd;
       int loggingfd;
