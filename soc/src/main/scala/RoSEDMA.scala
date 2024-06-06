@@ -25,6 +25,7 @@ class RoseDMA(param: DstParams)(implicit p: Parameters) extends ClockSinkDomain(
       val rx = Flipped(Decoupled(UInt(config.width.W)))
       val cam_buffer = Output(UInt(1.W))
       val counter_max = Input(UInt(config.width.W))
+      val curr_counter = Output(UInt(config.width.W))
     })
 
     withClockAndReset(clock, reset) {
@@ -51,7 +52,9 @@ class RoseDMA(param: DstParams)(implicit p: Parameters) extends ClockSinkDomain(
       val counter = RegEnable(counter_next, 0.U(config.width.W), counter_enabled)
       counter_next := Mux((counter < io.counter_max + io.counter_max - 4.U), counter + 4.U, 0.U)
 
+      io.curr_counter := counter
       io.cam_buffer := counter >= io.counter_max
+      
       fifo.io.deq.ready := mstate === mIdle
       mem.a.valid := mstate === mWrite
       mem.d.ready := mstate === mResp

@@ -68,6 +68,7 @@ class RoseAdapterTL(params: RoseAdapterParams, beatBytes: Int)(implicit p: Param
       for (i <- 0 until params.dst_ports.seq.count(_.port_type == "DMA")) {
         io.cam_buffer(i) <> impl.io.cam_buffer(i)
         io.counter_max(i) <> written_counter_max(i)
+        io.curr_counter(i) <> impl.io.curr_counter(i)
       }
 
       val rx_datas =     
@@ -79,7 +80,13 @@ class RoseAdapterTL(params: RoseAdapterParams, beatBytes: Int)(implicit p: Param
       val written_counters = 
       (for (i <- 0 until params.dst_ports.seq.count(_.port_type == "DMA")) yield {
           0x0C + (params.dst_ports.seq.count(_.port_type != "DMA") + i)*4 -> Seq(
-            RegField.w(params.width, written_counter_max(i))) // read-only, RoseAdapter.ready is set on read
+            RegField.w(params.width, written_counter_max(i))) // write-only, y.valid is set on write
+      }).toSeq
+
+      val curr_counters = 
+      (for (i <- 0 until params.dst_ports.seq.count(_.port_type == "DMA")) yield {
+          0x0C + (params.dst_ports.seq.size + i)*4 -> Seq(
+            RegField.r(params.width, impl.io.curr_counter(i))) // read-only, RoseAdapter.ready is set on read
       }).toSeq
 
       node.regmap(
@@ -90,7 +97,7 @@ class RoseAdapterTL(params: RoseAdapterParams, beatBytes: Int)(implicit p: Param
           0x08 -> Seq(
             RegField.w(params.width, tx_data))) ++ // write-only, y.valid is set on write
 
-          rx_datas ++ written_counters
+          rx_datas ++ written_counters ++ curr_counters
         ): _*
       )
     }
@@ -142,6 +149,7 @@ trait CanHavePeripheryRoseAdapter { this: BaseSubsystem =>
         for (i <- 0 until DMA_lazymods.length) {
           DMA_lazymods(i).module.io.cam_buffer <> roseAdapterTL.module.io.cam_buffer(i)
           DMA_lazymods(i).module.io.counter_max <> roseAdapterTL.module.io.counter_max(i)
+          DMA_lazymods(i).module.io.curr_counter <> roseAdapterTL.module.io.curr_counter(i)
         }
         outer_io
       }

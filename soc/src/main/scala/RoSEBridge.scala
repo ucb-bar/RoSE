@@ -427,9 +427,12 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
         case (port, i) => port.port_type match {
           case "DMA" => {
             sb.append(s"//${port.port_type}_${port.name}_port_channel_$i\n")
+            // 3*4 is a magic number, 0x08 for status and 0x0C for tx_data
             sb.append(f"#define ROSE_DMA_CONFIG_COUNTER_ADDR_$i 0x${bridgeParams.address + (idx_map(i)+3+bridgeParams.dst_ports.seq.count(_.port_type != "DMA"))*4}%x\n")
+            sb.append(f"#define ROSE_DMA_CURR_COUNTER_ADDR_$i 0x${bridgeParams.address + (idx_map(i)+3+bridgeParams.dst_ports.seq.size)*4}%x\n")
             sb.append(f"#define ROSE_DMA_BASE_ADDR_$i 0x${bridgeParams.dst_ports.seq(i).DMA_address}%x\n")
             sb.append(f"#define ROSE_DMA_BUFFER_$i (reg_read32(ROSE_STATUS_ADDR) & 0x${1<<(bridgeParams.dst_ports.seq.length-idx_map(i))}%x)\n")
+            sb.append(f"#define ROSE_DMA_CURR_COUNTER_$i (reg_read32(ROSE_DMA_CURR_COUNTER_ADDR_$i))\n")
             sb.append("\n")
           }
           case "reqrsp" => {

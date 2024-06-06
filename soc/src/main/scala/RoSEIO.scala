@@ -47,6 +47,7 @@ class RoseAdapterIO(params: RoseAdapterParams) extends Bundle {
   }
   // Indicating which of the two buffers the image lies in
   val cam_buffer = Vec(params.dst_ports.seq.count(_.port_type == "DMA"),Input(UInt(1.W)))
+  val curr_counter = Vec(params.dst_ports.seq.count(_.port_type == "DMA"), Input(UInt(32.W)))
 }
 
 // TopIO is used for Regmap communicating to the cam DMA engine & to the post-bridge, and the TL registers
@@ -58,4 +59,5 @@ class RoseAdapterTopIO(params: RoseAdapterParams) extends Bundle {
     val tx = Decoupled(UInt(32.W))
     val cam_buffer = Vec(params.dst_ports.seq.count(_.port_type == "DMA"), Input(UInt(1.W)))
     val counter_max = Vec(params.dst_ports.seq.count(_.port_type == "DMA"), Output(UInt(32.W)))
+    val curr_counter = Vec(params.dst_ports.seq.count(_.port_type == "DMA"), Input(UInt(32.W)))
 }
