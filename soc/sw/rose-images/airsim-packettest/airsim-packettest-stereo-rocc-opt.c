@@ -45,7 +45,7 @@ void configure_counter() {
 }
 
 void send_img_req() {
-    // printf("Requesting image...\n");
+    printf("Requesting image...\n");
     while (ROSE_TX_ENQ_READY == 0) ;
     reg_write32(ROSE_TX_DATA_ADDR, CS_CAMERA_STEREO);
     while (ROSE_TX_ENQ_READY == 0) ;
@@ -83,41 +83,39 @@ void recv_img_dma(int offset){
 int main(void) {
   int i;
   int img_rcvd = 0;
-  uint8_t status, status_prev;
+  uint32_t curr_counter = 0;
+  uint32_t row_processed = 0;
   uint64_t cycles_measured[32] = {0};
   int byte_read = 0;
 
   printf("Starting Test Code\n");
   configure_counter();
 
-  CONFIG_DMA_R_ADDR(origin_buf);
   CONFIG_DMA_W_ADDR(stereo_buf);
 
 while(img_rcvd < 1){
     send_img_req();
     uint64_t start = rdcycle();
+    CONFIG_DMA_R_ADDR(ROSE_DMA_BASE_ADDR_0 + (img_rcvd % 2) * ORIGIN_IMG_SIZE);
     do
     {
-      status_prev = status;
-      status = ROSE_DMA_BUFFER_0;
-    } while (status == status_prev);
-
-    recv_img_dma(status_prev);
-    printf("Received image\n");
-
-    COMPUTE_STEREO();
-    rocc_fence();
-    printf("Computed stereo\n");
+      curr_counter = ROSE_DMA_CURR_COUNTER_0;
+      // printf("curr_counter: %d\n", curr_counter);
+      if (curr_counter >= (row_processed+1)*IMG_WIDTH*2) {
+        COMPUTE_STEREO();
+        rocc_fence();
+        row_processed++;
+      }
+    } while (row_processed < IMG_HEIGHT);
 
     uint64_t end = rdcycle();
     cycles_measured[img_rcvd] = end - start;
     send_img_loopback(stereo_buf);
     img_rcvd++;
   }
-  while(1);
   
-  // for (i = 0; i < 32; i++) {
-  //   printf("cycle[%d], %" PRIu64 " cycles\n", i, cycles_measured[i]);
-  // }
+  for (i = 0; i < img_rcvd; i++) {
+    printf("cycle[%d], %" PRIu64 " cycles\n", i, cycles_measured[i]);
+  }
 }
 

@@ -87,6 +87,8 @@ int main(void)
     {
       status_prev = status;
       status = ROSE_DMA_BUFFER_0;
+      uint32_t curr_counter = ROSE_DMA_CURR_COUNTER_0;
+      printf("curr_counter: %d\n", curr_counter);
     } while (status == status_prev);
 
     recv_img_dma(status_prev);

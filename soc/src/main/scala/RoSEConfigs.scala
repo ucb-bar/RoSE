@@ -36,6 +36,16 @@ class RoseTLRocketStereoAccRoccConfig extends Config(
   new stereoacc.WithDefaultStereoAccConfig() ++
   new chipyard.config.AbstractRoseConfig)
 
+class RoseTLRocketStereoAccRoccOptConfig extends Config(
+  new rose.WithRoseAdapter(dst_ports = new DstParams_Container(Seq(
+    DstParams(port_type="DMA", DMA_address = 0x88000000L, name="DMA0"),
+    DstParams(port_type="reqrsp", name="reqrsp0"),
+    DstParams(port_type="reqrsp", name="reqrsp1"),
+  ))) ++        
+  new freechips.rocketchip.subsystem.WithNBigCores(1) ++
+  new stereoacc.WithDefaultStereoAccConfig(use_optimization = true) ++
+  new chipyard.config.AbstractRoseConfig)
+
 class RoseTLBOOMDualDMAConfig extends Config(
   new rose.WithRoseAdapter(dst_ports = new DstParams_Container(Seq(
     DstParams(port_type="DMA", DMA_address = 0x88000000L, name="DMA0"),
