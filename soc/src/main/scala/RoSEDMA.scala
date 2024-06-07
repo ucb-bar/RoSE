@@ -82,6 +82,7 @@ class RoseDMA(param: DstParams)(implicit p: Parameters) extends ClockSinkDomain(
         }
         is (mResp){
           mstate := Mux(mem.d.fire, mIdle, mResp)
+          midas.targetutils.SynthesizePrintf(printf("DMA: wrote %x to %x\n", buffer, addr))
         }
       }
     }
