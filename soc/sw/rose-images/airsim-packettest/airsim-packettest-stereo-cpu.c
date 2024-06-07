@@ -158,6 +158,8 @@ while(img_rcvd < 1){
     {
       l_status_prev = l_status;
       l_status = ROSE_DMA_BUFFER_0;
+      uint32_t curr_counter = ROSE_DMA_CURR_COUNTER_0;
+      printf("curr_counter: %d\n", curr_counter);
     } while (l_status == l_status_prev);
     recv_img_dma_left(l_status_prev);
     printf("Received left image\n");
