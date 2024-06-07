@@ -86,13 +86,12 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module{
       }
     }
     is(sLoad) {
+      rx_val := io.tx.valid
+      counter := Mux(io.tx.fire, counter - 1.U, counter)
       when(counter > 1.U) {
-        rx_val := io.tx.valid
-        counter := Mux(io.tx.fire, counter - 1.U, counter)
         state := sLoad
       } .otherwise {
-        rx_val := true.B
-        state := Mux(io.rx(latched_idx).fire, sIdle, sLoad)
+        state := Mux(io.tx.fire, sIdle, sLoad)
       }
     }
   }
