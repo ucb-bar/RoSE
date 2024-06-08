@@ -63,10 +63,10 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module{
     io.rx(i).bits := io.tx.bits 
   }
 
-  io.tx.ready := io.rx(latched_idx).ready
   io.budget.ready := false.B
   arb_table.io.key_valid := (state === sIdle)
   rx_val := false.B
+  io.tx.ready := false.B
 
   switch(state) {
     is(sIdle) {
@@ -79,20 +79,14 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module{
     is(sHeader) {
       rx_val := Mux(latched_keep_header, io.tx.valid, false.B)
       counter := io.tx.bits >> 2
-      when(io.tx.bits === 0.U) {
-        state := Mux(io.rx(latched_idx).fire, sIdle, sHeader)
-      } .otherwise {
-        state := Mux(io.tx.fire, sLoad, sHeader)
-      }
+      io.tx.ready := io.rx(latched_idx).ready
+      state := Mux(io.tx.fire, Mux(io.tx.bits === 0.U, sIdle, sLoad), sHeader)
     }
     is(sLoad) {
       rx_val := io.tx.valid
       counter := Mux(io.tx.fire, counter - 1.U, counter)
-      when(counter > 1.U) {
-        state := sLoad
-      } .otherwise {
-        state := Mux(io.tx.fire, sIdle, sLoad)
-      }
+      state := Mux(counter === 0.U, sIdle, sLoad)
+      io.tx.ready := io.rx(latched_idx).ready && (counter =/= 0.U)
     }
   }
 }
