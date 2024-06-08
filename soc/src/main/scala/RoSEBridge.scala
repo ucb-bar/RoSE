@@ -9,8 +9,8 @@ import chisel3.util._
 import org.chipsalliance.cde.config.Parameters
 import rose.{RosePortIO, RoseAdapterParams, RoseAdapterKey, RoseAdapterArbiterIO, ConfigRoutingIO, Dataflow}
 import firrtl.annotations.HasSerializationHints
-
 import java.io.{File, FileWriter}
+
 // A utility register-based lookup table that maps the id to the corresponding dst_port index
 class RoseArbTable(params: RoseAdapterParams) extends Module {
   val io = IO(new Bundle{
@@ -70,9 +70,9 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module{
 
   switch(state) {
     is(sIdle) {
-      def can_advance = io.budget.valid && ((io.budget.bits < io.cycleBudget) && (io.cycleBudget =/= io.cycleStep))
+      def can_advance = io.budget.valid && io.tx.valid && ((io.budget.bits < io.cycleBudget) && (io.cycleBudget =/= io.cycleStep))
       io.tx.ready := io.rx(arb_table.io.value).ready && can_advance
-      io.budget.ready := io.tx.ready
+      io.budget.ready := io.rx(arb_table.io.value).ready && can_advance
       rx_val := Mux(io.tx.fire, arb_table.io.keep_header, false.B)
       state := Mux(io.tx.fire, sHeader, sIdle)
     } 
@@ -114,23 +114,21 @@ class softQueue (val entries: Int) extends Module {
   })
 
   val ram = Mem(entries, UInt(32.W))
-
-  val enq_ptr = Counter(entries)
-  val deq_ptr = Counter(entries)
-  val maybe_full = RegInit(false.B)
-  val ptr_match = enq_ptr.value === deq_ptr.value
-  val empty = ptr_match && !maybe_full
-  val full = ptr_match && maybe_full
+  
   val do_enq = WireDefault(io.enq.fire)
   val do_deq = WireDefault(io.deq.fire)
+  val (enq_ptr, _) = Counter(do_enq, entries)
+  val (deq_ptr, _) = Counter(do_deq, entries)
+  val maybe_full = RegInit(false.B)
+  val ptr_match = enq_ptr=== deq_ptr
+  val empty = ptr_match && !maybe_full
+  val full = ptr_match && maybe_full
+
 
   when(do_enq) {
-    ram(enq_ptr.value) := io.enq.bits
-    enq_ptr.inc()
+    ram(enq_ptr) := io.enq.bits
   }
-  when(do_deq) {
-    deq_ptr.inc()
-  }
+
   when(do_enq =/= do_deq) {
     maybe_full := do_enq
   }
@@ -145,7 +143,7 @@ class softQueue (val entries: Int) extends Module {
 
   io.deq.valid := !empty
   io.enq.ready := !full
-  io.deq.bits := ram(deq_ptr.value)
+  io.deq.bits := ram(deq_ptr)
 }
 
 class rxcontroller(width: Int) extends Module{
@@ -267,10 +265,10 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     val hPort = IO(HostPort(new RoseBridgeTargetIO(params)))
 
     // Generate some FIFOs to capture tokens...
-    val txfifo = Module(new Queue(UInt(32.W), 32))
+    val txfifo = Module(new Queue(UInt(32.W), 1))
     //val rxfifo = Module(new Queue(UInt(32.W), 128))
-    val rxfifo = Module(new Queue(UInt(32.W), 2560))
-    val rx_budget_fifo = Module(new softQueue(64))
+    val rxfifo = Module(new Queue(UInt(32.W), 1))
+    val rx_budget_fifo = Module(new softQueue(2))
     // Generate a FIFO to capture time step allocations
     val rx_ctrl_fifo = Module(new Queue(UInt(8.W), 16))
 
