@@ -70,6 +70,10 @@ class RoseDMA(param: DstParams)(implicit p: Parameters) extends ClockSinkDomain(
       addr := outer.port_param.DMA_address.U + counter
       counter_enabled := mem.a.fire && mstate === mWrite
 
+      when (mstate === mWrite && mem.a.fire) {
+        midas.targetutils.SynthesizePrintf(printf("DMA: wrote %x to %x\n", buffer, addr))
+      }
+
       switch(mstate){
         is (mIdle){
           //grab data into the fifo
@@ -82,7 +86,6 @@ class RoseDMA(param: DstParams)(implicit p: Parameters) extends ClockSinkDomain(
         }
         is (mResp){
           mstate := Mux(mem.d.fire, mIdle, mResp)
-          midas.targetutils.SynthesizePrintf(printf("DMA: wrote %x to %x\n", buffer, addr))
         }
       }
     }

@@ -68,10 +68,6 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module{
   arb_table.io.key_valid := (state === sIdle)
   rx_val := false.B
 
-  when (io.tx.fire){
-    midas.targetutils.SynthesizePrintf(printf("RoseAdapter: transmitting tx.bits = %x to channel latched_idx = %x\n", io.tx.bits, latched_idx))
-  }
-
   switch(state) {
     is(sIdle) {
       def can_advance = io.budget.valid && ((io.budget.bits < io.cycleBudget) && (io.cycleBudget =/= io.cycleStep))
