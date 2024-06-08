@@ -265,10 +265,10 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     val hPort = IO(HostPort(new RoseBridgeTargetIO(params)))
 
     // Generate some FIFOs to capture tokens...
-    val txfifo = Module(new Queue(UInt(32.W), 1))
+    val txfifo = Module(new Queue(UInt(32.W), 32))
     //val rxfifo = Module(new Queue(UInt(32.W), 128))
-    val rxfifo = Module(new Queue(UInt(32.W), 1))
-    val rx_budget_fifo = Module(new softQueue(2))
+    val rxfifo = Module(new Queue(UInt(32.W), 256))
+    val rx_budget_fifo = Module(new softQueue(64))
     // Generate a FIFO to capture time step allocations
     val rx_ctrl_fifo = Module(new Queue(UInt(8.W), 16))
 
