@@ -8,10 +8,7 @@
 #define CS_CFG_BW 0x85
 #define CS_CFG_ROUTE 0x86
 //RoSE Payload Packet Headers
-#define CS_CAMERA 0x10
-#define CS_IMU 0x20
-#define CS_ACCELEROMETER 0x22
-#define CS_GYROSCOPE 0x24
-#define CS_ARM 0x01
-#define CS_DISARM 0x02
-#define CS_TAKEOFF 0x04
+#define CS_CAMERA_STEREO 0x10
+#define CS_CAMERA_LEFT 0x11
+#define CS_CAMERA_RIGHT 0x12
+#define CS_CAMERA_LOOPBACK 0x01

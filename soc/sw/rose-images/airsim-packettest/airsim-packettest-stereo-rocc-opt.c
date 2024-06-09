@@ -103,6 +103,7 @@ while(img_rcvd < 1){
       // printf("curr_counter: %d\n", curr_counter);
       if (curr_counter >= (row_processed+1)*IMG_WIDTH*2) {
         COMPUTE_STEREO();
+        // BRO THIS IS ARTIFICIAL
         rocc_fence();
         row_processed++;
       }

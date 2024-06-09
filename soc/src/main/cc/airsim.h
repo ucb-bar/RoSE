@@ -88,6 +88,10 @@ struct ROSEBRIDGEMODULE_struct {
     uint64_t config_routing_header;
     uint64_t config_routing_valid;
     uint64_t config_routing_channel;
+    uint64_t arb_counter_state_sheader;
+    uint64_t arb_counter_budget_fired;
+    uint64_t arb_counter_tx_fired;
+    uint64_t arb_counter_rx_0_fired;
 };
 
 class cosim_packet_t

@@ -89,6 +89,32 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module{
       io.tx.ready := io.rx(latched_idx).ready && (counter =/= 0.U)
     }
   }
+
+  // number of times the state goes to sHeader
+  val counter_state_sheader = RegInit(0.U(32.W))
+  when(state === sIdle && io.tx.fire) {
+    counter_state_sheader := counter_state_sheader + 1.U
+  }
+  // number of times the budget is fired
+  val counter_budget_fired = RegInit(0.U(32.W))
+  when(io.budget.fire) {
+    counter_budget_fired := counter_budget_fired + 1.U
+  }
+  // number of times the tx is fired
+  val counter_tx_fired = RegInit(0.U(32.W))
+  when(io.tx.fire) {
+    counter_tx_fired := counter_tx_fired + 1.U
+  }
+  // number of times the rx_0 is fired
+  val counter_rx_0_fired = RegInit(0.U(32.W))
+  when(io.rx(0).fire) {
+    counter_rx_0_fired := counter_rx_0_fired + 1.U
+  }
+
+  io.debug.counter_state_sheader := counter_state_sheader
+  io.debug.counter_budget_fired := counter_budget_fired
+  io.debug.counter_tx_fired := counter_tx_fired
+  io.debug.counter_rx_0_fired := counter_rx_0_fired
 }
 
 class BandWidthWriter(params: RoseAdapterParams) extends Module{
@@ -306,6 +332,8 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
 
     // instantiate the rose arbiter
     val rosearb = Module(new RoseAdapterArbiter(params))
+    rosearb.reset := reset.asBool || targetReset
+
     rosearb.io.cycleBudget := cycleBudget
     rosearb.io.tx <> rxfifo.io.deq
     rosearb.io.budget <> rx_budget_fifo.io.deq
@@ -320,8 +348,12 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     for (i <- 0 until params.dst_ports.seq.size) {
       // for each dst_port, generate a shallow queue and connect it to the arbiter
       val q = Module(new Queue(UInt(params.width.W), 32))
+      q.reset := reset.asBool || targetReset
+
       // generate a rxcontroller for each dst_port
       val rxctrl = Module(new rxcontroller(params.width))
+      rxctrl.reset := reset.asBool || targetReset
+
       val channel_param = params.dst_ports.seq(i)
       val dataflows: Seq[Dataflow] = channel_param.df_params.map(_.userProvided.elaborate)
       
@@ -334,6 +366,7 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
         dataflows.last.io.deq <> rxctrl.io.rx // tail case
         dataflows.foreach { df =>
           df.clock := acg.O // clock gating
+          df.reset := reset.asBool || targetReset
         }
       } else {
         q.io.deq <> rxctrl.io.rx
@@ -352,6 +385,11 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
 
     hPort.toHost.hReady := fire
     hPort.fromHost.hValid := fire
+
+    // DEBUG: 
+      // 1. a counter when something gets fired int target
+      // 2. a counter whenever state goes to sHeader
+      // 3. a counter on the tx and budget interface
 
     // Exposed the head of the queue and the valid bit as a read-only registers
     // with name "out_bits" and out_valid respectively
@@ -395,6 +433,12 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     Pulsify(genWORegInit(rosearb.io.config_routing.valid, "config_routing_valid", false.B), pulseLength = 1)
     genWOReg(rosearb.io.config_routing.channel, "config_routing_channel")
 
+    // Debug Registers
+    genROReg(rosearb.io.debug.counter_state_sheader, "arb_counter_state_sheader")
+    genROReg(rosearb.io.debug.counter_budget_fired, "arb_counter_budget_fired")
+    genROReg(rosearb.io.debug.counter_tx_fired, "arb_counter_tx_fired")
+    genROReg(rosearb.io.debug.counter_rx_0_fired, "arb_counter_rx_0_fired")
+    
     // This method invocation is required to wire up the bridge to the simulated software
     override def genHeader(base: BigInt, memoryRegions: Map[String, BigInt], sb: StringBuilder): Unit = {
       genConstructor(base, sb, "airsim_t", "airsim")

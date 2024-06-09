@@ -31,6 +31,15 @@ class RoseAdapterArbiterIO(params: RoseAdapterParams) extends Bundle {
     val cycleStep = Input(UInt(32.W))
 
     val config_routing = new ConfigRoutingIO(params)
+
+
+    // Debug singals
+    val debug = new Bundle {
+      val counter_state_sheader = Output(UInt(32.W))
+      val counter_budget_fired = Output(UInt(32.W))
+      val counter_tx_fired = Output(UInt(32.W))
+      val counter_rx_0_fired = Output(UInt(32.W))
+    }
 }
 
 // Core IO of the adapter
