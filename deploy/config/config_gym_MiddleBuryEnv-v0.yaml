@@ -23,6 +23,14 @@ packets:
     channel: 1
     indices:
       - "camera_r"
+  
+  - name: camera_left_stream
+    id: 0x21
+    type: "stream"
+    latency: 0
+    channel: 0
+    indices:
+      - "camera_l"
 
   - name: 'camera_loopback'
     id: 0x01

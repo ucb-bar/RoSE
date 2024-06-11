@@ -43,6 +43,7 @@ class SocketThread (threading.Thread):
         self.sync_conn = sync_conn
         self.txqueue = []
         self.txpq = []
+        self.stream_txqueue = {}
         self.data_rxqueue = []
         self.sync_rxqueue = [] 
         self.killed = False

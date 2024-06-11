@@ -133,8 +133,6 @@ class Synchronizer(DummySynchronizer):
         self.sync_port = sync_port
         self.data_port = data_port
 
-        self.streaming_queue = collections.OrderedDict()
-
         self.cycle_limit = None
 
         # Load general simulation configurations
@@ -239,7 +237,9 @@ class Synchronizer(DummySynchronizer):
             for t in self.nodes:
                 self.process_fsim_data_packets(t)
 
-            # TODO add any additional logging
+            # Process streaming packets
+            for t in self.nodes:
+                self.schedule_streaming_packets(t)
 
             # Process counts for debugging and logs
             self.process_count()
@@ -303,6 +303,27 @@ class Synchronizer(DummySynchronizer):
                 target_thread.sync_rxqueue.pop(0)
                 break
 
+    def retrieve_obs_push_packet(self, cmd, target_thread, packet_config):
+        if packet_config['indices'] is not None:
+            obs_data = self.obs
+            for idx in packet_config['indices']:
+                obs_data = obs_data[idx]
+        if len(obs_data.shape) == 1:
+            # Just a 1D array, process accordingly (send one response packet)
+            #packet_arr = obs_data.view(np.uint32).tolist()
+            packet_arr = np.frombuffer(obs_data.tobytes(), dtype=np.uint32).tolist()
+            packet = Payload_Packet(cmd, len(packet_arr) * 4, packet_arr)  # You might need to adjust the multiplier
+            stable_heap_push(target_thread.txpq, packet)
+        else: 
+            # 2D array, send the response in rows
+            INPUT_DIM = obs_data.shape[0]
+            packet_arr = obs_data.reshape(INPUT_DIM, -1)
+            for row in packet_arr:
+                row_packet_arr = row.view(np.uint32).tolist()
+                # print(f"row_packet_arr: {row_packet_arr}")
+                packet = Payload_Packet(cmd, len(row_packet_arr) * 4, row_packet_arr)  # You might need to adjust the multiplier
+                stable_heap_push(target_thread.txpq, packet)
+
     def get_firesim_cycles(self):
         packet = Control_Packet(CONTROL_HEADERS.CS_REQ_CYCLES, 0, None)
         self.txqueue.append(packet)
@@ -323,7 +344,6 @@ class Synchronizer(DummySynchronizer):
         for blobs in target_thread.txpq:
             blobs.latency = blobs.latency - 1
             blobs.packet.latency = blobs.latency
-
 
     def process_fsim_data_packet(self, target_thread):
         packet = target_thread.data_rxqueue.pop(0)
@@ -347,44 +367,39 @@ class Synchronizer(DummySynchronizer):
         
         # Retrieve observation related to the packet name
         if packet_config['type'] == 'reqrsp':
-            obs_data = self.obs
-            if packet_config['indices'] is not None:
-                for idx in packet_config['indices']:
-                    obs_data = obs_data[idx]
-            if len(obs_data.shape) == 1:
-                # Just a 1D array, process accordingly (send one response packet)
-                #packet_arr = obs_data.view(np.uint32).tolist()
-                packet_arr = np.frombuffer(obs_data.tobytes(), dtype=np.uint32).tolist()
-                packet = Payload_Packet(cmd, len(packet_arr) * 4, packet_arr)  # You might need to adjust the multiplier
-                stable_heap_push(target_thread.txpq, packet)
-            else: 
-                # 2D array, send the response in rows
-                INPUT_DIM = obs_data.shape[0]
-                packet_arr = obs_data.reshape(INPUT_DIM, -1)
-                for row in packet_arr:
-                    row_packet_arr = row.view(np.uint32).tolist()
-                    # print(f"row_packet_arr: {row_packet_arr}")
-                    packet = Payload_Packet(cmd, len(row_packet_arr) * 4, row_packet_arr)  # You might need to adjust the multiplier
-                    stable_heap_push(target_thread.txpq, packet)
+            self.retrieve_obs_push_packet(cmd, target_thread, packet_config)
+
+        if packet_config['type'] == 'stream':
+            assert packet.num_bytes == 4, "Stream packets must be 4 bytes"
+            target_thread.stream_txqueue[packet.cmd] = packet.data[0]
+            if target_thread.stream_txqueue.get(packet.cmd) is None:
+                print(f"Scheduled streaming cmd: {packet.cmd} with interval: {packet.data[0]}")
+            else:
+                print(f"Updated streaming cmd: {packet.cmd} with interval: {packet.data[0]}")    
         
         if 'action' in packet_config['type']:
             indices = packet_config['indices']
             data_to_assign = packet.data.view(self.action.dtype).copy()
-
             if indices is not None:
                 # Use reduce to drill down into the nested structure
                 target = reduce(lambda arr, idx: arr[idx], indices, self.action)
                 target[:] = data_to_assign  # Modify the value in place
             else:
                 self.action = data_to_assign
-
             if 'latch' in packet_config['type']:
                 self.default_action = self.action.copy()
-            
             print(f"action: {data_to_assign}")
         
         self.logger.count_packet(cmd)
+    
+    def schedule_streaming_packets(self, target_thread):
+        for cmd, interval in target_thread.stream_txqueue.items():
+            if self.count % interval == 0:
+                packet_config = self.packet_bindings.get(cmd)
+                self.retrieve_obs_push_packet(cmd, target_thread, packet_config)
 
+
+        
 if __name__ == "__main__":
 
     sync = Synchronizer()
