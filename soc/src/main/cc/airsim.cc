@@ -605,11 +605,11 @@ void airsim_t::tick()
     if(count>1000) {
         // printf("[AIRSIM DRIVER]: Main heartbeat\n");
         // read the debug registers
-        printf("[AIRSIM DRIVER]: cycle_count: %d\n", read(this->mmio_addrs.cycle_count));
-        printf("[AIRSIM DRIVER]: arb_counter_state_sheader: %d\n", read(this->mmio_addrs.arb_counter_state_sheader));
-        printf("[AIRSIM DRIVER]: arb_counter_budget_fired: %d\n", read(this->mmio_addrs.arb_counter_budget_fired));
-        printf("[AIRSIM DRIVER]: arb_counter_tx_fired: %d\n", read(this->mmio_addrs.arb_counter_tx_fired));
-        printf("[AIRSIM DRIVER]: arb_counter_rx_0_fired: %d\n", read(this->mmio_addrs.arb_counter_rx_0_fired));
+        //printf("[AIRSIM DRIVER]: cycle_count: %d\n", read(this->mmio_addrs.cycle_count));
+        //printf("[AIRSIM DRIVER]: arb_counter_state_sheader: %d\n", read(this->mmio_addrs.arb_counter_state_sheader));
+        //printf("[AIRSIM DRIVER]: arb_counter_budget_fired: %d\n", read(this->mmio_addrs.arb_counter_budget_fired));
+        //printf("[AIRSIM DRIVER]: arb_counter_tx_fired: %d\n", read(this->mmio_addrs.arb_counter_tx_fired));
+        //printf("[AIRSIM DRIVER]: arb_counter_rx_0_fired: %d\n", read(this->mmio_addrs.arb_counter_rx_0_fired));
         count = 0;
     }
     
@@ -648,7 +648,7 @@ void airsim_t::tick()
         data.budget.bits = this->fsim_txbudget.front();
         this->send_budget();
         if(data.budget.ready) {
-            printf("[AIRSIM DRIVER]: Transmitting firesim budget -- 0x%x\n", data.budget.bits);
+            // printf("[AIRSIM DRIVER]: Transmitting firesim budget -- 0x%x\n", data.budget.bits);
             this->fsim_txbudget.pop_front();
             m.unlock();
         } else {
@@ -667,7 +667,7 @@ void airsim_t::tick()
             fputc('\n', this->fsim_tx_capture);
             fflush(this->fsim_tx_capture);
             #endif
-            printf("[AIRSIM DRIVER]: Transmitting firesim packet -- 0x%x\n", data.in.bits);
+            // printf("[AIRSIM DRIVER]: Transmitting firesim packet -- 0x%x\n", data.in.bits);
             this->fsim_txdata.pop_front();
             m.unlock();
         } else {

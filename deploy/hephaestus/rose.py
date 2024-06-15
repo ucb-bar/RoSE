@@ -43,6 +43,7 @@ def construct_rose_argparser():
     parser = argparse.ArgumentParser()
     parser.add_argument('--task', type=str, help='The task to perform', choices=TASK, default='run')
     parser.add_argument('--target', type=str, help='[build]: The target C file to build', default='packettest')
+    parser.add_argument('--use_trap', type=bool, help='[build]: Use the trap.S file', default=False)
     return parser
 
 if __name__ == "__main__":
@@ -66,7 +67,7 @@ if __name__ == "__main__":
         # get current file directory
         dir_path = os.path.dirname(os.path.realpath(__file__))
         build_path = os.path.join(dir_path, "../..", "soc", "sw", "build_packettest.py")
-        os.system("python3 " + build_path + " --target " + args.target)
+        os.system("python3 " + build_path + " --target " + args.target + " --use_trap " + str(args.use_trap))
         exit()
 
     if args.task == "run":

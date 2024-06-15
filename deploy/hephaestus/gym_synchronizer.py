@@ -398,9 +398,6 @@ class Synchronizer(DummySynchronizer):
                 packet_config = self.packet_bindings.get(cmd)
                 self.retrieve_obs_push_packet(cmd, target_thread, packet_config)
 
-
-        
 if __name__ == "__main__":
-
     sync = Synchronizer()
     sync.run()
