@@ -54,7 +54,8 @@ case class DstParams (
   val port_type: String = "reqrsp", // supported are DMA and reqrsp
   val DMA_address: BigInt = 0, // this attribute is only used if port_type is DMA
   val name: String = "anonymous", // optional name for the port
-  val df_params: Seq[CompleteDataflowConfig] = Seq() // optional dataflow parameters
+  val df_params: Seq[CompleteDataflowConfig] = Seq(), // optional dataflow parameters
+  val interrupt: Boolean = true // optional interrupt, only used if port_type is DMA
 ) extends HasSerializationHints{
   def typeHints: Seq[Class[_]] = Seq(df_params.getClass()) ++ df_params.flatMap(_.typeHints)
 }

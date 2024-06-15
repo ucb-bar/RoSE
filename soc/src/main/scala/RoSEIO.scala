@@ -69,4 +69,5 @@ class RoseAdapterTopIO(params: RoseAdapterParams) extends Bundle {
     val cam_buffer = Vec(params.dst_ports.seq.count(_.port_type == "DMA"), Input(UInt(1.W)))
     val counter_max = Vec(params.dst_ports.seq.count(_.port_type == "DMA"), Output(UInt(32.W)))
     val curr_counter = Vec(params.dst_ports.seq.count(_.port_type == "DMA"), Input(UInt(32.W)))
+    val interrupt_trigger = Vec(params.dst_ports.seq.count(_.port_type == "DMA"), Input(Bool()))
 }
