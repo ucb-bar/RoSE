@@ -2,6 +2,7 @@
 #include "arch.h"
 #include "encoding.h"
 
+.align 4
 .section .text
 .global trap_entry
 
@@ -49,7 +50,7 @@ trap_entry:
   csrr a2, mtval
   mv a3, sp
   call trap_handler
-#   csrw mepc, a0
+  csrw mepc, a0
 
   /* Remain in M-mode after return */
   li t0, MSTATUS_MPP

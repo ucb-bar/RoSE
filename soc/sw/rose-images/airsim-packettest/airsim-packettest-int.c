@@ -58,11 +58,9 @@ void external_interrupt_handler(void) {
   HAL_CORE_clearIRQ(11);
 }
 
-void trap_handler(void) {
+uintptr_t trap_handler(uintptr_t m_epc, uintptr_t m_cause, uintptr_t m_tval, uintptr_t regs[32]) {
   uint64_t hart_id = READ_CSR("mhartid");
-  uint64_t m_cause = READ_CSR("mcause");
-  uint64_t mepc = READ_CSR("mepc");
-  printf("Trap handler: hart_id = %ld, cause = 0x%lx, mepc: 0x%lx\n", hart_id, m_cause, mepc);
+  printf("Trap handler: hart_id = %ld, cause = 0x%lx, mepc: 0x%lx\n", hart_id, m_cause, m_epc);
   // if the first bit is set 
   // if ((cause >> (MXLEN-1)) && ((cause & 0xFF) == 11)) { // External interrupt (interrupt bit set and cause code 11)
   //   external_interrupt_handler();
@@ -118,6 +116,8 @@ void trap_handler(void) {
     default:
       break;
   }
+
+  return m_epc;
 }
 
 void enable_external_interrupts(void) {
