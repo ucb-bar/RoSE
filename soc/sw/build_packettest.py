@@ -9,6 +9,8 @@ ROSE_HEADER_DIR = os.path.join(ROSE_SW_DIR, "generated-src", "rose_c_header")
 ROSE_PORT_HEADER = os.path.join(ROSE_HEADER_DIR, "rose_port.h")
 ROSE_PACKET_HEADER = os.path.join(ROSE_HEADER_DIR, "rose_packet.h")
 PLIC_HEADER = os.path.join(ROSE_SW_DIR, "rose-images", "airsim-packettest","plic.h")
+ARCH_HEADER = os.path.join(ROSE_SW_DIR, "rose-images", "airsim-packettest", "arch.h")
+ENC_HEADER = os.path.join(ROSE_SW_DIR, "rose-images", "airsim-packettest", "encoding.h")
 
 TRAP_S = os.path.join(ROSE_SW_DIR, "rose-images", "airsim-packettest", "trap.S")
 
@@ -31,6 +33,8 @@ if __name__ == "__main__":
     if args.use_trap:
         os.system(f"cp -f {TRAP_S} {CY_TEST_DIR}")
         os.system(f"cp -f {PLIC_HEADER} {CY_TEST_DIR}")
+        os.system(f"cp -f {ARCH_HEADER} {CY_TEST_DIR}")
+        os.system(f"cp -f {ENC_HEADER} {CY_TEST_DIR}")
 
     if args.target != "all":
         # make sure the target is in src_dir

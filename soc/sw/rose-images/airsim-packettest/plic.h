@@ -65,3 +65,8 @@ uint32_t PLIC_claimIRQ(uint32_t hart_id) {
 void PLIC_completeIRQ(uint32_t hart_id, uint32_t irq_id) {
   PLIC_CC->context_controls[hart_id].claim_complete = irq_id;
 }
+
+void HAL_CORE_clearIRQ(uint32_t IRQn) {
+  uint32_t mask = (1U << (uint32_t)IRQn);
+  asm volatile("csrc mip, %0" :: "r"(mask));
+}

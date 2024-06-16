@@ -1,60 +1,90 @@
+
+#include "arch.h"
+#include "encoding.h"
+
 .section .text
 .global trap_entry
-.global restore_context
 
 trap_entry:
-    # Save the context
-    addi sp, sp, -128              # Adjust stack pointer
-    sw ra, 124(sp)                 # Save return address
-    sw t0, 120(sp)                 # Save temporary registers
-    sw t1, 116(sp)
-    sw t2, 112(sp)
-    sw s0, 108(sp)                 # Save saved registers
-    sw s1, 104(sp)
-    sw a0, 100(sp)                 # Save argument registers
-    sw a1, 96(sp)
-    sw a2, 92(sp)
-    sw a3, 88(sp)
-    sw a4, 84(sp)
-    sw a5, 80(sp)
-    sw a6, 76(sp)
-    sw a7, 72(sp)
-    sw t3, 68(sp)
-    sw t4, 64(sp)
-    sw t5, 60(sp)
-    sw t6, 56(sp)
-    csrr t0, mcause                # Read the cause of the trap
-    sw t0, 52(sp)                  # Save the cause register
-    csrr t0, mepc                  # Read the program counter at the time of the trap
-    sw t0, 48(sp)                  # Save the program counter
+  csrw mscratch, sp
+  addi sp, sp, -(32*REGBYTES)
 
-    # Call the C trap handler
-    la t0, trap_handler            # Load address of trap_handler
-    jr t0                          # Jump to trap_handler
+  /* Save trap frame */
+  SREG x1, 1*REGBYTES(sp)
+  csrr x1, mscratch
+  SREG x1, 2*REGBYTES(sp)
+  SREG x3, 3*REGBYTES(sp)
+  SREG x4, 4*REGBYTES(sp)
+  SREG x5, 5*REGBYTES(sp)
+  SREG x6, 6*REGBYTES(sp)
+  SREG x7, 7*REGBYTES(sp)
+  SREG x8, 8*REGBYTES(sp)
+  SREG x9, 9*REGBYTES(sp)
+  SREG x10, 10*REGBYTES(sp)
+  SREG x11, 11*REGBYTES(sp)
+  SREG x12, 12*REGBYTES(sp)
+  SREG x13, 13*REGBYTES(sp)
+  SREG x14, 14*REGBYTES(sp)
+  SREG x15, 15*REGBYTES(sp)
+  SREG x16, 16*REGBYTES(sp)
+  SREG x17, 17*REGBYTES(sp)
+  SREG x18, 18*REGBYTES(sp)
+  SREG x19, 19*REGBYTES(sp)
+  SREG x20, 20*REGBYTES(sp)
+  SREG x21, 21*REGBYTES(sp)
+  SREG x22, 22*REGBYTES(sp)
+  SREG x23, 23*REGBYTES(sp)
+  SREG x24, 24*REGBYTES(sp)
+  SREG x25, 25*REGBYTES(sp)
+  SREG x26, 26*REGBYTES(sp)
+  SREG x27, 27*REGBYTES(sp)
+  SREG x28, 28*REGBYTES(sp)
+  SREG x29, 29*REGBYTES(sp)
+  SREG x30, 30*REGBYTES(sp)
+  SREG x31, 31*REGBYTES(sp)
 
-restore_context:
-    # Restore the context
-    lw t0, 52(sp)                  # Restore the cause register (in case needed)
-    lw t0, 48(sp)                  # Restore the program counter
-    csrw mepc, t0                  # Write back the program counter
-    lw ra, 124(sp)                 # Restore return address
-    lw t0, 120(sp)                 # Restore temporary registers
-    lw t1, 116(sp)
-    lw t2, 112(sp)
-    lw s0, 108(sp)                 # Restore saved registers
-    lw s1, 104(sp)
-    lw a0, 100(sp)                 # Restore argument registers
-    lw a1, 96(sp)
-    lw a2, 92(sp)
-    lw a3, 88(sp)
-    lw a4, 84(sp)
-    lw a5, 80(sp)
-    lw a6, 76(sp)
-    lw a7, 72(sp)
-    lw t3, 68(sp)
-    lw t4, 64(sp)
-    lw t5, 60(sp)
-    lw t6, 56(sp)
-    addi sp, sp, 128               # Adjust stack pointer back
+  /* Invoke higher-level trap handler */
+  csrr a0, mepc
+  csrr a1, mcause
+  csrr a2, mtval
+  mv a3, sp
+  call trap_handler
+#   csrw mepc, a0
 
-    mret                            # Return from trap
+  /* Remain in M-mode after return */
+  li t0, MSTATUS_MPP
+  csrs mstatus, t0
+
+  LREG x1, 1*REGBYTES(sp)
+  LREG x3, 3*REGBYTES(sp)
+  LREG x4, 4*REGBYTES(sp)
+  LREG x5, 5*REGBYTES(sp)
+  LREG x6, 6*REGBYTES(sp)
+  LREG x7, 7*REGBYTES(sp)
+  LREG x8, 8*REGBYTES(sp)
+  LREG x9, 9*REGBYTES(sp)
+  LREG x10, 10*REGBYTES(sp)
+  LREG x11, 11*REGBYTES(sp)
+  LREG x12, 12*REGBYTES(sp)
+  LREG x13, 13*REGBYTES(sp)
+  LREG x14, 14*REGBYTES(sp)
+  LREG x15, 15*REGBYTES(sp)
+  LREG x16, 16*REGBYTES(sp)
+  LREG x17, 17*REGBYTES(sp)
+  LREG x18, 18*REGBYTES(sp)
+  LREG x19, 19*REGBYTES(sp)
+  LREG x20, 20*REGBYTES(sp)
+  LREG x21, 21*REGBYTES(sp)
+  LREG x22, 22*REGBYTES(sp)
+  LREG x23, 23*REGBYTES(sp)
+  LREG x24, 24*REGBYTES(sp)
+  LREG x25, 25*REGBYTES(sp)
+  LREG x26, 26*REGBYTES(sp)
+  LREG x27, 27*REGBYTES(sp)
+  LREG x28, 28*REGBYTES(sp)
+  LREG x29, 29*REGBYTES(sp)
+  LREG x30, 30*REGBYTES(sp)
+  LREG x31, 31*REGBYTES(sp)
+  /* Restore sp last */
+  LREG x2, 2*REGBYTES(sp)
+  mret
