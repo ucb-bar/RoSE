@@ -232,10 +232,12 @@ class Synchronizer(DummySynchronizer):
             
             for t in self.nodes:
                 self.check_token_exhaustion(t)
+            
+            self.count += 1
 
             # Process data from firesim
             for t in self.nodes:
-                self.process_fsim_data_packets(t)
+                self.process_fsim_data_packets(t, self.count)
 
             # Process streaming packets
             for t in self.nodes:
@@ -259,7 +261,6 @@ class Synchronizer(DummySynchronizer):
             self.logger.save_video()
         # if self.count >= 40:
         #     exit(0)
-        self.count += 1
 
     def check_task_termination(self):
         if (self.cycle_limit is not None and self.count * self.firesim_step >= self.cycle_limit) or self.done:
@@ -324,20 +325,22 @@ class Synchronizer(DummySynchronizer):
                 packet = Payload_Packet(cmd, len(row_packet_arr) * 4, row_packet_arr)  # You might need to adjust the multiplier
                 stable_heap_push(target_thread.txpq, packet)
 
-    def get_firesim_cycles(self):
+    def get_firesim_cycles(self, target_thread):
         packet = Control_Packet(CONTROL_HEADERS.CS_REQ_CYCLES, 0, None)
-        self.txqueue.append(packet)
+        target_thread.txqueue.append(packet)
 
-        while len(self.sync_rxqueue) == 0:
+        while len(target_thread.sync_rxqueue) == 0:
             pass
-        response = self.sync_rxqueue.pop(0)
+        response = target_thread.sync_rxqueue.pop(0)
         return response.data[0]
 
-    def process_fsim_data_packets(self, target_thread):
+    def process_fsim_data_packets(self, target_thread, count):
         while len(target_thread.data_rxqueue) > 0:
             self.process_fsim_data_packet(target_thread)
         while(len(target_thread.txpq) > 0 and target_thread.txpq[0].latency < 1):
             packet = stable_heap_pop(target_thread.txpq)
+            # print(f"tagging packet: {count}")
+            packet.tag_step(count)
             target_thread.txqueue.append(packet)
             # print(f"appended packet: {packet}")
         # Now, iterate through the rest of the queue, decrement latency by 1

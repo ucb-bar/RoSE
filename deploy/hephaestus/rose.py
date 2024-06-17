@@ -67,7 +67,10 @@ if __name__ == "__main__":
         # get current file directory
         dir_path = os.path.dirname(os.path.realpath(__file__))
         build_path = os.path.join(dir_path, "../..", "soc", "sw", "build_packettest.py")
-        os.system("python3 " + build_path + " --target " + args.target + " --use_trap " + str(args.use_trap))
+        if args.use_trap:
+            os.system("python3 " + build_path + " --target " + args.target + " --use_trap " + str(args.use_trap))
+        else:
+            os.system("python3 " + build_path + " --target " + args.target)
         exit()
 
     if args.task == "run":
