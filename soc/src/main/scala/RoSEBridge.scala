@@ -10,6 +10,7 @@ import org.chipsalliance.cde.config.Parameters
 import rose.{RosePortIO, RoseAdapterParams, RoseAdapterKey, RoseAdapterArbiterIO, ConfigRoutingIO, Dataflow}
 import firrtl.annotations.HasSerializationHints
 import java.io.{File, FileWriter}
+import freechips.rocketchip.util.{AsyncQueue, AsyncQueueParams}
 
 // A utility register-based lookup table that maps the id to the corresponding dst_port index
 class RoseArbTable(params: RoseAdapterParams) extends Module {
@@ -64,29 +65,33 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module{
   }
 
   io.budget.ready := false.B
+  io.bigstep.ready := false.B
   arb_table.io.key_valid := (state === sIdle)
   rx_val := false.B
   io.tx.ready := false.B
 
   switch(state) {
     is(sIdle) {
-      def can_advance = io.budget.valid && io.tx.valid && ((io.budget.bits < io.cycleBudget) && (io.cycleBudget =/= io.cycleStep))
-      io.tx.ready := io.rx(arb_table.io.value).ready && can_advance
+      def can_advance = io.budget.valid && io.tx.valid && io.bigstep.valid && (
+        ((io.budget.bits < io.cycleBudget) || (io.currstep > io.bigstep.bits))
+           && (io.cycleBudget =/= io.cycleStep))
+      io.tx.ready := io.rx(arb_table.io.value).ready && can_advance 
       io.budget.ready := io.rx(arb_table.io.value).ready && can_advance
+      io.bigstep.ready := io.rx(arb_table.io.value).ready && can_advance
       rx_val := Mux(io.tx.fire, arb_table.io.keep_header, false.B)
       state := Mux(io.tx.fire, sHeader, sIdle)
     } 
     is(sHeader) {
       rx_val := Mux(latched_keep_header, io.tx.valid, false.B)
       counter := io.tx.bits >> 2
-      io.tx.ready := io.rx(latched_idx).ready
+      io.tx.ready := io.rx(latched_idx).ready 
       state := Mux(io.tx.fire, Mux(io.tx.bits === 0.U, sIdle, sLoad), sHeader)
     }
     is(sLoad) {
       rx_val := io.tx.valid
       counter := Mux(io.tx.fire, counter - 1.U, counter)
       state := Mux(counter === 0.U, sIdle, sLoad)
-      io.tx.ready := io.rx(latched_idx).ready && (counter =/= 0.U)
+      io.tx.ready := io.rx(latched_idx).ready && (counter =/= 0.U) 
     }
   }
 
@@ -111,10 +116,17 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module{
     counter_rx_0_fired := counter_rx_0_fired + 1.U
   }
 
+  val counter_rx_1_fired = RegInit(0.U(32.W))
+  when(io.rx(1).fire) {
+    counter_rx_1_fired := counter_rx_1_fired + 1.U
+  }
+  dontTouch(counter_rx_1_fired)
+  
   io.debug.counter_state_sheader := counter_state_sheader
   io.debug.counter_budget_fired := counter_budget_fired
   io.debug.counter_tx_fired := counter_tx_fired
   io.debug.counter_rx_0_fired := counter_rx_0_fired
+  io.debug.counter_rx_1_fired := counter_rx_1_fired
 }
 
 class BandWidthWriter(params: RoseAdapterParams) extends Module{
@@ -130,46 +142,6 @@ class BandWidthWriter(params: RoseAdapterParams) extends Module{
     io.output_bits(i) := io.config_bits
     io.output_valid(i) := io.config_valid && (io.config_destination === i.U)
   }
-}
-
-class softQueue (val entries: Int) extends Module {
-  val io = IO(new Bundle {
-    val enq = Flipped(Decoupled(UInt(32.W)))
-    val deq = Decoupled(UInt(32.W))
-    val soft_reset = Input(Bool())
-  })
-
-  val ram = Mem(entries, UInt(32.W))
-  
-  val do_enq = WireDefault(io.enq.fire)
-  val do_deq = WireDefault(io.deq.fire)
-  val (enq_ptr, _) = Counter(do_enq, entries)
-  val (deq_ptr, _) = Counter(do_deq, entries)
-  val maybe_full = RegInit(false.B)
-  val ptr_match = enq_ptr=== deq_ptr
-  val empty = ptr_match && !maybe_full
-  val full = ptr_match && maybe_full
-
-
-  when(do_enq) {
-    ram(enq_ptr) := io.enq.bits
-  }
-
-  when(do_enq =/= do_deq) {
-    maybe_full := do_enq
-  }
-  // soft reset sets all entries to 0, but does not change pointers
-  // only at the posedge of soft_reset
-  val soft_reset_reg = RegNext(io.soft_reset)
-  when(soft_reset_reg === false.B && io.soft_reset === true.B) {
-    for (i <- 0 until entries) {
-      ram(i) := 0.U
-    }
-  }
-
-  io.deq.valid := !empty
-  io.enq.ready := !full
-  io.deq.bits := ram(deq_ptr)
 }
 
 class rxcontroller(width: Int) extends Module{
@@ -293,8 +265,7 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     // Generate some FIFOs to capture tokens...
     val txfifo = Module(new Queue(UInt(32.W), 32))
     //val rxfifo = Module(new Queue(UInt(32.W), 128))
-    val rxfifo = Module(new Queue(UInt(32.W), 256))
-    val rx_budget_fifo = Module(new softQueue(64))
+
     // Generate a FIFO to capture time step allocations
     val rx_ctrl_fifo = Module(new Queue(UInt(8.W), 16))
 
@@ -312,11 +283,28 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
                hPort.fromHost.hReady &&  // We have space to enqueue a new output token
               //  txfifo.io.enq.ready  &&   // We have space to capture new TX data
                (cycleBudget < cycleStep) // still have cycles left in the budget
-
     val targetReset = fire & hPort.hBits.reset
-    rxfifo.reset := reset.asBool || targetReset
+    
+    val acg = Module(new AbstractClockGate)
+    acg.I := clock
+    acg.CE := fire
+
+    val rxfifo = Module(new AsyncQueue(UInt(32.W), AsyncQueueParams(depth = 256))) 
+    val rx_budget_fifo = Module(new AsyncQueue(UInt(32.W), AsyncQueueParams(depth = 64)))
+    val rx_bigstep_fifo = Module(new AsyncQueue(UInt(32.W), AsyncQueueParams(depth = 64)))
+
+    def bind_clock_domain(module: AsyncQueue[UInt]) = {
+      module.io.enq_clock := clock 
+      module.io.enq_reset := reset.asBool || targetReset
+      module.io.deq_clock := acg.O
+      module.io.deq_reset := reset.asBool || targetReset
+    }
+
+    bind_clock_domain(rxfifo)
+    bind_clock_domain(rx_budget_fifo)
+    bind_clock_domain(rx_bigstep_fifo)
+
     txfifo.reset := reset.asBool || targetReset
-    rx_budget_fifo.reset := reset.asBool || targetReset
     // Add to the cycles the tool is permitted to run forward
     when(rx_ctrl_fifo.io.deq.valid) {
         cycleBudget := 0.U(32.W) 
@@ -327,31 +315,39 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     }
     rx_ctrl_fifo.reset := reset.asBool || targetReset
 
-    // Count total elapsed cycles
-    val (cycleCount, _) = Counter(fire, 65535 * 256)
+    val cycle_count_up_wrap = (cycleBudget + 1.U(32.W) === cycleStep) && fire
+    val (stepCount, _) = Counter(cycle_count_up_wrap, 65535 * 256)
 
     // instantiate the rose arbiter
     val rosearb = Module(new RoseAdapterArbiter(params))
     rosearb.reset := reset.asBool || targetReset
+    rosearb.clock := acg.O
 
     rosearb.io.cycleBudget := cycleBudget
     rosearb.io.tx <> rxfifo.io.deq
     rosearb.io.budget <> rx_budget_fifo.io.deq
+    rosearb.io.bigstep <> rx_bigstep_fifo.io.deq
     rosearb.io.cycleStep := cycleStep
-    rx_budget_fifo.io.soft_reset := cycleBudget === cycleStep
+    rosearb.io.currstep := stepCount
+    
     val bww = Module(new BandWidthWriter(params))
-
-    val acg = Module(new AbstractClockGate)
-    acg.I := clock
-    acg.CE := fire
+    rosearb.clock := acg.O
     
     for (i <- 0 until params.dst_ports.seq.size) {
       // for each dst_port, generate a shallow queue and connect it to the arbiter
       val q = Module(new Queue(UInt(params.width.W), 32))
       q.reset := reset.asBool || targetReset
+      q.clock := acg.O
+
+      val end_async_q = Module(new AsyncQueue(UInt(32.W), AsyncQueueParams(depth = 64)))
+      end_async_q.io.enq_clock := acg.O 
+      end_async_q.io.enq_reset := reset.asBool || targetReset
+      end_async_q.io.deq_clock := clock
+      end_async_q.io.deq_reset := reset.asBool || targetReset
 
       // generate a rxcontroller for each dst_port
       val rxctrl = Module(new rxcontroller(params.width))
+      rxctrl.io.rx <> end_async_q.io.deq
       rxctrl.reset := reset.asBool || targetReset
 
       val channel_param = params.dst_ports.seq(i)
@@ -363,13 +359,13 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
           next.enq <> prev.deq // chaining
           next
         }
-        dataflows.last.io.deq <> rxctrl.io.rx // tail case
+        dataflows.last.io.deq <> end_async_q.io.enq // tail case
         dataflows.foreach { df =>
           df.clock := acg.O // clock gating
           df.reset := reset.asBool || targetReset
         }
       } else {
-        q.io.deq <> rxctrl.io.rx
+        q.io.deq <> end_async_q.io.enq
       }
       q.io.enq <> rosearb.io.rx(i)
 
@@ -405,19 +401,21 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     genWOReg(rxfifo.io.enq.bits, "in_bits")
     Pulsify(genWORegInit(rxfifo.io.enq.valid, "in_valid", false.B), pulseLength = 1)
     genROReg(rxfifo.io.enq.ready, "in_ready")
-
+    // COSIM-CODE
+    genWOReg(rx_bigstep_fifo.io.enq.bits, "in_bigstep_bits")
+    Pulsify(genWORegInit(rx_bigstep_fifo.io.enq.valid, "in_bigstep_valid", false.B), pulseLength = 1)
+    genROReg(rx_bigstep_fifo.io.enq.ready, "in_bigstep_ready")      
     // Generate regisers for the rx-side of the AirSim; this is eseentially the same as the above
     genWOReg(rx_budget_fifo.io.enq.bits, "in_budget_bits")
     Pulsify(genWORegInit(rx_budget_fifo.io.enq.valid, "in_budget_valid", false.B), pulseLength = 1)
     genROReg(rx_budget_fifo.io.enq.ready, "in_budget_ready")
-    // COSIM-CODE
     // Generate registers for reading in time step limits
     genWOReg(rx_ctrl_fifo.io.enq.bits, "in_ctrl_bits")
     Pulsify(genWORegInit(rx_ctrl_fifo.io.enq.valid, "in_ctrl_valid", false.B), pulseLength = 1)
     genROReg(rx_ctrl_fifo.io.enq.ready, "in_ctrl_ready")
 
     // Generate registers for reading total cycles that have passed
-    genROReg(cycleCount, "cycle_count")
+    genROReg(stepCount, "cycle_count")
     genROReg(cycleBudget, "cycle_budget")
 
     // Generate registers for writing the step amount

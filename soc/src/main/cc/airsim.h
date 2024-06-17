@@ -23,6 +23,12 @@ struct serial_cosmo_data_t {
     bool valid;
     bool fire() { return valid && ready; }
   } out;
+  struct {
+    T bits;
+    bool ready;
+    bool valid;
+    bool fire() { return valid && ready; }
+  } bigstep;
 
 };
 #endif // __SERIAL_COSMO_DATA_H
@@ -73,6 +79,9 @@ struct ROSEBRIDGEMODULE_struct {
     uint64_t in_bits;
     uint64_t in_valid;
     uint64_t in_ready;
+    uint64_t in_bigstep_bits;
+    uint64_t in_bigstep_valid;
+    uint64_t in_bigstep_ready;
     uint64_t in_budget_bits;
     uint64_t in_budget_valid;
     uint64_t in_budget_ready;
@@ -116,17 +125,16 @@ class budget_packet_t
 {
     public:
         budget_packet_t();
-        budget_packet_t(uint32_t cmd, uint32_t budget, uint32_t num_bytes, uint32_t * data);
+        budget_packet_t(uint32_t cmd, uint32_t big_step, uint32_t budget, uint32_t num_bytes, uint32_t * data);
         ~budget_packet_t();
 
         void print();
 
+        uint32_t big_step;
         uint32_t budget;
         uint32_t cmd;
         uint32_t num_bytes;
         uint32_t * data;
-        bool checked;
-        bool granted;
 };
 
 struct CompareBudget
@@ -192,6 +200,7 @@ class airsim_t final: public bridge_driver_t{
       std::deque<uint32_t> fsim_rxdata;
       std::deque<uint32_t> fsim_txdata;
       std::deque<uint32_t> fsim_txbudget;
+      std::deque<uint32_t> fsim_tx_bigstep;
       std::deque<uint32_t> tcp_sync_rxdata;
       std::deque<uint32_t> tcp_data_rxdata;
       std::deque<uint32_t> tcp_txdata;
@@ -201,6 +210,7 @@ class airsim_t final: public bridge_driver_t{
 
       void send();
       void send_budget();
+      void send_bigstep();
       void recv();
 };
 

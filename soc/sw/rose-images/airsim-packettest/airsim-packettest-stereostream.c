@@ -58,7 +58,7 @@ void send_img_loopback_1_row(int row) {
     while (ROSE_TX_ENQ_READY == 0) ;
     reg_write32(ROSE_TX_DATA_ADDR, CS_CAMERA_LOOPBACK);
     while (ROSE_TX_ENQ_READY == 0) ;
-    reg_write32(ROSE_TX_DATA_ADDR, (IMG_WIDTH-SEARCH_RANGE));
+    reg_write32(ROSE_TX_DATA_ADDR, STEREO_IMG_WIDTH);
     for (int i = 0; i < STEREO_IMG_WIDTH/4; i++) {
       while (ROSE_TX_ENQ_READY == 0) ;
       reg_write32(ROSE_TX_DATA_ADDR, buf[row * STEREO_IMG_WIDTH/4 + i]);
@@ -121,6 +121,7 @@ int main(void) {
     while (byte_read < STEREO_IMG_SIZE/4) {
       byte_read += recv_img_1_MMIO(byte_read);
     }
+    printf("byte_read: %d\n", byte_read);
     uint64_t end = rdcycle();
 
     cycles_measured[img_rcvd] = end - start;

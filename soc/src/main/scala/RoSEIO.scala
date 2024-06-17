@@ -24,9 +24,11 @@ class RoseAdapterArbiterIO(params: RoseAdapterParams) extends Bundle {
     val rx = Vec(params.dst_ports.seq.size, Decoupled(UInt(32.W)))
     val tx = Flipped(Decoupled(UInt(32.W)))
 
+    val bigstep = Flipped(Decoupled(UInt(32.W)))
     val budget = Flipped(Decoupled(UInt(32.W)))
     // advancing counter
     val cycleBudget = Input(UInt(32.W))
+    val currstep = Input(UInt(32.W))
     // fixed step size
     val cycleStep = Input(UInt(32.W))
 
@@ -39,6 +41,7 @@ class RoseAdapterArbiterIO(params: RoseAdapterParams) extends Bundle {
       val counter_budget_fired = Output(UInt(32.W))
       val counter_tx_fired = Output(UInt(32.W))
       val counter_rx_0_fired = Output(UInt(32.W))
+      val counter_rx_1_fired = Output(UInt(32.W))
     }
 }
 
