@@ -29,6 +29,14 @@ struct serial_cosmo_data_t {
     bool valid;
     bool fire() { return valid && ready; }
   } bigstep;
+  struct {
+    T header;
+    T channel;
+    bool ready;
+    bool valid;
+    bool fire() { return valid && ready; }
+  } cfg_routing;
+
 
 };
 #endif // __SERIAL_COSMO_DATA_H
@@ -95,12 +103,14 @@ struct ROSEBRIDGEMODULE_struct {
     uint64_t bww_config_valid;
     uint64_t bww_config_destination;
     uint64_t config_routing_header;
-    uint64_t config_routing_valid;
     uint64_t config_routing_channel;
+    uint64_t config_routing_valid;
+    uint64_t config_routing_ready;
     uint64_t arb_counter_state_sheader;
     uint64_t arb_counter_budget_fired;
     uint64_t arb_counter_tx_fired;
     uint64_t arb_counter_rx_0_fired;
+    uint64_t arb_counter_rx_1_fired;
 };
 
 class cosim_packet_t
@@ -166,7 +176,7 @@ class airsim_t final: public bridge_driver_t{
       void report_stall();
       void set_step_size(uint32_t step_size);
       void config_bandwidth(uint32_t dest, uint32_t bandwidth);
-      void config_route(uint32_t header, uint32_t channel);
+      void push_route(uint32_t header, uint32_t channel);
       virtual void init() {};
       virtual void finish() {};
       // Our AIRSIM bridge never calls for the simulation to terminate
@@ -200,6 +210,8 @@ class airsim_t final: public bridge_driver_t{
       std::deque<uint32_t> fsim_rxdata;
       std::deque<uint32_t> fsim_txdata;
       std::deque<uint32_t> fsim_txbudget;
+      std::deque<uint32_t> fsim_cfg_header;
+      std::deque<uint32_t> fsim_cfg_channel;;
       std::deque<uint32_t> fsim_tx_bigstep;
       std::deque<uint32_t> tcp_sync_rxdata;
       std::deque<uint32_t> tcp_data_rxdata;
@@ -211,6 +223,8 @@ class airsim_t final: public bridge_driver_t{
       void send();
       void send_budget();
       void send_bigstep();
+      void send_route();
+
       void recv();
 };
 

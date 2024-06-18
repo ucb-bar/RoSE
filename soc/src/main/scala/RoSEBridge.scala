@@ -7,7 +7,7 @@ import midas.models.AbstractClockGate
 import chisel3._
 import chisel3.util._
 import org.chipsalliance.cde.config.Parameters
-import rose.{RosePortIO, RoseAdapterParams, RoseAdapterKey, RoseAdapterArbiterIO, ConfigRoutingIO, Dataflow}
+import rose.{RosePortIO, RoseAdapterParams, RoseAdapterKey, RoseAdapterArbiterIO, ConfigRoutingIOBundle, Dataflow}
 import firrtl.annotations.HasSerializationHints
 import java.io.{File, FileWriter}
 import freechips.rocketchip.util.{AsyncQueue, AsyncQueueParams}
@@ -21,7 +21,7 @@ class RoseArbTable(params: RoseAdapterParams) extends Module {
     val value = Output(UInt(params.width.W))
     val keep_header = Output(Bool())
     // Configuration ports
-    val config_routing = new ConfigRoutingIO(params)
+    val config_routing = Flipped(Decoupled(new ConfigRoutingIOBundle(params)))
   })
 
   // spawn a vector of registers, storing the configured routing values
@@ -31,12 +31,13 @@ class RoseArbTable(params: RoseAdapterParams) extends Module {
   val keeping_table = VecInit(params.dst_ports.seq.map(port => (port.port_type == "reqrsp" && port.df_params.size == 0).B))
 
   when (io.config_routing.valid) {
-    routing_table(io.config_routing.header) := io.config_routing.channel
+    routing_table(io.config_routing.bits.header) := io.config_routing.bits.channel
   }
 
   // look up the routing table
   io.value := Mux(io.key_valid, routing_table(io.key), 0.U)
   io.keep_header := keeping_table(io.value)
+  io.config_routing.ready := true.B
 }
 
 class RoseAdapterArbiter(params: RoseAdapterParams) extends Module{
@@ -120,7 +121,6 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module{
   when(io.rx(1).fire) {
     counter_rx_1_fired := counter_rx_1_fired + 1.U
   }
-  dontTouch(counter_rx_1_fired)
   
   io.debug.counter_state_sheader := counter_state_sheader
   io.debug.counter_budget_fired := counter_budget_fired
@@ -292,6 +292,7 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     val rxfifo = Module(new AsyncQueue(UInt(32.W), AsyncQueueParams(depth = 256))) 
     val rx_budget_fifo = Module(new AsyncQueue(UInt(32.W), AsyncQueueParams(depth = 64)))
     val rx_bigstep_fifo = Module(new AsyncQueue(UInt(32.W), AsyncQueueParams(depth = 64)))
+    val config_async_queue = Module(new AsyncQueue(new ConfigRoutingIOBundle(params), AsyncQueueParams(depth = 64)))
 
     def bind_clock_domain(module: AsyncQueue[UInt]) = {
       module.io.enq_clock := clock 
@@ -303,6 +304,11 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     bind_clock_domain(rxfifo)
     bind_clock_domain(rx_budget_fifo)
     bind_clock_domain(rx_bigstep_fifo)
+    
+    config_async_queue.io.enq_clock := clock
+    config_async_queue.io.enq_reset := reset.asBool || targetReset
+    config_async_queue.io.deq_clock := acg.O
+    config_async_queue.io.deq_reset := reset.asBool || targetReset
 
     txfifo.reset := reset.asBool || targetReset
     // Add to the cycles the tool is permitted to run forward
@@ -332,6 +338,7 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     
     val bww = Module(new BandWidthWriter(params))
     rosearb.clock := acg.O
+    rosearb.io.config_routing <> config_async_queue.io.deq
     
     for (i <- 0 until params.dst_ports.seq.size) {
       // for each dst_port, generate a shallow queue and connect it to the arbiter
@@ -427,15 +434,16 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     genWOReg(bww.io.config_destination, "bww_config_destination")
 
     // Generate registers for configuring routing table
-    genWOReg(rosearb.io.config_routing.header, "config_routing_header")
-    Pulsify(genWORegInit(rosearb.io.config_routing.valid, "config_routing_valid", false.B), pulseLength = 1)
-    genWOReg(rosearb.io.config_routing.channel, "config_routing_channel")
-
+    genWOReg(config_async_queue.io.enq.bits.header, "config_routing_header")
+    genWOReg(config_async_queue.io.enq.bits.channel, "config_routing_channel")
+    Pulsify(genWORegInit(config_async_queue.io.enq.valid, "config_routing_valid", false.B), pulseLength = 1)
+    genROReg(config_async_queue.io.enq.ready, "config_routing_ready")
     // Debug Registers
     genROReg(rosearb.io.debug.counter_state_sheader, "arb_counter_state_sheader")
     genROReg(rosearb.io.debug.counter_budget_fired, "arb_counter_budget_fired")
     genROReg(rosearb.io.debug.counter_tx_fired, "arb_counter_tx_fired")
     genROReg(rosearb.io.debug.counter_rx_0_fired, "arb_counter_rx_0_fired")
+    genROReg(rosearb.io.debug.counter_rx_1_fired, "arb_counter_rx_1_fired")
     
     // This method invocation is required to wire up the bridge to the simulated software
     override def genHeader(base: BigInt, memoryRegions: Map[String, BigInt], sb: StringBuilder): Unit = {

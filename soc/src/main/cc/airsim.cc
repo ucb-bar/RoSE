@@ -363,7 +363,7 @@ void airsim_t::process_tcp_packet()
             this->config_bandwidth(packet.data[0], packet.data[1]);
             break;
         case CS_CFG_ROUTE:
-            this->config_route(packet.data[0], packet.data[1]);
+            this->push_route(packet.data[0], packet.data[1]);
         default:
             // TODO SEND DATA
             // if(packet.cmd < 0x80) {
@@ -598,12 +598,30 @@ void airsim_t::config_bandwidth(uint32_t dest, uint32_t bandwidth)
     write(this->mmio_addrs.bww_config_valid, 1);
 }
 
-void airsim_t::config_route(uint32_t header, uint32_t channel)
+// void airsim_t::config_route(uint32_t header, uint32_t channel)
+// {
+//     printf("[AirSim Driver]: Setting header to 0x%x and channel to %d!\n", header, channel);
+//     write(this->mmio_addrs.config_routing_header, header);
+//     write(this->mmio_addrs.config_routing_channel, channel);
+//     write(this->mmio_addrs.config_routing_valid, 1);
+// }
+void airsim_t::push_route(uint32_t header, uint32_t channel)
 {
-    printf("[AirSim Driver]: Setting header to 0x%x and channel to %d!\n", header, channel);
-    write(this->mmio_addrs.config_routing_header, header);
-    write(this->mmio_addrs.config_routing_channel, channel);
-    write(this->mmio_addrs.config_routing_valid, 1);
+    printf("[AirSim Driver]: pushing header to 0x%x and channel to %d!\n", header, channel);
+    m.lock();
+    this->fsim_cfg_header.push_back(header);
+    this->fsim_cfg_channel.push_back(channel);
+    m.unlock();
+}
+
+void airsim_t::send_route()
+{
+    data.cfg_routing.ready = read(this->mmio_addrs.config_routing_ready);
+    if(data.cfg_routing.ready) {
+        write(this->mmio_addrs.config_routing_header, data.cfg_routing.header);
+        write(this->mmio_addrs.config_routing_channel, data.cfg_routing.channel);
+        write(this->mmio_addrs.config_routing_valid, 1);
+    }
 }
 
 void airsim_t::tick()
@@ -661,6 +679,23 @@ void airsim_t::tick()
         if(data.bigstep.ready) {
             // printf("[AIRSIM DRIVER]: Transmitting firesim budget -- 0x%x\n", data.budget.bits);
             this->fsim_tx_bigstep.pop_front();
+            m.unlock();
+        } else {
+            m.unlock();
+            break;
+        }
+        // printf("[AIRSIM DRIVER]: I tried");
+    }
+    while(this->fsim_cfg_header.size() > 0 && this->fsim_cfg_channel.size() > 0){
+        // printf("[AIRSIM DRIVER]: Entered budget loop\n");
+        m.lock();
+        data.cfg_routing.header = this->fsim_cfg_header.front();
+        data.cfg_routing.channel= this->fsim_cfg_channel.front();
+        this->send_route();
+        if(data.cfg_routing.ready) {
+            // printf("[AIRSIM DRIVER]: Transmitting firesim budget -- 0x%x\n", data.budget.bits);
+            this->fsim_cfg_header.pop_front();
+            this->fsim_cfg_channel.pop_front();
             m.unlock();
         } else {
             m.unlock();
