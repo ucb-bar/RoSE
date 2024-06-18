@@ -85,10 +85,12 @@ class DummySynchronizer:
 
         # Construct the file name and open the specific config
         config_file = os.path.join(script_dir, f'../config/config_gym_{gym_env}.yaml')
-        with open(config_file, 'r') as f:
-            gym_sim_config = yaml.safe_load(f)
+        self.load_gym_sim_config_from_file(config_file)
         # print(f"loaded config: {gym_sim_config}")
-
+    
+    def load_gym_sim_config_from_file(self, file):
+        with open(file, 'r') as f:
+            gym_sim_config = yaml.safe_load(f)
         # Load the gym_timestep. This represents how much simulation time passes per env.step()
         if 'gym_timestep' in gym_sim_config:
             self.gym_timestep = gym_sim_config['gym_timestep']
@@ -121,7 +123,7 @@ class DummySynchronizer:
 
 class Synchronizer(DummySynchronizer): 
 
-    def __init__(self, host=HOST, sync_port=SYNC_PORT, data_port=DATA_PORT, firesim_step=10000, firesim_freq=1_000_000_000):
+    def __init__(self, host=HOST, sync_port=SYNC_PORT, data_port=DATA_PORT, firesim_step=10000, firesim_freq=1_000_000_000, yaml_path=None):
         super().__init__()
 
         # this node list is always written by server_thread during setup, 
@@ -140,6 +142,13 @@ class Synchronizer(DummySynchronizer):
         self.firesim_step = firesim_step
         self.render = False
         gym_env = self.load_config()
+
+        if yaml_path != None:
+            print(f"Loading config from file: {yaml_path}")
+            self.load_gym_sim_config_from_file(yaml_path)
+        else:
+            print(f"Loading config from default: {gym_env}")
+            self.load_gym_sim_config(gym_env)
 
         self.load_gym_sim_config(gym_env)
         self.env = gym.make(gym_env, render_mode='rgb_array', **self.gym_kwargs)
@@ -187,6 +196,7 @@ class Synchronizer(DummySynchronizer):
 
         for i, t in enumerate(self.nodes):
             for j, bw in enumerate(self.channel_bandwidth[i]):
+                print(f"Setting bandwidth to node {i} to channel {j} with {bw}")
                 self.send_bw(j, bw, t)
         
         for cmd in self.packet_bindings.keys():

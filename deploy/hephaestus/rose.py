@@ -11,8 +11,8 @@ TASK = ["run", "build"]
 # Thread to track synchronization code
 class SyncThread(threading.Thread):
 
-    def __init__(self, args):
-        self.sync = gym_synchronizer.Synchronizer()
+    def __init__(self, yaml_path):
+        self.sync = gym_synchronizer.Synchronizer(yaml_path=yaml_path)
         threading.Thread.__init__(self)
     
     def run(self):
@@ -44,6 +44,7 @@ def construct_rose_argparser():
     parser.add_argument('--task', type=str, help='The task to perform', choices=TASK, default='run')
     parser.add_argument('--target', type=str, help='[build]: The target C file to build', default='packettest')
     parser.add_argument('--use_trap', type=bool, help='[build]: Use the trap.S file', default=False)
+    parser.add_argument('--yaml_path', type=str, help='The path to the yaml file')
     return parser
 
 if __name__ == "__main__":
@@ -62,7 +63,10 @@ if __name__ == "__main__":
         print("[RoSE]:Building target file: " + args.target)
         dummy_sync = gym_synchronizer.DummySynchronizer()
         gym_env = dummy_sync.load_config()
-        dummy_sync.load_gym_sim_config(gym_env)
+        if args.yaml_path != None:
+            dummy_sync.load_gym_sim_config_from_file(args.yaml_path)
+        else:
+            dummy_sync.load_gym_sim_config(gym_env)
         dummy_sync.genRoSECPacketHeader()
         # get current file directory
         dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -76,7 +80,7 @@ if __name__ == "__main__":
     if args.task == "run":
         print("[RoSE]:Running RoSE")
         print("[RoSE]:Starting synchronizer thread")
-        sync_thread = SyncThread(None)
+        sync_thread = SyncThread(args.yaml_path)
 
         condition = threading.Condition()
 
