@@ -10,8 +10,8 @@
 #include <math.h>
 #include <stdlib.h>
 
-#define IMG_HEIGHT 256
-#define IMG_WIDTH 256
+#define IMG_HEIGHT 128 
+#define IMG_WIDTH 128
 #define ORIGIN_IMG_SIZE (IMG_HEIGHT*IMG_WIDTH)
 
 #define NUM_ITERS 8

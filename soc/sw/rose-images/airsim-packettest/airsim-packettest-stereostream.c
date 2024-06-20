@@ -5,6 +5,8 @@
 #include <string.h>
 #include <riscv-pk/encoding.h>
 
+#include <stdlib.h>
+
 // #include "nic.h"
 
 #include "rose_port.h"
@@ -129,14 +131,11 @@ int main(void) {
     printf("Received image %d\n", img_rcvd);
 
     // write image loopback
-    send_img_loopback(buf);
+    // send_img_loopback(buf);
     // send_img_loopback_1_row(buf); 
-
-
-    byte_read = 0;
+    // byte_read = 0;
   }
-  while(1);
-  
+  exit(0); 
   // for (i = 0; i < 32; i++) {
   //   printf("cycle[%d], %" PRIu64 " cycles\n", i, cycles_measured[i]);
   // }

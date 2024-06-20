@@ -32,11 +32,27 @@
 #define ORIGIN_IMG_SIZE (IMG_WIDTH*IMG_HEIGHT)
 #define STEREO_IMG_SIZE (STEREO_IMG_WIDTH*STEREO_IMG_HEIGHT)
 
+#define NUM_ITERS 8
+
 uint8_t origin_left_buf[ORIGIN_IMG_SIZE];
 uint8_t origin_right_buf[ORIGIN_IMG_SIZE];
 uint8_t stereo_buf[STEREO_IMG_SIZE];
 
+volatile uint32_t recv_count = 0; 
+uint64_t cycles_measured_start[NUM_ITERS] = {0};
+uint64_t cycles_measured_end[NUM_ITERS] = {0};
+uint64_t cycles_measured_num[NUM_ITERS] = {0};
+
 extern void trap_entry(void);
+
+void cache_warmup(int offset) {
+  memcpy(ROSE_DMA_BASE_ADDR_0 + offset * ORIGIN_IMG_SIZE, origin_left_buf, ORIGIN_IMG_SIZE);
+}
+
+void cache_warmup_both() {
+  cache_warmup(0);
+  cache_warmup(1);
+}
 
 void setup_trap_vector(void) {
   uint64_t trap_vector = (uint64_t) &trap_entry;
@@ -46,21 +62,31 @@ void setup_trap_vector(void) {
 void external_interrupt_handler(void) {
   uint64_t hart_id = READ_CSR("mhartid");
   uint32_t irq_id = PLIC_claimIRQ(hart_id);
-  uint64_t mip = READ_CSR("mip");
-  printf("MIP: 0x%lx\n", mip);
+  // uint64_t mip = READ_CSR("mip");
+  // printf("MIP: 0x%lx\n", mip);
   uint32_t device_pending = reg_read32(0x2024);
-  printf("External interrupt received\n");
+  // printf("External interrupt received\n");
       // Clear the interrupt (specific to your hardware)
       // Example: write to a register in your interrupt controller
       // *(volatile uint32_t *)YOUR_INTERRUPT_CONTROLLER_ADDRESS = 1 << 11;
   reg_write32(0x2024, 1 << 1);
   PLIC_completeIRQ(hart_id, irq_id);
   HAL_CORE_clearIRQ(11);
+
+  recv_img_dma_left(recv_count % 2);
+  uint64_t end = rdcycle();
+  cycles_measured_end[recv_count] = end;
+  cycles_measured_num[recv_count] = end - cycles_measured_start[recv_count];
+  recv_count++;
+  // printf("%d\n", recv_count);
+  send_img_req_left();
+  uint64_t start = rdcycle();
+  cycles_measured_start[recv_count] = start;
 }
 
 uintptr_t trap_handler(uintptr_t m_epc, uintptr_t m_cause, uintptr_t m_tval, uintptr_t regs[32]) {
   uint64_t hart_id = READ_CSR("mhartid");
-  printf("Trap handler: hart_id = %ld, cause = 0x%lx, mepc: 0x%lx\n", hart_id, m_cause, m_epc);
+  // printf("Trap handler: hart_id = %ld, cause = 0x%lx, mepc: 0x%lx\n", hart_id, m_cause, m_epc);
   // if the first bit is set 
   // if ((cause >> (MXLEN-1)) && ((cause & 0xFF) == 11)) { // External interrupt (interrupt bit set and cause code 11)
   //   external_interrupt_handler();
@@ -110,7 +136,7 @@ uintptr_t trap_handler(uintptr_t m_epc, uintptr_t m_cause, uintptr_t m_tval, uin
       printf("machineTimerInterruptCallback\n");
       break;
     case (1UL << (RISCV_XLEN-1)) | 0x0000000BUL:      // machine external interrupt
-      printf("machineExternalInterruptCallback\n");
+      // printf("machineExternalInterruptCallback\n");
       external_interrupt_handler();
       break;
     default:
@@ -178,20 +204,19 @@ void send_img_loopback(uint32_t *img) {
 
 void recv_img_dma_left(int offset){
   uint8_t *pointer = ROSE_DMA_BASE_ADDR_0 + offset * ORIGIN_IMG_SIZE;
-  printf("offset for this access is: %d\n", offset);
+  // printf("offset for this access is: %d\n", offset);
   memcpy(origin_left_buf, pointer, ORIGIN_IMG_SIZE);
 }
 
 void recv_img_dma_right(int offset){
   uint8_t *pointer = ROSE_DMA_BASE_ADDR_1 + offset * ORIGIN_IMG_SIZE;
-  printf("offset for this access is: %d\n", offset);
+  // printf("offset for this access is: %d\n", offset);
   memcpy(origin_right_buf, pointer, ORIGIN_IMG_SIZE);
 }
 
-
 int main(void) {
   uint32_t hart_id = READ_CSR("mhartid");
-  printf("Hello World from hart %d!\n", hart_id);
+  // printf("Hello World from hart %d!\n", hart_id);
 
   PLIC_enable(hart_id, 4);
   PLIC_enable(hart_id, 3);
@@ -201,8 +226,21 @@ int main(void) {
   setup_trap_vector();
   enable_external_interrupts();
   configure_counter();
+  cache_warmup_both();
   send_img_req_left();
-  while (1) {
+  uint64_t start = rdcycle();
+  cycles_measured_start[recv_count] = start;
+  while (recv_count < NUM_ITERS);
+  int i;
+  for (i = 0; i < NUM_ITERS; i++) {
+    printf("cycle_num[%d], %" PRIu64 " cycles\n", i, cycles_measured_num[i]);
   }
+  // for (i = 0; i < NUM_ITERS; i++) {
+  //   printf("cycle_start[%d], %" PRIu64 " cycles\n", i, cycles_measured_start[i]);
+  // }
+  // for (i = 0; i < NUM_ITERS; i++) {
+  //   printf("cycle_end[%d], %" PRIu64 " cycles\n", i, cycles_measured_end[i]);
+  // }
+  exit(0);
 }
 
