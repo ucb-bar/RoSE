@@ -91,7 +91,7 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module{
     is(sLoad) {
       rx_val := io.tx.valid
       counter := Mux(io.tx.fire, counter - 1.U, counter)
-      state := Mux(counter === 0.U, sIdle, sLoad)
+      state := Mux(counter === 1.U && io.tx.fire, sIdle, sLoad)
       io.tx.ready := io.rx(latched_idx).ready && (counter =/= 0.U) 
     }
   }
@@ -158,7 +158,7 @@ class rxcontroller(width: Int) extends Module{
   val rxState = RegInit(sRxIdle)
   val rxData = Reg(UInt(32.W))
 
-  val bandwidth_threshold = RegEnable(io.bww_bits, 0.U(32.W), io.bww_valid)
+  val bandwidth_threshold = RegEnable(io.bww_bits, io.bww_valid)
 
   val counter_next = Wire(UInt(width.W))
   val counter: UInt = RegEnable(counter_next, 0.U(width.W), io.fire)
@@ -269,7 +269,7 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     // Generate a FIFO to capture time step allocations
     val rx_ctrl_fifo = Module(new Queue(UInt(8.W), 16))
 
-    val cycleBudget = RegInit(0.U(32.W))
+    val cycleBudget = RegInit(0xFFFFFFFFL.U(32.W))
     val cycleStep   = RegInit(0.U(32.W))
 
     rx_ctrl_fifo.io.deq.ready := true.B;
