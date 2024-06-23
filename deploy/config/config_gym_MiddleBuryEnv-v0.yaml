@@ -4,7 +4,6 @@ packets:
     type: "reqrsp"
     latency: 0
     channel: 0
-    # channel: 1
     indices:
       - "camera_lr"
 
@@ -31,10 +30,27 @@ packets:
     channel: 0
     indices:
       - "camera_l"
+  
+  - name: dummy_stream
+    id: 0x31
+    type: "stream"
+    latency: 0
+    channel: 0
+    indices:
+      - "dummy"
+
+  - name: lat_test
+    id: 0x41
+    type: "stream"
+    latency: 0
+    channel: 0
+    indices:
+      - "lat_test"
 
   - name: 'camera_loopback'
     id: 0x01
     type: "loopback"
+  
 
 
 channel_bandwidth: [[0,0,0]]
