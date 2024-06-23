@@ -18,6 +18,19 @@
 #define SEARCH_RANGE            32
 #define BLOCK_SIZE              8
 
+#define PACKT_SIZE 32
+#define STREAMING_INTERVAL 1
+
+void send_dummy_req_left() {
+  // printf("Requesting image...\n");
+  while (ROSE_TX_ENQ_READY == 0) ;
+  reg_write32(ROSE_TX_DATA_ADDR, CS_DUMMY_STREAM);
+  while (ROSE_TX_ENQ_READY == 0) ;
+  reg_write32(ROSE_TX_DATA_ADDR, 4);
+  while (ROSE_TX_ENQ_READY == 0) ;
+  reg_write32(ROSE_TX_DATA_ADDR, STREAMING_INTERVAL);
+}
+
 #define STEREO_IMG_WIDTH        (IMG_WIDTH-SEARCH_RANGE-BLOCK_SIZE)
 #define STEREO_IMG_HEIGHT       (IMG_HEIGHT-BLOCK_SIZE)
 
@@ -73,15 +86,15 @@ void external_interrupt_handler(void) {
   PLIC_completeIRQ(hart_id, irq_id);
   HAL_CORE_clearIRQ(11);
 
-  recv_img_dma_left(recv_count % 2);
+  // recv_img_dma_left(recv_count % 2);
   uint64_t end = rdcycle();
   cycles_measured_end[recv_count] = end;
-  cycles_measured_num[recv_count] = end - cycles_measured_start[recv_count];
+  // cycles_measured_num[recv_count] = end - cycles_measured_start[recv_count];
   recv_count++;
   // printf("%d\n", recv_count);
-  send_img_req_left();
-  uint64_t start = rdcycle();
-  cycles_measured_start[recv_count] = start;
+  // send_img_req_left();
+  // uint64_t start = rdcycle();
+  // cycles_measured_start[recv_count] = start;
 }
 
 uintptr_t trap_handler(uintptr_t m_epc, uintptr_t m_cause, uintptr_t m_tval, uintptr_t regs[32]) {
@@ -158,8 +171,8 @@ void enable_external_interrupts(void) {
 
 void configure_counter() {
   printf("Configuring counter...\n");
-  reg_write32(ROSE_DMA_CONFIG_COUNTER_ADDR_0, ORIGIN_IMG_SIZE);
-  reg_write32(ROSE_DMA_CONFIG_COUNTER_ADDR_1, ORIGIN_IMG_SIZE);
+  reg_write32(ROSE_DMA_CONFIG_COUNTER_ADDR_0, PACKT_SIZE);
+  reg_write32(ROSE_DMA_CONFIG_COUNTER_ADDR_1, PACKT_SIZE);
 }
 
 void send_img_req_left() {
@@ -215,6 +228,7 @@ void recv_img_dma_right(int offset){
 }
 
 int main(void) {
+  uint64_t singularity = rdcycle();
   uint32_t hart_id = READ_CSR("mhartid");
   // printf("Hello World from hart %d!\n", hart_id);
   printf("Hello World from interruptttt\n");
@@ -227,12 +241,16 @@ int main(void) {
   setup_trap_vector();
   enable_external_interrupts();
   configure_counter();
-  cache_warmup_both();
-  send_img_req_left();
+  // cache_warmup_both();
+  // send_img_req_left();
+  uint64_t config_done = rdcycle();
+  send_dummy_req_left();
   uint64_t start = rdcycle();
   cycles_measured_start[recv_count] = start;
   while (recv_count < NUM_ITERS);
   int i;
+  printf("singularity: %" PRIu64 "\n", singularity);
+  printf("config_done: %" PRIu64 "\n", config_done);
   for (i = 0; i < NUM_ITERS; i++) {
     printf("cycle_num[%d], %" PRIu64 " cycles\n", i, cycles_measured_num[i]);
   }

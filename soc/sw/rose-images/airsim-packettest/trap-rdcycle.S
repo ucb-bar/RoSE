@@ -14,6 +14,8 @@ trap_entry:
   SREG x1, 1*REGBYTES(sp)
   csrr x1, mscratch
   SREG x1, 2*REGBYTES(sp)
+  SREG x14, 14*REGBYTES(sp)
+  csrr a4, cycle
   SREG x3, 3*REGBYTES(sp)
   SREG x4, 4*REGBYTES(sp)
   SREG x5, 5*REGBYTES(sp)
@@ -25,7 +27,6 @@ trap_entry:
   SREG x11, 11*REGBYTES(sp)
   SREG x12, 12*REGBYTES(sp)
   SREG x13, 13*REGBYTES(sp)
-  SREG x14, 14*REGBYTES(sp)
   SREG x15, 15*REGBYTES(sp)
   SREG x16, 16*REGBYTES(sp)
   SREG x17, 17*REGBYTES(sp)

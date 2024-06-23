@@ -1,6 +1,7 @@
 #include "mmio.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <inttypes.h>
 #include <string.h>
 #include <riscv-pk/encoding.h>
@@ -8,12 +9,15 @@
 #include "rose_port.h"
 #include "rose_packet.h"
 
+
 #include "rocc.h"
 
 #define IMG_WIDTH 256
 #define IMG_HEIGHT 256
 #define SEARCH_RANGE 32
 #define BLOCK_SIZE 8
+
+#define NUM_ITERS 1
 
 #define STEREO_IMG_WIDTH (IMG_WIDTH-SEARCH_RANGE-BLOCK_SIZE)
 #define STEREO_IMG_HEIGHT (IMG_HEIGHT-BLOCK_SIZE)
@@ -76,7 +80,7 @@ void recv_img_dma(int offset){
   uint32_t i;
   uint8_t *pointer;
   pointer = ROSE_DMA_BASE_ADDR_0 + offset * ORIGIN_IMG_SIZE;
-  printf("offset for this access is: %d\n", offset);
+  // printf("offset for this access is: %d\n", offset);
   memcpy(origin_buf, pointer, ORIGIN_IMG_SIZE);
 }
 
@@ -103,20 +107,23 @@ while(img_rcvd < 1){
     } while (status == status_prev);
 
     recv_img_dma(status_prev);
-    printf("Received image\n");
+    // printf("Received image\n");
 
     COMPUTE_STEREO();
     rocc_fence();
-    printf("Computed stereo\n");
+    // printf("Computed stereo\n");
 
     uint64_t end = rdcycle();
     cycles_measured[img_rcvd] = end - start;
-    send_img_loopback(stereo_buf);
+    // send_img_loopback(stereo_buf);
     img_rcvd++;
   }
-  while(1);
+  // while(1);
+
   
-  // for (i = 0; i < 32; i++) {
-  //   printf("cycle[%d], %" PRIu64 " cycles\n", i, cycles_measured[i]);
-  // }
+  for (i = 0; i < NUM_ITERS; i++) {
+    printf("cycle[%d], %" PRIu64 " cycles\n", i, cycles_measured[i]);
+  }
+  
+  exit(0);
 }

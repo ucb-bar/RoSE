@@ -18,6 +18,19 @@
 #define SEARCH_RANGE            32
 #define BLOCK_SIZE              8
 
+#define PACKT_SIZE 8
+#define STREAMING_INTERVAL 1
+
+void send_dummy_req_left() {
+  // printf("Requesting image...\n");
+  while (ROSE_TX_ENQ_READY == 0) ;
+  reg_write32(ROSE_TX_DATA_ADDR, CS_DUMMY_STREAM);
+  while (ROSE_TX_ENQ_READY == 0) ;
+  reg_write32(ROSE_TX_DATA_ADDR, 4);
+  while (ROSE_TX_ENQ_READY == 0) ;
+  reg_write32(ROSE_TX_DATA_ADDR, STREAMING_INTERVAL);
+}
+
 #define STEREO_IMG_WIDTH        (IMG_WIDTH-SEARCH_RANGE-BLOCK_SIZE)
 #define STEREO_IMG_HEIGHT       (IMG_HEIGHT-BLOCK_SIZE)
 
@@ -32,27 +45,21 @@
 #define ORIGIN_IMG_SIZE (IMG_WIDTH*IMG_HEIGHT)
 #define STEREO_IMG_SIZE (STEREO_IMG_WIDTH*STEREO_IMG_HEIGHT)
 
-#define NUM_ITERS 8
-
-uint8_t origin_left_buf[ORIGIN_IMG_SIZE];
-uint8_t origin_right_buf[ORIGIN_IMG_SIZE];
-uint8_t stereo_buf[STEREO_IMG_SIZE];
+#define NUM_ITERS 20 
 
 volatile uint32_t recv_count = 0; 
-uint64_t cycles_measured_start[NUM_ITERS] = {0};
 uint64_t cycles_measured_end[NUM_ITERS] = {0};
-uint64_t cycles_measured_num[NUM_ITERS] = {0};
 
 extern void trap_entry(void);
 
-void cache_warmup(int offset) {
-  memcpy(ROSE_DMA_BASE_ADDR_0 + offset * ORIGIN_IMG_SIZE, origin_left_buf, ORIGIN_IMG_SIZE);
-}
+// void cache_warmup(int offset) {
+//   memcpy(ROSE_DMA_BASE_ADDR_0 + offset * ORIGIN_IMG_SIZE, origin_left_buf, ORIGIN_IMG_SIZE);
+// }
 
-void cache_warmup_both() {
-  cache_warmup(0);
-  cache_warmup(1);
-}
+// void cache_warmup_both() {
+//   cache_warmup(0);
+//   cache_warmup(1);
+// }
 
 void setup_trap_vector(void) {
   uint64_t trap_vector = (uint64_t) &trap_entry;
@@ -69,22 +76,23 @@ void external_interrupt_handler(void) {
       // Clear the interrupt (specific to your hardware)
       // Example: write to a register in your interrupt controller
       // *(volatile uint32_t *)YOUR_INTERRUPT_CONTROLLER_ADDRESS = 1 << 11;
+  // recv_packet();
   reg_write32(0x2024, 1 << 1);
   PLIC_completeIRQ(hart_id, irq_id);
   HAL_CORE_clearIRQ(11);
 
-  recv_img_dma_left(recv_count % 2);
+  // recv_img_dma_left(recv_count % 2);
   uint64_t end = rdcycle();
   cycles_measured_end[recv_count] = end;
-  cycles_measured_num[recv_count] = end - cycles_measured_start[recv_count];
+  // cycles_measured_num[recv_count] = end - cycles_measured_start[recv_count];
   recv_count++;
   // printf("%d\n", recv_count);
-  send_img_req_left();
-  uint64_t start = rdcycle();
-  cycles_measured_start[recv_count] = start;
+  // send_img_req_left();
+  // uint64_t start = rdcycle();
+  // cycles_measured_start[recv_count] = start;
 }
 
-uintptr_t trap_handler(uintptr_t m_epc, uintptr_t m_cause, uintptr_t m_tval, uintptr_t regs[32]) {
+uintptr_t trap_handler(uintptr_t m_epc, uintptr_t m_cause, uintptr_t m_tval, uintptr_t regs[32], uintptr_t m_cycle) {
   uint64_t hart_id = READ_CSR("mhartid");
   // printf("Trap handler: hart_id = %ld, cause = 0x%lx, mepc: 0x%lx\n", hart_id, m_cause, m_epc);
   // if the first bit is set 
@@ -95,6 +103,7 @@ uintptr_t trap_handler(uintptr_t m_epc, uintptr_t m_cause, uintptr_t m_tval, uin
   //   // Handle other traps or exceptions if needed
   //   printf("Unhandled trap: cause = 0x%lx\n", cause);
   // }
+  cycles_measured_end[recv_count] = m_cycle;
   switch (m_cause) {
     case 0x00000000UL:      // instruction address misaligned
       printf("instructionAddressMisalignedException\n");
@@ -158,8 +167,8 @@ void enable_external_interrupts(void) {
 
 void configure_counter() {
   printf("Configuring counter...\n");
-  reg_write32(ROSE_DMA_CONFIG_COUNTER_ADDR_0, ORIGIN_IMG_SIZE);
-  reg_write32(ROSE_DMA_CONFIG_COUNTER_ADDR_1, ORIGIN_IMG_SIZE);
+  reg_write32(ROSE_DMA_CONFIG_COUNTER_ADDR_0, PACKT_SIZE);
+  reg_write32(ROSE_DMA_CONFIG_COUNTER_ADDR_1, PACKT_SIZE);
 }
 
 void send_img_req_left() {
@@ -178,43 +187,32 @@ void send_img_req_right() {
   reg_write32(ROSE_TX_DATA_ADDR, 0);
 }
 
-void send_img_loopback_1_row(int row) {
-  printf("Sending 1 row...\n");
-  while (ROSE_TX_ENQ_READY == 0) {}
-  reg_write32(ROSE_TX_DATA_ADDR, CS_CAMERA_LOOPBACK);
-  while (ROSE_TX_ENQ_READY == 0) {}
-  reg_write32(ROSE_TX_DATA_ADDR, STEREO_IMG_WIDTH);
-  for (int i = 0; i < STEREO_IMG_WIDTH; i += 4) {
-    while (ROSE_TX_ENQ_READY == 0) {}
-    uint32_t data = (stereo_buf[row * STEREO_IMG_WIDTH + i] << 24)
-                  | (stereo_buf[row * STEREO_IMG_WIDTH + i + 1] << 16)
-                  | (stereo_buf[row * STEREO_IMG_WIDTH + i + 2] << 8)
-                  | stereo_buf[row * STEREO_IMG_WIDTH + i + 3];
-    reg_write32(ROSE_TX_DATA_ADDR, data);
+void send_test_req() {
+  // printf("Requesting image...\n");
+  while (ROSE_TX_ENQ_READY == 0) ;
+  reg_write32(ROSE_TX_DATA_ADDR, CS_LAT_TEST);
+  while (ROSE_TX_ENQ_READY == 0) ;
+  reg_write32(ROSE_TX_DATA_ADDR, 4);
+  while (ROSE_TX_ENQ_READY == 0) ;
+  reg_write32(ROSE_TX_DATA_ADDR, STREAMING_INTERVAL);
+}
+
+int recv_packet() {
+  while (ROSE_RX_DEQ_VALID_2 == 0) ;
+  uint32_t header = ROSE_RX_DATA_2;
+  // printf("Received packet with header: %d\n", header);
+  while (ROSE_RX_DEQ_VALID_2 == 0) ;
+  uint32_t size = ROSE_RX_DATA_2;
+  int byte_read = 0;
+  while (byte_read < size) {
+    while (ROSE_RX_DEQ_VALID_2 == 0) ;
+    uint32_t data = ROSE_RX_DATA_2;
+    byte_read += 4;
   }
-}
-
-void send_img_loopback(uint32_t *img) {
-    // printf("Requesting image...\n");
-  for (int j = 0; j < (IMG_HEIGHT - BLOCK_SIZE); j += 1) {
-    send_img_loopback_1_row(j);
-  }
-  printf("Sent %d rows\n", IMG_HEIGHT - BLOCK_SIZE);
-}
-
-void recv_img_dma_left(int offset){
-  uint8_t *pointer = ROSE_DMA_BASE_ADDR_0 + offset * ORIGIN_IMG_SIZE;
-  // printf("offset for this access is: %d\n", offset);
-  // memcpy(origin_left_buf, pointer, ORIGIN_IMG_SIZE);
-}
-
-void recv_img_dma_right(int offset){
-  uint8_t *pointer = ROSE_DMA_BASE_ADDR_1 + offset * ORIGIN_IMG_SIZE;
-  // printf("offset for this access is: %d\n", offset);
-  memcpy(origin_right_buf, pointer, ORIGIN_IMG_SIZE);
 }
 
 int main(void) {
+  uint64_t singularity = rdcycle();
   uint32_t hart_id = READ_CSR("mhartid");
   // printf("Hello World from hart %d!\n", hart_id);
   printf("Hello World from interruptttt\n");
@@ -227,21 +225,23 @@ int main(void) {
   setup_trap_vector();
   enable_external_interrupts();
   configure_counter();
-  cache_warmup_both();
-  send_img_req_left();
-  uint64_t start = rdcycle();
-  cycles_measured_start[recv_count] = start;
+  // cache_warmup_both();
+  // send_img_req_left();
+  uint64_t config_done = rdcycle();
+  send_test_req();
   while (recv_count < NUM_ITERS);
   int i;
-  for (i = 0; i < NUM_ITERS; i++) {
-    printf("cycle_num[%d], %" PRIu64 " cycles\n", i, cycles_measured_num[i]);
-  }
+  printf("singularity: %" PRIu64 "\n", singularity);
+  printf("config_done: %" PRIu64 "\n", config_done);
+  // for (i = 0; i < NUM_ITERS; i++) {
+  //   printf("cycle_num[%d], %" PRIu64 " cycles\n", i, cycles_measured_num[i]);
+  // }
   // for (i = 0; i < NUM_ITERS; i++) {
   //   printf("cycle_start[%d], %" PRIu64 " cycles\n", i, cycles_measured_start[i]);
   // }
-  // for (i = 0; i < NUM_ITERS; i++) {
-  //   printf("cycle_end[%d], %" PRIu64 " cycles\n", i, cycles_measured_end[i]);
-  // }
+  for (i = 0; i < NUM_ITERS; i++) {
+    printf("cycle_end[%d], %" PRIu64 " cycles\n", i, cycles_measured_end[i]);
+  }
   exit(0);
 }
 

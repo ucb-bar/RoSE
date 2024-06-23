@@ -20,7 +20,7 @@
 #define NUM_ITERS 1
 
 #define STEREO_IMG_WIDTH (IMG_WIDTH-SEARCH_RANGE-BLOCK_SIZE)
-#define STEREO_IMG_HEIGHT (IMG_HEIGHT-BLOCK_SIZE)
+#define STEREO_IMG_HEIGHT (IMG_HEIGHT-BLOCK_SIZE+1)
 
 // byte addressed size
 #define STEREO_IMG_SIZE (STEREO_IMG_WIDTH*STEREO_IMG_HEIGHT)
@@ -46,7 +46,7 @@ uint32_t buf[STEREO_IMG_SIZE/4];
 
 void configure_counter() {
   printf("Configuring counter...\n");
-  reg_write32(ROSE_DMA_CONFIG_COUNTER_ADDR_0, STEREO_IMG_SIZE);
+  reg_write32(ROSE_DMA_CONFIG_COUNTER_ADDR_1, STEREO_IMG_SIZE);
 }
 
 void send_img_req() {
@@ -77,38 +77,19 @@ void send_img_loopback(uint32_t *img) {
   printf("Sent %d rows\n", IMG_HEIGHT-BLOCK_SIZE);
 }
 
-int recv_img(int start_byte) {
-  uint32_t i;
-  uint8_t status;
-
-  do {
-    status = ROSE_RX_DEQ_VALID_1;
-  } while (status == 0);
-  uint32_t cmd = ROSE_RX_DATA_1;
-  // printf("Got cmd: %d\n", cmd);
-
-  while (ROSE_RX_DEQ_VALID_1 == 0) ;
-  uint32_t num_bytes = ROSE_RX_DATA_1;
-  // printf("Got num_bytes: %d\n", num_bytes);
-  
-  for (i = 0; i < num_bytes / 4; i++) {
-    while (ROSE_RX_DEQ_VALID_1 == 0) ;
-    buf[i + start_byte] = ROSE_RX_DATA_1;
-  }
-  return num_bytes;
-}
-
-int recv_img_1_MMIO(int start_byte) {
-  while (ROSE_RX_DEQ_VALID_1 == 0) ;
-  buf[start_byte] = ROSE_RX_DATA_1;
-  return 1;
+void recv_img_dma_stereo(int offset){
+  uint32_t *pointer;
+  pointer = ROSE_DMA_BASE_ADDR_1 + offset * STEREO_IMG_SIZE;
+  memcpy(buf, pointer, STEREO_IMG_SIZE);
 }
 
 int main(void) {
   int i;
   int img_rcvd = 0;
   uint64_t cycles_measured[32] = {0};
-  int byte_read = 0;
+
+  int status = 0;
+  int status_prev = 0;
 
   printf("Starting Test Code\n");
   configure_counter();
@@ -122,9 +103,12 @@ int main(void) {
     send_img_req();
     uint64_t start = rdcycle();
 
-    while (byte_read < STEREO_IMG_SIZE/4) {
-      byte_read += recv_img_1_MMIO(byte_read);
-    }
+    do
+    {
+      status_prev = status;
+      status = ROSE_DMA_BUFFER_1;
+    } while (status == status_prev);
+    recv_img_dma_stereo(status_prev);
     // printf("byte_read: %d\n", byte_read);
     uint64_t end = rdcycle();
 

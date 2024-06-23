@@ -14,22 +14,27 @@
 #define IMG_WIDTH 256
 #define ORIGIN_IMG_SIZE (IMG_HEIGHT*IMG_WIDTH)
 
+#define PACKT_SIZE 32
+#define STREAMING_INTERVAL 1
+
 #define NUM_ITERS 8
 
 uint8_t origin_left_buf[ORIGIN_IMG_SIZE];
 
 void configure_counter() {
   printf("Configuring counter...\n");
-  reg_write32(ROSE_DMA_CONFIG_COUNTER_ADDR_0, ORIGIN_IMG_SIZE);
-  reg_write32(ROSE_DMA_CONFIG_COUNTER_ADDR_1, ORIGIN_IMG_SIZE);
+  reg_write32(ROSE_DMA_CONFIG_COUNTER_ADDR_0, PACKT_SIZE);
+  reg_write32(ROSE_DMA_CONFIG_COUNTER_ADDR_1, PACKT_SIZE);
 }
 
-void send_img_req_left() {
+void send_dummy_req_left() {
   // printf("Requesting image...\n");
   while (ROSE_TX_ENQ_READY == 0) ;
-  reg_write32(ROSE_TX_DATA_ADDR, CS_CAMERA_LEFT);
+  reg_write32(ROSE_TX_DATA_ADDR, CS_DUMMY_STREAM);
   while (ROSE_TX_ENQ_READY == 0) ;
-  reg_write32(ROSE_TX_DATA_ADDR, 0);
+  reg_write32(ROSE_TX_DATA_ADDR, 4);
+  while (ROSE_TX_ENQ_READY == 0) ;
+  reg_write32(ROSE_TX_DATA_ADDR, STREAMING_INTERVAL);
 }
 
 void recv_img_dma_left(int offset){
@@ -49,36 +54,30 @@ void cache_warmup_both() {
 }
 
 int main(void) {
+  uint64_t singularity = rdcycle();
   int i;
   int img_rcvd = 0;
   uint8_t l_status = 0;
   uint8_t l_status_prev = 0;
 
-  uint64_t cycles_measured[32] = {0};
-  printf("Starting Test Code\n");
-  printf("Hello World from interrupt");
+  uint64_t cycles_measured[NUM_ITERS] = {0};
   configure_counter();
-
-  cache_warmup_both();
+  send_dummy_req_left();
 
   while(img_rcvd < NUM_ITERS){
-    send_img_req_left();
-    uint64_t start = rdcycle();
+    // uint64_t start = rdcycle();
     do
     {
       l_status_prev = l_status;
       l_status = ROSE_DMA_BUFFER_0;
-      // uint32_t curr_counter = ROSE_DMA_CURR_COUNTER_0;
-      // printf("curr_counter: %d\n", curr_counter);
     } while (l_status == l_status_prev);
-    recv_img_dma_left(l_status_prev);
+    // recv_img_dma_left(l_status_prev);
     uint64_t end = rdcycle();
-    cycles_measured[img_rcvd] = end - start;
-    // printf("Received left image\n");
-    // TODO: remove me
-    // printf("cycle_num[%d], %" PRIu64 " cycles\n", img_rcvd, cycles_measured[img_rcvd]);
+    cycles_measured[img_rcvd] = end;
     img_rcvd++;
   }
+
+  printf("singularity: %" PRIu64 "\n", singularity);
   
   for (i = 0; i < NUM_ITERS; i++) {
     printf("cycle[%d], %" PRIu64 " cycles\n", i, cycles_measured[i]);

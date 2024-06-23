@@ -16,7 +16,7 @@
 #define BLOCK_SIZE 8
 
 #define STEREO_IMG_WIDTH (IMG_WIDTH-SEARCH_RANGE-BLOCK_SIZE)
-#define STEREO_IMG_HEIGHT (IMG_HEIGHT-BLOCK_SIZE)
+#define STEREO_IMG_HEIGHT (IMG_HEIGHT-BLOCK_SIZE+1)
 
 #define rocc_fence() asm volatile("fence")
 
@@ -100,19 +100,19 @@ while(img_rcvd < 1){
     do
     {
       curr_counter = ROSE_DMA_CURR_COUNTER_0;
-      // printf("curr_counter: %d\n", curr_counter);
       if (curr_counter >= (row_processed+1)*IMG_WIDTH*2) {
+        // printf("curr_counter: %d, row_processed: %d\n", curr_counter, row_processed);
         COMPUTE_STEREO();
-        // BRO THIS IS ARTIFICIAL
-        rocc_fence();
+        // rocc_fence();
         row_processed++;
       }
     } while (row_processed < IMG_HEIGHT);
-
+    rocc_fence();
     uint64_t end = rdcycle();
     cycles_measured[img_rcvd] = end - start;
-    send_img_loopback(stereo_buf);
+    // send_img_loopback(stereo_buf);
     img_rcvd++;
+    row_processed = 0;
   }
   
   for (i = 0; i < img_rcvd; i++) {
