@@ -78,6 +78,57 @@ class RoseTLRocketStereoAccConfig extends Config(
   new freechips.rocketchip.subsystem.WithNBigCores(1) ++
   new chipyard.config.AbstractRoseConfig)
 
+class RoseTLRocketStereoAccDMAConfig extends Config(
+  new rose.WithRoseAdapter(dst_ports = DstParams_Container(Seq(
+    DstParams(port_type="DMA", DMA_address = 0x88000000L, name="DMA0"),
+    DstParams(port_type="DMA", DMA_address = 0x89000000L, name="DMA1",
+      df_params = 
+        Seq(CompleteDataflowConfig(StereoAccParams()))
+      ),
+    DstParams(port_type="reqrsp", name="reqrsp1"),
+  ))) ++        
+  new freechips.rocketchip.subsystem.WithNBigCores(1) ++
+  new chipyard.config.AbstractRoseConfig)
+
+class RoseTLRocketStereoAccDMADDIO64kBConfig extends Config(
+  new freechips.rocketchip.subsystem.WithInclusiveCache(nWays=2, capacityKB=64) ++
+  new freechips.rocketchip.subsystem.WithNBanks(2) ++
+  new rose.WithRoseAdapter(dst_ports = DstParams_Container(Seq(
+    DstParams(port_type="DMA", DMA_address = 0x88000000L, name="DMA0"),
+    DstParams(port_type="DMA", DMA_address = 0x89000000L, name="DMA1",
+      df_params = 
+        Seq(CompleteDataflowConfig(StereoAccParams()))
+      ),
+    DstParams(port_type="reqrsp", name="reqrsp1"),
+  ))) ++        
+  new freechips.rocketchip.subsystem.WithNBigCores(1) ++
+  new chipyard.config.AbstractRoseConfig)
+
+class RoseTLRocketStereoAccRoCCDDIO64kBConfig extends Config(
+  new freechips.rocketchip.subsystem.WithInclusiveCache(nWays=2, capacityKB=64) ++
+  new freechips.rocketchip.subsystem.WithNBanks(2) ++
+  new rose.WithRoseAdapter(dst_ports = DstParams_Container(Seq(
+    DstParams(port_type="DMA", DMA_address = 0x88000000L, name="DMA0"),
+    DstParams(port_type="DMA", DMA_address = 0x89000000L, name="DMA1"),
+    DstParams(port_type="reqrsp", name="reqrsp1"),
+  ))) ++        
+  new stereoacc.WithDefaultStereoAccConfig() ++
+  new freechips.rocketchip.subsystem.WithNBigCores(1) ++
+  new chipyard.config.AbstractRoseConfig)
+
+class RoseTLRocketStereoAccRoCCOptDDIO64kBConfig extends Config(
+  new freechips.rocketchip.subsystem.WithInclusiveCache(nWays=2, capacityKB=64) ++
+  new freechips.rocketchip.subsystem.WithNBanks(2) ++
+  new rose.WithRoseAdapter(dst_ports = DstParams_Container(Seq(
+    DstParams(port_type="DMA", DMA_address = 0x88000000L, name="DMA0"),
+    DstParams(port_type="DMA", DMA_address = 0x89000000L, name="DMA1"),
+    DstParams(port_type="reqrsp", name="reqrsp1"),
+  ))) ++        
+  new stereoacc.WithDefaultStereoAccConfig(use_optimization = true) ++
+  new freechips.rocketchip.subsystem.WithNBigCores(1) ++
+  new chipyard.config.AbstractRoseConfig)
+  
+
 class RoseTLRocketEdgeDetAccConfig extends Config(
   new rose.WithRoseAdapter(dst_ports = DstParams_Container(Seq(
     DstParams(port_type="DMA", DMA_address = 0x88000000L, name="DMA0"),

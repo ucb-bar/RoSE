@@ -25,6 +25,37 @@ class RoseTLRocketMMIOOnlyConfig extends Config(
   new WithFireSimConfigTweaks ++
   new chipyard.config.RoseTLRocketConfig) 
 
+class RoseTLRocketStereoAccMMIOOnlyDMAConfig extends Config(
+  new WithRoseBridge ++
+  new WithDefaultMMIOOnlyFireSimBridges ++
+  new WithDefaultMemModel ++
+  new WithFireSimConfigTweaks ++
+  new chipyard.config.RoseTLRocketStereoAccDMAConfig) 
+
+class RoseTLRocketStereoAccDMADDIO64kBMMIOOnlyConfig extends Config(
+  new WithRoseBridge ++
+  new WithTracerVBridge ++
+  new WithDefaultMMIOOnlyFireSimBridges ++
+  new WithDefaultMemModel ++
+  new WithFireSimConfigTweaks ++
+  new chipyard.config.RoseTLRocketStereoAccDMADDIO64kBConfig) 
+
+class RoseTLRocketStereoAccRoCCDDIO64kBMMIOOnlyConfig extends Config(
+  new WithRoseBridge ++
+  new WithTracerVBridge ++
+  new WithDefaultMMIOOnlyFireSimBridges ++
+  new WithDefaultMemModel ++
+  new WithFireSimConfigTweaks ++
+  new chipyard.config.RoseTLRocketStereoAccRoCCDDIO64kBConfig) 
+
+class RoseTLRocketStereoAccRoCCOptDDIO64kBMMIOOnlyConfig extends Config(
+  new WithRoseBridge ++
+  new WithTracerVBridge ++
+  new WithDefaultMMIOOnlyFireSimBridges ++
+  new WithDefaultMemModel ++
+  new WithFireSimConfigTweaks ++
+  new chipyard.config.RoseTLRocketStereoAccRoCCOptDDIO64kBConfig) 
+
 class RoseTLRocketStereoAccMMIOOnlyConfig extends Config(
   new WithRoseBridge ++
   new WithDefaultMMIOOnlyFireSimBridges ++
@@ -45,6 +76,14 @@ class RoseTLRocketStereoAccRoccOptMMIOOnlyConfig extends Config(
   new WithDefaultMemModel ++
   new WithFireSimConfigTweaks ++
   new chipyard.config.RoseTLRocketStereoAccRoccOptConfig) 
+
+class RoseTLRocketDualDMAFireSimConfig extends Config(
+  new WithRoseBridge ++
+  new WithTracerVBridge ++
+  new WithDefaultMMIOOnlyFireSimBridges ++
+  new WithDefaultMemModel ++
+  new WithFireSimConfigTweaks ++
+  new chipyard.config.RoseTLRocketDualDMAConfig) 
 
 class RoseTLRocketDualDMAMMIOOnlyConfig extends Config(
   new WithRoseBridge ++
