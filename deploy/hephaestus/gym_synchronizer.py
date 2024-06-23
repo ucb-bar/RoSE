@@ -150,7 +150,6 @@ class Synchronizer(DummySynchronizer):
             print(f"Loading config from default: {gym_env}")
             self.load_gym_sim_config(gym_env)
 
-        self.load_gym_sim_config(gym_env)
         self.env = gym.make(gym_env, render_mode='rgb_array', **self.gym_kwargs)
         
         # Check if firesim step in seconds is a multiple of gym timestep
@@ -356,7 +355,7 @@ class Synchronizer(DummySynchronizer):
         # Now, iterate through the rest of the queue, decrement latency by 1
         for blobs in target_thread.txpq:
             blobs.latency = blobs.latency - 1
-            blobs.packet.latency = blobs.latency
+            # blobs.packet.latency = blobs.latency
 
     def process_fsim_data_packet(self, target_thread):
         packet = target_thread.data_rxqueue.pop(0)
@@ -384,11 +383,11 @@ class Synchronizer(DummySynchronizer):
 
         if packet_config['type'] == 'stream':
             assert packet.num_bytes == 4, "Stream packets must be 4 bytes"
-            target_thread.stream_txqueue[packet.cmd] = packet.data[0]
             if target_thread.stream_txqueue.get(packet.cmd) is None:
                 print(f"Scheduled streaming cmd: {packet.cmd} with interval: {packet.data[0]}")
             else:
                 print(f"Updated streaming cmd: {packet.cmd} with interval: {packet.data[0]}")    
+            target_thread.stream_txqueue[packet.cmd] = packet.data[0]
         
         if 'action' in packet_config['type']:
             indices = packet_config['indices']
@@ -410,6 +409,12 @@ class Synchronizer(DummySynchronizer):
             if self.count % interval == 0:
                 packet_config = self.packet_bindings.get(cmd)
                 self.retrieve_obs_push_packet(cmd, target_thread, packet_config)
+            # TODO: REMOVE THIS for the latency sweeping test
+            if cmd == 0x41:
+                curr_latency = Packet.cmd_latency_dict.get(cmd, 0) 
+                new_latency = curr_latency + 0.05
+                Packet.cmd_latency_dict[cmd] = new_latency
+                print(f"Updated latency for cmd: {cmd} to {new_latency}")
 
 if __name__ == "__main__":
     sync = Synchronizer()
