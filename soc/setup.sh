@@ -1,14 +1,17 @@
 #!/bin/bash
 ROSE_DIR=$(pwd)/
-FIRESIM_DIR=${ROSE_DIR}/soc/sim/firesim
-CHIPYARD_DIR=${FIRESIM_DIR}/target-design/chipyard
+# FIRESIM_DIR=${ROSE_DIR}/soc/sim/firesim
+# CHIPYARD_DIR=${FIRESIM_DIR}/target-design/chipyard
+CHIPYARD_DIR=${ROSE_DIR}/soc/sim/chipyard
+FIRESIM_DIR=${CHIPYARD_DIR}/sims/firesim
 SCALA_DIR=${ROSE_DIR}/soc/src/main/scala
 FSIM_CC_DIR=${ROSE_DIR}/soc/src/main/cc
 
-echo "Updating onnxruntime-riscv submodules"
+# echo "Updating onnxruntime-riscv submodules"
+# cd ${ROSE_DIR}
+# git submodule update --init --recursive ${ROSE_DIR}/soc/sw/onnxruntime-riscv
 cd ${ROSE_DIR}
-git submodule update --init --recursive ${ROSE_DIR}/soc/sw/onnxruntime-riscv
-cd ${ROSE_DIR}
+mkdir -p ${CHIPYARD_DIR}/generators/firechip/bridgestubs/src/main/scala/rose
 
 # Create an array of source files
 sources=(
@@ -20,7 +23,9 @@ sources=(
     "${SCALA_DIR}/RoSEFireSimConfigs.scala"
     #rose scala files
     "${SCALA_DIR}/RoSEAdapter.scala"
-    "${SCALA_DIR}/RoSEBridge.scala"
+    "${SCALA_DIR}/RoSEBridgeModule.scala"
+    "${SCALA_DIR}/RoSEBridgeStub.scala"
+    "${SCALA_DIR}/RoSEBridgePort.scala"
     "${SCALA_DIR}/RoSEIO.scala"
     "${SCALA_DIR}/RoSEGeneratorConfig.scala"
     "${SCALA_DIR}/RoSEDMA.scala" 
@@ -50,17 +55,21 @@ destinations=(
     #scala destinations
     "${CHIPYARD_DIR}/generators/chipyard/src/main/scala/iobinders/IOBinders.scala"
     "${CHIPYARD_DIR}/generators/chipyard/src/main/scala/iobinders/Ports.scala"
-    "${CHIPYARD_DIR}/generators/firechip/src/main/scala/BridgeBinders.scala"
+    "${CHIPYARD_DIR}/generators/firechip/chip/src/main/scala/BridgeBinders.scala"
     "${CHIPYARD_DIR}/generators/chipyard/src/main/scala/DigitalTop.scala"
-    "${CHIPYARD_DIR}/generators/chipyard/src/main/scala/config/RoSEConfigs.scala"
-    "${CHIPYARD_DIR}/generators/firechip/src/main/scala/RoSEFireSimConfigs.scala"
+    "${CHIPYARD_DIR}/generators/chipyard/src/main/scala/config/RoSEConfigs.scala" #****
+    #"${CHIPYARD_DIR}/generators/firechip/src/main/scala/RoSEFireSimConfigs.scala"
+    "${CHIPYARD_DIR}/generators/firechip/chip/src/main/scala/RoSEFireSimConfigs.scala"
     #rose scala destinations
-    "${CHIPYARD_DIR}/generators/rose/src/main/scala/RoSEAdapter.scala"
-    "${FIRESIM_DIR}/sim/firesim-lib/src/main/scala/bridges/RoSEBridge.scala"
-    "${CHIPYARD_DIR}/generators/rose/src/main/scala/RoSEIO.scala"
-    "${CHIPYARD_DIR}/generators/rose/src/main/scala/RoSEGeneratorConfig.scala"
-    "${CHIPYARD_DIR}/generators/rose/src/main/scala/RoSEDMA.scala"
-    "${CHIPYARD_DIR}/generators/rose/src/main/scala/Dataflow.scala"
+    "${CHIPYARD_DIR}/generators/rose/src/main/scala/RoSEAdapter.scala" #****
+    # "${FIRESIM_DIR}/sim/firesim-lib/src/main/scala/bridges/RoSEBridge.scala"
+    "${CHIPYARD_DIR}/generators/firechip/goldengateimplementations/src/main/scala/RoSEBridge.scala"
+    "${CHIPYARD_DIR}/generators/firechip/bridgestubs/src/main/scala/rose/RoSEBridge.scala"
+    "${CHIPYARD_DIR}/generators/firechip/bridgeinterfaces/src/main/scala/RoSEBridgePort.scala"
+    "${CHIPYARD_DIR}/generators/rose/src/main/scala/RoSEIO.scala" #****
+    "${CHIPYARD_DIR}/generators/rose/src/main/scala/RoSEGeneratorConfig.scala" #****
+    "${CHIPYARD_DIR}/generators/rose/src/main/scala/RoSEDMA.scala" #****
+    "${CHIPYARD_DIR}/generators/rose/src/main/scala/Dataflow.scala" #****
     #C++ destinations
     "${FIRESIM_DIR}/sim/firesim-lib/src/main/cc/bridges/airsim.cc"
     "${FIRESIM_DIR}/sim/firesim-lib/src/main/cc/bridges/airsim.h"
@@ -133,10 +142,10 @@ fi
 echo "Updating fsim build.sbt"
 sed -i 's/.dependsOn(midas, icenet, testchipip, rocketchip_blocks)/.dependsOn(midas, icenet, testchipip, rocketchip_blocks, rose)/g' ${FIRESIM_DIR}/sim/build.sbt
 
-echo "Updating onnxruntime-riscv submodules"
-cd ${ROSE_DIR}
-git submodule update --init --recursive ${ROSE_DIR}/soc/sw/onnxruntime-riscv
-cd ${ROSE_DIR}
+# echo "Updating onnxruntime-riscv submodules"
+# cd ${ROSE_DIR}
+# git submodule update --init --recursive ${ROSE_DIR}/soc/sw/onnxruntime-riscv
+# cd ${ROSE_DIR}
 
 
 

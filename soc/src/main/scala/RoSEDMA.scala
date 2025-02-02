@@ -3,7 +3,7 @@ package rose
 import chisel3._
 import chisel3.util._
 import testchipip._
-import chisel3.experimental.{IO, IntParam, BaseModule}
+import chisel3.experimental.{IntParam, BaseModule}
 import freechips.rocketchip.subsystem.{BaseSubsystem, CacheBlockBytes}
 import org.chipsalliance.cde.config.{Parameters, Field, Config}
 import freechips.rocketchip.diplomacy._
@@ -11,6 +11,8 @@ import freechips.rocketchip.regmapper.{HasRegMap, RegField}
 import freechips.rocketchip.tilelink._
 import freechips.rocketchip.util.UIntIsOneOf
 import freechips.rocketchip.prci._
+
+import firechip.bridgeinterfaces.{RoseAdapterKey, DstParams}
 
 class RoseDMA(param: DstParams)(implicit p: Parameters) extends ClockSinkDomain(ClockSinkParameters())(p){
   val port_param = param

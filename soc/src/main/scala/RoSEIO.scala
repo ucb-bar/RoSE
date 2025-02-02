@@ -3,16 +3,17 @@ package rose
 import chisel3._
 import chisel3.util._
 import testchipip._
-import chisel3.experimental.IO
 import org.chipsalliance.cde.config.{Parameters, Field, Config}
 
-// PortIO is used for bridge <--> SoC communication
-class RosePortIO(params: RoseAdapterParams) extends Bundle {
-  // SoC receive from bridge, a vector of flipped decoupled IOs, degraded from enq
-  val rx = Vec(params.dst_ports.seq.size, Flipped(Decoupled(UInt(32.W))))
-  // SoC send to bridge, simple for now, degraded from deq
-  val tx = Decoupled(UInt(32.W))
-}
+import firechip.bridgeinterfaces.{RosePortIO, RoseAdapterParams, RoseAdapterKey, RoseAdapterArbiterIO, ConfigRoutingIOBundle}
+
+// // PortIO is used for bridge <--> SoC communication
+// class RosePortIO(params: RoseAdapterParams) extends Bundle {
+//   // SoC receive from bridge, a vector of flipped decoupled IOs, degraded from enq
+//   val rx = Vec(params.dst_ports.seq.size, Flipped(Decoupled(UInt(32.W))))
+//   // SoC send to bridge, simple for now, degraded from deq
+//   val tx = Decoupled(UInt(32.W))
+// }
 
 class ConfigRoutingIOBundle(params: RoseAdapterParams) extends Bundle {
   val header = UInt(32.W)

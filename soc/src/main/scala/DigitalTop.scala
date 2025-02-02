@@ -22,6 +22,7 @@ class DigitalTop(implicit p: Parameters) extends ChipyardSystem
   with testchipip.serdes.CanHavePeripheryTLSerial // Enables optionally adding the backing memory and serial adapter
   with testchipip.soc.CanHavePeripheryChipIdPin // Enables optional pin to set chip id for multi-chip configs
   with sifive.blocks.devices.i2c.HasPeripheryI2C // Enables optionally adding the sifive I2C
+  with sifive.blocks.devices.timer.HasPeripheryTimer // Enables optionally adding the timer device
   with sifive.blocks.devices.pwm.HasPeripheryPWM // Enables optionally adding the sifive PWM
   with sifive.blocks.devices.uart.HasPeripheryUART // Enables optionally adding the sifive UART
   with sifive.blocks.devices.gpio.HasPeripheryGPIO // Enables optionally adding the sifive GPIOs
@@ -42,12 +43,14 @@ class DigitalTop(implicit p: Parameters) extends ChipyardSystem
   override lazy val module = new DigitalTopModule(this)
 }
 
-class DigitalTopModule[+L <: DigitalTop](l: L) extends ChipyardSystemModule(l)
-  with sifive.blocks.devices.i2c.HasPeripheryI2CModuleImp
-  with sifive.blocks.devices.pwm.HasPeripheryPWMModuleImp
-  with sifive.blocks.devices.uart.HasPeripheryUARTModuleImp
-  with sifive.blocks.devices.gpio.HasPeripheryGPIOModuleImp
-  with sifive.blocks.devices.spi.HasPeripherySPIFlashModuleImp
-  with sifive.blocks.devices.spi.HasPeripherySPIModuleImp
+class DigitalTopModule(l: DigitalTop) extends ChipyardSystemModule(l)
   with freechips.rocketchip.util.DontTouch
+// class DigitalTopModule[+L <: DigitalTop](l: L) extends ChipyardSystemModule(l)
+//   with sifive.blocks.devices.i2c.HasPeripheryI2CModuleImp
+//   with sifive.blocks.devices.pwm.HasPeripheryPWMModuleImp
+//   with sifive.blocks.devices.uart.HasPeripheryUARTModuleImp
+//   with sifive.blocks.devices.gpio.HasPeripheryGPIOModuleImp
+//   with sifive.blocks.devices.spi.HasPeripherySPIFlashModuleImp
+//   with sifive.blocks.devices.spi.HasPeripherySPIModuleImp
+  // with freechips.rocketchip.util.DontTouch
 // DOC include end: DigitalTop
