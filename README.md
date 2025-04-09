@@ -126,14 +126,14 @@ After this setup is complete, run the following script to build binaries for the
 Next, run the following script to install dependencies and configure parameters for the RoSÉ deployment scripts, using the IP address of the GPU system that will be used to run the provided AirSim binaries.
 
 
-    source deploy/setup.sh [AIRSIM IP]
+    cd deploy && source setup.sh [AIRSIM IP]
 
 
 ### Bitstream Generation 
 To build bitstreams for Rocket+Gemmini and BOOM+Gemmini configurations, run the following. 
 
  ```
-    bash soc/buildbitstreams.sh
+    bash soc/scripts/buildbitstreams.sh
  ```
 
 ### DNN Training 
