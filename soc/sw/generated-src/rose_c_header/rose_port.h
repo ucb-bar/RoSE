@@ -6,17 +6,19 @@
 #define ROSE_TX_DATA_ADDR 0x2008
 #define ROSE_TX_ENQ_READY (reg_read32(ROSE_STATUS_ADDR) & 0x1)
 
-//DMA_anonymous_port_channel_0
+//DMA_DMA0_port_channel_0
 #define ROSE_DMA_CONFIG_COUNTER_ADDR_0 0x2014
+#define ROSE_DMA_CURR_COUNTER_ADDR_0 0x2018
 #define ROSE_DMA_BASE_ADDR_0 0x88000000
 #define ROSE_DMA_BUFFER_0 (reg_read32(ROSE_STATUS_ADDR) & 0x8)
+#define ROSE_DMA_CURR_COUNTER_0 (reg_read32(ROSE_DMA_CURR_COUNTER_ADDR_0))
 
-//reqrsp_anonymous_port_channel_1
+//reqrsp_reqrsp0_port_channel_1
 #define ROSE_RX_DATA_ADDR_1 0x200c
 #define ROSE_RX_DATA_1 (reg_read32(ROSE_RX_DATA_ADDR_1))
 #define ROSE_RX_DEQ_VALID_1 (reg_read32(ROSE_STATUS_ADDR) & 0x4)
 
-//reqrsp_anonymous_port_channel_2
+//reqrsp_reqrsp1_port_channel_2
 #define ROSE_RX_DATA_ADDR_2 0x2010
 #define ROSE_RX_DATA_2 (reg_read32(ROSE_RX_DATA_ADDR_2))
 #define ROSE_RX_DEQ_VALID_2 (reg_read32(ROSE_STATUS_ADDR) & 0x2)

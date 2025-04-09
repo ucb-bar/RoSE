@@ -14,23 +14,34 @@ class RosePortIO(params: RoseAdapterParams) extends Bundle {
   val tx = Decoupled(UInt(32.W))
 }
 
-class ConfigRoutingIO(params: RoseAdapterParams) extends Bundle {
-  val header = Input(UInt(32.W))
-  val valid = Input(Bool())
-  val channel = Input(UInt(log2Ceil(params.dst_ports.seq.size).W))
+class ConfigRoutingIOBundle(params: RoseAdapterParams) extends Bundle {
+  val header = UInt(32.W)
+  val channel = UInt(log2Ceil(params.dst_ports.seq.size).W)
 }
 
 class RoseAdapterArbiterIO(params: RoseAdapterParams) extends Bundle {
     val rx = Vec(params.dst_ports.seq.size, Decoupled(UInt(32.W)))
     val tx = Flipped(Decoupled(UInt(32.W)))
 
+    val bigstep = Flipped(Decoupled(UInt(32.W)))
     val budget = Flipped(Decoupled(UInt(32.W)))
     // advancing counter
     val cycleBudget = Input(UInt(32.W))
+    val currstep = Input(UInt(32.W))
     // fixed step size
     val cycleStep = Input(UInt(32.W))
 
-    val config_routing = new ConfigRoutingIO(params)
+    val config_routing = Flipped(Decoupled(new ConfigRoutingIOBundle(params)))
+
+
+    // Debug singals
+    val debug = new Bundle {
+      val counter_state_sheader = Output(UInt(32.W))
+      val counter_budget_fired = Output(UInt(32.W))
+      val counter_tx_fired = Output(UInt(32.W))
+      val counter_rx_0_fired = Output(UInt(32.W))
+      val counter_rx_1_fired = Output(UInt(32.W))
+    }
 }
 
 // Core IO of the adapter
@@ -47,6 +58,7 @@ class RoseAdapterIO(params: RoseAdapterParams) extends Bundle {
   }
   // Indicating which of the two buffers the image lies in
   val cam_buffer = Vec(params.dst_ports.seq.count(_.port_type == "DMA"),Input(UInt(1.W)))
+  val curr_counter = Vec(params.dst_ports.seq.count(_.port_type == "DMA"), Input(UInt(32.W)))
 }
 
 // TopIO is used for Regmap communicating to the cam DMA engine & to the post-bridge, and the TL registers
@@ -58,4 +70,6 @@ class RoseAdapterTopIO(params: RoseAdapterParams) extends Bundle {
     val tx = Decoupled(UInt(32.W))
     val cam_buffer = Vec(params.dst_ports.seq.count(_.port_type == "DMA"), Input(UInt(1.W)))
     val counter_max = Vec(params.dst_ports.seq.count(_.port_type == "DMA"), Output(UInt(32.W)))
+    val curr_counter = Vec(params.dst_ports.seq.count(_.port_type == "DMA"), Input(UInt(32.W)))
+    val interrupt_trigger = Vec(params.dst_ports.seq.count(_.port_type == "DMA"), Input(Bool()))
 }

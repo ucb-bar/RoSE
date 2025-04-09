@@ -34,11 +34,13 @@ ssize_t net_read(int fd, void *buf, size_t count)
 }
 
 void * queue_func(void * arg){
+    printf("[AIRSIM DRIVER THREAD]: Starting RX/TX thread\n");
     airsim_t * sim = (airsim_t *) arg;
 
     uint32_t cmd;
     uint32_t num_bytes;
     uint32_t budget;
+    uint32_t big_step;
 
     int n;
 
@@ -109,9 +111,18 @@ void * queue_func(void * arg){
                     }
                 }
                 // printf("[AIRSIM DRIVER THREAD]: Exiting RX task\n");
-            } else { // if this is a data sequence... (cmd < 0x80)
+            // if this is a data sequence... (cmd < 0x80)
+            } else { 
                 // printf("[AIRSIM DRIVER THREAD]: Got data cmd in multithreading: 0x%x\n", cmd);
                 uint32_t i = 1;
+                while(!net_read(sim->sync_sockfd, sim->buf, 4))
+                {
+                    usleep(i);
+                    i = i * 2;
+                }
+                big_step = ((uint32_t *) sim->buf)[0]; 
+                i = 1;
+                // printf("[AIRSIM DRIVER THREAD]: Got big_step in multithreading: 0x%x\n", big_step);
                 while(!net_read(sim->sync_sockfd, sim->buf, 4))
                 {
                     usleep(i);
@@ -144,10 +155,10 @@ void * queue_func(void * arg){
                 }
                 if (num_bytes == 0) {
                     //allocate new budget_packet
-                    budget_packet = new budget_packet_t(cmd, budget, num_bytes, NULL);
+                    budget_packet = new budget_packet_t(cmd, big_step, budget, num_bytes, NULL);
                 } else {
                     //allocate new budget_packet
-                    budget_packet = new budget_packet_t(cmd, budget, num_bytes, buf);
+                    budget_packet = new budget_packet_t(cmd, big_step, budget, num_bytes, buf);
                 }
                 // printf("[AIRSIM DRIVER THREAD]: Pushing budget packet %x, %x, %x\n", budget_packet.cmd, budget_packet.budget, budget_packet.num_bytes);
                 m.lock();
@@ -211,6 +222,19 @@ airsim_t::airsim_t(simif_t &sim, const ROSEBRIDGEMODULE_struct &mmio_addrs, int 
     this->connect_synchronizer();
 
     this->checking_stall = false;
+    
+    #ifdef CAPTURE
+    this->fsim_rx_capture = fopen("airsimcc_fsim_rxcapture.txt", "w");
+        if (this->fsim_rx_capture == NULL) {
+        fprintf(stderr, "failed to open capture file");
+        exit(1);
+    }
+     this->fsim_tx_capture = fopen("airsimcc_fsim_txcapture.txt", "w");
+        if (this->fsim_tx_capture == NULL) {
+        fprintf(stderr, "failed to open capture file");
+        exit(1);
+    }
+    #endif
 
     pthread_create(&(this->tcp_thread), NULL, &queue_func , this);
 }
@@ -277,7 +301,7 @@ void airsim_t::process_tcp_packet()
         cmd = this->tcp_sync_rxdata.front();
         this->tcp_sync_rxdata.pop_front();
         m.unlock();
-        // printf("[Airsim Driver]: Got cmd from queue: 0x%x\n", cmd);
+	//  printf("[Airsim Driver]: Got cmd from queue: 0x%x\n", cmd);
 
         //usleep(1);
         uint32_t i = 1;
@@ -319,16 +343,6 @@ void airsim_t::process_tcp_packet()
             // printf("[AirSim Driver]: Got Sync Packet\n");
             this->grant_cycles();
             // Iterate over budge rx queue and update all latency budgets to 0, without changing the order
-            m.lock();
-            for (int i = 0; i < this->budget_rx_queue.size(); i++) {
-                this->budget_rx_queue[i]->budget = 0;
-                if (this->budget_rx_queue[i]->granted == false) {
-                    this->budget_rx_queue[i]->granted = true;
-                } else {
-                    this->budget_rx_queue[i]->checked = true;
-                }
-            }
-            m.unlock();
             // printf("[AirSim Driver]: Checkedoff Packets\n");
             // printf("[AirSim Driver]: Reporting Stalls\n");
             // this->report_stall();
@@ -349,7 +363,7 @@ void airsim_t::process_tcp_packet()
             this->config_bandwidth(packet.data[0], packet.data[1]);
             break;
         case CS_CFG_ROUTE:
-            this->config_route(packet.data[0], packet.data[1]);
+            this->push_route(packet.data[0], packet.data[1]);
         default:
             // TODO SEND DATA
             // if(packet.cmd < 0x80) {
@@ -436,6 +450,16 @@ void airsim_t::send_budget()
     if(data.budget.ready) {
         write(this->mmio_addrs.in_budget_bits, data.budget.bits);
         write(this->mmio_addrs.in_budget_valid, 1);
+    }
+}
+
+void airsim_t::send_bigstep()
+{
+    // printf("[AIRSIM DRIVER]: Try sending budget packet -- 0x%x\n", data.budget.bits);
+    data.bigstep.ready = read(this->mmio_addrs.in_bigstep_ready);
+    if(data.bigstep.ready) {
+        write(this->mmio_addrs.in_bigstep_bits, data.bigstep.bits);
+        write(this->mmio_addrs.in_bigstep_valid, 1);
     }
 }
 
@@ -531,9 +555,11 @@ void airsim_t::report_cycles()
 
 void airsim_t::schedule_firesim_data() {
     m.lock();
-    while (!this->budget_rx_queue.empty() && ((this->fsim_txbudget.empty() && this->fsim_txdata.empty()) 
-    || (this->budget_rx_queue.front()->checked))) {
+    // TODO: safe to not check for emptyness?
+    while (!this->budget_rx_queue.empty() && ((this->fsim_txbudget.empty() && this->fsim_txdata.empty()))) {
         // printf("[AIRSIM DRIVER]: Entering schedule loop\n");
+        this->fsim_tx_bigstep.push_back(this->budget_rx_queue.front()->big_step);
+        // printf("[AIRSIM DRIVER]: Pushed big_step 0x%x\n", this->budget_rx_queue.front()->big_step);
         this->fsim_txbudget.push_back(this->budget_rx_queue.front()->budget);
         // printf("[AIRSIM DRIVER]: Pushed budget 0x%x\n", this->budget_rx_queue.front()->budget);
         this->fsim_txdata.push_back(this->budget_rx_queue.front()->cmd);
@@ -559,25 +585,43 @@ void airsim_t::schedule_firesim_data() {
 
 void airsim_t::set_step_size(uint32_t step_size)
 {
-    // printf("[AirSim Driver]: Setting step size to %d!\n", step_size);
+    printf("[AirSim Driver]: Setting step size to %d!\n", step_size);
     write(this->mmio_addrs.cycle_step, step_size);
     this->step_size = step_size;
 }
 
 void airsim_t::config_bandwidth(uint32_t dest, uint32_t bandwidth)
 {
-    // printf("[AirSim Driver]: Setting bandwidth to %d!\n", bandwidth);
+    printf("[AirSim Driver]: Setting bandwidth to %d!\n", bandwidth);
     write(this->mmio_addrs.bww_config_destination, dest);
     write(this->mmio_addrs.bww_config_bits, bandwidth);
     write(this->mmio_addrs.bww_config_valid, 1);
 }
 
-void airsim_t::config_route(uint32_t header, uint32_t channel)
+// void airsim_t::config_route(uint32_t header, uint32_t channel)
+// {
+//     printf("[AirSim Driver]: Setting header to 0x%x and channel to %d!\n", header, channel);
+//     write(this->mmio_addrs.config_routing_header, header);
+//     write(this->mmio_addrs.config_routing_channel, channel);
+//     write(this->mmio_addrs.config_routing_valid, 1);
+// }
+void airsim_t::push_route(uint32_t header, uint32_t channel)
 {
-    // printf("[AirSim Driver]: Setting header to %d and channel to %d!\n", header, channel);
-    write(this->mmio_addrs.config_routing_header, header);
-    write(this->mmio_addrs.config_routing_channel, channel);
-    write(this->mmio_addrs.config_routing_valid, 1);
+    printf("[AirSim Driver]: pushing header to 0x%x and channel to %d!\n", header, channel);
+    m.lock();
+    this->fsim_cfg_header.push_back(header);
+    this->fsim_cfg_channel.push_back(channel);
+    m.unlock();
+}
+
+void airsim_t::send_route()
+{
+    data.cfg_routing.ready = read(this->mmio_addrs.config_routing_ready);
+    if(data.cfg_routing.ready) {
+        write(this->mmio_addrs.config_routing_header, data.cfg_routing.header);
+        write(this->mmio_addrs.config_routing_channel, data.cfg_routing.channel);
+        write(this->mmio_addrs.config_routing_valid, 1);
+    }
 }
 
 void airsim_t::tick()
@@ -589,6 +633,12 @@ void airsim_t::tick()
     count++;
     if(count>1000) {
         // printf("[AIRSIM DRIVER]: Main heartbeat\n");
+        // read the debug registers
+        //printf("[AIRSIM DRIVER]: cycle_count: %d\n", read(this->mmio_addrs.cycle_count));
+        //printf("[AIRSIM DRIVER]: arb_counter_state_sheader: %d\n", read(this->mmio_addrs.arb_counter_state_sheader));
+        //printf("[AIRSIM DRIVER]: arb_counter_budget_fired: %d\n", read(this->mmio_addrs.arb_counter_budget_fired));
+        //printf("[AIRSIM DRIVER]: arb_counter_tx_fired: %d\n", read(this->mmio_addrs.arb_counter_tx_fired));
+        //printf("[AIRSIM DRIVER]: arb_counter_rx_0_fired: %d\n", read(this->mmio_addrs.arb_counter_rx_0_fired));
         count = 0;
     }
     
@@ -603,14 +653,55 @@ void airsim_t::tick()
     if(this->read_firesim_packet(&packet)) {
         m.lock();
         this->tcp_txdata.push_back(packet.cmd);
-        // printf("[AIRSIM DRIVER]: Pushing cmd %x\n", packet.cmd);
+        printf("[AIRSIM DRIVER]: Pushing cmd %x\n", packet.cmd);
         this->tcp_txdata.push_back(packet.num_bytes);
         // printf("[AIRSIM DRIVER]: Pushing num_bytes%x\n", packet.num_bytes);
         for(int i = 0; i < packet.num_bytes/4; i++) {
             this->tcp_txdata.push_back(packet.data[i]);
+            #ifdef CAPTURE
+            for (int j = 0; j < 32; j+=8){
+                fprintf(this->fsim_rx_capture, "%02x ", (packet.data[i] >> j) & 0xFF);
+            }
+            #endif
             // printf("[AIRSIM DRIVER]: Pushing datum%x\n", packet.data[i]);
         }
+        #ifdef CAPTURE
+            fputc('\n', this->fsim_rx_capture);
+            fflush(this->fsim_rx_capture);
+        #endif
         m.unlock();
+    }
+    while(this->fsim_tx_bigstep.size() > 0){
+        // printf("[AIRSIM DRIVER]: Entered budget loop\n");
+        m.lock();
+        data.bigstep.bits = this->fsim_tx_bigstep.front();
+        this->send_bigstep();
+        if(data.bigstep.ready) {
+            // printf("[AIRSIM DRIVER]: Transmitting firesim budget -- 0x%x\n", data.budget.bits);
+            this->fsim_tx_bigstep.pop_front();
+            m.unlock();
+        } else {
+            m.unlock();
+            break;
+        }
+        // printf("[AIRSIM DRIVER]: I tried");
+    }
+    while(this->fsim_cfg_header.size() > 0 && this->fsim_cfg_channel.size() > 0){
+        // printf("[AIRSIM DRIVER]: Entered budget loop\n");
+        m.lock();
+        data.cfg_routing.header = this->fsim_cfg_header.front();
+        data.cfg_routing.channel= this->fsim_cfg_channel.front();
+        this->send_route();
+        if(data.cfg_routing.ready) {
+            // printf("[AIRSIM DRIVER]: Transmitting firesim budget -- 0x%x\n", data.budget.bits);
+            this->fsim_cfg_header.pop_front();
+            this->fsim_cfg_channel.pop_front();
+            m.unlock();
+        } else {
+            m.unlock();
+            break;
+        }
+        // printf("[AIRSIM DRIVER]: I tried");
     }
     while(this->fsim_txbudget.size() > 0){
         // printf("[AIRSIM DRIVER]: Entered budget loop\n");
@@ -632,6 +723,11 @@ void airsim_t::tick()
         data.in.bits = this->fsim_txdata.front();
         this->send();
         if(data.in.ready) {
+	    #ifdef CAPTURE
+            fprintf(this->fsim_tx_capture, "%08x ", data.in.bits);
+            fputc('\n', this->fsim_tx_capture);
+            fflush(this->fsim_tx_capture);
+            #endif
             // printf("[AIRSIM DRIVER]: Transmitting firesim packet -- 0x%x\n", data.in.bits);
             this->fsim_txdata.pop_front();
             m.unlock();
@@ -642,19 +738,20 @@ void airsim_t::tick()
     }
 }
 
+
 budget_packet_t::budget_packet_t(){
     this->cmd = 0x00;
     this->budget = 0;
+    this->big_step = 0;
     this->num_bytes = 0;
     this->data = NULL;
-    this->checked = false;
-    this->granted = false;
 }
 
-budget_packet_t::budget_packet_t(uint32_t cmd, uint32_t budget, uint32_t num_bytes, uint32_t * data)
+budget_packet_t::budget_packet_t(uint32_t cmd, uint32_t big_step, uint32_t budget, uint32_t num_bytes, uint32_t * data)
 {
     this->cmd = cmd;
     this->budget = budget;
+    this->big_step = big_step;
     this->num_bytes = num_bytes;
     if (this->num_bytes > 0)
     {
@@ -665,8 +762,6 @@ budget_packet_t::budget_packet_t(uint32_t cmd, uint32_t budget, uint32_t num_byt
         }
         memcpy(this->data, data, num_bytes);
     }
-    this->checked = false;
-    this->granted = false;
 }
 
 budget_packet_t::~budget_packet_t()

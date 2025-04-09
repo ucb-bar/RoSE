@@ -2,15 +2,16 @@
 package firesim.bridges
 
 import midas.widgets._
+import midas.models.AbstractClockGate
 
 import chisel3._
 import chisel3.util._
-import chisel3.experimental.{DataMirror, Direction, IO}
 import org.chipsalliance.cde.config.Parameters
-import freechips.rocketchip.subsystem.PeripheryBusKey
-import rose.{RosePortIO, RoseAdapterParams, RoseAdapterKey, DstParams, RoseAdapterArbiterIO, ConfigRoutingIO}
-
+import rose.{RosePortIO, RoseAdapterParams, RoseAdapterKey, RoseAdapterArbiterIO, ConfigRoutingIOBundle, Dataflow}
+import firrtl.annotations.HasSerializationHints
 import java.io.{File, FileWriter}
+import freechips.rocketchip.util.{AsyncQueue, AsyncQueueParams}
+
 // A utility register-based lookup table that maps the id to the corresponding dst_port index
 class RoseArbTable(params: RoseAdapterParams) extends Module {
   val io = IO(new Bundle{
@@ -20,22 +21,23 @@ class RoseArbTable(params: RoseAdapterParams) extends Module {
     val value = Output(UInt(params.width.W))
     val keep_header = Output(Bool())
     // Configuration ports
-    val config_routing = new ConfigRoutingIO(params)
+    val config_routing = Flipped(Decoupled(new ConfigRoutingIOBundle(params)))
   })
 
   // spawn a vector of registers, storing the configured routing values
   // TODO: replace with a memory
   val routing_table = RegInit(VecInit(Seq.fill(0x80)(0.U(log2Ceil(params.dst_ports.seq.size).W))))
-  // A static vector storing the keep_header values
-  val keeping_table = VecInit(params.dst_ports.seq.map(port => (port.port_type == "reqrsp").B))
+  // Only keep headers if the port is a reqrsp port and has no dataflow
+  val keeping_table = VecInit(params.dst_ports.seq.map(port => (port.port_type == "reqrsp" && port.df_params.size == 0).B))
 
   when (io.config_routing.valid) {
-    routing_table(io.config_routing.header) := io.config_routing.channel
+    routing_table(io.config_routing.bits.header) := io.config_routing.bits.channel
   }
 
   // look up the routing table
   io.value := Mux(io.key_valid, routing_table(io.key), 0.U)
   io.keep_header := keeping_table(io.value)
+  io.config_routing.ready := true.B
 }
 
 class RoseAdapterArbiter(params: RoseAdapterParams) extends Module{
@@ -54,8 +56,7 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module{
   val latched_idx = RegEnable(arb_table.io.value, io.tx.fire && (state === sIdle))
 
   val rx_val = Wire(Bool())
-  params.dst_ports.seq.zipWithIndex.foreach {
-  case (dstParam, i) =>
+  for (i <- 0 until params.dst_ports.seq.size) {
     when (Mux(state === sIdle, i.U === arb_table.io.value, i.U === latched_idx)) {
       io.rx(i).valid := rx_val
     } .otherwise {
@@ -64,39 +65,68 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module{
     io.rx(i).bits := io.tx.bits 
   }
 
-  io.tx.ready := io.rx(latched_idx).ready
   io.budget.ready := false.B
+  io.bigstep.ready := false.B
   arb_table.io.key_valid := (state === sIdle)
   rx_val := false.B
+  io.tx.ready := false.B
 
   switch(state) {
     is(sIdle) {
-      def can_advance = io.budget.valid && ((io.budget.bits < io.cycleBudget) && (io.cycleBudget =/= io.cycleStep))
-      io.tx.ready := io.rx(arb_table.io.value).ready && can_advance
-      io.budget.ready := io.tx.ready
+      def can_advance = io.budget.valid && io.tx.valid && io.bigstep.valid && (
+        ((io.budget.bits < io.cycleBudget) || (io.currstep > io.bigstep.bits))
+           && (io.cycleBudget =/= io.cycleStep))
+      io.tx.ready := io.rx(arb_table.io.value).ready && can_advance 
+      io.budget.ready := io.rx(arb_table.io.value).ready && can_advance
+      io.bigstep.ready := io.rx(arb_table.io.value).ready && can_advance
       rx_val := Mux(io.tx.fire, arb_table.io.keep_header, false.B)
       state := Mux(io.tx.fire, sHeader, sIdle)
     } 
     is(sHeader) {
       rx_val := Mux(latched_keep_header, io.tx.valid, false.B)
       counter := io.tx.bits >> 2
-      when(io.tx.bits === 0.U) {
-        state := Mux(io.rx(latched_idx).fire, sIdle, sHeader)
-      } .otherwise {
-        state := Mux(io.tx.fire, sLoad, sHeader)
-      }
+      io.tx.ready := io.rx(latched_idx).ready 
+      state := Mux(io.tx.fire, Mux(io.tx.bits === 0.U, sIdle, sLoad), sHeader)
     }
     is(sLoad) {
-      when(counter > 1.U) {
-        rx_val := io.tx.valid
-        counter := Mux(io.tx.fire, counter - 1.U, counter)
-        state := sLoad
-      } .otherwise {
-        rx_val := true.B
-        state := Mux(io.rx(latched_idx).fire, sIdle, sLoad)
-      }
+      rx_val := io.tx.valid
+      counter := Mux(io.tx.fire, counter - 1.U, counter)
+      state := Mux(counter === 1.U && io.tx.fire, sIdle, sLoad)
+      io.tx.ready := io.rx(latched_idx).ready && (counter =/= 0.U) 
     }
   }
+
+  // number of times the state goes to sHeader
+  val counter_state_sheader = RegInit(0.U(32.W))
+  when(state === sIdle && io.tx.fire) {
+    counter_state_sheader := counter_state_sheader + 1.U
+  }
+  // number of times the budget is fired
+  val counter_budget_fired = RegInit(0.U(32.W))
+  when(io.budget.fire) {
+    counter_budget_fired := counter_budget_fired + 1.U
+  }
+  // number of times the tx is fired
+  val counter_tx_fired = RegInit(0.U(32.W))
+  when(io.tx.fire) {
+    counter_tx_fired := counter_tx_fired + 1.U
+  }
+  // number of times the rx_0 is fired
+  val counter_rx_0_fired = RegInit(0.U(32.W))
+  when(io.rx(0).fire) {
+    counter_rx_0_fired := counter_rx_0_fired + 1.U
+  }
+
+  val counter_rx_1_fired = RegInit(0.U(32.W))
+  when(io.rx(1).fire) {
+    counter_rx_1_fired := counter_rx_1_fired + 1.U
+  }
+  
+  io.debug.counter_state_sheader := counter_state_sheader
+  io.debug.counter_budget_fired := counter_budget_fired
+  io.debug.counter_tx_fired := counter_tx_fired
+  io.debug.counter_rx_0_fired := counter_rx_0_fired
+  io.debug.counter_rx_1_fired := counter_rx_1_fired
 }
 
 class BandWidthWriter(params: RoseAdapterParams) extends Module{
@@ -114,49 +144,7 @@ class BandWidthWriter(params: RoseAdapterParams) extends Module{
   }
 }
 
-class softQueue (val entries: Int) extends Module {
-  val io = IO(new Bundle {
-    val enq = Flipped(Decoupled(UInt(32.W)))
-    val deq = Decoupled(UInt(32.W))
-    val soft_reset = Input(Bool())
-  })
-
-  val ram = Mem(entries, UInt(32.W))
-
-  val enq_ptr = Counter(entries)
-  val deq_ptr = Counter(entries)
-  val maybe_full = RegInit(false.B)
-  val ptr_match = enq_ptr.value === deq_ptr.value
-  val empty = ptr_match && !maybe_full
-  val full = ptr_match && maybe_full
-  val do_enq = WireDefault(io.enq.fire)
-  val do_deq = WireDefault(io.deq.fire)
-
-  when(do_enq) {
-    ram(enq_ptr.value) := io.enq.bits
-    enq_ptr.inc()
-  }
-  when(do_deq) {
-    deq_ptr.inc()
-  }
-  when(do_enq =/= do_deq) {
-    maybe_full := do_enq
-  }
-  // soft reset sets all entries to 0, but does not change pointers
-  // only at the posedge of soft_reset
-  val soft_reset_reg = RegNext(io.soft_reset)
-  when(soft_reset_reg === false.B && io.soft_reset === true.B) {
-    for (i <- 0 until entries) {
-      ram(i) := 0.U
-    }
-  }
-
-  io.deq.valid := !empty
-  io.enq.ready := !full
-  io.deq.bits := ram(deq_ptr.value)
-}
-
-class rxcontroller(params: DstParams, width: Int) extends Module{
+class rxcontroller(width: Int) extends Module{
   val io = IO(new Bundle{
     val rx = Flipped(Decoupled(UInt(width.W)))
     val tx = Decoupled(UInt(width.W))
@@ -170,7 +158,7 @@ class rxcontroller(params: DstParams, width: Int) extends Module{
   val rxState = RegInit(sRxIdle)
   val rxData = Reg(UInt(32.W))
 
-  val bandwidth_threshold = RegEnable(io.bww_bits, 0.U(32.W), io.bww_valid)
+  val bandwidth_threshold = RegEnable(io.bww_bits, io.bww_valid)
 
   val counter_next = Wire(UInt(width.W))
   val counter: UInt = RegEnable(counter_next, 0.U(width.W), io.fire)
@@ -237,11 +225,9 @@ class RoseBridgeTargetIO(params: RoseAdapterParams) extends Bundle {
   // interface, simply appears as another Bool in the input token.
 }
 
-// Out bridge module constructor argument. This captures all of the extra
-// metadata we'd like to pass to the host-side BridgeModule. Note, we need to
-// use a single case class to do so, even if it is simply to wrap a primitive
-// type, as is the case for AirSim (int)
-case class RoseKey(roseparams: RoseAdapterParams)
+case class RoseKey(roseparams: RoseAdapterParams) extends HasSerializationHints {
+  def typeHints = Seq(classOf[RoseAdapterParams]) ++ roseparams.typeHints
+}
 
 class RoseBridge()(implicit p: Parameters) extends BlackBox with Bridge[HostPortIO[RoseBridgeTargetIO], RoseBridgeModule] {
 
@@ -279,12 +265,11 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     // Generate some FIFOs to capture tokens...
     val txfifo = Module(new Queue(UInt(32.W), 32))
     //val rxfifo = Module(new Queue(UInt(32.W), 128))
-    val rxfifo = Module(new Queue(UInt(32.W), 2560))
-    val rx_budget_fifo = Module(new softQueue(64))
+
     // Generate a FIFO to capture time step allocations
     val rx_ctrl_fifo = Module(new Queue(UInt(8.W), 16))
 
-    val cycleBudget = RegInit(0.U(32.W))
+    val cycleBudget = RegInit(0xFFFFFFFFL.U(32.W))
     val cycleStep   = RegInit(0.U(32.W))
 
     rx_ctrl_fifo.io.deq.ready := true.B;
@@ -296,13 +281,36 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     // output token
     val fire = hPort.toHost.hValid &&    // We have a valid input token: toHost ~= leaving the transformed RTL
                hPort.fromHost.hReady &&  // We have space to enqueue a new output token
-               txfifo.io.enq.ready  &&   // We have space to capture new TX data
+              //  txfifo.io.enq.ready  &&   // We have space to capture new TX data
                (cycleBudget < cycleStep) // still have cycles left in the budget
-
     val targetReset = fire & hPort.hBits.reset
-    rxfifo.reset := reset.asBool || targetReset
+    
+    val acg = Module(new AbstractClockGate)
+    acg.I := clock
+    acg.CE := fire
+
+    val rxfifo = Module(new AsyncQueue(UInt(32.W), AsyncQueueParams(depth = 256))) 
+    val rx_budget_fifo = Module(new AsyncQueue(UInt(32.W), AsyncQueueParams(depth = 64)))
+    val rx_bigstep_fifo = Module(new AsyncQueue(UInt(32.W), AsyncQueueParams(depth = 64)))
+    val config_async_queue = Module(new AsyncQueue(new ConfigRoutingIOBundle(params), AsyncQueueParams(depth = 64)))
+
+    def bind_clock_domain(module: AsyncQueue[UInt]) = {
+      module.io.enq_clock := clock 
+      module.io.enq_reset := reset.asBool || targetReset
+      module.io.deq_clock := acg.O
+      module.io.deq_reset := reset.asBool || targetReset
+    }
+
+    bind_clock_domain(rxfifo)
+    bind_clock_domain(rx_budget_fifo)
+    bind_clock_domain(rx_bigstep_fifo)
+    
+    config_async_queue.io.enq_clock := clock
+    config_async_queue.io.enq_reset := reset.asBool || targetReset
+    config_async_queue.io.deq_clock := acg.O
+    config_async_queue.io.deq_reset := reset.asBool || targetReset
+
     txfifo.reset := reset.asBool || targetReset
-    rx_budget_fifo.reset := reset.asBool || targetReset
     // Add to the cycles the tool is permitted to run forward
     when(rx_ctrl_fifo.io.deq.valid) {
         cycleBudget := 0.U(32.W) 
@@ -313,28 +321,63 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     }
     rx_ctrl_fifo.reset := reset.asBool || targetReset
 
-    // Count total elapsed cycles
-    val (cycleCount, testWrap) = Counter(fire, 65535 * 256)
+    val cycle_count_up_wrap = (cycleBudget + 1.U(32.W) === cycleStep) && fire
+    val (stepCount, _) = Counter(cycle_count_up_wrap, 65535 * 256)
 
     // instantiate the rose arbiter
     val rosearb = Module(new RoseAdapterArbiter(params))
+    rosearb.reset := reset.asBool || targetReset
+    rosearb.clock := acg.O
+
     rosearb.io.cycleBudget := cycleBudget
     rosearb.io.tx <> rxfifo.io.deq
     rosearb.io.budget <> rx_budget_fifo.io.deq
+    rosearb.io.bigstep <> rx_bigstep_fifo.io.deq
     rosearb.io.cycleStep := cycleStep
-    rx_budget_fifo.io.soft_reset := cycleBudget === cycleStep
-    // for each dst_port, generate a shallow queue and connect it to the arbiter
+    rosearb.io.currstep := stepCount
+    
     val bww = Module(new BandWidthWriter(params))
+    rosearb.clock := acg.O
+    rosearb.io.config_routing <> config_async_queue.io.deq
+    
     for (i <- 0 until params.dst_ports.seq.size) {
-      val dst_port = params.dst_ports.seq(i)
+      // for each dst_port, generate a shallow queue and connect it to the arbiter
       val q = Module(new Queue(UInt(params.width.W), 32))
+      q.reset := reset.asBool || targetReset
+      q.clock := acg.O
+
+      val end_async_q = Module(new AsyncQueue(UInt(32.W), AsyncQueueParams(depth = 64)))
+      end_async_q.io.enq_clock := acg.O 
+      end_async_q.io.enq_reset := reset.asBool || targetReset
+      end_async_q.io.deq_clock := clock
+      end_async_q.io.deq_reset := reset.asBool || targetReset
+
       // generate a rxcontroller for each dst_port
-      val rxctrl = Module(new rxcontroller(params.dst_ports.seq(i), params.width))
+      val rxctrl = Module(new rxcontroller(params.width))
+      rxctrl.io.rx <> end_async_q.io.deq
+      rxctrl.reset := reset.asBool || targetReset
+
+      val channel_param = params.dst_ports.seq(i)
+      val dataflows: Seq[Dataflow] = channel_param.df_params.map(_.userProvided.elaborate)
+      
+      if (dataflows.nonEmpty) {
+        // connect the dataflows one after the other
+        dataflows.map(_.io).foldLeft(q.io) { case (prev, next) =>
+          next.enq <> prev.deq // chaining
+          next
+        }
+        dataflows.last.io.deq <> end_async_q.io.enq // tail case
+        dataflows.foreach { df =>
+          df.clock := acg.O // clock gating
+          df.reset := reset.asBool || targetReset
+        }
+      } else {
+        q.io.deq <> end_async_q.io.enq
+      }
       q.io.enq <> rosearb.io.rx(i)
-      q.io.deq <> rxctrl.io.rx 
-      rxctrl.io.tx <> target.rx(i)
-      // rxctrl.io.counter_reset := cycleBudget === cycleStep
+
       rxctrl.io.fire := fire
+      rxctrl.io.tx <> target.rx(i)
       rxctrl.io.bww_bits := bww.io.output_bits(i)
       rxctrl.io.bww_valid := bww.io.output_valid(i)
     }
@@ -345,6 +388,11 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
 
     hPort.toHost.hReady := fire
     hPort.fromHost.hValid := fire
+
+    // DEBUG: 
+      // 1. a counter when something gets fired int target
+      // 2. a counter whenever state goes to sHeader
+      // 3. a counter on the tx and budget interface
 
     // Exposed the head of the queue and the valid bit as a read-only registers
     // with name "out_bits" and out_valid respectively
@@ -360,19 +408,21 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     genWOReg(rxfifo.io.enq.bits, "in_bits")
     Pulsify(genWORegInit(rxfifo.io.enq.valid, "in_valid", false.B), pulseLength = 1)
     genROReg(rxfifo.io.enq.ready, "in_ready")
-
+    // COSIM-CODE
+    genWOReg(rx_bigstep_fifo.io.enq.bits, "in_bigstep_bits")
+    Pulsify(genWORegInit(rx_bigstep_fifo.io.enq.valid, "in_bigstep_valid", false.B), pulseLength = 1)
+    genROReg(rx_bigstep_fifo.io.enq.ready, "in_bigstep_ready")      
     // Generate regisers for the rx-side of the AirSim; this is eseentially the same as the above
     genWOReg(rx_budget_fifo.io.enq.bits, "in_budget_bits")
     Pulsify(genWORegInit(rx_budget_fifo.io.enq.valid, "in_budget_valid", false.B), pulseLength = 1)
     genROReg(rx_budget_fifo.io.enq.ready, "in_budget_ready")
-    // COSIM-CODE
     // Generate registers for reading in time step limits
     genWOReg(rx_ctrl_fifo.io.enq.bits, "in_ctrl_bits")
     Pulsify(genWORegInit(rx_ctrl_fifo.io.enq.valid, "in_ctrl_valid", false.B), pulseLength = 1)
     genROReg(rx_ctrl_fifo.io.enq.ready, "in_ctrl_ready")
 
     // Generate registers for reading total cycles that have passed
-    genROReg(cycleCount, "cycle_count")
+    genROReg(stepCount, "cycle_count")
     genROReg(cycleBudget, "cycle_budget")
 
     // Generate registers for writing the step amount
@@ -384,10 +434,17 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     genWOReg(bww.io.config_destination, "bww_config_destination")
 
     // Generate registers for configuring routing table
-    genWOReg(rosearb.io.config_routing.header, "config_routing_header")
-    Pulsify(genWORegInit(rosearb.io.config_routing.valid, "config_routing_valid", false.B), pulseLength = 1)
-    genWOReg(rosearb.io.config_routing.channel, "config_routing_channel")
-
+    genWOReg(config_async_queue.io.enq.bits.header, "config_routing_header")
+    genWOReg(config_async_queue.io.enq.bits.channel, "config_routing_channel")
+    Pulsify(genWORegInit(config_async_queue.io.enq.valid, "config_routing_valid", false.B), pulseLength = 1)
+    genROReg(config_async_queue.io.enq.ready, "config_routing_ready")
+    // Debug Registers
+    genROReg(rosearb.io.debug.counter_state_sheader, "arb_counter_state_sheader")
+    genROReg(rosearb.io.debug.counter_budget_fired, "arb_counter_budget_fired")
+    genROReg(rosearb.io.debug.counter_tx_fired, "arb_counter_tx_fired")
+    genROReg(rosearb.io.debug.counter_rx_0_fired, "arb_counter_rx_0_fired")
+    genROReg(rosearb.io.debug.counter_rx_1_fired, "arb_counter_rx_1_fired")
+    
     // This method invocation is required to wire up the bridge to the simulated software
     override def genHeader(base: BigInt, memoryRegions: Map[String, BigInt], sb: StringBuilder): Unit = {
       genConstructor(base, sb, "airsim_t", "airsim")
@@ -411,9 +468,12 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
         case (port, i) => port.port_type match {
           case "DMA" => {
             sb.append(s"//${port.port_type}_${port.name}_port_channel_$i\n")
+            // 3*4 is a magic number, 0x08 for status and 0x0C for tx_data
             sb.append(f"#define ROSE_DMA_CONFIG_COUNTER_ADDR_$i 0x${bridgeParams.address + (idx_map(i)+3+bridgeParams.dst_ports.seq.count(_.port_type != "DMA"))*4}%x\n")
+            sb.append(f"#define ROSE_DMA_CURR_COUNTER_ADDR_$i 0x${bridgeParams.address + (idx_map(i)+3+bridgeParams.dst_ports.seq.size)*4}%x\n")
             sb.append(f"#define ROSE_DMA_BASE_ADDR_$i 0x${bridgeParams.dst_ports.seq(i).DMA_address}%x\n")
             sb.append(f"#define ROSE_DMA_BUFFER_$i (reg_read32(ROSE_STATUS_ADDR) & 0x${1<<(bridgeParams.dst_ports.seq.length-idx_map(i))}%x)\n")
+            sb.append(f"#define ROSE_DMA_CURR_COUNTER_$i (reg_read32(ROSE_DMA_CURR_COUNTER_ADDR_$i))\n")
             sb.append("\n")
           }
           case "reqrsp" => {
@@ -436,5 +496,3 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     genCRFile()
   }
 }
-
-

@@ -13,6 +13,11 @@ register(
 )
 
 register(
+    id='AirSimEnv-stereo-v0',
+    entry_point='envs.airsim-stereo.airsim_gym:AirSimEnv',
+)
+
+register(
     id='LQR_gym_env-v0',
     entry_point='envs.customized_env.LQR_gym_env:LQREnvironment',
 )
@@ -20,4 +25,9 @@ register(
 register(
     id='InvertedPendulumFine-v4',
     entry_point='envs.mujoco.inverted_pendulum_fine_v4:InvertedPendulumEnv',
+)
+
+register(
+    id='MiddleBuryEnv-v0',
+    entry_point='envs.middlebury.middlebury:MiddleBuryEnv',
 )

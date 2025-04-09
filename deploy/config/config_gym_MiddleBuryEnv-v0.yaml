@@ -1,0 +1,65 @@
+packets:
+  - name: camera_stereo
+    id: 0x10
+    type: "reqrsp"
+    latency: 0
+    channel: 0
+    indices:
+      - "camera_lr"
+
+  - name: camera_left
+    id: 0x11
+    type: "reqrsp"
+    latency: 0
+    channel: 0
+    indices:
+      - "camera_l"
+
+  - name: camera_right
+    id: 0x12
+    type: "reqrsp"
+    latency: 0
+    channel: 1
+    indices:
+      - "camera_r"
+  
+  - name: camera_left_stream
+    id: 0x21
+    type: "stream"
+    latency: 0
+    channel: 0
+    indices:
+      - "camera_l"
+  
+  - name: dummy_stream
+    id: 0x31
+    type: "stream"
+    latency: 0
+    channel: 0
+    indices:
+      - "dummy"
+
+  - name: lat_test
+    id: 0x41
+    type: "stream"
+    latency: 0
+    channel: 0
+    indices:
+      - "lat_test"
+
+  - name: 'camera_loopback'
+    id: 0x01
+    type: "loopback"
+  
+
+
+channel_bandwidth: [[0,0,0]]
+
+gym_timestep: 0.001
+  
+gym_kwargs:
+  init_x: 0
+  init_y: 0
+
+n_gym_agents: 1
+n_fsim_nodes: 1

@@ -165,6 +165,18 @@ class WithDefaultMMIOOnlyFireSimBridges extends Config(
   new WithFASEDBridge ++
   new WithFireSimMultiCycleRegfile ++
   new WithFireSimFAME5 ++
-  new WithRoseBridge ++ 
+  new WithFireSimIOCellModels
+)
+
+class WithRoSENICFireSimBridges extends Config(
+  new WithTSIBridgeAndHarnessRAMOverSerialTL ++
+  new WithNICBridge ++
+  new WithRoseBridge ++
+  new WithUARTBridge ++
+  new WithBlockDeviceBridge ++
+  new WithFASEDBridge ++
+  new WithFireSimMultiCycleRegfile ++
+  new WithFireSimFAME5 ++
+  new WithTracerVBridge ++
   new WithFireSimIOCellModels
 )

@@ -65,6 +65,10 @@ class Payload_Packet(Packet):
         super().__init__(cmd, num_bytes, data)
         self.latency = Packet.cmd_latency_dict.get(cmd, 0)
     
+    def tag_step (self, big_step):
+        self.big_step = big_step
+    
     def encode(self):
-        buffer = self.cmd.to_bytes(4, 'little') + (round((self.latency)*Packet.firesim_step).to_bytes(4, 'little') if self.latency > 0 else (0).to_bytes(4, 'little')) + self.num_bytes.to_bytes(4, 'little')
+        buffer = self.cmd.to_bytes(4, 'little') + self.big_step.to_bytes(4, 'little') + (round((self.latency)*Packet.firesim_step).to_bytes(4, 'little') if self.latency > 0 else (0).to_bytes(4, 'little')) + self.num_bytes.to_bytes(4, 'little') 
+        # print("Encoding buffer: " + buffer.hex())
         return buffer + self.data.tobytes() if self.num_bytes > 0 else buffer

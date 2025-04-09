@@ -25,6 +25,8 @@ class RoseDMA(param: DstParams)(implicit p: Parameters) extends ClockSinkDomain(
       val rx = Flipped(Decoupled(UInt(config.width.W)))
       val cam_buffer = Output(UInt(1.W))
       val counter_max = Input(UInt(config.width.W))
+      val curr_counter = Output(UInt(config.width.W))
+      val interrupt_trigger = Output(Bool())
     })
 
     withClockAndReset(clock, reset) {
@@ -51,7 +53,9 @@ class RoseDMA(param: DstParams)(implicit p: Parameters) extends ClockSinkDomain(
       val counter = RegEnable(counter_next, 0.U(config.width.W), counter_enabled)
       counter_next := Mux((counter < io.counter_max + io.counter_max - 4.U), counter + 4.U, 0.U)
 
+      io.curr_counter := counter
       io.cam_buffer := counter >= io.counter_max
+      
       fifo.io.deq.ready := mstate === mIdle
       mem.a.valid := mstate === mWrite
       mem.d.ready := mstate === mResp
@@ -65,7 +69,18 @@ class RoseDMA(param: DstParams)(implicit p: Parameters) extends ClockSinkDomain(
       data = buffer)._2
 
       addr := outer.port_param.DMA_address.U + counter
-      counter_enabled := mem.a.fire && mstate === mWrite
+      counter_enabled := mem.d.fire && mstate === mResp
+
+      val trigger = if (outer.port_param.interrupt) {
+         ((counter === io.counter_max - 4.U) || (counter === io.counter_max + io.counter_max - 4.U)) && (mem.d.fire && mstate === mResp)
+      } else {
+        false.B
+      }
+      io.interrupt_trigger := trigger
+
+      when (mstate === mWrite && mem.a.fire) {
+        midas.targetutils.SynthesizePrintf(printf("DMA: wrote %x to %x\n", buffer, addr))
+      }
 
       switch(mstate){
         is (mIdle){
