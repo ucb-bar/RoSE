@@ -10,7 +10,7 @@ import org.chipsalliance.diplomacy.nodes._
 import org.chipsalliance.diplomacy.aop._
 import org.chipsalliance.diplomacy.lazymodule._
 import org.chipsalliance.diplomacy.bundlebridge._
-import freechips.rocketchip.diplomacy.{Resource, ResourceBinding, ResourceAddress}
+import freechips.rocketchip.diplomacy.{Resource, ResourceBinding, ResourceAddress, RegionType}
 import freechips.rocketchip.devices.debug._
 import freechips.rocketchip.jtag.{JTAGIO}
 import freechips.rocketchip.subsystem._
@@ -32,17 +32,19 @@ import chipyard.iocell._
 import testchipip.serdes.{CanHavePeripheryTLSerial, SerialTLKey}
 import testchipip.spi.{SPIChipIO}
 import testchipip.boot.{CanHavePeripheryCustomBootPin}
-import testchipip.soc.{CanHavePeripheryChipIdPin}
+import testchipip.soc.{CanHavePeripheryChipIdPin, CanHaveSwitchableOffchipBus}
 import testchipip.util.{ClockedIO}
 import testchipip.iceblk.{CanHavePeripheryBlockDevice, BlockDeviceKey, BlockDeviceIO}
 import testchipip.cosim.{CanHaveTraceIO, TraceOutputTop, SpikeCosimConfig}
 import testchipip.tsi.{CanHavePeripheryUARTTSI, UARTTSIIO}
+import testchipip.ctc.{CanHavePeripheryCTC}
 import icenet.{CanHavePeripheryIceNIC, SimNetwork, NicLoopback, NICKey, NICIOvonly}
 import chipyard.{CanHaveMasterTLMemPort, ChipyardSystem, ChipyardSystemModule}
 import chipyard.example.{CanHavePeripheryGCD}
-// import rose.{CanHavePeripheryRoseAdapter, RoseAdapterKey, RoseAdapterParams, RosePortIO}
-import rose.{CanHavePeripheryRoseAdapter, RoseAdapterParams}
-import firechip.bridgeinterfaces.{RosePortIO, RoseAdapterKey}
+// RoSE co-sim adapter: trait + key live in the `rose` generator; shared port/param
+// types live in firechip.bridgeinterfaces (chisel6 bridge-stub split).
+import rose.{CanHavePeripheryRoseAdapter, RoseAdapterKey}
+import firechip.bridgeinterfaces.{RosePortIO, RoseAdapterParams}
 
 import scala.reflect.{ClassTag}
 
@@ -209,7 +211,7 @@ class WithI2CPunchthrough extends OverrideIOBinder({
     val ports = system.i2c.zipWithIndex.map { case (i2c, i) =>
       val io_i2c = IO(i2c.cloneType).suggestName(s"i2c_$i")
       io_i2c <> i2c
-      I2CPort(() => i2c)
+      I2CPort(() => io_i2c)
     }
     (ports, Nil)
   }
@@ -291,16 +293,18 @@ class WithExtInterruptIOCells extends OverrideIOBinder({
 })
 
 // Rocketchip's JTAGIO exposes the oe signal, which doesn't go off-chip
-class JTAGChipIO extends Bundle {
+class JTAGChipIO(hasReset: Boolean) extends Bundle {
   val TCK = Input(Clock())
   val TMS = Input(Bool())
   val TDI = Input(Bool())
   val TDO = Output(Bool())
+  val reset = Option.when(hasReset)(Input(Bool()))
 }
 
 // WARNING: Don't disable syncReset unless you are trying to
 // get around bugs in RTL simulators
-class WithDebugIOCells(syncReset: Boolean = true) extends OverrideLazyIOBinder({
+// If externalReset, exposes a reset in through JTAGChipIO, which is sync'd to TCK
+class WithDebugIOCells(syncReset: Boolean = true, externalReset: Boolean = true) extends OverrideLazyIOBinder({
   (system: HasPeripheryDebug) => {
     implicit val p = GetSystemParameters(system)
     val tlbus = system.asInstanceOf[BaseSubsystem].locateTLBusWrapper(p(ExportDebug).slaveWhere)
@@ -322,13 +326,6 @@ class WithDebugIOCells(syncReset: Boolean = true) extends OverrideLazyIOBinder({
           }
           // Tie off disableDebug
           d.disableDebug.foreach { d => d := false.B }
-          // Drive JTAG on-chip IOs
-          d.systemjtag.map { j =>
-            j.reset := (if (syncReset) ResetCatchAndSync(j.jtag.TCK, clockBundle.reset.asBool) else clockBundle.reset.asBool)
-            j.mfr_id := p(JtagDTMKey).idcodeManufId.U(11.W)
-            j.part_number := p(JtagDTMKey).idcodePartNum.U(16.W)
-            j.version := p(JtagDTMKey).idcodeVersion.U(4.W)
-          }
         }
         Debug.connectDebugClockAndReset(Some(debug), clockBundle.clock)
 
@@ -339,7 +336,15 @@ class WithDebugIOCells(syncReset: Boolean = true) extends OverrideLazyIOBinder({
         }
 
         val jtagTuple = debug.systemjtag.map { j =>
-          val jtag_wire = Wire(new JTAGChipIO)
+          val jtag_wire = Wire(new JTAGChipIO(externalReset))
+
+          // Drive JTAG on-chip IOs
+          val jReset = if (externalReset) jtag_wire.reset.get else clockBundle.reset.asBool
+          j.reset := (if (syncReset) ResetCatchAndSync(j.jtag.TCK, jReset) else jReset)
+          j.mfr_id := p(JtagDTMKey).idcodeManufId.U(11.W)
+          j.part_number := p(JtagDTMKey).idcodePartNum.U(16.W)
+          j.version := p(JtagDTMKey).idcodeVersion.U(4.W)
+
           j.jtag.TCK := jtag_wire.TCK
           j.jtag.TMS := jtag_wire.TMS
           j.jtag.TDI := jtag_wire.TDI
@@ -487,16 +492,31 @@ class WithTraceIOPunchthrough extends OverrideLazyIOBinder({
       val p = GetSystemParameters(system)
       val chipyardSystem = system.asInstanceOf[ChipyardSystem]
       val tiles = chipyardSystem.totalTiles.values
+      val viewpointBus = system.asInstanceOf[HasConfigurableTLNetworkTopology].viewpointBus
+      val mems = viewpointBus.unifyManagers.filter { m =>
+        val regionTypes = Seq(RegionType.CACHED, RegionType.TRACKED, RegionType.UNCACHED, RegionType.IDEMPOTENT)
+        val ignoreAddresses = Seq(
+          0x10000 // bootrom is handled specially
+        )
+        regionTypes.contains(m.regionType) && !ignoreAddresses.contains(m.address.map(_.base).min)
+      }.map { m =>
+        val base = m.address.map(_.base).min
+        val size = m.address.map(_.max).max - base + 1
+        (base, size)
+      }
+      val useSimDTM = p(ExportDebug).protocols.contains(DMI) // assume that exposing clockeddmi means we will connect SimDTM
       val cfg = SpikeCosimConfig(
         isa = tiles.headOption.map(_.isaDTS).getOrElse(""),
         priv = tiles.headOption.map(t => if (t.usingUser) "MSU" else if (t.usingSupervisor) "MS" else "M").getOrElse(""),
         maxpglevels = tiles.headOption.map(_.tileParams.core.pgLevels).getOrElse(0),
-        mem0_base = p(ExtMem).map(_.master.base).getOrElse(BigInt(0)),
-        mem0_size = p(ExtMem).map(_.master.size).getOrElse(BigInt(0)),
         pmpregions = tiles.headOption.map(_.tileParams.core.nPMPs).getOrElse(0),
         nharts = tiles.size,
-        bootrom = chipyardSystem.bootROM.map(_.module.contents.toArray.mkString(" ")).getOrElse(""),
-        has_dtm = p(ExportDebug).protocols.contains(DMI) // assume that exposing clockeddmi means we will connect SimDTM
+        bootrom = chipyardSystem.bootROM.headOption.map(_.module.contents.toArray.mkString(" ")).getOrElse(""),
+        has_dtm = useSimDTM,
+        mems = mems,
+        // Connect using the legacy API for firesim only
+        mem0_base = p(ExtMem).map(_.master.base).getOrElse(BigInt(0)),
+        mem0_size = p(ExtMem).map(_.master.size).getOrElse(BigInt(0)),
       )
       TracePort(() => trace, cfg)
     }
@@ -529,6 +549,7 @@ class WithTLMemPunchthrough extends OverrideIOBinder({
   }
 })
 
+
 class WithDontTouchPorts extends OverrideIOBinder({
   (system: DontTouch) => system.dontTouchPorts(); (Nil, Nil)
 })
@@ -543,15 +564,78 @@ class WithNMITiedOff extends ComposeIOBinder({
     (Nil, Nil)
   }
 })
-// class WithGCDBusyPunchthrough extends OverrideIOBinder({
-//   (system: CanHavePeripheryGCD) => system.gcd_busy.map { busy =>
-//     val io_gcd_busy = IO(Output(Bool()))
-//     io_gcd_busy := busy
-//     (Seq(GCDBusyPort(() => io_gcd_busy)), Nil)
-//   }.getOrElse((Nil, Nil))
-// })
 
+// This IOBinder connects the signals exposed by the CanHavePeripheryGCD trait
+// to the top-level ports of the chip. It handles both the 'busy' signal and
+// the optional external clock signal.
+class WithGCDIOPunchthrough extends OverrideIOBinder({
+  // The input `system` is expected to mix-in CanHavePeripheryGCD.
+  (system: CanHavePeripheryGCD) => {
+    // `system.gcd_busy` is an Option[Bool] coming from CanHavePeripheryGCD.
+    // It is Some[Bool] if the GCD peripheral is present (GCDKey is Some), and None otherwise.
+    val gcdBusyPort = system.gcd_busy.map { busy =>
+      // If `system.gcd_busy` is Some, create a ChipTop port named "gcd_busy".
+      val io_gcd_busy = IO(Output(Bool())).suggestName("gcd_busy")
+      // Connect the internal busy signal from the GCD module to this ChipTop port.
+      io_gcd_busy := busy
+      // Create a GCDBusyPort entry, (primarily for bookkeeping/reflection in the TestHarness)
+      GCDBusyPort(() => io_gcd_busy)
+    }.toSeq // Convert Option[GCDBusyPort] to Seq[GCDBusyPort] (empty if None)
 
+    // `system.gcd_clock` is an Option[Clock] coming from CanHavePeripheryGCD.
+    // It is Some[Clock] if the GCD peripheral is present AND params.externallyClocked was true.
+    // It is None if the GCD is not present OR if it's configured to use an internal clock.
+    val gcdClockPort = system.gcd_clock.map { clock =>
+      // If `system.gcd_clock` is Some, create a ChipTop port named "gcd_clock_in".
+      // This port will be driven by the external clock source in the test harness or board.
+      val io_gcd_clock = IO(Input(Clock())).suggestName("gcd_clock_in")
+      // Connect this ChipTop input clock port to the internal clock input wire
+      // defined within CanHavePeripheryGCD. 
+      // This is what ultimately drives the GCD's ClockSourceNode.
+      clock := io_gcd_clock
+      // Create a ClockPort entry for bookkeeping/reflection.
+      ClockPort(() => io_gcd_clock, freqMHz = 60.0) // freqMHz used in sims & in the TestHarness
+    }.toSeq // Convert Option[ClockPort] to Seq[ClockPort] (empty if None)
+
+    // Return the sequence of created top-level ports (busy port, and optionally clock port).
+    // No IOCells are generated here.
+    (gcdBusyPort ++ gcdClockPort, Nil)
+  }
+})
+
+class WithOffchipBusSel extends OverrideIOBinder({
+  (system: CanHaveSwitchableOffchipBus) => {
+    system.io_obus_sel.getWrappedValue.map { sel =>
+      val sys = system.asInstanceOf[BaseSubsystem]
+      val (port, cells) = IOCell.generateIOFromSignal(sel, "obus_sel", sys.p(IOCellKey))
+      (Seq(OffchipSelPort(() => port)), cells)
+    }.getOrElse(Nil, Nil)
+  }
+})
+
+class WithCTCIOCells extends OverrideIOBinder({
+  (system: CanHavePeripheryCTC) => {
+    val (ports, cells) = system.ctc_ios.zipWithIndex.map ({ case (c, id) =>
+      val sys = system.asInstanceOf[BaseSubsystem]
+      val (port, cells) = IOCell.generateIOFromSignal(c.getWrappedValue, s"ctc${id}_port", sys.p(IOCellKey), abstractResetAsAsync = true)
+      (CTCPort(() => port, id), cells)
+    }).unzip
+    (ports.toSeq, cells.flatten.toSeq)
+  }
+})
+
+class WithCTCPunchthrough extends OverrideIOBinder({
+  (system: CanHavePeripheryCTC) => {
+    val (ports, cells) = system.ctc_ios.zipWithIndex.map ({ case (c, id) =>
+      val port = IO(chiselTypeOf(c.getWrappedValue)).suggestName(s"ctc${id}_port") // Since CTC IO varies depending on params
+      port <> c.getWrappedValue
+      (CTCPort(() => port, id), Nil)
+    }).unzip
+    (ports.toSeq, cells.flatten.toSeq)
+  }
+})
+
+// RoSE: punch the co-sim adapter IO out to the harness as a RoseAdapterPort.
 class WithRoseIOPunchthrough extends OverrideIOBinder({
   (system: CanHavePeripheryRoseAdapter) => {
     val ports = system.roseio.map ({ n =>

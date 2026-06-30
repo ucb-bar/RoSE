@@ -1,5 +1,8 @@
 #!/bin/bash
 ROSE_DIR=$(pwd)
+# Export so the FireSim/GoldenGate build (RoSEBridgeModule.scala) can locate
+# soc/sw/generated-src/rose_c_header/ independent of its working directory.
+export ROSE_DIR
 CHIPYARD_DIR=${ROSE_DIR}/soc/sim/chipyard
 FIRESIM_DIR=${CHIPYARD_DIR}/sims/firesim
 SCALA_DIR=${ROSE_DIR}/soc/src/main/scala
@@ -52,7 +55,11 @@ yq -i ".build_farm.recipe_arg_overrides.default_build_dir = \"${FIRESIM_BUILDDIR
 sed -i "s|/bitstream_dir|${ROSE_DIR}/soc/sim/bitstreams|g" ${ROSE_DIR}/soc/sim/config/config_hwdb_local.yaml
 
 cd ${ROSE_DIR}/
-git submodule update --init ${ROSE_DIR}/soc/sim/firesim
+# chipyard-as-top: firesim is nested at ${CHIPYARD_DIR}/sims/firesim and is
+# initialized by chipyard/build-setup.sh. Ensure it is present (no-op if already done).
+if [ ! -d ${FIRESIM_DIR}/sim ]; then
+    git -C ${CHIPYARD_DIR} submodule update --init sims/firesim
+fi
 
 yq -i ".build_farm.recipe_arg_overrides.default_build_dir = \"${FIRESIM_BUILDDIR}\"" ${ROSE_DIR}/soc/sim/config/config_build_local.yaml
 

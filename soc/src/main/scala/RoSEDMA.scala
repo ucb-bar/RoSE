@@ -12,7 +12,7 @@ import freechips.rocketchip.tilelink._
 import freechips.rocketchip.util.UIntIsOneOf
 import freechips.rocketchip.prci._
 
-import firechip.bridgeinterfaces.{RoseAdapterKey, DstParams}
+import firechip.bridgeinterfaces.{DstParams}
 
 class RoseDMA(param: DstParams)(implicit p: Parameters) extends ClockSinkDomain(ClockSinkParameters())(p){
   val port_param = param

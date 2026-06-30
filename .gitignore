@@ -12,3 +12,7 @@ deploy/hephaestus/img
 deploy/hephaestus/bw.txt
 /project
 soc/generated-src/*
+# Python venv for the gym synchronizer (provision via deploy/requirements.txt)
+deploy/.venv-rose/
+# Transient build/run logs from the chipyard/metasim/bitstream flow
+soc/sim/*.log

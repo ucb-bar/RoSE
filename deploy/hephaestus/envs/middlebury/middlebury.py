@@ -5,6 +5,8 @@ import cv2
 import numpy as np
 
 class MiddleBuryEnv(gym.Env):
+    metadata = {"render_modes": ["rgb_array"]}
+
     def __init__(self, *args, **kwargs):
         self.image_dim = 256
         self.observation_space = spaces.Dict({
@@ -51,7 +53,9 @@ class MiddleBuryEnv(gym.Env):
 
         return observation
 
-    def reset(self):
+    def reset(self, *, seed=None, options=None):
+        # gymnasium 1.x API: accept seed/options, return (obs, info)
+        super().reset(seed=seed)
         return self.calc_observation(), {}
 
     def step(self, action):

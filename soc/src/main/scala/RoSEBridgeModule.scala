@@ -1,5 +1,8 @@
 //See LICENSE for license details
-package firesim.bridges
+// Host-side (GoldenGate) bridge implementation. Lives in the goldengateimplementations
+// package (copied into MIDAS at FireSim build time, compiled there under Chisel 3.6),
+// matching the stub's moduleName = "firechip.goldengateimplementations.RoSEBridgeModule".
+package firechip.goldengateimplementations
 
 import midas.widgets._
 import midas.models.AbstractClockGate
@@ -220,7 +223,7 @@ class rxcontroller(width: Int) extends Module{
   }
 }
 
-class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModule[HostPortIO[RoseBridgeTargetIO]]()(p) {
+class RoSEBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModule[HostPortIO[RoseBridgeTargetIO]]()(p) {
   lazy val module = new BridgeModuleImp(this) {
     val params = key.roseparams
     val io = IO(new WidgetIO())
@@ -452,7 +455,17 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
           }
         }
       }
-      val fileWriter = new FileWriter(new File("../../../sw/generated-src/rose_c_header/rose_port.h"))
+      // Write the generated SoC-side register-map header to RoSÉ's committed
+      // generated-src dir (consumed by the target baremetal SW in soc/sw/...).
+      // Resolve via $ROSE_DIR (exported by rose-setup.sh) so it is independent of the
+      // GoldenGate working directory / chipyard-as-top layout; fall back to the legacy
+      // relative path. mkdirs() ensures the parent exists (avoids FileNotFoundException).
+      val roseHeaderDir = sys.env.get("ROSE_DIR") match {
+        case Some(d) => new File(s"$d/soc/sw/generated-src/rose_c_header")
+        case None    => new File("../../../sw/generated-src/rose_c_header")
+      }
+      roseHeaderDir.mkdirs()
+      val fileWriter = new FileWriter(new File(roseHeaderDir, "rose_port.h"))
       fileWriter.write(sb.toString)
       fileWriter.close()
     }

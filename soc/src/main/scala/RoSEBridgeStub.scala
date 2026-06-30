@@ -12,6 +12,8 @@ import freechips.rocketchip.util.{AsyncQueue, AsyncQueueParams}
 import firesim.lib.bridgeutils._
 
 import firechip.bridgeinterfaces._
+// RoseAdapterKey (cde Field) lives in the rose generator, not bridgeinterfaces.
+import rose.RoseAdapterKey
 
 class RoseBridge()(implicit p: Parameters) extends BlackBox with Bridge[HostPortIO[RoseBridgeTargetIO]] {
   val moduleName = "firechip.goldengateimplementations.RoSEBridgeModule"

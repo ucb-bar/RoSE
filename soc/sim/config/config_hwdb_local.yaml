@@ -28,3 +28,10 @@ alveo-u250_firesim-boom-dual-dma-fast-no-nic-l2-llc4mb-ddr3:
     bitstream_tar: file:///scratch/iansseijelly/RoSE/soc/sim/firesim/deploy/results-build/2024-06-04--23-47-37-alveo-u250_firesim-boom-dual-dma-fast-no-nic-l2-llc4mb-ddr3/cl_xilinx_alveo_u250-firesim-FireSim-RoseTLBOOMDualDMAMMIOOnlyConfig-BaseXilinxAlveoU250Config/firesim.tar.gz
     deploy_quintuplet_override: null
     custom_runtime_config: null
+
+# Built 2026-06-26 (chisel6 migration): single Rocket + RoSE bridge, U250.
+# RoseTLRocketMMIOOnlyConfig / BaseXilinxAlveoU250Config. Metasim-validated (DMA + reqrsp PASS).
+alveo_u250_firesim-rocket-singlecore-with-rose-fast-no-nic-l2-llc4mb-ddr3:
+    bitstream_tar: file:///scratch/dima/rose-infra/RoSE/soc/sim/chipyard/sims/firesim/deploy/results-build/2026-06-27--01-08-07-alveo_u250_firesim-rocket-singlecore-with-rose-fast-no-nic-l2-llc4mb-ddr3/cl_xilinx_alveo_u250-firesim-FireSim-RoseTLRocketMMIOOnlyConfig-BaseXilinxAlveoU250Config/firesim.tar.gz
+    deploy_quintuplet_override: null
+    custom_runtime_config: null

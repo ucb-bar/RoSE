@@ -71,8 +71,9 @@ destinations=(
     "${CHIPYARD_DIR}/generators/rose/src/main/scala/RoSEDMA.scala" #****
     "${CHIPYARD_DIR}/generators/rose/src/main/scala/Dataflow.scala" #****
     #C++ destinations
-    "${FIRESIM_DIR}/sim/firesim-lib/src/main/cc/bridges/airsim.cc"
-    "${FIRESIM_DIR}/sim/firesim-lib/src/main/cc/bridges/airsim.h"
+    # chipyard-as-top: bridge C++ drivers live under firechip/bridgestubs, not firesim-lib
+    "${CHIPYARD_DIR}/generators/firechip/bridgestubs/src/main/cc/bridges/airsim.cc"
+    "${CHIPYARD_DIR}/generators/firechip/bridgestubs/src/main/cc/bridges/airsim.h"
     #simulation configs destinations
     "${FIRESIM_DIR}/deploy/config_runtime.yaml"
     "${FIRESIM_DIR}/deploy/config_build_recipes.yaml"
@@ -97,6 +98,15 @@ fi
 
 # Iterate over the arrays and create symbolic links
 for ((i=0;i<${#sources[@]};++i)); do
+    # Skip gracefully if the destination's parent dir doesn't exist (e.g. the
+    # onnxruntime-riscv submodule is not initialized — only needed for the DNN
+    # build, not for Verilator metasim). Avoids hard-failing mid-setup.
+    dest_parent="$(dirname "${destinations[$i]}")"
+    if [ ! -d "${dest_parent}" ]; then
+        echo "WARNING: destination dir ${dest_parent} missing; skipping ${destinations[$i]} (relevant submodule not initialized?)"
+        continue
+    fi
+
     # Check if the destination file or symlink already exists
     if [[ -e "${destinations[$i]}" || -L "${destinations[$i]}" ]]; then
         echo "Removing existing file or symbolic link at ${destinations[$i]}..."
@@ -108,39 +118,61 @@ for ((i=0;i<${#sources[@]};++i)); do
     ln -s "${sources[$i]}" "${destinations[$i]}"
 done
 
-# Init firemarshal submodules
-cd ${FIRESIM_DIR}/sw/firesim-software/
-git checkout ubuntu-add
-./init-submodules.sh
+# Init firemarshal submodules.
+# chipyard-as-top: FireMarshal lives at ${CHIPYARD_DIR}/software/firemarshal and is
+# already initialized by chipyard/build-setup.sh. The legacy ${FIRESIM_DIR}/sw/firesim-software
+# path and the 'ubuntu-add' branch no longer exist. Only needed for building Linux
+# target images, NOT for Verilator metasim, so this is best-effort.
+if [ -d ${CHIPYARD_DIR}/software/firemarshal ]; then
+  ( cd ${CHIPYARD_DIR}/software/firemarshal && ./init-submodules.sh )
+fi
+cd ${ROSE_DIR}
 
-# Patch build script
-sed -i 's/midas, icenet, testchipip, sifive_blocks)/midas, icenet, testchipip, sifive_blocks, chipyard)/g' ${FIRESIM_DIR}/sim/build.sbt
+# ---------------------------------------------------------------------------
+# Patch chipyard build.sbt to add the `rose` generator and wire it in.
+#
+# chipyard-as-top: ALL sbt wiring lives in ${CHIPYARD_DIR}/build.sbt. The firechip
+# projects (bridgestubs/bridgeinterfaces/chip) already depend on `chipyard`, and the
+# goldengateimplementations + bridgeinterfaces dirs are copied into MIDAS/GoldenGate
+# at build time (TARGET_COPY_TO_MIDAS_SCALA_DIRS). So we do NOT patch the nested
+# firesim sim/build.sbt (that is the firesim-standalone build, unused here).
+#
+# Dependency facts (from the RoSE Scala sources):
+#   - rose.* sources import firechip.bridgeinterfaces.*  -> rose dependsOn firechip_bridgeinterfaces
+#   - chipyard sources (IOBinders/Ports/RoSEConfigs) import rose.* and
+#     firechip.bridgeinterfaces.*  -> chipyard dependsOn rose + firechip_bridgeinterfaces
+# ---------------------------------------------------------------------------
 
-if grep -q "lazy val rose" ${CHIPYARD_DIR}/build.sbt; then
-  echo "rose found in chipyard sbt, not appending."
+# 1. Define the rose generator project (idempotent). Mirrors the standard
+#    rocketchip-based generator pattern (chisel6 plugin inherited via rocketLibDeps),
+#    plus a dependency on firechip_bridgeinterfaces for the shared port/param types.
+if grep -q "lazy val rose " ${CHIPYARD_DIR}/build.sbt; then
+  echo "rose project found in chipyard sbt, not appending."
 else
-  echo "rose not found in chipyard sbt, appending."
+  echo "Appending rose project to chipyard build.sbt."
   echo '
 lazy val rose = (project in file("generators/rose"))
-  .dependsOn(rocketchip, testchipip)
+  .dependsOn(rocketchip, testchipip, firechip_bridgeinterfaces)
   .settings(libraryDependencies ++= rocketLibDeps.value)
   .settings(commonSettings)' >> ${CHIPYARD_DIR}/build.sbt
 fi
 
-# Check if 'rose' is already a dependency under lazy val chipyard
-echo "Updating cy build.sbt"
-sed -i 's/gemmini, icenet, tracegen, cva6, nvdla, sodor, ibex, fft_generator,/gemmini, icenet, tracegen, cva6, nvdla, sodor, ibex, fft_generator, rose,/g' ${CHIPYARD_DIR}/build.sbt
-
-if grep -q "lazy val rose" ${FIRESIM_DIR}/sim/build.sbt; then
-  echo "rose found in firesim/sim sbt, not appending."
-else
-  echo "rose not found in firesim/sim sbt, appending."
-  echo '
-lazy val rose          = ProjectRef(chipyardDir, "rose")
-' >> ${FIRESIM_DIR}/sim/build.sbt
+# 2. Add rose + firechip_bridgeinterfaces to chipyard's always-on deps (idempotent).
+#    Chipyard 1.14.0 restructured build.sbt: the `chipyard` project is now built in a
+#    block from a `baseProjects: Seq[ProjectReference]` list (no longer a flat
+#    `.dependsOn(...)` chain). We splice rose + firechip_bridgeinterfaces into that Seq,
+#    right after the stable `constellation, barf, shuttle, rerocc,` line.
+#    (Pre-1.14.0 fallback: the old flat-list sed, kept for older checkouts.)
+echo "Wiring rose + firechip_bridgeinterfaces into chipyard baseProjects."
+if ! grep -q "rose, firechip_bridgeinterfaces," ${CHIPYARD_DIR}/build.sbt; then
+  if grep -q "constellation, barf, shuttle, rerocc," ${CHIPYARD_DIR}/build.sbt; then
+    # 1.14.0+ block-style baseProjects Seq
+    sed -i 's/^\([[:space:]]*\)constellation, barf, shuttle, rerocc,/\1constellation, barf, shuttle, rerocc,\n\1rose, firechip_bridgeinterfaces,/' ${CHIPYARD_DIR}/build.sbt
+  else
+    # pre-1.14.0 flat dependsOn list
+    sed -i 's/gemmini, icenet, tracegen, cva6, nvdla, sodor, ibex, fft_generator,/gemmini, icenet, tracegen, cva6, nvdla, sodor, ibex, fft_generator, rose, firechip_bridgeinterfaces,/g' ${CHIPYARD_DIR}/build.sbt
+  fi
 fi
-echo "Updating fsim build.sbt"
-sed -i 's/.dependsOn(midas, icenet, testchipip, rocketchip_blocks)/.dependsOn(midas, icenet, testchipip, rocketchip_blocks, rose)/g' ${FIRESIM_DIR}/sim/build.sbt
 
 # echo "Updating onnxruntime-riscv submodules"
 # cd ${ROSE_DIR}

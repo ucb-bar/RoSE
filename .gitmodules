@@ -1,6 +1,9 @@
 [submodule "soc/sw/onnxruntime-riscv"]
 	path = soc/sw/onnxruntime-riscv
 	url = https://github.com/ucb-bar/onnxruntime-riscv.git
-[submodule "soc/sim/firesim"]
-	path = soc/sim/firesim
-	url = https://github.com/firesim/firesim.git
+[submodule "soc/sim/chipyard"]
+	path = soc/sim/chipyard
+	url = https://github.com/ucb-bar/chipyard.git
+[submodule "soc/sw/xpu-rt"]
+	path = soc/sw/xpu-rt
+	url = https://github.com/ucb-bar/XPU-RT

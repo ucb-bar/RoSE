@@ -8,7 +8,7 @@ import org.chipsalliance.cde.config.{Config}
 import freechips.rocketchip.diplomacy.{LazyModule}
 import freechips.rocketchip.subsystem._
 import sifive.blocks.devices.uart._
-import testchipip.serdes.{ExternalSyncPhitIO}
+import testchipip.serdes.{DecoupledExternalSyncPhitIO}
 import testchipip.tsi.{SerialRAM}
 
 import chipyard.iocell._
@@ -17,11 +17,11 @@ import chipyard._
 import chipyard.harness._
 
 import firechip.bridgestubs._
+// RoSE: shared bridge port type (chisel6 bridge-stub split)
+import firechip.bridgeinterfaces.{RosePortIO}
 
 import firesim.lib.bridges.{FASEDBridge, CompleteConfig}
 import firesim.lib.nasti.{NastiIO, NastiParameters}
-// import rose.RosePortIO
-import firechip.bridgeinterfaces.{RosePortIO}
 
 object MainMemoryConsts {
   val regionNamePrefix = "MainMemory"
@@ -61,7 +61,7 @@ class WithFireSimIOCellModels extends Config((site, here, up) => {
 class WithTSIBridgeAndHarnessRAMOverSerialTL extends HarnessBinder({
   case (th: FireSim, port: SerialTLPort, chipId: Int) => {
     port.io match {
-      case io: ExternalSyncPhitIO => {
+      case io: DecoupledExternalSyncPhitIO => {
         io.clock_in := th.harnessBinderClock
         val ram = Module(LazyModule(new SerialRAM(port.serdesser, port.params)(port.serdesser.p)).module)
         ram.io.ser.in <> io.out
@@ -75,6 +75,22 @@ class WithTSIBridgeAndHarnessRAMOverSerialTL extends HarnessBinder({
         TSIBridge(th.harnessBinderClock, ram.io.tsi.get, mainMemoryName, th.harnessBinderReset.asBool)(th.p)
       }
     }
+  }
+})
+
+class WithCTCBridge extends HarnessBinder({
+  case (th: FireSim, port: CTCPort, chipId: Int) => {
+    port.io match {
+      case io: testchipip.ctc.CTCBridgeIO => {
+        CTCBridge(th.harnessBinderClock, io, th.harnessBinderReset.asBool)(th.p)
+      }
+    }
+  }
+})
+
+class WithRoseBridge extends HarnessBinder({
+  case (th: FireSim, port: RoseAdapterPort, chipId: Int) => {
+    RoseBridge(port.io.clock, port.io.bits, th.harnessBinderReset.asBool)(th.p)
   }
 })
 
@@ -140,12 +156,6 @@ class WithCospikeBridge extends HarnessBinder({
 class WithSuccessBridge extends HarnessBinder({
   case (th: FireSim, port: SuccessPort, chipId: Int) => {
     GroundTestBridge(th.harnessBinderClock, port.io)
-  }
-})
-
-class WithRoseBridge extends HarnessBinder({
-  case (th: FireSim, port: RoseAdapterPort, chipId: Int) => {
-    RoseBridge(port.io.clock, port.io.bits, th.harnessBinderReset.asBool)(th.p) 
   }
 })
 

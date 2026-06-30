@@ -5,7 +5,7 @@ import chisel3.util._
 import testchipip._
 import org.chipsalliance.cde.config.{Parameters, Field, Config}
 
-import firechip.bridgeinterfaces.{RosePortIO, RoseAdapterParams, RoseAdapterKey, RoseAdapterArbiterIO, ConfigRoutingIOBundle}
+import firechip.bridgeinterfaces.{RosePortIO, RoseAdapterParams, RoseAdapterArbiterIO, ConfigRoutingIOBundle}
 
 // // PortIO is used for bridge <--> SoC communication
 // class RosePortIO(params: RoseAdapterParams) extends Bundle {

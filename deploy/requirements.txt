@@ -1,0 +1,26 @@
+# RoSE host-side synchronizer (deploy/hephaestus) Python dependencies.
+#
+# Use a dedicated venv with system Python 3.12 (the chipyard conda env is Python 3.14,
+# which is too new for these packages — keep the synchronizer environment separate):
+#
+#   cd deploy
+#   python3.12 -m venv .venv-rose
+#   . .venv-rose/bin/activate
+#   pip install -r requirements.txt
+#
+# This core set is enough to run the synchronizer with the no-simulator "dummy" gym
+# envs (MiddleBury stereo-image env, LQR control env) used for bridge bring-up/testing.
+
+gymnasium
+numpy
+scipy
+pyyaml
+pandas
+matplotlib
+opencv-python-headless
+
+# --- Optional extras (NOT needed for the dummy envs / bridge testing) ---
+# AirSim env (requires a running Unreal/AirSim simulator to actually connect):
+#   pip install airsim msgpack-rpc-python
+# MuJoCo inverted-pendulum env:
+#   pip install "gymnasium[mujoco]"

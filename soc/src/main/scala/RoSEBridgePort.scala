@@ -9,7 +9,9 @@ import firrtl.annotations.HasSerializationHints
 import java.io.{File, FileWriter}
 
 ////////////////////////////////
-import org.chipsalliance.cde.config.{Field}
+// NOTE: firechip.bridgeinterfaces must stay minimal/pure-Chisel (it is copied to
+// FireSim's GoldenGate compiler). Do NOT add a CDE config dependency here.
+// RoseAdapterKey (a cde Field) lives in the `rose` generator (see RoSEGeneratorConfig.scala).
 
 class RosePortIO(params: RoseAdapterParams) extends Bundle {
   // SoC receive from bridge, a vector of flipped decoupled IOs, degraded from enq
@@ -18,9 +20,7 @@ class RosePortIO(params: RoseAdapterParams) extends Bundle {
   val tx = Decoupled(UInt(32.W))
 }
 
-case object RoseAdapterKey extends Field[Option[RoseAdapterParams]](None)
-
-case class DstParams_Container (seq: Seq[DstParams]) 
+case class DstParams_Container (seq: Seq[DstParams])
 
 case class DstParams (
   val port_type: String = "reqrsp", // supported are DMA and reqrsp

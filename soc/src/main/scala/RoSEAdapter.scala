@@ -15,7 +15,7 @@ import freechips.rocketchip.util.UIntIsOneOf
 import freechips.rocketchip.interrupts._
 // import testchipip.TLHelper
 
-import firechip.bridgeinterfaces.{RosePortIO, RoseAdapterKey, RoseAdapterParams, DstParams_Container, DstParams, CompleteDataflowConfig}
+import firechip.bridgeinterfaces.{RosePortIO, RoseAdapterParams, DstParams_Container, DstParams, CompleteDataflowConfig}
 
 // buffers non-DMA data and tx data
 class RoseAdapterMMIOChiselModule(params: RoseAdapterParams) extends Module
@@ -27,7 +27,7 @@ class RoseAdapterMMIOChiselModule(params: RoseAdapterParams) extends Module
   io.tx.deq <> txfifo.io.deq
 
   for (i <- 0 until params.dst_ports.seq.count(_.port_type != "DMA")) {
-    val rx_buffer_fifo = Module(new Queue(UInt(params.width.W), 8)) 
+    val rx_buffer_fifo = Module(new Queue(UInt(params.width.W), 8))
     rx_buffer_fifo.io.enq <> io.rx.enq(i)
     rx_buffer_fifo.io.deq <> io.rx.deq(i)
   }

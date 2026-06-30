@@ -118,7 +118,14 @@ class DummySynchronizer:
         for k,v in self.packet_bindings.items():
             sb.append(f"#define CS_{v['name'].upper()} 0x{k:02x}")
 
-        with open("/scratch/iansseijelly/RoSE/soc/sw/generated-src/rose_c_header/rose_packet.h", "w") as f:
+        # Resolve the RoSÉ repo root from $ROSE_DIR (set by rose-setup.sh), else derive
+        # it from this file's location (deploy/hephaestus -> repo root is ../..).
+        rose_dir = os.environ.get(
+            "ROSE_DIR",
+            os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")))
+        out_path = os.path.join(rose_dir, "soc", "sw", "generated-src", "rose_c_header", "rose_packet.h")
+        os.makedirs(os.path.dirname(out_path), exist_ok=True)
+        with open(out_path, "w") as f:
             f.write("\n".join(sb))
 
 class Synchronizer(DummySynchronizer): 
