@@ -41,8 +41,8 @@ struct serial_cosmo_data_t {
 };
 #endif // __SERIAL_COSMO_DATA_H
 
-#ifndef __AIRSIM_H
-#define __AIRSIM_H
+#ifndef __ROSEBRIDGE_H
+#define __ROSEBRIDGE_H
 
 #include "bridges/serial_data.h"
 #include "core/bridge_driver.h"
@@ -156,12 +156,12 @@ struct CompareBudget
     }
 };
 
-class airsim_t final: public bridge_driver_t{
+class rosebridge_t final: public bridge_driver_t{
     public:
-      airsim_t(simif_t &sim, const ROSEBRIDGEMODULE_struct &mmio_addrs, int airsimno, const std::vector<std::string> &args);
-      ~airsim_t();
+      rosebridge_t(simif_t &sim, const ROSEBRIDGEMODULE_struct &mmio_addrs, int rosebridgeno, const std::vector<std::string> &args);
+      ~rosebridge_t();
       virtual void tick();
-      // Our AIRSIM bridge's initialzation and teardown procedures don't
+      // Our ROSE bridge's initialzation and teardown procedures don't
       // require interaction with the FPGA (i.e., MMIO), and so we don't need
       // to define init and finish methods (we can do everything in the
       // ctor/dtor)
@@ -179,7 +179,7 @@ class airsim_t final: public bridge_driver_t{
       void push_route(uint32_t header, uint32_t channel);
       virtual void init() {};
       virtual void finish() {};
-      // Our AIRSIM bridge never calls for the simulation to terminate
+      // Our ROSE bridge never calls for the simulation to terminate
       virtual bool terminate() { return false; }
       // ... and thus, never returns a non-zero exit code
       virtual int exit_code() { return 0; }
@@ -228,4 +228,4 @@ class airsim_t final: public bridge_driver_t{
       void recv();
 };
 
-#endif // __AIRSIM_H
+#endif // __ROSEBRIDGE_H

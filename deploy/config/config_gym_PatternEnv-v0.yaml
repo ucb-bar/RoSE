@@ -1,22 +1,27 @@
-# Bridge RX-validation config: serve the known 'pattern' field in response to a
-# camera_left (0x11) request, routed to channel 2 (= reqrsp1 = ROSE_RX_DATA_2, which the
-# baremetal test reads via MMIO). Pairs with PatternEnv-v0 + airsim-packettest-rxvalidate.c.
+# Unified RoSE bridge-test config: serves the known PatternEnv pattern on TWO routes so a
+# single synchronizer config drives every samples/rose test:
+#   cmd 0x11 -> channel 0 (DMA0, CamDMAEngine -> mem 0x88000000)   [dma / selftest]
+#   cmd 0x12 -> channel 2 (reqrsp1, ROSE_RX_DATA_2, MMIO read)     [reqrsp / protocol / selftest]
 packets:
-  - name: camera_left           # reuse 0x11 so the existing CS_CAMERA_LEFT macro works
+  - name: camera_dma
     id: 0x11
     type: "reqrsp"
     latency: 0
-    channel: 0                  # -> dst_port index 0 = DMA0 (CamDMAEngine -> mem 0x88000000)
+    channel: 0
+    indices:
+      - "pattern"
+  - name: data_reqrsp
+    id: 0x12
+    type: "reqrsp"
+    latency: 0
+    channel: 2
     indices:
       - "pattern"
 
-# bandwidth_threshold = cycles BETWEEN word deliveries (inverse bandwidth); 0 = unlimited.
-# (The bridge rxcontroller asserts rx.ready only once a counter reaches this threshold.)
+# bandwidth_threshold = cycles BETWEEN word deliveries (0 = unlimited).
 channel_bandwidth: [[0, 0, 0]]
 
 gym_timestep: 0.001
-
 gym_kwargs: {}
-
 n_gym_agents: 1
 n_fsim_nodes: 1

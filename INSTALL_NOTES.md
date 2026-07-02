@@ -872,3 +872,97 @@ run_rxtest.sh (compile + run the validation baremetal tests).
 
 ### Submodule housekeeping
 Added `soc/sw/xpu-rt` = `github.com/ucb-bar/XPU-RT` (carries `zephyr-chipyard-sw` nested).
+
+## STEP 17 — 1.14.0 U250 bitstream rebuild (+ local-build SSH-key gotcha)
+
+Rebuilding the U250 bitstream on the migrated chipyard 1.14.0 stack (same recipe
+`alveo_u250_firesim-rocket-singlecore-with-rose-fast-no-nic-l2-llc4mb-ddr3`).
+
+**Gotcha — `firesim buildbitstream` on a LOCAL build farm needs `~/firesim.pem`.**
+`firesim buildbitstream` runs `replace_rtl` on the build-farm host (localhost) via
+fabric/paramiko, which authenticates with `env.key_filename = ~/firesim.pem` (the FireSim
+convention). If that file is missing the build dies immediately with a misleading
+`fabric.exceptions.NetworkError: Low level socket error connecting to host localhost on
+port 22: No such file or directory` — the real error (further up the log) is
+`FileNotFoundError: '/home/dima/firesim.pem'` from paramiko's `_key_from_filepath`. Manual
+`ssh localhost` works (the CLI uses `~/.ssh/id_rsa`), which makes this misleading; and it is
+NOT an ssh-agent problem. **Fix:** `ln -sf ~/.ssh/id_rsa ~/firesim.pem` (localhost's
+`authorized_keys` already accepts `id_rsa.pub`). `run_buildbitstream.sh` now creates this
+symlink if missing. (The 1.13.0 build worked because `~/firesim.pem` existed at the time.)
+
+Verified after the fix: `[localhost] out:` command output streams over SSH, Verilog
+generation + FPGA driver compile proceed, then Vivado synth/P&R/bitgen. Log:
+`soc/sim/buildbitstream_1140c.log`.
+
+**Result ✅ — 1.14.0 BITSTREAM BUILT (2026-06-30).** Full Vivado flow completed with
+**0 Warnings, 0 Critical Warnings, 0 Errors**: `Your bitstream has been created!`,
+`firesim.bit` + `firesim.mcs` + `firesim.tar.gz` (25 MB) under
+`.../deploy/results-build/2026-07-01--01-45-06-…/`. Updated the hwdb entry
+`alveo_u250_firesim-rocket-singlecore-with-rose-fast-no-nic-l2-llc4mb-ddr3` in
+`soc/sim/config/config_hwdb_local.yaml` to point at the new 1.14.0 tar. Deploy with
+`firesim infrasetup` → `firesim runworkload` (gym synchronizer serving the RoSE bridge).
+
+## STEP 18 — On-FPGA test of the 1.14.0 RoSE port (U250) ✅
+
+Ran the RoSE DMA co-sim loop on the actual Xilinx Alveo U250 with the 1.14.0 bitstream.
+
+**FPGA host state (already provisioned):** U250 present (`42:00.0`, FireSim shell dev `0x903f`),
+`xdma`+`xvsec` kernel modules loaded, `/dev/xdma0_*` runtime nodes, `xbutil` at `/usr/bin`.
+
+**Runtime config (`soc/sim/config/config_runtime_local.yaml`):**
+- `metasimulation_enabled: false`; run farm `externally_provisioned` / `localhost: one_fpga_spec`,
+  `XilinxAlveoU250InstanceDeployManager`.
+- `default_hw_config: alveo_u250_firesim-rocket-singlecore-with-rose-fast-no-nic-l2-llc4mb-ddr3`
+  (the 1.14.0 hwdb entry / bitstream).
+- `workload_name: rose-dmavalidate.json`.
+- Synchronizer: PatternEnv-v0, route `0x11 -> ch0` (DMA), `firesim_step: 1_000_000` (FPGA:
+  larger step = fewer host round-trips; `config_deploy_gym.yaml`).
+
+**Workload (`deploy/workloads/rose-dmavalidate.json` + `rose-dmavalidate/`):** baremetal
+`dmavalidate.riscv` + `dummy.rootfs`. GOTCHA: FireSim builds the source path by *string
+concatenation* `workload_input_base_dir + path` where the base is `workloads/<benchmark_name>/`
+— so `common_bootbinary`/`common_rootfs` must be **relative to that benchmark dir** (basenames
+here), NOT absolute (an absolute path yields `workloads/<name>//scratch/...`).
+
+**Flow (`soc/sim/run_fpga.sh {infrasetup|runworkload|kill}`):**
+1. `firesim infrasetup` — builds the FPGA driver, stages libs, unloads XDMA, **JTAG-flashes the
+   U250 with `firesim.bit`**, reloads XDMA, sets slot permissions. `EXIT=0`.
+   (Same `~/firesim.pem` requirement as buildbitstream — the launcher ensures it.)
+2. `run_sync_only.py` (venv) — gym synchronizer listening on :10001.
+3. `firesim runworkload` — loads `dmavalidate.riscv` via TSI, runs on the FPGA.
+
+**Result ✅ — on-hardware:** uartlog (`firesim_run_temp/sim_slot_0/uartlog`) shows the RoSE
+co-sim loop live on the FPGA: `[RoSE Bridge]: pushing header to 0x11 and channel to 0`,
+`[ROSE DRIVER]: Pushing cmd 11`, bridge connected to the synchronizer, then:
+```
+DMAVALIDATE: PASS rx[0]=0xc0de0000 ...
+```
+i.e. the Rocket SoC (booted from the 1.14.0 bitstream) requested a camera frame over the RoSE
+bridge, the synchronizer served the pattern, the CamDMAEngine wrote it to U250 DDR @0x88000000,
+and the SoC read + validated it — **the whole RoSE bridge works on real hardware.** (uartlog
+flushes slowly under synchronizer gating; `PASS` was captured incrementally.) Torn down with
+`firesim kill`.
+
+### STEP 18b — Deadlock-detection bypass (the old firesim patch is gone; use +partitioned=1)
+
+The pre-migration firesim FORK carried a patch to bypass FireSim's heartbeat deadlock
+detection (so the RoSE bridge's intentional synchronizer-gated stalls aren't flagged as a
+hung sim). That patch is NOT in the current stack — `sims/firesim` is now stock upstream
+(1.21.0), so the heartbeat bridge deadlock check is active again:
+`sim/midas/src/main/cc/bridges/heartbeat.cc` sets `has_timed_out` when the target cycle
+doesn't advance between polls, and `heartbeat_t::terminate()` returns it → the sim exits with
+`Simulator deadlock detected at target cycle N. Terminating.`
+
+Stock firesim already exposes a disable: the `+partitioned=1` plusarg sets
+`ignore_heartbeat=true` (verified `heartbeat.cc` is the ONLY consumer of `+partitioned` in the
+driver C++, so no other side effects). Enable it via
+`config_runtime_local.yaml` -> `target_config.plusarg_passthrough: "+partitioned=1"`.
+
+**Validated on the U250 FPGA (2026-06-30):** the un-patched dmavalidate run self-terminated
+with `Simulator deadlock detected at target cycle 931000002`. With `+partitioned=1` (confirmed
+in the driver command line), the same run reached `DMAVALIDATE: PASS` and continued **past
+cycle 965000002 with 0 deadlock messages, still running** — i.e. the deadlock detection is
+bypassed. (Torn down with `firesim kill`.)
+
+For a durable, checkout-reproducible bypass (option 2), add a `soc/setup.sh` patch to
+heartbeat.{h,cc} instead of relying on the runtime plusarg.

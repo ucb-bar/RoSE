@@ -4,7 +4,7 @@ gym_env: 'PatternEnv-v0'        # known-pattern env for bridge RX validation
 firesim_freq: 10_000_000
 # Metasim note: a Verilator metasim runs at ~kHz, so the FPGA-scale 10M-cycle step
 # would take ~1000s per sync step. Use a small step for metasim bring-up.
-firesim_step: 10_000
+firesim_step: 1_000_000   # FPGA: larger step = fewer host round-trips
 # firesim_step: 10_000_000   # FPGA-scale
 max_sim_time: 100.0
   #max_sim_time: 0.5

@@ -32,9 +32,9 @@ class RoseBridge()(implicit p: Parameters) extends BlackBox with Bridge[HostPort
 }
 
 object RoseBridge {
-  def apply(clock: Clock, airsimio: RosePortIO, reset: Bool)(implicit p: Parameters): RoseBridge = {
+  def apply(clock: Clock, rosebridgeio: RosePortIO, reset: Bool)(implicit p: Parameters): RoseBridge = {
     val rosebridge = Module(new RoseBridge())
-    rosebridge.io.airsimio <> airsimio
+    rosebridge.io.rosebridgeio <> rosebridgeio
     rosebridge.io.clock := clock
     rosebridge.io.reset := reset
     rosebridge

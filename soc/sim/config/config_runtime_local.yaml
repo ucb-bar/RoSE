@@ -56,11 +56,11 @@ target_config:
   # or from config_build_recipes.yaml for metasimulation
   # In homogeneous configurations, use this to set the hardware config deployed
   # for all simulators
-  # default_hw_config: alveo_u250_firesim-rocket-singlecore-with-rose-fast-no-nic-l2-llc4mb-ddr3
+  default_hw_config: alveo_u250_firesim-rocket-singlecore-with-rose-fast-no-nic-l2-llc4mb-ddr3
   # default_hw_config: f1_firesim-rocket-singlecore-with-rose-fast-no-nic-l2-llc4mb-ddr3
   # default_hw_config: f1_firesim-rocket-singlecore-with-rose-stereoaccrocc-fast-no-nic-l2-llc4mb-ddr3
   # default_hw_config: f1_firesim-boom-dual-dma-fast-no-nic-l2-llc4mb-ddr3
-  default_hw_config: alveo-u250_firesim-boom-dual-dma-fast-no-nic-l2-llc4mb-ddr3
+  # default_hw_config: alveo-u250_firesim-boom-dual-dma-fast-no-nic-l2-llc4mb-ddr3
   # default_hw_config: f1_firesim-rocket-singlecore-with-rose-stereoacc-fast-yes-nic-l2-llc4mb-ddr3
   # default_hw_config: f1_firesim-rocket-singlecore-with-rose-stereoacc-fast-no-nic-l2-llc4mb-ddr3
   # default_hw_config: f1_firesim-rocket-singlecore-with-rose-edgedetacc-fast-no-nic-l2-llc4mb-ddr3
@@ -71,7 +71,7 @@ target_config:
   # booting the simulator (in both FPGA-sim and metasim modes). This is
   # a string, with the contents formatted as if you were passing the plusargs
   # at command line, e.g. "+a=1 +b=2"
-  plusarg_passthrough: ""
+  plusarg_passthrough: "+partitioned=1"
 tracing:
   enable: no
   # Trace output formats. Only enabled if "enable" is set to "yes" above
@@ -87,7 +87,7 @@ tracing:
 autocounter:
   read_rate: 0
 workload:
-  workload_name: airsim-packettest.json
+  workload_name: rose-selftest.json
   # workload_name: nic-loopback.json
   #workload_name: airsim-driver-fed.json
   #workload_name: airsim-flight.json

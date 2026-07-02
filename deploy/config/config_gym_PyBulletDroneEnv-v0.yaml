@@ -1,0 +1,30 @@
+# RoSE co-sim config for the gym-pybullet-drones quadrotor (PyBulletDroneEnv-v0).
+# Serves body-frame IMU (accel/gyro, 3x float32 each) over reqrsp channels in
+# response to SoC requests. The SoC (rose-imu sensor driver) reinterprets the
+# received uint32 words as float32.
+packets:
+  - name: imu_accel
+    id: 0x12                     # SoC command: request accelerometer
+    type: "reqrsp"
+    latency: 0
+    channel: 2                  # reqrsp1 (ROSE_RX_DATA_2)
+    indices:
+      - "imu_accel"
+  - name: imu_gyro
+    id: 0x13                     # SoC command: request gyroscope
+    type: "reqrsp"
+    latency: 0
+    channel: 1                  # reqrsp0 (ROSE_RX_DATA_1)
+    indices:
+      - "imu_gyro"
+
+# bandwidth_threshold = cycles BETWEEN word deliveries (0 = unlimited).
+channel_bandwidth: [[0, 0, 0]]
+
+# CtrlAviary default is 240 Hz control; one env.step() ~= 1/240 s.
+gym_timestep: 0.004
+
+gym_kwargs: {}
+
+n_gym_agents: 1
+n_fsim_nodes: 1

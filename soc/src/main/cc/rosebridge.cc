@@ -1,6 +1,6 @@
 // See LICENSE for license details
 
-#include "airsim.h"
+#include "rosebridge.h"
 #include <sys/stat.h>
 #include <fcntl.h>
 
@@ -11,7 +11,7 @@
 #include <pthread.h>
 #include <queue>
 
-char airsim_t::KIND;
+char rosebridge_t::KIND;
 
 /* There is no "backpressure" to the user input for sigs. only one at a time
  * non-zero value represents unconsumed special char input.
@@ -34,8 +34,8 @@ ssize_t net_read(int fd, void *buf, size_t count)
 }
 
 void * queue_func(void * arg){
-    printf("[AIRSIM DRIVER THREAD]: Starting RX/TX thread\n");
-    airsim_t * sim = (airsim_t *) arg;
+    printf("[ROSE BRIDGE THREAD]: Starting RX/TX thread\n");
+    rosebridge_t * sim = (rosebridge_t *) arg;
 
     uint32_t cmd;
     uint32_t num_bytes;
@@ -53,7 +53,7 @@ void * queue_func(void * arg){
     while(true) {
         thread_count++;
         if(thread_count > 50000) {
-            // printf("[AIRSIM DRIVER THREAD]: Thread heartbeat\n");
+            // printf("[ROSE BRIDGE THREAD]: Thread heartbeat\n");
             thread_count = 0;
         }
         bzero(sim->buf, ROBOTICS_COSIM_BUFSIZE);
@@ -61,9 +61,9 @@ void * queue_func(void * arg){
         n = net_read(sim->sync_sockfd, sim->buf, 4);
         if(n > 0) {
             cmd = ((uint32_t *) sim->buf)[0];
-            // printf("[AIRSIM DRIVER THREAD]: Got cmd in multithreading: 0x%x, %d\n", cmd, n);
+            // printf("[ROSE BRIDGE THREAD]: Got cmd in multithreading: 0x%x, %d\n", cmd, n);
             usleep(1);
-            // if(cmd < 0x80) printf("[AIRSIM DRIVER THREAD]: Got data cmd in multithreading: 0x%x\n", cmd);
+            // if(cmd < 0x80) printf("[ROSE BRIDGE THREAD]: Got data cmd in multithreading: 0x%x\n", cmd);
             curr_q = (cmd >= 0x80) ? &(sim->tcp_sync_rxdata) : &(sim->tcp_data_rxdata);
             // if this is a control sequence...
             if (cmd >= 0x80) {
@@ -72,8 +72,8 @@ void * queue_func(void * arg){
                 m.unlock();
                 // fprintf(rxfile, "%d\n", cmd);
                 
-                // printf("[AIRSIM DRIVER THREAD]: detected cmd >= 80, pushed to curr_q\n");
-                // printf("[AirSim Driver Thread]: Pushed word 0x%x\n", cmd);
+                // printf("[ROSE BRIDGE THREAD]: detected cmd >= 80, pushed to curr_q\n");
+                // printf("[RoSE Bridge Thread]: Pushed word 0x%x\n", cmd);
 
                 uint32_t i = 1;
                 while(!net_read(sim->sync_sockfd, sim->buf, 4))
@@ -82,12 +82,12 @@ void * queue_func(void * arg){
                     i = i * 2;
                 }
                 num_bytes = ((uint32_t *) sim->buf)[0];
-                // printf("[AIRSIM DRIVER THREAD]: Got num_bytes in multithreading: 0x%x, %d\n", num_bytes , n);
+                // printf("[ROSE BRIDGE THREAD]: Got num_bytes in multithreading: 0x%x, %d\n", num_bytes , n);
                 m.lock();
                 curr_q->push_back(num_bytes);
                 m.unlock();
                 // fprintf(rxfile, "%d\n", num_bytes);
-                // printf("[AirSim Driver Thread]: Pushed word 0x%x\n", num_bytes);
+                // printf("[RoSE Bridge Thread]: Pushed word 0x%x\n", num_bytes);
 
                 if(num_bytes > 0)
                 {
@@ -104,16 +104,16 @@ void * queue_func(void * arg){
                         m.lock();
                         curr_q->push_back(((uint32_t *) sim->buf)[i]);
                         m.unlock();
-                        // printf("[AIRSIM DRIVER THREAD]: Got datum in multithreading: 0x%x\n", ((uint32_t *) sim->buf)[i]);
+                        // printf("[ROSE BRIDGE THREAD]: Got datum in multithreading: 0x%x\n", ((uint32_t *) sim->buf)[i]);
                         // fprintf(rxfile, "%d\n", ((uint32_t *) sim->buf)[i]);
-                        // printf("[AirSim Driver Thread]: Pushed word 0x%x\n", num_bytes);
-                        // printf("[AirSim Driver Thread]: Pushed word 0x%x\n", ((uint32_t *) sim->buf)[i]);
+                        // printf("[RoSE Bridge Thread]: Pushed word 0x%x\n", num_bytes);
+                        // printf("[RoSE Bridge Thread]: Pushed word 0x%x\n", ((uint32_t *) sim->buf)[i]);
                     }
                 }
-                // printf("[AIRSIM DRIVER THREAD]: Exiting RX task\n");
+                // printf("[ROSE BRIDGE THREAD]: Exiting RX task\n");
             // if this is a data sequence... (cmd < 0x80)
             } else { 
-                // printf("[AIRSIM DRIVER THREAD]: Got data cmd in multithreading: 0x%x\n", cmd);
+                // printf("[ROSE BRIDGE THREAD]: Got data cmd in multithreading: 0x%x\n", cmd);
                 uint32_t i = 1;
                 while(!net_read(sim->sync_sockfd, sim->buf, 4))
                 {
@@ -122,14 +122,14 @@ void * queue_func(void * arg){
                 }
                 big_step = ((uint32_t *) sim->buf)[0]; 
                 i = 1;
-                // printf("[AIRSIM DRIVER THREAD]: Got big_step in multithreading: 0x%x\n", big_step);
+                // printf("[ROSE BRIDGE THREAD]: Got big_step in multithreading: 0x%x\n", big_step);
                 while(!net_read(sim->sync_sockfd, sim->buf, 4))
                 {
                     usleep(i);
                     i = i * 2;
                 }
                 budget = ((uint32_t *) sim->buf)[0];
-                // printf("[AIRSIM DRIVER THREAD]: Got budget in multithreading: 0x%x\n", budget);
+                // printf("[ROSE BRIDGE THREAD]: Got budget in multithreading: 0x%x\n", budget);
                 i = 1;
                 while(!net_read(sim->sync_sockfd, sim->buf, 4))
                 {
@@ -137,7 +137,7 @@ void * queue_func(void * arg){
                     i = i * 2;
                 }
                 num_bytes = ((uint32_t *) sim->buf)[0];
-                // printf("[AIRSIM DRIVER THREAD]: Got num_bytes in multithreading: 0x%x\n", num_bytes);
+                // printf("[ROSE BRIDGE THREAD]: Got num_bytes in multithreading: 0x%x\n", num_bytes);
                 if(num_bytes > 0)
                 {
                     //usleep(1);
@@ -148,10 +148,10 @@ void * queue_func(void * arg){
                         i = i * 2;
                     }
                 }
-                // printf("[AIRSIM DRIVER THREAD]: Finished receiving one packet\n");
+                // printf("[ROSE BRIDGE THREAD]: Finished receiving one packet\n");
                 for (int i = 0; i < num_bytes / 4; i++) {
                     buf[i] = ((uint32_t *) sim->buf)[i];
-                    // printf("[AIRSIM DRIVER THREAD]: Got datum in multithreading: 0x%x\n", buf[i]);
+                    // printf("[ROSE BRIDGE THREAD]: Got datum in multithreading: 0x%x\n", buf[i]);
                 }
                 if (num_bytes == 0) {
                     //allocate new budget_packet
@@ -160,14 +160,14 @@ void * queue_func(void * arg){
                     //allocate new budget_packet
                     budget_packet = new budget_packet_t(cmd, big_step, budget, num_bytes, buf);
                 }
-                // printf("[AIRSIM DRIVER THREAD]: Pushing budget packet %x, %x, %x\n", budget_packet.cmd, budget_packet.budget, budget_packet.num_bytes);
+                // printf("[ROSE BRIDGE THREAD]: Pushing budget packet %x, %x, %x\n", budget_packet.cmd, budget_packet.budget, budget_packet.num_bytes);
                 m.lock();
                 sim->budget_rx_queue.push_back(budget_packet);
-                // printf("[AIRSIM DRIVER THREAD]: current queue size: %d\n", sim->budget_rx_queue.size());
+                // printf("[ROSE BRIDGE THREAD]: current queue size: %d\n", sim->budget_rx_queue.size());
                 m.unlock();
-                // printf("[AIRSIM DRIVER THREAD]: Pushed budget packet\n");
+                // printf("[ROSE BRIDGE THREAD]: Pushed budget packet\n");
             }
-            // printf("[AIRSIM DRIVER THREAD]: Exiting RX task\n");
+            // printf("[ROSE BRIDGE THREAD]: Exiting RX task\n");
             // fflush(stdout);
         }
         if(sim->tcp_txdata.size() > 0){
@@ -177,7 +177,7 @@ void * queue_func(void * arg){
             sim->tcp_txdata.pop_front();
             m.unlock();
             if(cmd < 0x80) {
-                // printf("[Airsim Driver Thread]: Got cmd from main thread: 0x%x\n", cmd);
+                // printf("[RoSE Driver Thread]: Got cmd from main thread: 0x%x\n", cmd);
             }
             uint32_t i = 1;
             while(sim->tcp_txdata.size() == 0)
@@ -188,7 +188,7 @@ void * queue_func(void * arg){
             m.lock();
             num_bytes = sim->tcp_txdata.front();
             sim->tcp_txdata.pop_front();
-            // printf("[Airsim Driver Thread]: Got num_bytes from main thread: 0x%x\n", num_bytes);
+            // printf("[RoSE Driver Thread]: Got num_bytes from main thread: 0x%x\n", num_bytes);
 
             i = 1;
             while(sim->tcp_txdata.size() < num_bytes / 4)
@@ -198,7 +198,7 @@ void * queue_func(void * arg){
             }
             for(int i = 0; i < num_bytes/4; i++){
                 buf[i] = sim->tcp_txdata.front();
-                // printf("[Airsim Driver Thread]: Got datum from main thread: 0x%x\n", buf[i]);
+                // printf("[RoSE Driver Thread]: Got datum from main thread: 0x%x\n", buf[i]);
                 sim->tcp_txdata.pop_front(); 
             }
             m.unlock();
@@ -210,13 +210,13 @@ void * queue_func(void * arg){
             }
             packet.encode(sim->buf);
             net_write(sim->sync_sockfd, sim->buf, packet.num_bytes + 8);
-            // printf("[AIRSIM DRIVER THREAD]: Exiting TX task\n");
+            // printf("[ROSE BRIDGE THREAD]: Exiting TX task\n");
         }
     }
 }
-airsim_t::airsim_t(simif_t &sim, const ROSEBRIDGEMODULE_struct &mmio_addrs, int airsimno, const std::vector<std::string> &args) : bridge_driver_t(sim, &KIND)
+rosebridge_t::rosebridge_t(simif_t &sim, const ROSEBRIDGEMODULE_struct &mmio_addrs, int rosebridgeno, const std::vector<std::string> &args) : bridge_driver_t(sim, &KIND)
 {
-    printf("[AIRSIM DRIVER] Initiated bridge driver!\n");
+    printf("[ROSE DRIVER] Initiated bridge driver!\n");
     this->mmio_addrs = mmio_addrs;
     this->loggingfd = 0; // unused
     this->connect_synchronizer();
@@ -224,12 +224,12 @@ airsim_t::airsim_t(simif_t &sim, const ROSEBRIDGEMODULE_struct &mmio_addrs, int 
     this->checking_stall = false;
     
     #ifdef CAPTURE
-    this->fsim_rx_capture = fopen("airsimcc_fsim_rxcapture.txt", "w");
+    this->fsim_rx_capture = fopen("rosebridge_fsim_rxcapture.txt", "w");
         if (this->fsim_rx_capture == NULL) {
         fprintf(stderr, "failed to open capture file");
         exit(1);
     }
-     this->fsim_tx_capture = fopen("airsimcc_fsim_txcapture.txt", "w");
+     this->fsim_tx_capture = fopen("rosebridge_fsim_txcapture.txt", "w");
         if (this->fsim_tx_capture == NULL) {
         fprintf(stderr, "failed to open capture file");
         exit(1);
@@ -238,9 +238,9 @@ airsim_t::airsim_t(simif_t &sim, const ROSEBRIDGEMODULE_struct &mmio_addrs, int 
 
     pthread_create(&(this->tcp_thread), NULL, &queue_func , this);
 }
-airsim_t::~airsim_t() = default;
+rosebridge_t::~rosebridge_t() = default;
 
-void airsim_t::connect_synchronizer()
+void rosebridge_t::connect_synchronizer()
 {
     // COSIM-CODE
     // Adapted from: https://www.cs.cmu.edu/afs/cs/academic/class/15213-f99/www/class26/tcpclient.c
@@ -285,7 +285,7 @@ void airsim_t::connect_synchronizer()
     // COSIM-CODE
 }
 
-void airsim_t::process_tcp_packet()
+void rosebridge_t::process_tcp_packet()
 {
     uint32_t cmd;
     uint32_t num_bytes;
@@ -294,14 +294,14 @@ void airsim_t::process_tcp_packet()
     uint32_t buf [ROBOTICS_COSIM_BUFSIZE];
 
     cosim_packet_t packet;
-    // printf("[AirSim Driver]: Sync Queue Size: %d\n", this->tcp_data_rxdata.size());
+    // printf("[RoSE Bridge]: Sync Queue Size: %d\n", this->tcp_data_rxdata.size());
 
     if (this->tcp_sync_rxdata.size() > 0) {
         m.lock();
         cmd = this->tcp_sync_rxdata.front();
         this->tcp_sync_rxdata.pop_front();
         m.unlock();
-	//  printf("[Airsim Driver]: Got cmd from queue: 0x%x\n", cmd);
+	//  printf("[RoSE Driver]: Got cmd from queue: 0x%x\n", cmd);
 
         //usleep(1);
         uint32_t i = 1;
@@ -314,7 +314,7 @@ void airsim_t::process_tcp_packet()
         num_bytes = this->tcp_sync_rxdata.front();
         this->tcp_sync_rxdata.pop_front();
         m.unlock();
-        // printf("[Airsim Driver]: Got num bytes 0x%d\n", num_bytes);
+        // printf("[RoSE Driver]: Got num bytes 0x%d\n", num_bytes);
 
         i = 1;
         while(this->tcp_sync_rxdata.size() < num_bytes/4)
@@ -326,7 +326,7 @@ void airsim_t::process_tcp_packet()
         for(int i = 0; i < num_bytes/4; i++){
             buf[i] = this->tcp_sync_rxdata.front();
             this->tcp_sync_rxdata.pop_front(); 
-            // printf("[Airsim Driver]: Got data %d: 0x%d\n",i, buf[i]);
+            // printf("[RoSE Driver]: Got data %d: 0x%d\n",i, buf[i]);
         }
         m.unlock();
 
@@ -335,31 +335,31 @@ void airsim_t::process_tcp_packet()
         } else {
             packet.init(cmd, num_bytes, (char *) buf);
         }
-        //printf("[AirSim Driver]: Got packet: ");
+        //printf("[RoSE Bridge]: Got packet: ");
         // packet.print();
         switch (packet.cmd & 0xFF)
         {
         case CS_GRANT_TOKEN:
-            // printf("[AirSim Driver]: Got Sync Packet\n");
+            // printf("[RoSE Bridge]: Got Sync Packet\n");
             this->grant_cycles();
             // Iterate over budge rx queue and update all latency budgets to 0, without changing the order
-            // printf("[AirSim Driver]: Checkedoff Packets\n");
-            // printf("[AirSim Driver]: Reporting Stalls\n");
+            // printf("[RoSE Bridge]: Checkedoff Packets\n");
+            // printf("[RoSE Bridge]: Reporting Stalls\n");
             // this->report_stall();
-            // printf("[AirSim Driver]: Reported Stalls\n");
+            // printf("[RoSE Bridge]: Reported Stalls\n");
             this->checking_stall = true;
             break;
         case CS_REQ_CYCLES:
             this->report_cycles();
             break;
         case CS_DEFINE_STEP:
-            //printf("[AirSim Driver]: Got Step Size: %d\n", packet.data[0]);
+            //printf("[RoSE Bridge]: Got Step Size: %d\n", packet.data[0]);
 
             this->set_step_size(packet.data[0]);
             break;
         case CS_CFG_BW:
-            // printf("[AirSim Driver]: Got Destination: %d\n", packet.data[0]);
-            // printf("[AirSim Driver]: Got Bandwidth: %d\n", packet.data[1]);
+            // printf("[RoSE Bridge]: Got Destination: %d\n", packet.data[0]);
+            // printf("[RoSE Bridge]: Got Bandwidth: %d\n", packet.data[1]);
             this->config_bandwidth(packet.data[0], packet.data[1]);
             break;
         case CS_CFG_ROUTE:
@@ -373,10 +373,10 @@ void airsim_t::process_tcp_packet()
         }
     }
 
-    //printf("[AirSim Driver]: Finished processing packets\n");
+    //printf("[RoSE Bridge]: Finished processing packets\n");
 }
 
-void airsim_t::enqueue_firesim_data()
+void rosebridge_t::enqueue_firesim_data()
 {
    do {
        this->recv();
@@ -384,14 +384,14 @@ void airsim_t::enqueue_firesim_data()
             m.lock();
            this->fsim_rxdata.push_back(data.out.bits);
             m.unlock();
-            // printf("[AIRSIM CLIENT]: ENQUEUEING PACKET -- 0x%x\n", data.out.bits);
+            // printf("[ROSE CLIENT]: ENQUEUEING PACKET -- 0x%x\n", data.out.bits);
        } else {
            break;
        }
    } while(true);
 }
 
-bool airsim_t::read_firesim_packet(cosim_packet_t * packet)
+bool rosebridge_t::read_firesim_packet(cosim_packet_t * packet)
 {
     uint32_t cmd;
     uint32_t num_bytes;
@@ -434,7 +434,7 @@ bool airsim_t::read_firesim_packet(cosim_packet_t * packet)
     return false;
 }
 
-void airsim_t::send()
+void rosebridge_t::send()
 {
     data.in.ready = read(this->mmio_addrs.in_ready);
     if(data.in.ready) {
@@ -443,9 +443,9 @@ void airsim_t::send()
     }
 }
 
-void airsim_t::send_budget()
+void rosebridge_t::send_budget()
 {
-    // printf("[AIRSIM DRIVER]: Try sending budget packet -- 0x%x\n", data.budget.bits);
+    // printf("[ROSE DRIVER]: Try sending budget packet -- 0x%x\n", data.budget.bits);
     data.budget.ready = read(this->mmio_addrs.in_budget_ready);
     if(data.budget.ready) {
         write(this->mmio_addrs.in_budget_bits, data.budget.bits);
@@ -453,9 +453,9 @@ void airsim_t::send_budget()
     }
 }
 
-void airsim_t::send_bigstep()
+void rosebridge_t::send_bigstep()
 {
-    // printf("[AIRSIM DRIVER]: Try sending budget packet -- 0x%x\n", data.budget.bits);
+    // printf("[ROSE DRIVER]: Try sending budget packet -- 0x%x\n", data.budget.bits);
     data.bigstep.ready = read(this->mmio_addrs.in_bigstep_ready);
     if(data.bigstep.ready) {
         write(this->mmio_addrs.in_bigstep_bits, data.bigstep.bits);
@@ -463,28 +463,28 @@ void airsim_t::send_bigstep()
     }
 }
 
-void airsim_t::recv()
+void rosebridge_t::recv()
 {
     data.out.valid = read(this->mmio_addrs.out_valid);
     if (data.out.valid)
     {
         data.out.bits = read(this->mmio_addrs.out_bits);
-        // printf("[AirSim Driver]: Got bytes %x\n", data.out.bits);
+        // printf("[RoSE Bridge]: Got bytes %x\n", data.out.bits);
         write(this->mmio_addrs.out_ready, 1);
     }
 }
 
-void airsim_t::check_stall() 
+void rosebridge_t::check_stall() 
 {
     uint32_t budget;
     cosim_packet_t response;
 
     budget = read(this->mmio_addrs.cycle_budget);
-    // printf("[AirSim Driver]:budget: %u\n", budget);
+    // printf("[RoSE Bridge]:budget: %u\n", budget);
     if(budget == this->step_size){
         response.init(CS_RSP_STALL, 0, NULL);
         // response.encode(this->buf);
-        // printf("[AirSim Driver]: Sending cycles packet: ");
+        // printf("[RoSE Bridge]: Sending cycles packet: ");
         // response.print();
         //net_write(this->sync_sockfd, this->buf, response.num_bytes + 8);
         m.lock();
@@ -498,7 +498,7 @@ void airsim_t::check_stall()
     }
 }
 
-void airsim_t::report_stall()
+void rosebridge_t::report_stall()
 {
     cosim_packet_t response;
     // uint32_t buf[ROBOTICS_COSIM_BUFSIZE];
@@ -513,7 +513,7 @@ void airsim_t::report_stall()
 
     response.init(CS_RSP_STALL, 0, NULL);
     // response.encode(this->buf);
-    // printf("[AirSim Driver]: Sending cycles packet: ");
+    // printf("[RoSE Bridge]: Sending cycles packet: ");
     // response.print();
     //net_write(this->sync_sockfd, this->buf, response.num_bytes + 8);
     m.lock();
@@ -525,14 +525,14 @@ void airsim_t::report_stall()
     m.unlock();
 }
 
-void airsim_t::grant_cycles()
+void rosebridge_t::grant_cycles()
 {
-    // printf("[AirSim Driver]: Granting Cycle\n");
+    // printf("[RoSE Bridge]: Granting Cycle\n");
     write(this->mmio_addrs.in_ctrl_bits, 1);
     write(this->mmio_addrs.in_ctrl_valid, true);
 }
 
-void airsim_t::report_cycles() 
+void rosebridge_t::report_cycles() 
 {
     cosim_packet_t response;
     // uint32_t buf[ROBOTICS_COSIM_BUFSIZE];
@@ -541,7 +541,7 @@ void airsim_t::report_cycles()
 
     response.init(CS_RSP_CYCLES, 4, (char *) &cycles);
     // response.encode(this->buf);
-    // printf("[AirSim Driver]: Sending cycles packet: ");
+    // printf("[RoSE Bridge]: Sending cycles packet: ");
     // response.print();
     //net_write(this->sync_sockfd, this->buf, response.num_bytes + 8);
     m.lock();
@@ -553,68 +553,68 @@ void airsim_t::report_cycles()
     m.unlock();
 }
 
-void airsim_t::schedule_firesim_data() {
+void rosebridge_t::schedule_firesim_data() {
     m.lock();
     // TODO: safe to not check for emptyness?
     while (!this->budget_rx_queue.empty() && ((this->fsim_txbudget.empty() && this->fsim_txdata.empty()))) {
-        // printf("[AIRSIM DRIVER]: Entering schedule loop\n");
+        // printf("[ROSE DRIVER]: Entering schedule loop\n");
         this->fsim_tx_bigstep.push_back(this->budget_rx_queue.front()->big_step);
-        // printf("[AIRSIM DRIVER]: Pushed big_step 0x%x\n", this->budget_rx_queue.front()->big_step);
+        // printf("[ROSE DRIVER]: Pushed big_step 0x%x\n", this->budget_rx_queue.front()->big_step);
         this->fsim_txbudget.push_back(this->budget_rx_queue.front()->budget);
-        // printf("[AIRSIM DRIVER]: Pushed budget 0x%x\n", this->budget_rx_queue.front()->budget);
+        // printf("[ROSE DRIVER]: Pushed budget 0x%x\n", this->budget_rx_queue.front()->budget);
         this->fsim_txdata.push_back(this->budget_rx_queue.front()->cmd);
-        // printf("[AIRSIM DRIVER]: Pushed cmd 0x%x\n", this->budget_rx_queue.front()->cmd);
+        // printf("[ROSE DRIVER]: Pushed cmd 0x%x\n", this->budget_rx_queue.front()->cmd);
         this->fsim_txdata.push_back(this->budget_rx_queue.front()->num_bytes);
-        // printf("[AIRSIM DRIVER]: Pushed num_bytes 0x%x\n", this->budget_rx_queue.front()->num_bytes);
+        // printf("[ROSE DRIVER]: Pushed num_bytes 0x%x\n", this->budget_rx_queue.front()->num_bytes);
         if (this->budget_rx_queue.front()->num_bytes > 0) {
             for(int i = 0; i < this->budget_rx_queue.front()->num_bytes/4; i++) {
-                // printf("[AIRSIM DRIVER]: Got buf: 0x%x\n", (this->budget_rx_queue.front()->data)[i]);
+                // printf("[ROSE DRIVER]: Got buf: 0x%x\n", (this->budget_rx_queue.front()->data)[i]);
                 this->fsim_txdata.push_back((this->budget_rx_queue.front()->data)[i]);
             }
         }
-        // printf("[AIRSIM DRIVER]: Popping budget packet\n");
+        // printf("[ROSE DRIVER]: Popping budget packet\n");
         // free the front to avoid leak
         delete this->budget_rx_queue.front();
         this->budget_rx_queue.pop_front();
-        // printf("[AIRSIM DRIVER]: Popped budget packet\n");
+        // printf("[ROSE DRIVER]: Popped budget packet\n");
     }
     m.unlock();
 
-    // printf("[AIRSIM DRIVER]: Finished scheduling firesim data\n");
+    // printf("[ROSE DRIVER]: Finished scheduling firesim data\n");
 }
 
-void airsim_t::set_step_size(uint32_t step_size)
+void rosebridge_t::set_step_size(uint32_t step_size)
 {
-    printf("[AirSim Driver]: Setting step size to %d!\n", step_size);
+    printf("[RoSE Bridge]: Setting step size to %d!\n", step_size);
     write(this->mmio_addrs.cycle_step, step_size);
     this->step_size = step_size;
 }
 
-void airsim_t::config_bandwidth(uint32_t dest, uint32_t bandwidth)
+void rosebridge_t::config_bandwidth(uint32_t dest, uint32_t bandwidth)
 {
-    printf("[AirSim Driver]: Setting bandwidth to %d!\n", bandwidth);
+    printf("[RoSE Bridge]: Setting bandwidth to %d!\n", bandwidth);
     write(this->mmio_addrs.bww_config_destination, dest);
     write(this->mmio_addrs.bww_config_bits, bandwidth);
     write(this->mmio_addrs.bww_config_valid, 1);
 }
 
-// void airsim_t::config_route(uint32_t header, uint32_t channel)
+// void rosebridge_t::config_route(uint32_t header, uint32_t channel)
 // {
-//     printf("[AirSim Driver]: Setting header to 0x%x and channel to %d!\n", header, channel);
+//     printf("[RoSE Bridge]: Setting header to 0x%x and channel to %d!\n", header, channel);
 //     write(this->mmio_addrs.config_routing_header, header);
 //     write(this->mmio_addrs.config_routing_channel, channel);
 //     write(this->mmio_addrs.config_routing_valid, 1);
 // }
-void airsim_t::push_route(uint32_t header, uint32_t channel)
+void rosebridge_t::push_route(uint32_t header, uint32_t channel)
 {
-    printf("[AirSim Driver]: pushing header to 0x%x and channel to %d!\n", header, channel);
+    printf("[RoSE Bridge]: pushing header to 0x%x and channel to %d!\n", header, channel);
     m.lock();
     this->fsim_cfg_header.push_back(header);
     this->fsim_cfg_channel.push_back(channel);
     m.unlock();
 }
 
-void airsim_t::send_route()
+void rosebridge_t::send_route()
 {
     data.cfg_routing.ready = read(this->mmio_addrs.config_routing_ready);
     if(data.cfg_routing.ready) {
@@ -624,7 +624,7 @@ void airsim_t::send_route()
     }
 }
 
-void airsim_t::tick()
+void rosebridge_t::tick()
 {
     cosim_packet_t packet;
     data.out.ready = true;
@@ -635,20 +635,20 @@ void airsim_t::tick()
         count = 0;
     }
     
-    // printf("[AirSim Driver]: Processing tick\n");
+    // printf("[RoSE Bridge]: Processing tick\n");
     if(this->checking_stall){
         this->check_stall();
     }
     this->process_tcp_packet();
     this->enqueue_firesim_data();
     this->schedule_firesim_data();
-    // printf("[AIRSIM DRIVER]: Finished scheduling loop\n");
+    // printf("[ROSE DRIVER]: Finished scheduling loop\n");
     if(this->read_firesim_packet(&packet)) {
         m.lock();
         this->tcp_txdata.push_back(packet.cmd);
-        printf("[AIRSIM DRIVER]: Pushing cmd %x\n", packet.cmd);
+        printf("[ROSE DRIVER]: Pushing cmd %x\n", packet.cmd);
         this->tcp_txdata.push_back(packet.num_bytes);
-        // printf("[AIRSIM DRIVER]: Pushing num_bytes%x\n", packet.num_bytes);
+        // printf("[ROSE DRIVER]: Pushing num_bytes%x\n", packet.num_bytes);
         for(int i = 0; i < packet.num_bytes/4; i++) {
             this->tcp_txdata.push_back(packet.data[i]);
             #ifdef CAPTURE
@@ -656,7 +656,7 @@ void airsim_t::tick()
                 fprintf(this->fsim_rx_capture, "%02x ", (packet.data[i] >> j) & 0xFF);
             }
             #endif
-            // printf("[AIRSIM DRIVER]: Pushing datum%x\n", packet.data[i]);
+            // printf("[ROSE DRIVER]: Pushing datum%x\n", packet.data[i]);
         }
         #ifdef CAPTURE
             fputc('\n', this->fsim_rx_capture);
@@ -665,7 +665,7 @@ void airsim_t::tick()
         m.unlock();
     }
     while(this->fsim_tx_bigstep.size() > 0){
-        // printf("[AIRSIM DRIVER]: Entered budget loop\n");
+        // printf("[ROSE DRIVER]: Entered budget loop\n");
         m.lock();
         data.bigstep.bits = this->fsim_tx_bigstep.front();
         this->send_bigstep();
@@ -676,16 +676,16 @@ void airsim_t::tick()
             m.unlock();
             break;
         }
-        // printf("[AIRSIM DRIVER]: I tried");
+        // printf("[ROSE DRIVER]: I tried");
     }
     while(this->fsim_cfg_header.size() > 0 && this->fsim_cfg_channel.size() > 0){
-        // printf("[AIRSIM DRIVER]: Entered budget loop\n");
+        // printf("[ROSE DRIVER]: Entered budget loop\n");
         m.lock();
         data.cfg_routing.header = this->fsim_cfg_header.front();
         data.cfg_routing.channel= this->fsim_cfg_channel.front();
         this->send_route();
         if(data.cfg_routing.ready) {
-            // printf("[AIRSIM DRIVER]: Transmitting firesim budget -- 0x%x\n", data.budget.bits);
+            // printf("[ROSE DRIVER]: Transmitting firesim budget -- 0x%x\n", data.budget.bits);
             this->fsim_cfg_header.pop_front();
             this->fsim_cfg_channel.pop_front();
             m.unlock();
@@ -693,10 +693,10 @@ void airsim_t::tick()
             m.unlock();
             break;
         }
-        // printf("[AIRSIM DRIVER]: I tried");
+        // printf("[ROSE DRIVER]: I tried");
     }
     while(this->fsim_txbudget.size() > 0){
-        // printf("[AIRSIM DRIVER]: Entered budget loop\n");
+        // printf("[ROSE DRIVER]: Entered budget loop\n");
         m.lock();
         data.budget.bits = this->fsim_txbudget.front();
         this->send_budget();
@@ -707,7 +707,7 @@ void airsim_t::tick()
             m.unlock();
             break;
         }
-        // printf("[AIRSIM DRIVER]: I tried");
+        // printf("[ROSE DRIVER]: I tried");
     }
     while (this->fsim_txdata.size() > 0) {
         m.lock();

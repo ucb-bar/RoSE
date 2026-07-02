@@ -115,7 +115,7 @@ class RoseAdapterArbiterIO(params: RoseAdapterParams) extends Bundle {
 
 class RoseBridgeTargetIO(params: RoseAdapterParams) extends Bundle {
   val clock = Input(Clock())
-  val airsimio = Flipped(new RosePortIO(params))
+  val rosebridgeio = Flipped(new RosePortIO(params))
   val reset = Input(Bool())
   // Note this reset is optional and used only to reset target-state modelled
   // in the bridge This reset just like any other Bool included in your target

@@ -39,3 +39,9 @@ register(
     id='PatternEnv-v0',
     entry_point='envs.pattern.pattern_env:PatternEnv',
 )
+
+# gym-pybullet-drones quadrotor: serves IMU state over the bridge, consumes motor RPMs
+register(
+    id='PyBulletDroneEnv-v0',
+    entry_point='envs.pybullet_drone.drone_env:PyBulletDroneEnv',
+)

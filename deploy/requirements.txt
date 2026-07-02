@@ -19,6 +19,14 @@ pandas
 matplotlib
 opencv-python-headless
 
+# --- gym-pybullet-drones env (PyBulletDroneEnv-v0) ---
+# The gym_pybullet_drones package is used in-tree from the zephyr-chipyard-sw submodule
+# (soc/sw/xpu-rt/zephyr-chipyard-sw/tools/gym-pybullet-drones, added to sys.path by the
+# env wrapper), so only its runtime deps are installed here:
+pybullet
+transforms3d
+setuptools<81   # gym_pybullet_drones BaseAviary imports pkg_resources, removed in setuptools >= 81
+
 # --- Optional extras (NOT needed for the dummy envs / bridge testing) ---
 # AirSim env (requires a running Unreal/AirSim simulator to actually connect):
 #   pip install airsim msgpack-rpc-python

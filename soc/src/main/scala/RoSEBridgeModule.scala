@@ -243,7 +243,7 @@ class RoSEBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
 
     rx_ctrl_fifo.io.deq.ready := true.B;
 
-    val target = hPort.hBits.airsimio
+    val target = hPort.hBits.rosebridgeio
     // In general, your BridgeModule will not need to do work every host-cycle. In simple Bridges,
     // we can do everything in a single host-cycle -- fire captures all of the
     // conditions under which we can consume and input token and produce a new
@@ -373,7 +373,7 @@ class RoSEBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     // after pulseLength cycles to prevent multiple dequeues
     Pulsify(genWORegInit(txfifo.io.deq.ready, "out_ready", false.B), pulseLength = 1)
 
-    // Generate regisers for the rx-side of the AirSim; this is eseentially the reverse of the above
+    // Generate regisers for the rx-side of the RoSE bridge; this is eseentially the reverse of the above
     genWOReg(rxfifo.io.enq.bits, "in_bits")
     Pulsify(genWORegInit(rxfifo.io.enq.valid, "in_valid", false.B), pulseLength = 1)
     genROReg(rxfifo.io.enq.ready, "in_ready")
@@ -381,7 +381,7 @@ class RoSEBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     genWOReg(rx_bigstep_fifo.io.enq.bits, "in_bigstep_bits")
     Pulsify(genWORegInit(rx_bigstep_fifo.io.enq.valid, "in_bigstep_valid", false.B), pulseLength = 1)
     genROReg(rx_bigstep_fifo.io.enq.ready, "in_bigstep_ready")      
-    // Generate regisers for the rx-side of the AirSim; this is eseentially the same as the above
+    // Generate regisers for the rx-side of the RoSE bridge; this is eseentially the same as the above
     genWOReg(rx_budget_fifo.io.enq.bits, "in_budget_bits")
     Pulsify(genWORegInit(rx_budget_fifo.io.enq.valid, "in_budget_valid", false.B), pulseLength = 1)
     genROReg(rx_budget_fifo.io.enq.ready, "in_budget_ready")
@@ -416,7 +416,7 @@ class RoSEBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     
     // This method invocation is required to wire up the bridge to the simulated software
     override def genHeader(base: BigInt, memoryRegions: Map[String, BigInt], sb: StringBuilder): Unit = {
-      genConstructor(base, sb, "airsim_t", "airsim")
+      genConstructor(base, sb, "rosebridge_t", "rosebridge")
     }
 
     // Emits a C header for this bridge construction
