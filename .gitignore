@@ -16,3 +16,8 @@ soc/generated-src/*
 deploy/.venv-rose/
 # Transient build/run logs from the chipyard/metasim/bitstream flow
 soc/sim/*.log
+# RoSE Spike bridge build artifacts (built by soc/src/main/cc/rose_spike/build.sh)
+soc/sim/librose_spike.so
+soc/sim/rose_spike_sim
+# Zephyr rose sample build outputs (west build)
+soc/sim/zephyr_*build*/

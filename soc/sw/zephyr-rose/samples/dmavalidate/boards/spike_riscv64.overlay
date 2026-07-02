@@ -1,0 +1,16 @@
+/* RoSE co-sim adapter with the DMA-completion interrupt wired to the PLIC.
+ * Matches the chipyard-generated DTS for RoseTLRocketMMIOOnlyConfig
+ * (RoseAdapter@2000, PLIC source 3). PLIC #interrupt-cells = <2> (irq, priority).
+ */
+/ {
+	rose0: rose@2000 {
+		compatible = "ucbbar,RoseAdapter";
+		reg = <0x2000 0x1000>;
+		interrupt-parent = <&plic>;
+		interrupts = <3 1>;
+		num-reqrsp-channels = <2>;
+		num-dma-channels = <1>;
+		dma-base-address = <0x88000000>;
+		status = "okay";
+	};
+};

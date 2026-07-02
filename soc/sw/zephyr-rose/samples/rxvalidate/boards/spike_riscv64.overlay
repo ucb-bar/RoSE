@@ -1,0 +1,15 @@
+/* Add the RoSE co-sim adapter node to the spike_riscv64 (rocketchip_virt) board.
+ * Control MMIO window is at 0x2000 (matches the chipyard-generated DTS node
+ * RoseAdapter@2000 for RoseTLRocketMMIOOnlyConfig). Single-cell addressing.
+ * (Interrupt wiring is added with the DMA/IRQ step; polling needs only reg.)
+ */
+/ {
+	rose0: rose@2000 {
+		compatible = "ucbbar,RoseAdapter";
+		reg = <0x2000 0x1000>;
+		num-reqrsp-channels = <2>;
+		num-dma-channels = <1>;
+		dma-base-address = <0x88000000>;
+		status = "okay";
+	};
+};

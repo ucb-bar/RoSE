@@ -30,9 +30,9 @@ sources=(
     "${SCALA_DIR}/RoSEGeneratorConfig.scala"
     "${SCALA_DIR}/RoSEDMA.scala" 
     "${SCALA_DIR}/Dataflow.scala"
-    #C++ files
-    "${FSIM_CC_DIR}/airsim.cc"
-    "${FSIM_CC_DIR}/airsim.h"
+    #C++ files (RoSE bridge driver; legacy filename was airsim.{cc,h})
+    "${FSIM_CC_DIR}/rosebridge.cc"
+    "${FSIM_CC_DIR}/rosebridge.h"
     #simulation configs
     "${ROSE_DIR}/soc/sim/config/config_runtime_local.yaml"
     "${ROSE_DIR}/soc/sim/config/config_build_recipes_local.yaml"
@@ -72,8 +72,8 @@ destinations=(
     "${CHIPYARD_DIR}/generators/rose/src/main/scala/Dataflow.scala" #****
     #C++ destinations
     # chipyard-as-top: bridge C++ drivers live under firechip/bridgestubs, not firesim-lib
-    "${CHIPYARD_DIR}/generators/firechip/bridgestubs/src/main/cc/bridges/airsim.cc"
-    "${CHIPYARD_DIR}/generators/firechip/bridgestubs/src/main/cc/bridges/airsim.h"
+    "${CHIPYARD_DIR}/generators/firechip/bridgestubs/src/main/cc/bridges/rosebridge.cc"
+    "${CHIPYARD_DIR}/generators/firechip/bridgestubs/src/main/cc/bridges/rosebridge.h"
     #simulation configs destinations
     "${FIRESIM_DIR}/deploy/config_runtime.yaml"
     "${FIRESIM_DIR}/deploy/config_build_recipes.yaml"
@@ -173,6 +173,31 @@ if ! grep -q "rose, firechip_bridgeinterfaces," ${CHIPYARD_DIR}/build.sbt; then
     sed -i 's/gemmini, icenet, tracegen, cva6, nvdla, sodor, ibex, fft_generator,/gemmini, icenet, tracegen, cva6, nvdla, sodor, ibex, fft_generator, rose, firechip_bridgeinterfaces,/g' ${CHIPYARD_DIR}/build.sbt
   fi
 fi
+
+# ---------------------------------------------------------------------------
+# Patch spike (riscv-isa-sim) to expose sim_t::step() for the RoSE lockstep
+# harness (rose_spike_sim). This is the ONLY spike source modification RoSE makes;
+# it moves `void step(size_t)` from private to protected so rose_sim_t can drive
+# the step loop. See ROSE_SPIKE_LOCKSTEP_PLAN.md. Idempotent (skips if applied);
+# best-effort (the harness is optional — don't hard-fail metasim/FPGA setup).
+# ---------------------------------------------------------------------------
+ISA_SIM_DIR=${CHIPYARD_DIR}/toolchains/riscv-tools/riscv-isa-sim
+STEP_PATCH=${FSIM_CC_DIR}/rose_spike/rose_spike_sim_stepaccess.patch
+if [ -f "${ISA_SIM_DIR}/riscv/sim.h" ] && [ -f "${STEP_PATCH}" ]; then
+  if grep -q "RoSE lockstep: expose step()" "${ISA_SIM_DIR}/riscv/sim.h"; then
+    echo "spike sim.h step() patch already applied; skipping."
+  else
+    if ( cd "${ISA_SIM_DIR}" && git apply --check "${STEP_PATCH}" ) 2>/dev/null; then
+      ( cd "${ISA_SIM_DIR}" && git apply "${STEP_PATCH}" )
+      echo "Applied spike sim.h step() patch for the RoSE lockstep harness."
+    else
+      echo "WARNING: could not apply ${STEP_PATCH} to spike sim.h (already patched or spike moved?); the rose_spike_sim lockstep harness may not build until this is resolved. The --extlib plugin (librose_spike.so) is unaffected."
+    fi
+  fi
+else
+  echo "WARNING: spike sim.h or step patch missing; skipping RoSE lockstep patch (harness build only)."
+fi
+cd ${ROSE_DIR}
 
 # echo "Updating onnxruntime-riscv submodules"
 # cd ${ROSE_DIR}

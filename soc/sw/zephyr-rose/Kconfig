@@ -1,0 +1,3 @@
+# RoSE Zephyr module configuration.
+rsource "drivers/Kconfig"
+rsource "subsys/Kconfig"

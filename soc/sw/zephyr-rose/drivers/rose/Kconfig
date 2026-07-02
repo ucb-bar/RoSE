@@ -1,0 +1,9 @@
+config ROSE
+	bool "RoSE co-simulation bridge adapter driver"
+	default y
+	depends on DT_HAS_UCBBAR_ROSEADAPTER_ENABLED
+	help
+	  Enable the driver for the RoSE co-simulation bridge adapter
+	  (compatible "ucbbar,RoseAdapter"). Provides a device-model API
+	  (rose_tx / rose_rx) over the adapter's TX/RX FIFOs. This initial
+	  version is polling-only; DMA + interrupt support is added later.

@@ -1,0 +1,14 @@
+diff --git a/riscv/sim.h b/riscv/sim.h
+index da04a882..20e9e3e5 100644
+--- a/riscv/sim.h
++++ b/riscv/sim.h
+@@ -91,7 +91,9 @@ private:
+   std::ostream sout_; // used for socket and terminal interface
+ 
+   processor_t* get_core(const std::string& i);
++protected: /* RoSE lockstep: expose step() to the rose_sim_t harness subclass */
+   void step(size_t n); // step through simulation
++private:
+   size_t current_step;
+   size_t current_proc;
+   bool debug;

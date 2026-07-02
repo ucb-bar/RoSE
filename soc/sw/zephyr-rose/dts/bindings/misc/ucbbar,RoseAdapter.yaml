@@ -1,0 +1,38 @@
+# Copyright (c) 2026 UC Berkeley
+# SPDX-License-Identifier: Apache-2.0
+
+description: |
+  UC Berkeley RoSE co-simulation bridge adapter.
+
+  A TileLink MMIO peripheral exposing a TX FIFO, per-channel RX FIFOs
+  (reqrsp) and camera-DMA channels (which write to system memory and raise a
+  completion interrupt). See soc/sw/generated-src/rose_c_header/rose_port.h
+  for the generated register map.
+
+compatible: "ucbbar,RoseAdapter"
+
+include: base.yaml
+
+properties:
+  reg:
+    required: true
+
+  interrupts:
+    required: false
+    description: DMA-completion interrupt(s), one per DMA channel.
+
+  num-reqrsp-channels:
+    type: int
+    default: 2
+    description: Number of reqrsp (MMIO-read) RX channels.
+
+  num-dma-channels:
+    type: int
+    default: 1
+    description: Number of camera-DMA channels.
+
+  dma-base-address:
+    type: int
+    description: |
+      Physical base address in system memory that the camera-DMA engine
+      writes filled buffers to (channel 0 target; e.g. 0x88000000).

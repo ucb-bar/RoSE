@@ -1,0 +1,2 @@
+zephyr_library_named(rose_driver)
+zephyr_library_sources(rose_adapter.c)
