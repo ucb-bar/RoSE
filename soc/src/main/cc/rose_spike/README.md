@@ -18,26 +18,39 @@ Design notes: `../../../../../ROSE_SPIKE_BRIDGE_PLAN.md` and
 
 ## 1. One-time setup (from a fresh clone)
 
+RoSE is **chipyard-as-top**. Do **NOT** run a blanket `git submodule update --init
+--recursive` at the repo root — chipyard curates its own ~100 submodules through
+`build-setup.sh` (which also builds the conda env, RISC-V toolchain incl. spike's
+`libriscv`/…, precompiles Scala, and installs firesim + CIRCT). A recursive init
+would mis-initialize chipyard and skip all of that. Initialize per-path instead:
+
 ```bash
-# 0. Clone + submodules (chipyard, xpu-rt -> zephyr-chipyard-sw -> zephyr_ws)
-git submodule update --init --recursive
+# 1a. Chipyard: check out the pinned commit, then run ITS OWN setup (~15 min).
+#     This builds conda + the RISC-V toolchain (spike libs the bridge links) + firesim + CIRCT.
+git submodule update --init soc/sim/chipyard
+( cd soc/sim/chipyard && ./build-setup.sh --skip-marshal )   # drop --skip-marshal for Linux images
+#     (fallback: if spike libs go missing later, soc/sim/build_spike.sh rebuilds just spike)
 
-# 1. RoSE injections + the spike sim.h step() patch (idempotent)
+# 1b. RoSE injections + the spike sim.h step() patch (idempotent), then env/config wiring.
 ./soc/setup.sh
+./rose-setup.sh            # sources chipyard env.sh + firesim; needed for the FireSim flows,
+                          # optional for spike-only (build.sh sources env.sh itself)
 
-# 2. Chipyard toolchains — builds spike's libriscv/libfesvr/... that the bridge links.
-#    (Standard chipyard build-setup; env.sh must exist under soc/sim/chipyard.)
-#    If spike libs are missing later, soc/sim/build_spike.sh rebuilds just spike.
+# 1c. Guest software submodule (xpu-rt -> zephyr-chipyard-sw -> zephyr_ws).
+#     Plain submodules, so --recursive is fine on THIS path (it does not touch chipyard).
+git submodule update --init --recursive soc/sw/xpu-rt
 
-# 3. Zephyr toolchain — all LOCAL to the zephyr-chipyard-sw submodule (no external SDK):
-cd soc/sw/xpu-rt/zephyr-chipyard-sw
-source scripts/install_conda.sh           # conda env 'zephyr' (provides west) -> tools/miniforge3
-bash   scripts/install_toolchain_sdk.sh   # beta Zephyr SDK -> tools-manual/zephyr-sdk-1.0.0-beta1
-cd -
+# 1d. Zephyr toolchain — all LOCAL to the zephyr-chipyard-sw submodule (no external SDK):
+( cd soc/sw/xpu-rt/zephyr-chipyard-sw
+  source scripts/install_conda.sh            # conda env 'zephyr' (provides west) -> tools/miniforge3
+  bash   scripts/install_toolchain_sdk.sh )  # beta Zephyr SDK -> tools-manual/zephyr-sdk-1.0.0-beta1
 
-# 4. Synchronizer Python venv (physics side)
+# 1e. Synchronizer Python venv (physics side)
 python -m venv deploy/.venv-rose && deploy/.venv-rose/bin/pip install -r deploy/requirements.txt
 ```
+
+> Spike-only needs just the toolchain + conda from 1a (not the firesim/CIRCT parts),
+> but `build-setup.sh` is the only supported bring-up path.
 
 ## 2. Build
 
