@@ -61,20 +61,24 @@ git submodule update --init soc/sim/chipyard
 ./soc/setup.sh
 source rose-setup.sh          # sources chipyard env.sh + firesim; re-source per new shell
 
-# 3. Guest-software submodule (apps + Zephyr). --recursive is fine on THIS path.
-git submodule update --init --recursive soc/sw/xpu-rt
+# 3. Guest-software submodule. Do NOT use --recursive here either: xpu-rt nests its
+#    own hw/chipyard (-> ara -> llvm-project) + IsaacLab, which would explode. Init
+#    only zephyr-chipyard-sw:
+git submodule update --init soc/sw/xpu-rt
+git -C soc/sw/xpu-rt submodule update --init zephyr-chipyard-sw
 
 # 4. Synchronizer Python venv (physics side).
 python -m venv deploy/.venv-rose && deploy/.venv-rose/bin/pip install -r deploy/requirements.txt
 ```
 
-Building the **Zephyr** guest software also needs the toolchain that is installed
-**locally** inside the `zephyr-chipyard-sw` submodule (no external SDK):
+Building the **Zephyr** guest software needs the west workspace + toolchain, all
+installed **locally** inside the `zephyr-chipyard-sw` submodule (no external SDK):
 
 ```bash
 ( cd soc/sw/xpu-rt/zephyr-chipyard-sw
-  source scripts/install_conda.sh            # conda env 'zephyr' (provides west)
-  bash   scripts/install_toolchain_sdk.sh )  # beta Zephyr SDK -> tools-manual/
+  bash   scripts/install_submodules.sh        # west workspace (zephyr_ws) + python deps
+  source scripts/install_conda.sh             # conda env 'zephyr' (provides west)
+  bash   scripts/install_toolchain_sdk.sh )   # beta Zephyr SDK -> tools-manual/
 ```
 
 ## Running a co-simulation

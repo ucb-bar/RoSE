@@ -22,7 +22,9 @@ OUT="$ROSE_DIR/soc/sim/zephyr_rose_builds"
 
 if [ ! -d "$SAMPLES" ]; then
   echo "ERROR: samples not found at $SAMPLES" >&2
-  echo "       Init submodules: git submodule update --init --recursive soc/sw/xpu-rt" >&2
+  echo "       Init (NOT --recursive; xpu-rt nests chipyard/llvm):" >&2
+  echo "         git submodule update --init soc/sw/xpu-rt" >&2
+  echo "         git -C soc/sw/xpu-rt submodule update --init zephyr-chipyard-sw" >&2
   exit 1
 fi
 if [ ! -f "$ZEPHYR_SW/tools/miniforge3/etc/profile.d/conda.sh" ]; then

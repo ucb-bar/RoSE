@@ -36,12 +36,14 @@ git submodule update --init soc/sim/chipyard
 ./rose-setup.sh            # sources chipyard env.sh + firesim; needed for the FireSim flows,
                           # optional for spike-only (build.sh sources env.sh itself)
 
-# 1c. Guest software submodule (xpu-rt -> zephyr-chipyard-sw -> zephyr_ws).
-#     Plain submodules, so --recursive is fine on THIS path (it does not touch chipyard).
-git submodule update --init --recursive soc/sw/xpu-rt
+# 1c. Guest software submodule. Do NOT use --recursive: xpu-rt nests its own
+#     hw/chipyard (-> ara -> llvm-project) + IsaacLab. Init only zephyr-chipyard-sw:
+git submodule update --init soc/sw/xpu-rt
+git -C soc/sw/xpu-rt submodule update --init zephyr-chipyard-sw
 
-# 1d. Zephyr toolchain — all LOCAL to the zephyr-chipyard-sw submodule (no external SDK):
+# 1d. Zephyr workspace + toolchain — all LOCAL to the zephyr-chipyard-sw submodule (no external SDK):
 ( cd soc/sw/xpu-rt/zephyr-chipyard-sw
+  bash   scripts/install_submodules.sh       # west workspace (zephyr_ws) + python deps
   source scripts/install_conda.sh            # conda env 'zephyr' (provides west) -> tools/miniforge3
   bash   scripts/install_toolchain_sdk.sh )  # beta Zephyr SDK -> tools-manual/zephyr-sdk-1.0.0-beta1
 
