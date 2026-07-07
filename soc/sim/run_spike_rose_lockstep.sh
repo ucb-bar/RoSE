@@ -5,7 +5,7 @@
 #
 # Usage: run_spike_rose_lockstep.sh [elf] [nprocs]
 set -eo pipefail
-ROSE_DIR=/scratch/dima/rose-infra/RoSE
+ROSE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 ELF="${1:-$ROSE_DIR/soc/sim/zephyr_rose_builds/reqrsp/zephyr/zephyr.elf}"
 ELF="$(readlink -f "$ELF")"   # resolve before cd
 cd "$ROSE_DIR/soc/sim/chipyard"; source env.sh
