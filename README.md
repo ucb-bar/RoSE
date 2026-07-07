@@ -1,226 +1,131 @@
-# RoSÉ: A Hardware-Software Co-Simulation Infrastructure Enabling Pre-Silicon Full-Stack Robotics SoC Evaluation
+# RoSÉ: A Hardware-Software Co-Simulation Infrastructure for Pre-Silicon Full-Stack Robotics SoC Evaluation
 
-Robotic systems such as unmanned autonomous drones and self-driving cars have been widely deployed in many scenarios and have the potential to revolutionize the future generation of computing. To improve the performance and energy efficiency of robotic platforms,  significant research efforts are being devoted to developing hardware accelerators for workloads that form bottlenecks in the robotics software pipeline.
+RoSÉ is an open-source hardware-software co-simulation infrastructure for full-stack,
+pre-silicon, hardware-in-the-loop evaluation of robotics SoCs. It closes the loop
+between a **physics/environment simulator** and an **SoC simulator**: sensor data flows
+from the environment into the SoC to trigger the hardware/software pipeline, and the
+computed actuation commands flow back to the environment — with timing and data transfer
+synchronized between the two sides. This captures the closed-loop interactions across
+environment, algorithm, and hardware that isolated benchmarks miss, enabling
+design-space exploration of robotic SoCs without a tape-out.
 
-Although domain-specific accelerators (DSAs) can offer improved efficiency over general-purpose processors on isolated robotics benchmarks, system-level constraints such as data movement and contention over shared resources could significantly impact the achievable acceleration in an end-to-end fashion.
+> This branch (`chipyard-top`) is the modernized infrastructure: **chipyard-as-top**
+> (Chisel 6 / chipyard 1.14), OpenAI-Gym-style environments (not only AirSim), a Zephyr
+> RTOS software stack, and a new **Spike** functional-simulation tier alongside FireSim.
+> For the original ISCA'23 artifact (AirSim + AWS + firesim-as-top), see
+> [§ Historical artifact](#historical-isca23-artifact).
 
-In addition, the closed-loop nature of robotic systems, where there is a tight interaction across different deployed environments, software stacks, and hardware architecture, further exacerbates the difficulties of evaluating robotic SoCs. 
+## Architecture
 
-To address this limitation, we develop RoSÉ, an open-source, hardware-software co-simulation infrastructure for full-stack, pre-silicon hardware-in-the-loop evaluation of robotics SoCs, together with the full software stack and realistic robotic environments created to support robotics RoSE captures the complex interactions across hardware, algorithm, and environment, enabling new architectural research directions in hardware-software co-design for robotic UAV systems.
+Every run is the same two-process shape, coupled over TCP (`localhost:10001`):
 
-Specifically, RoSÉ integrates AirSim, a software robotic environment simulator, supporting UAV models and FireSim, an FPGA-based RTL simulator, to capture closed-loop interactions between environments, algorithms, and hardware. The sensor environment data is passed from AirSim to FireSim to trigger the hardware pipeline, and the computed commands are generated from the FireSim hardware simulation and fed back to AirSim. RoSÉ accurately synchronizes the timing and data transfer between the AirSim environment simulator and the FireSim hardware simulator without significant degradation in simulation speed. 
+```
+[ physics side ]  <-- synchronizer protocol -->  [ SoC side ]
+ gym env + synchronizer                           one of three fidelity tiers
+```
 
-Our evaluation demonstrates that RoSÉ holistically captures the closed-loop interactions between environment, algorithms, and hardware, opening up new opportunities for systematic hardware-software co-design for robotic UAV systems. 
+The **physics side is identical across all flows**; you choose an **SoC tier**:
 
-In summary, this project makes the following contributions:
+| Tier | Fidelity / speed | Build | Run |
+|---|---|---|---|
+| **Spike** (ISA sim) | functional, seconds | `soc/src/main/cc/rose_spike/build.sh` | `run_spike_rose.sh` / `run_spike_rose_lockstep.sh` |
+| **FireSim metasim** (Verilator) | RTL, slow (~kHz) | `soc/sim/build_metasim.sh` | `run_metasim_selftest.sh`, `run_z*.sh` |
+| **FireSim FPGA** (Xilinx U250) | cycle-accurate, fast | `soc/sim/run_buildbitstream.sh` | `run_fpga.sh {infrasetup\|runworkload\|kill}` |
 
-* We build RoSÉ, a hardware-software co-simulation infrastructure for pre-silicon, full-stack evaluation of robotics UAV SoCs. RoSÉ captures the dynamic interactions between robotic hardware, software, and environment\footnote{We commit to an open-source release of the RoSÉ framework.
+All three consume the same synchronizer, configs, and guest software (Zephyr elf / Linux
+image), so a workload developed on Spike runs unchanged on metasim and FPGA.
 
-* We design software algorithms, and hardware SoCs along with robotic environments, to holistically evaluate the co-design trade-off in robotic UAV systems using RoSÉ.
-
-* We demonstrate design space exploration of domain-specific SoCs enabled by RoSÉ and identify significant design trade-offs.
-
-In summary, RoSÉ enables robotics UAV researchers and architects to comprehensively evaluate robotics UAV SoCs. RoSÉ captures a full-stack simulation of a robot by integrating the simulation of a robot UAV's environment and its RTL, enabling design space exploration of robot environments, algorithms, hardware, and system parameters within a unified simulation environment. 
-
-By using RoSÉ, researchers can better study and analyze the tradeoffs of robotic UAV systems without the overhead of taping out an SoC. Building upon RoSÉ by introducing new applications, robot UAV environments, and architectures will enable the agile development of robotics SoCs across diverse domains. 
-
-# RoSÉ Tutorial
-This artifact appendix describes how to use RoSÉ to run end-to-end robotics simulations, and how to reproduce experimental results.
-
-The instructions assume that a user already has robotic applications and hardware configurations developed, and provides reference examples used in the evaluation of this work. While RoSÉ can be used to develop new hardware and software, instructions to do so are outside of the scope of the artifact evaluation.
-
-## Tutorial Meta-Information Checklist
-
-* Runtime environment: Ubuntu 18.04.6 LTS, Vitis v2021.1
-* Hardware (FireSim Simulation):  Intel Xeon Gold 6242, Xilinx U250
-* Hardware (AirSim Simulation): AWS EC2 Instance (g4dn.2xlarge), Intel Xeon Platinum 8259CL, Tesla T4.
-* How much disk space is required?: 200GB
-* Experiments: AirSim/FireSim end-to-end full stack simulations of a UAV using RoSE, running DNN-based controllers. Experiments evaluate both UAV and simulator performance.
-* Program: Chisel (RTL), C++ (FireSim bridge drivers, robotic control software), Python (Synchronizer and scheduler.)
-* Quantitative Metrics: DNN Latency, mission time, average flight velocity, accelerator activity factor.
-* Qualitative Metrics: Flight trajectories, flight recordings.
-* Output: CSV logs from the synchronizer, tracking UAV dynamics, sensing requests, and control targets.
-* How much time is needed to prepare the workflow?: 4 hours (scripted installation).
-* How much time is needed to complete experiments?: 48 hours (scripted run, scripted result parsing)
-* Publicly available: Yes.
-* Code licenses: Several, see download.
-* Contact for Artifact Evaluator: Contact SLICE support (slice-support@eecs.berkeley.edu) if you need help setting up AWS instances.
-
-## Description
-(1) How to access:
-
- • The artifact consists of the core RoSÉ repos-
-itory,  modifications to Firesim, Chipyard, and ONNX
-Runtime:
-
-* RoSÉ Core: Deployment, synchronization, and evaluation software, as well as hardware configurations, and patches to FireSim and Chipyard. (https://github.com/CobbledSteel/RoSE)
-* FireSim: Top-level FPGA-Accelerated RTL Simulation Environment (https://github.com/firesim/firesim) 
-* Chipyard: RISC-V SoC generation environment (https://github.com/ucb-bar/chipyard) 
-* RISCV ONNX Runtime: Software for executing HW-accelerated DNN models, modified for use in  UAV control (https://github.com/ucb-bar/onnxruntime-riscv/tree/onnx-rose).
-
-Additionally, this evaluation builds upon the following infrastructures. For the purpose of the evaluation, binaries for simulators built from Unreal Engine and AirSim are provided. 
-
-* Unreal Engine: 3D Environment development, simulation, and rendering platform (https://www.unrealengine.com/en-US/ue-on-github)
-* AirSim: UAV simulation plugin for Unreal Engine (https://github.com/microsoft/AirSim)
-
-(2) Dependencies - Hardware 
-
-To run a full simulation with RoSÉ, access to a GPU and FPGA is required, although these can be hosted on separate computers. For this artifact evaluation, instructions for running simulations on a locally-provisioned FPGA are provided. However, RoSÉ can also be used using AWS EC2 FPGA instances (e.g. f1.2xlarge).  In this artifact we provide build scripts for generating bitstreams for locally-provisioned FPGAs. 
-
-Additionally, GPU access is needed in order to run robotics environment simulations with rendering. For this evaluation, AirSim binaries packaged using Unreal Engine are provided. 
-
-To use RoSÉ in the cloud, ne AWS EC2 c5.4xlarge instance (also referred to as “manager” instance), and one f1.2xlarge instance is required. The latter will be launched automatically by FireSim’s manager.
-
-
-(3) Dependencies - Software 
-
-Use ssh or mosh on your local machine to remote access evaluation instances. All other requirements are automatically installed by scripts in the following sections. 
+Repository layout:
+- `deploy/` — physics side: the synchronizer (`hephaestus/`), gym environments, configs.
+- `soc/src/main/scala/` — RoSE RTL (RoseAdapter, bridge, DMA) injected into chipyard by `soc/setup.sh`.
+- `soc/src/main/cc/` — host-side bridge drivers + the Spike bridge (`rose_spike/`).
+- `soc/sw/` — guest software: `zephyr-rose` (driver + protocol), `xpu-rt` (apps/samples), `dnn`.
+- `soc/sim/` — build/run scripts and the `chipyard` submodule (chipyard-as-top; firesim nested inside).
 
 ## Installation
 
-To begin installation, clone the repository:
+RoSÉ is **chipyard-as-top**. Do **not** run a blanket `git submodule update --init
+--recursive` — chipyard curates its own submodules through `build-setup.sh` (which also
+builds conda, the RISC-V toolchain, precompiles Scala, and installs firesim + CIRCT).
+Initialize per-path:
 
+```bash
+git clone https://github.com/ucb-bar/RoSE.git && cd RoSE
+git checkout chipyard-top
 
-```
-    git clone https://github.com/ucb-bar/RoSE.git
-    cd RoSE
-    git checkout main
-```
+# 1. Chipyard: checkout the pinned commit, then run ITS OWN setup (~15 min).
+git submodule update --init soc/sim/chipyard
+( cd soc/sim/chipyard && ./build-setup.sh --skip-marshal )   # drop --skip-marshal for Linux images
 
-### FireSim Installation
+# 2. RoSE injections + spike sim.h patch (idempotent), then env/config wiring.
+./soc/setup.sh
+source rose-setup.sh          # sources chipyard env.sh + firesim; re-source per new shell
 
-Begin by installing FireSim  by running the following commands within the RoSÉ repository.
+# 3. Guest-software submodule (apps + Zephyr). --recursive is fine on THIS path.
+git submodule update --init --recursive soc/sw/xpu-rt
 
-```
-    git submodule update --init ./soc/sim/firesim
-    cd ./soc/sim/firesim
-    ./scripts/machine-launch-script.sh --prefix [INSERT_CONDA_DIRECTORY_HERE]
-    ./build-setup.sh
-    source sourceme-manager.sh --skip-ssh-setup
-    firesim managerinit --platform xilinx_alveo_u250
-```
-### RoSÉ Installation
-
-Begin by cloning RoSÉ in the project directory:
-
-
-Next, within RoSÉ, run the setup script to set the proper environment variables. Make sure to run this script whenever starting a new interactive shell.
-
-```
-    source rose-setup.sh
+# 4. Synchronizer Python venv (physics side).
+python -m venv deploy/.venv-rose && deploy/.venv-rose/bin/pip install -r deploy/requirements.txt
 ```
 
-After this is complete, run the following script to patch FireSim and Chipyard to support RoSÉ, and to instantiate submodules.
+Building the **Zephyr** guest software also needs the toolchain that is installed
+**locally** inside the `zephyr-chipyard-sw` submodule (no external SDK):
 
-```
-    bash soc/setup.sh
-```
-
-After this setup is complete, run the following script to build binaries for the trail-navigation controllers evaluated in Section IV for generating RISC-V Fedora images containing the controllers and ONNX models.
-
- ```
-    bash soc/build.sh
- ```
-
-
-Next, run the following script to install dependencies and configure parameters for the RoSÉ deployment scripts, using the IP address of the GPU system that will be used to run the provided AirSim binaries.
-
-
-    source deploy/setup.sh [AIRSIM IP]
-
-
-### Bitstream Generation 
-To build bitstreams for Rocket+Gemmini and BOOM+Gemmini configurations, run the following. 
-
- ```
-    bash soc/buildbitstreams.sh
- ```
-
-### DNN Training 
-This artifact provides pre-trained models for evaluation. To train new classifier DNNs using the provided datasets, run the following, selecting between the given ResNet configurations. Each training run will output an ONNX model named `trail_dnn_resnet[xy].onnx`. 
-```
-    bash env/train/train_resnet.py (6|11|14|18|34|50)
+```bash
+( cd soc/sw/xpu-rt/zephyr-chipyard-sw
+  source scripts/install_conda.sh            # conda env 'zephyr' (provides west)
+  bash   scripts/install_toolchain_sdk.sh )  # beta Zephyr SDK -> tools-manual/
 ```
 
-Finally, the steps for building custom Unreal Engine maps are out of the scope of this evaluation. However, new environments can be built using the documentation provided at (https://microsoft.github.io/AirSim/build_linux/).
+## Running a co-simulation
 
-## Experiment Workflow
+Two processes in two terminals. **Terminal 1 — the synchronizer** (env chosen by
+`deploy/config/config_deploy_gym.yaml`, default `PatternEnv-v0`):
 
-Now that the environment has been set up and the target hardware and software have been built, one can run the experiments in this work by launching an AirSim simulation and running the following scripts. All the experiments can be executed by running `run-all.sh`. This will generate CSV files as well as videos recorded from the front-facing camera of the simulated UAV in `deploy/hephaestus/logs/`. 
+```bash
+cd deploy/hephaestus
+ROSE_DIR=$(git rev-parse --show-toplevel) ../.venv-rose/bin/python run_sync_only.py
+```
 
+**Terminal 2 — one SoC tier:**
 
+```bash
+# Spike (functional). Build once, then run a guest elf:
+soc/src/main/cc/rose_spike/build.sh
+soc/sim/build_zephyr_rose.sh selftest
+soc/sim/run_spike_rose_lockstep.sh soc/sim/zephyr_rose_builds/selftest/zephyr/zephyr.elf 1
 
- ```bash
-    bash deploy/scripts/run-all.sh
- ```
+# FireSim metasim (Verilator):
+soc/sim/build_metasim.sh
+soc/sim/run_metasim_selftest.sh
 
+# FireSim FPGA (U250): build a bitstream, then drive it with the FireSim manager:
+soc/sim/run_buildbitstream.sh
+soc/sim/run_fpga.sh infrasetup && soc/sim/run_fpga.sh runworkload
+```
 
-To run individual experiments corresponding to the figures in this work, the following scripts are also provided (which are all included in the main script). 
+Expected: the guest boots, the bridge connects (`connected to localhost:10001`), and a
+sample prints e.g. `ROSE selftest: dma=PASS reqrsp=PASS => PASS`.
 
+The **Spike tier** (both the fast `--extlib` plugin and the cycle-lockstep harness) is
+documented in depth in [`soc/src/main/cc/rose_spike/README.md`](soc/src/main/cc/rose_spike/README.md).
 
-• Figure 10:
+## Environments and workloads
+- **Environments** live in `deploy/hephaestus/envs/` and are registered in
+  `register_envs.py`; select one via `deploy/config/config_deploy_gym.yaml`. Options
+  include `PatternEnv` (bridge validation), `PyBulletDroneEnv`, `AirSimEnv`,
+  `MiddleBuryEnv`, `InvertedPendulum`, and `LQR`.
+- **Guest software:** the Zephyr `rose` driver + `subsys/rose` protocol layer
+  (`soc/sw/zephyr-rose`) with test samples in
+  `soc/sw/xpu-rt/zephyr-chipyard-sw/samples/rose/` (reqrsp / dma / protocol / selftest);
+  plus baremetal packet tests and the ONNX DNN controllers used in the paper.
 
+## Historical ISCA'23 artifact
 
- ```bash
-    bash deploy/scripts/tunnel-exp.sh
- ```
-
-
-• Figures 15, 16:
-
-
- ```bash
-    bash deploy/scripts/rose-perf-sync-only.sh
- ```
-
-
-
- ```bash
-    bash deploy/scripts/rose-perf-tunnel-exp.sh
- ```
-
-
-• Figures 11, 14:
-
-
- ```bash
-     bash deploy/scripts/rose-hw-sw-sweep.sh
- ```
-
-
-• Figure 12:
-
-
- ```bash
-    bash deploy/scripts/rose-velocity-sweep.sh
- ```
-
-
-• Figure 13:
-
-
- ```bash
-    bash deploy/scripts/rose-dynamic-exp.sh
- ```
-
-
-## Figures and Evaluation
-After executing the prior experiments, figures can be generated using the CSV outputs by running the following command. The figures will be available as in `deploy/figures/`.
-
-
-
- ```python
-    python3 deploy/scripts/generate-figures.py
- ```
-
-## Experiment Customization
-• Building New FPGA Images In addition to the provided SoC configurations, users can evaluate other designs. To evaluate new designs, refer to the Chipyard documentation, as well as the example RoSÉ-annotated configs found in `soc/src/main/scala/RoSEConfigs.scala`.
-
-• Designing AirSim Environments If users install Unreal Engine as well as AirSim, it is possible to create new `maps/environments` for robot agents to interact with. By default, one can modify the `Blocks environment` provided by AirSim. Additional assets and maps can be designed by users, or obtained from the Unreal Marketplace.
-
-• Changing Simulation Parameters RoSEprovides flags that can be used to select different simulation parameters. To view available parameters for deploying simulations, refer to `deploy/hephaestus/runner.py`. Example configurations include changing simulation granularity, or deploying a car vs a drone simulation.
-
-Additionally, new controller ONNX models can be trained using the provided dataset and evaluated using the provided `drone_test` executable. 
+The original artifact — AirSim on Unreal Engine + AWS EC2 + firesim-as-top, reproducing
+the paper's figures — is preserved on the pre-migration `main` branch. Its AWS/AirSim
+install and `deploy/scripts/*` figure-reproduction flow differ from the modernized flow
+above.
 
 ## Citing RoSÉ
 
@@ -233,4 +138,3 @@ Additionally, new controller ONNX models can be trained using the provided datas
   year={2023}
 }
 ```
-
