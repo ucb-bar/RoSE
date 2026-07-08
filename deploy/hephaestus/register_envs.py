@@ -45,3 +45,10 @@ register(
     id='PyBulletDroneEnv-v0',
     entry_point='envs.pybullet_drone.drone_env:PyBulletDroneEnv',
 )
+
+# gym-pybullet-drones quadrotor for the TinyMPC drone_control loop: serves the full
+# 12-DoF linearized state and consumes 4 normalized motor thrusts (closed-loop control).
+register(
+    id='PyBulletDroneMPCEnv-v0',
+    entry_point='envs.pybullet_drone.drone_mpc_env:PyBulletDroneMPCEnv',
+)
