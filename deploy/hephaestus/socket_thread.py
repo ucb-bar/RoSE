@@ -1,6 +1,7 @@
 import threading
 import socket
 import struct
+import os
 
 from rose_packet import *
 
@@ -45,52 +46,58 @@ class SocketThread (threading.Thread):
         self.txpq = []
         self.stream_txqueue = {}
         self.data_rxqueue = []
-        self.sync_rxqueue = [] 
+        self.sync_rxqueue = []
         self.killed = False
+        # Byte-accumulating RX buffer. Packets are framed as
+        #   [cmd:u32][num_bytes:u32][data: num_bytes] (all little-endian).
+        # We must NEVER lose partially-read bytes on a recv timeout (the old
+        # byte-at-a-time read_word() did, which desynced the stream and silently
+        # dropped every data-carrying packet, e.g. drone_control controls).
+        self._rxbuf = bytearray()
 
-   def read_word(self):
-        data = self.sync_conn.recv(1)
-        datum = None
-        if data:
-            for i in range(3):
-               while True:
-                   datum = self.sync_conn.recv(1)
-                   if datum:
-                       data = data + datum
-                       break
-            return data
-        return None
+   def _fill(self):
+        """Pull whatever bytes are available into the RX buffer (one timed recv).
+        Returns False iff the connection was closed."""
+        try:
+            chunk = self.sync_conn.recv(4096)
+            if not chunk:
+                return False          # orderly shutdown
+            self._rxbuf.extend(chunk)
+        except socket.timeout:
+            pass                      # no data this window; caller still services txqueue
+        except Exception:
+            pass
+        return True
+
+   def _parse_packets(self):
+        """Parse every COMPLETE packet currently buffered (partial packets stay
+        buffered until the rest arrives -- no desync, no byte loss)."""
+        while len(self._rxbuf) >= 8:
+            cmd = int.from_bytes(self._rxbuf[0:4], "little")
+            num_bytes = int.from_bytes(self._rxbuf[4:8], "little")
+            if len(self._rxbuf) < 8 + num_bytes:
+                break                 # rest of this packet hasn't arrived yet
+            data = [int.from_bytes(self._rxbuf[8 + 4*i : 12 + 4*i], "little")
+                    for i in range(num_bytes // 4)]
+            del self._rxbuf[:8 + num_bytes]
+            packet = Control_Packet(cmd, num_bytes, data) if (cmd > 0x80) else Payload_Packet(cmd, num_bytes, data)
+            (self.sync_rxqueue if cmd > 0x80 else self.data_rxqueue).append(packet)
+            if os.environ.get("ROSE_RX_DEBUG"):
+                self._rxc = getattr(self, "_rxc", {})
+                self._rxc[cmd] = self._rxc.get(cmd, 0) + 1
+                if sum(self._rxc.values()) % 25 == 0:
+                    print("RX counts: " + " ".join(f"0x{k:x}={v}" for k, v in sorted(self._rxc.items())), flush=True)
 
    def kill(self):
         self.killed = True
 
    def run(self):
         while not self.killed:
-            try:
-                cmd_data = self.read_word()
-                if cmd_data:
-                    cmd = int.from_bytes(cmd_data, "little", signed="False")
-                    target_queue = self.sync_rxqueue if cmd > 0x80 else self.data_rxqueue
-                    num_bytes = None
-                    while True:
-                        num_bytes_data = self.read_word()
-                        if num_bytes_data:
-                            num_bytes = int.from_bytes(num_bytes_data, "little", signed="False")
-                            break
-                    data = []
-                    for i in range(num_bytes//4):
-                        while True:
-                            if num_bytes:
-                                datum = self.read_word()
-                                data.append(int.from_bytes(datum, "little", signed="False"))
-                                break
-                    packet = Control_Packet(cmd, num_bytes, data) if (cmd > 0x80) else Payload_Packet(cmd, num_bytes, data)
-                    target_queue.append(packet)
-            except Exception as e:
-                pass
-            #process the txqueue
+            if not self._fill():
+                break                 # peer closed
+            self._parse_packets()
+            # process the txqueue
             if len(self.txqueue) > 0:
                 packet = self.txqueue.pop(0)
-                # print(f"Sending packet: {packet}")
                 self.sync_conn.sendall(packet.encode())
         self.sync_conn.close()

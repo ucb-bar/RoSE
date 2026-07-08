@@ -161,11 +161,12 @@ private:
 		if (tx_state == 0) { tx_cmd = w; tx_state = 1; }
 		else if (tx_state == 1) {
 			tx_remaining = w / 4; tx_data.clear();
-			if (tx_remaining == 0) { client.send_tx(tx_cmd, nullptr, 0); tx_state = 0; }
+			if (tx_remaining == 0) { RDBG("TX send cmd=0x%x nwords=0\n", tx_cmd); client.send_tx(tx_cmd, nullptr, 0); tx_state = 0; }
 			else tx_state = 2;
 		} else {
 			tx_data.push_back(w);
 			if (--tx_remaining == 0) {
+				RDBG("TX send cmd=0x%x nwords=%zu\n", tx_cmd, tx_data.size());
 				client.send_tx(tx_cmd, tx_data.data(), (uint32_t)tx_data.size());
 				tx_state = 0;
 			}
