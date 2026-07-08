@@ -114,6 +114,12 @@ sample prints e.g. `ROSE selftest: dma=PASS reqrsp=PASS => PASS`.
 The **Spike tier** (both the fast `--extlib` plugin and the cycle-lockstep harness) is
 documented in depth in [`soc/src/main/cc/rose_spike/README.md`](soc/src/main/cc/rose_spike/README.md).
 
+## Worked example
+[`ROSE_DRONE_MPC_DEMO.md`](ROSE_DRONE_MPC_DEMO.md) — a full closed-loop example: a
+PyBullet quadrotor flown by a TinyMPC controller running on a simulated SoC over the
+RoSE bridge. Includes the component map, build/run steps, validation criteria, and the
+HW/SW timing result (diverges at 10 MHz, hovers at 1 GHz).
+
 ## Environments and workloads
 - **Environments** live in `deploy/hephaestus/envs/` and are registered in
   `register_envs.py`; select one via `deploy/config/config_deploy_gym.yaml`. Options
