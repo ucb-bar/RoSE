@@ -115,7 +115,7 @@ The **Spike tier** (both the fast `--extlib` plugin and the cycle-lockstep harne
 documented in depth in [`soc/src/main/cc/rose_spike/README.md`](soc/src/main/cc/rose_spike/README.md).
 
 ## Worked example
-[`ROSE_DRONE_MPC_DEMO.md`](ROSE_DRONE_MPC_DEMO.md) — a full closed-loop example: a
+[`docs/ROSE_DRONE_MPC_DEMO.md`](docs/ROSE_DRONE_MPC_DEMO.md) — a full closed-loop example: a
 PyBullet quadrotor flown by a TinyMPC controller running on a simulated SoC over the
 RoSE bridge. Includes the component map, build/run steps, validation criteria, and the
 HW/SW timing result (diverges at 10 MHz, hovers at 1 GHz).

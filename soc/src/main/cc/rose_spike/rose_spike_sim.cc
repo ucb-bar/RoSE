@@ -11,7 +11,7 @@
  * step_size cycle-budget per grant before acking. This gives a two-sided barrier
  * (neither side free-runs), is deterministic (no wall-clock race), and is
  * multicore-correct because the budget is gated on the CLINT's global `mtime`
- * (not a single hart's mcycle). See ROSE_SPIKE_LOCKSTEP_PLAN.md.
+ * (not a single hart's mcycle). See ROSE_SPIKE_LOCKSTEP_PLAN.md (planning branch).
  *
  *   rose_spike_sim [--isa=..] [-p N] [--rose-host H] [--rose-port P]
  *                  [--rose-base 0x2000] [--rose-irq 3] [--rose-dma-base 0x88000000]

@@ -178,7 +178,7 @@ fi
 # Patch spike (riscv-isa-sim) to expose sim_t::step() for the RoSE lockstep
 # harness (rose_spike_sim). This is the ONLY spike source modification RoSE makes;
 # it moves `void step(size_t)` from private to protected so rose_sim_t can drive
-# the step loop. See ROSE_SPIKE_LOCKSTEP_PLAN.md. Idempotent (skips if applied);
+# the step loop. See ROSE_SPIKE_LOCKSTEP_PLAN.md (on the planning branch). Idempotent (skips if applied);
 # best-effort (the harness is optional — don't hard-fail metasim/FPGA setup).
 # ---------------------------------------------------------------------------
 ISA_SIM_DIR=${CHIPYARD_DIR}/toolchains/riscv-tools/riscv-isa-sim

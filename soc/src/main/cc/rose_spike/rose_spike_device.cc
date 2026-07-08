@@ -20,7 +20,7 @@
  * step_size cycles (mcycle, IPC=1 proxy), so physics advances one step per
  * step_size guest cycles. This is a functional lockstep (correct compute/physics
  * *rate*), not RTL cycle-accuracy (no pipeline/latency model). See
- * ROSE_SPIKE_BRIDGE_PLAN.md.
+ * ROSE_SPIKE_BRIDGE_PLAN.md (on the planning branch).
  */
 
 #include <cstdio>

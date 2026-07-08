@@ -11,8 +11,8 @@ Two Spike tiers are provided:
 | **Plugin** | stock `spike --extlib=librose_spike.so` | transaction ordering; grants acked immediately | single | fastest inner-loop driver/app dev |
 | **Lockstep** | `rose_spike_sim` (owns the step loop) | exact `step_size` cycles/step, two-sided barrier | multicore | timing-faithful rate + multicore |
 
-Design notes: `../../../../../ROSE_SPIKE_BRIDGE_PLAN.md` and
-`../../../../../ROSE_SPIKE_LOCKSTEP_PLAN.md`.
+Design notes: `ROSE_SPIKE_BRIDGE_PLAN.md` and `ROSE_SPIKE_LOCKSTEP_PLAN.md` (kept on
+the `planning` branch, not tracked on `chipyard-top`).
 
 ---
 
