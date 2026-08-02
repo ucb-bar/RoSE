@@ -123,8 +123,10 @@ HW/SW timing result (diverges at 10 MHz, hovers at 1 GHz).
 ## Environments and workloads
 - **Environments** live in `deploy/hephaestus/envs/` and are registered in
   `register_envs.py`; select one via `deploy/config/config_deploy_gym.yaml`. Options
-  include `PatternEnv` (bridge validation), `PyBulletDroneEnv`, `AirSimEnv`,
-  `MiddleBuryEnv`, `InvertedPendulum`, and `LQR`.
+  include `PatternEnv` (bridge validation), `PyBulletDroneEnv`,
+  `PyBulletDroneMPCEnv` / `IsaacCrazyflieMPCEnv` (the TinyMPC drone-control loop on
+  gym-pybullet-drones and on IsaacLab/Isaac Sim respectively — same RoSE contract, same
+  guest), `AirSimEnv`, `MiddleBuryEnv`, `InvertedPendulum`, and `LQR`.
 - **Guest software:** the Zephyr `rose` driver + `subsys/rose` protocol layer
   (`soc/sw/zephyr-rose`) with test samples in
   `soc/sw/xpu-rt/zephyr-chipyard-sw/samples/rose/` (reqrsp / dma / protocol / selftest);

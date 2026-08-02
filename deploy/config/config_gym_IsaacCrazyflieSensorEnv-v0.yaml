@@ -1,0 +1,53 @@
+# RoSE co-sim config for the sensor-based flight-controller loop (IsaacCrazyflieSensorEnv-v0).
+# The env serves REAL SENSOR MODALITIES (IMU accel+gyro, optical flow vx/vy) instead of
+# ground-truth state; the SoC (samples/rose_flight_controller) runs a state estimator to
+# reconstruct the 12-DoF state TinyMPC needs, then returns 4 normalized motor thrusts.
+# Same 1 GHz timing note as the ground-truth loop (see config_deploy_gym.yaml).
+gym_env: 'IsaacCrazyflieSensorEnv-v0'
+
+# gym_timestep = one env.step() = 0.02 s (50 Hz), matching quadrotor_50hz_params_*.
+gym_timestep: 0.02
+
+packets:
+  # env -> SoC: IMU = [ax,ay,az, gx,gy,gz] (accelerometer specific force + rate gyro,
+  # BODY frame). 6 float32 words on reqrsp ch2.
+  - name: imu
+    id: 0x12                 # SoC command: request IMU
+    type: "reqrsp"
+    latency: 0
+    channel: 2               # reqrsp1 (ROSE_RX_DATA_2)
+    indices:
+      - "imu"
+
+  # env -> SoC: flow deck = [vx,vy,h] (body-frame horizontal velocity + ToF height above
+  # ground, modeling a Crazyflie Flow deck v2). 3 float32 words on reqrsp ch1 (a separate
+  # channel so IMU and flow responses never interleave). The ToF height makes altitude
+  # observable; x/y position and yaw remain unobservable (drift).
+  - name: flow
+    id: 0x13                 # SoC command: request optical flow
+    type: "reqrsp"
+    latency: 0
+    channel: 1               # reqrsp0 (ROSE_RX_DATA_1)
+    indices:
+      - "flow"
+
+  # SoC -> env: 4 normalized motor thrusts, latched until the next command.
+  - name: thrust
+    id: 0x20                 # SoC command: submit control
+    type: "action_latch"
+    indices: null            # whole 4-float action vector
+
+# bandwidth_threshold = cycles BETWEEN word deliveries (0 = unlimited), per [dma,ch1,ch2].
+channel_bandwidth: [[0, 0, 0]]
+
+gym_kwargs:
+  headless: true
+  ctrl_freq: 50
+  phys_freq: 100
+  # Start near the hover setpoint. From estimated (not ground-truth) state the controller
+  # can't brake a hard takeoff without overshoot, so a gentle transient keeps the
+  # estimator-in-the-loop stable (must match START_Z in the guest).
+  start_height: 0.9
+
+n_gym_agents: 1
+n_fsim_nodes: 1

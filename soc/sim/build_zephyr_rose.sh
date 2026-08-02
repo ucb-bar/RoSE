@@ -55,8 +55,11 @@ apps=("$@")
 [ ${#apps[@]} -eq 0 ] && apps=(reqrsp dma protocol selftest)
 
 for app in "${apps[@]}"; do
+  # Prefer samples/rose/<app>; also accept a top-level samples/<app> (e.g.
+  # rose_flight_controller lives at samples/rose_flight_controller, not under samples/rose).
   src="$SAMPLES/$app"
-  if [ ! -d "$src" ]; then echo "skip: no sample at $src"; continue; fi
+  [ -d "$src" ] || src="$ZEPHYR_SW/samples/$app"
+  if [ ! -d "$src" ]; then echo "skip: no sample at $SAMPLES/$app or $ZEPHYR_SW/samples/$app"; continue; fi
   echo "=== building rose sample: $app ==="
   west build -p always -b spike_riscv64 --build-dir "$OUT/$app" "$src" \
     -- -DZEPHYR_EXTRA_MODULES="$MODULE"

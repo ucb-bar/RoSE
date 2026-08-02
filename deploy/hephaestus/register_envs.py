@@ -52,3 +52,21 @@ register(
     id='PyBulletDroneMPCEnv-v0',
     entry_point='envs.pybullet_drone.drone_mpc_env:PyBulletDroneMPCEnv',
 )
+
+# IsaacLab (Isaac Sim) Crazyflie for the same TinyMPC drone_control loop: identical
+# RoSE contract as PyBulletDroneMPCEnv-v0 (full 12-DoF state, 4 per-rotor thrusts), so
+# the same Zephyr guest runs unchanged. Needs the Isaac Sim toolchain (env_isaaclab);
+# imported lazily so the synchronizer stays dependency-light unless gym.make()'d.
+register(
+    id='IsaacCrazyflieMPCEnv-v0',
+    entry_point='envs.isaac_crazyflie.crazyflie_mpc_env:IsaacCrazyflieMPCEnv',
+)
+
+# Same Crazyflie physics, but serves REAL SENSOR MODALITIES (IMU accel+gyro, optical
+# flow) instead of ground-truth state. The SoC (samples/rose_flight_controller) runs a
+# state estimator on these before TinyMPC. Structured per-modality obs; pose drifts since
+# there is no absolute position/attitude reference.
+register(
+    id='IsaacCrazyflieSensorEnv-v0',
+    entry_point='envs.isaac_crazyflie.crazyflie_sensor_env:IsaacCrazyflieSensorEnv',
+)

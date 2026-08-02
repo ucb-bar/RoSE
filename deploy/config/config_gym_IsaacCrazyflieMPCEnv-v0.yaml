@@ -1,0 +1,43 @@
+# RoSE co-sim config for the TinyMPC drone_control loop on IsaacLab (Isaac Sim).
+# Identical wiring to config_gym_PyBulletDroneMPCEnv-v0.yaml apart from the env id:
+# the SoC (samples/rose/drone_control) requests the full 12-DoF quadrotor state,
+# solves TinyMPC, and returns 4 normalized motor thrusts. Here the physics is an
+# Isaac Sim Crazyflie (cf2x) instead of gym-pybullet-drones, applying the 4 thrusts
+# as per-rotor forces on the propeller bodies.
+gym_env: 'IsaacCrazyflieMPCEnv-v0'
+
+# gym_timestep = one env.step() = 0.02 s (50 Hz), matching quadrotor_50hz_params_*.
+# NOTE: firesim_step / firesim_freq / max_sim_time are read from config_deploy_gym.yaml
+# (NOT here). For a 50 Hz control loop set firesim_step: 200_000 there (200k cycles /
+# 10 MHz = 0.02 s => gym_step_per_firesim_step = 1). The default 1_000_000 gives ~10 Hz.
+gym_timestep: 0.02
+
+packets:
+  # env -> SoC: full linearized state [x,y,z, r1,r2,r3, vx,vy,vz, dphi,dtheta,dpsi]
+  # (target-relative; Rodrigues attitude). Served as 12 float32 words on reqrsp ch2.
+  - name: mpc_state
+    id: 0x12                 # SoC command: request full state
+    type: "reqrsp"
+    latency: 0
+    channel: 2               # reqrsp1 (ROSE_RX_DATA_2)
+    indices:
+      - "mpc_state"
+
+  # SoC -> env: 4 normalized motor thrusts, applied as the env action and latched
+  # until the next command (env converts to per-rotor forces internally).
+  - name: thrust
+    id: 0x20                 # SoC command: submit control
+    type: "action_latch"
+    indices: null            # whole 4-float action vector
+
+# bandwidth_threshold = cycles BETWEEN word deliveries (0 = unlimited).
+channel_bandwidth: [[0, 0, 0]]
+
+# Isaac Sim boots headless in-process; ctrl_freq/phys_freq must divide to the decimation.
+gym_kwargs:
+  headless: true
+  ctrl_freq: 50
+  phys_freq: 100
+
+n_gym_agents: 1
+n_fsim_nodes: 1
