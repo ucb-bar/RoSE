@@ -57,8 +57,15 @@ class IsaacCrazyflieSensorEnv(IsaacCrazyflieMPCEnv):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._prev_vel_w = None
         self._ctrl_dt = 1.0 / self.ctrl_freq
+        self._prev_vel_w = None
+        # base ("body") link index for Isaac's instantaneous body acceleration
+        self._base_id = self.robot.find_bodies("body")[0][0]
+        # accelerometer source: "isaac" (instantaneous body_lin_acc_w, low-lag) or
+        # "finitediff" (dv/dt, 1-step lag). Isaac's is smoother -> better estimator vz.
+        # Isaac's body_lin_acc_w matches dv/dt in flight (it is computed by finite-diff
+        # internally), so "finitediff" is the verified default; "isaac" is available too.
+        self._accel_src = os.environ.get("ROSE_ACCEL_SRC", "finitediff")
         f32 = np.float32
         big = np.finfo(f32).max
         # Structured per-modality observation (each modality is one reqrsp packet).
@@ -81,12 +88,18 @@ class IsaacCrazyflieSensorEnv(IsaacCrazyflieMPCEnv):
 
         R = _quat_to_matrix(quat[0], quat[1], quat[2], quat[3])
 
-        # world linear acceleration by finite difference of world velocity
-        if self._prev_vel_w is None:
-            a_world = np.zeros(3, dtype=np.float64)
-        else:
-            a_world = (vel_w - self._prev_vel_w) / self._ctrl_dt
+        # world linear acceleration. Two sources (a real accelerometer measures
+        # instantaneous specific force; finite-differencing velocity adds a 1-step lag +
+        # noise amplification that degrades the estimator's vz and the loop's margin):
+        a_fd = (np.zeros(3) if self._prev_vel_w is None
+                else (vel_w - self._prev_vel_w) / self._ctrl_dt)
         self._prev_vel_w = vel_w.copy()
+        a_isaac = d.body_lin_acc_w[0, self._base_id].detach().cpu().numpy().astype(np.float64)
+        # Isaac reports ~0 on the pre-force reset frame; fall back to finite-diff there.
+        if self._accel_src == "isaac" and np.linalg.norm(a_isaac) > 1e-6:
+            a_world = a_isaac
+        else:
+            a_world = a_fd
 
         # accelerometer specific force in body frame: f = R^T (a_world - g)
         accel_body = R.T @ (a_world - _G_WORLD)
@@ -122,12 +135,14 @@ class IsaacCrazyflieSensorEnv(IsaacCrazyflieMPCEnv):
         if os.environ.get("ROSE_SENSOR_DEBUG"):
             self._dbg = getattr(self, "_dbg", 0) + 1
             if self._dbg % 25 == 1:
-                print(f"[sensor] t={self._t:5.2f} accel=({accel_body[0]:+.2f},{accel_body[1]:+.2f},"
-                      f"{accel_body[2]:+.2f}) gyro=({gyro_body[0]:+.2f},{gyro_body[1]:+.2f},"
-                      f"{gyro_body[2]:+.2f}) flow=({flow[0]:+.3f},{flow[1]:+.3f}) "
-                      f"z_true={pos[2]:.3f}", flush=True)
+                f_fd = R.T @ (a_fd - _G_WORLD)
+                f_bl = R.T @ (a_isaac - _G_WORLD)
+                print(f"[sensor] t={self._t:5.2f} accel_z used={accel_body[2]:+.2f} "
+                      f"(fd={f_fd[2]:+.2f} isaac={f_bl[2]:+.2f}) "
+                      f"flow=({flow[0]:+.3f},{flow[1]:+.3f}) z_true={pos[2]:.3f}", flush=True)
         return obs, info, (pos, quat, vel_w, angv_w)
 
     def reset(self, *, seed=None, options=None):
         self._prev_vel_w = None
         return super().reset(seed=seed, options=options)
+
