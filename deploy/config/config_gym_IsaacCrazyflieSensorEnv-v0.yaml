@@ -5,8 +5,10 @@
 # Same 1 GHz timing note as the ground-truth loop (see config_deploy_gym.yaml).
 gym_env: 'IsaacCrazyflieSensorEnv-v0'
 
-# gym_timestep = one env.step() = 0.02 s (50 Hz), matching quadrotor_50hz_params_*.
-gym_timestep: 0.02
+# gym_timestep = one env.step(). 0.005 s = 200 Hz control (the 50 Hz TinyMPC LQR gain is
+# rate-tolerant; running it faster tightens the loop for the fast attitude dynamics).
+# Must equal firesim_step/firesim_freq in config_deploy_gym.yaml (-> 1 control/env step).
+gym_timestep: 0.005
 
 packets:
   # env -> SoC: IMU = [ax,ay,az, gx,gy,gz] (accelerometer specific force + rate gyro,
@@ -42,8 +44,8 @@ channel_bandwidth: [[0, 0, 0]]
 
 gym_kwargs:
   headless: true
-  ctrl_freq: 50
-  phys_freq: 100
+  ctrl_freq: 200
+  phys_freq: 400
   # Start near the hover setpoint. From estimated (not ground-truth) state the controller
   # can't brake a hard takeoff without overshoot, so a gentle transient keeps the
   # estimator-in-the-loop stable (must match START_Z in the guest).
