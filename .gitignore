@@ -19,5 +19,6 @@ soc/sim/*.log
 # RoSE Spike bridge build artifacts (built by soc/src/main/cc/rose_spike/build.sh)
 soc/sim/librose_spike.so
 soc/sim/rose_spike_sim
+soc/sim/rose_spike_trace
 # Zephyr rose sample build outputs (west build)
 soc/sim/zephyr_*build*/
