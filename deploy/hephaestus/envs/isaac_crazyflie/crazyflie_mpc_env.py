@@ -130,6 +130,21 @@ class IsaacCrazyflieMPCEnv(gym.Env):
         self._camera_follow = bool(camera_follow)   # chase cam that keeps the drone framed
         self._camera_offset = tuple(camera_offset)
         self._camera_focal = float(camera_focal)
+        # Env-var camera overrides (for nicer recording angles without editing defaults):
+        # ROSE_CAM_EYE / ROSE_CAM_LOOK / ROSE_CAM_OFFSET = "x,y,z"; ROSE_CAM_FOLLOW = 0/1;
+        # ROSE_CAM_FOCAL = mm. A fixed elevated view (FOLLOW=0 + EYE/LOOK) reads motion best.
+        def _vec3(name, default):
+            v = os.environ.get(name)
+            if not v:
+                return default
+            parts = [float(x) for x in v.replace(" ", "").split(",")]
+            return tuple(parts[:3]) if len(parts) >= 3 else default
+        self._camera_eye = _vec3("ROSE_CAM_EYE", self._camera_eye)
+        self._camera_look = _vec3("ROSE_CAM_LOOK", self._camera_look)
+        self._camera_offset = _vec3("ROSE_CAM_OFFSET", self._camera_offset)
+        if os.environ.get("ROSE_CAM_FOLLOW") is not None:
+            self._camera_follow = os.environ.get("ROSE_CAM_FOLLOW") not in ("0", "false", "False")
+        self._camera_focal = float(os.environ.get("ROSE_CAM_FOCAL", self._camera_focal))
         self._camera = None
 
         # --- 1. Boot Isaac Sim (once per process) BEFORE importing any isaaclab.sim/.assets ---
@@ -176,6 +191,20 @@ class IsaacCrazyflieMPCEnv(gym.Env):
                 ),
             )
 
+        # Robot cfg with rigid-body SLEEP DISABLED. Defensive only: a perfectly-still hover lets
+        # PhysX sleep the body after ~1 s, a plausible contributor to the systemic ~235-step
+        # co-sim stall (docs/ROSE_FLIGHT_CONTROLLER_THREADING.md). NOTE: this alone does NOT
+        # resolve the stall (the committed single-loop still hangs at ~236 with sleep disabled) —
+        # kept as a harmless precaution while the real cause is run down via SoC (TACIT) traces.
+        _robot_cfg = CRAZYFLIE_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+        try:
+            _rp = getattr(_robot_cfg.spawn, "rigid_props", None)
+            if _rp is not None:
+                _rp.sleep_threshold = 0.0
+                _rp.stabilization_threshold = 0.0
+        except Exception as _e:  # noqa: BLE001
+            print(f"[crazyflie_env] rigid sleep-disable skipped ({_e})", flush=True)
+
         @configclass
         class _CrazyflieSceneCfg(InteractiveSceneCfg):
             ground = AssetBaseCfg(
@@ -186,7 +215,7 @@ class IsaacCrazyflieMPCEnv(gym.Env):
                 prim_path="/World/Light",
                 spawn=sim_utils.DomeLightCfg(intensity=2000.0, color=(0.75, 0.75, 0.75)),
             )
-            robot = CRAZYFLIE_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+            robot = _robot_cfg
 
         if cam_field is not None:
             @configclass

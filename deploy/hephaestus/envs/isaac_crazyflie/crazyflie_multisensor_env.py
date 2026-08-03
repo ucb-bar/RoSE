@@ -174,15 +174,30 @@ class IsaacCrazyflieMultiSensorEnv(IsaacCrazyflieSensorEnv):
         walls = _maze_walls(os.environ.get("ROSE_MAZE", ""))
         if not walls:
             return
-        for i, (mn, mx) in enumerate(walls):
-            size = (float(mx[0] - mn[0]), float(mx[1] - mn[1]), float(mx[2] - mn[2]))
-            center = (float(0.5 * (mn[0] + mx[0])), float(0.5 * (mn[1] + mx[1])),
-                      float(0.5 * (mn[2] + mx[2])))
-            cfg = sim_utils.CuboidCfg(
-                size=size,
-                visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=(0.55, 0.56, 0.62)),
-            )
-            cfg.func("/World/maze/wall_%d" % i, cfg, translation=center)
+        # Split each wall into alternating-colour SEGMENTS along its long axis (a simple stripe
+        # "texture") so the drone's motion relative to the corridor is obvious on camera.
+        seg_len = 0.30
+        stripe = [(0.66, 0.68, 0.74), (0.28, 0.31, 0.42)]   # light / dark slate stripes
+        idx = 0
+        for (mn, mx) in walls:
+            mn = [float(v) for v in mn]
+            mx = [float(v) for v in mx]
+            ex, ey = mx[0] - mn[0], mx[1] - mn[1]
+            axis = 0 if ex >= ey else 1                     # segment along the longer horizontal
+            length = mx[axis] - mn[axis]
+            nseg = max(1, int(round(length / seg_len)))
+            for s in range(nseg):
+                lo, hi = list(mn), list(mx)
+                lo[axis] = mn[axis] + length * s / nseg
+                hi[axis] = mn[axis] + length * (s + 1) / nseg
+                size = (hi[0] - lo[0], hi[1] - lo[1], hi[2] - lo[2])
+                center = (0.5 * (lo[0] + hi[0]), 0.5 * (lo[1] + hi[1]), 0.5 * (lo[2] + hi[2]))
+                cfg = sim_utils.CuboidCfg(
+                    size=size,
+                    visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=stripe[s % 2]),
+                )
+                cfg.func("/World/maze/wall_%d" % idx, cfg, translation=center)
+                idx += 1
 
     # ---- analytic multizone ToF (numpy, no Isaac) --------------------------------------
     def _synth_multizone_tof(self, pos, quat):
