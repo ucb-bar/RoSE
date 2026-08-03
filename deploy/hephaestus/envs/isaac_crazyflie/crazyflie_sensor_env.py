@@ -271,10 +271,16 @@ class IsaacCrazyflieSensorEnv(IsaacCrazyflieMPCEnv):
             flow = self._delay.push("flow", flow)
             tof = self._delay.push("tof", tof)
 
+        # Flow-dropout is signaled ON THE WIRE by a NaN sentinel in the flow packet (no new
+        # cmd/channel): the guest sees NaN -> runs velocity predict-only that step. The clean/
+        # held value is still kept in info for logging. Mirrors a real Flow deck's motion/quality
+        # status bit. (Stress plan section 4, item 2.)
+        wire_flow = flow if flow_valid else np.array([np.nan, np.nan], dtype=np.float64)
+
         obs = {
             "accel": accel_body.astype(np.float32),
             "gyro": gyro_body.astype(np.float32),
-            "flow": flow.astype(np.float32),
+            "flow": wire_flow.astype(np.float32),
             "tof": tof.astype(np.float32),
             "pos": pos.astype(np.float32),
             "quat": np.array([quat[1], quat[2], quat[3], quat[0]], dtype=np.float32),

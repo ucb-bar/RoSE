@@ -171,12 +171,26 @@ the aggressive flow std (~0.03 m/s).
 Honest result: gating rejects the rare ±0.5 m/s flow spikes and slightly tightens ripple, but
 **does not recover L2** — its velocity RMS is dominated by *broadband* white flow noise plus
 the 3% flow **dropout** (the env holds the last value, and the guest cannot tell a sample is
-stale without a `flow_valid` bit on the wire). So the remaining L2 gap needs **item 2 —
-flow-validity dropout handling — which requires a protocol change** (a NaN/sentinel in the
-flow packet so the guest runs predict-only on dropout). Deliberately NOT closing it by
-retuning the TinyMPC gains (would overtune to the sim). Gating is kept anyway: it is sound,
-non-regressing robustness architecture for real-world outliers. Gyro-bias in Mahony is a
-further item (attitude stayed <1°, low priority).
+stale without a `flow_valid` bit on the wire). ### Item 2 — flow-validity dropout handling (done)
+
+Wire: on a flow dropout the env now sends a **NaN sentinel** in the existing flow packet (no
+new cmd/channel); the guest driver path detects NaN → `flow_valid=false`, and both estimators
+run the velocity step **predict-only** on dropout (mirrors the ToF path). Interface gained a
+`flow_valid` arg (EKF + complementary).
+
+Result (EKF, noise matrix): L0/L1 still PASS (no regression), **L2 vel 0.201 unchanged**. So
+the 3% flow dropout was NOT L2's driver either — confirming L2's residual velocity is
+*broadband* white noise (dominated by the aggressive accel σ=0.4 propagating through
+predict + the delay-comp lead), not stale samples or outliers.
+
+**Conclusion on L2:** item 1 (accel-bias) eliminated the altitude offset — the dominant
+failure — and recovered L1 to PASS; items 2 & 3 are correct, non-regressing robustness
+architecture (dropout handling + outlier rejection) that real hardware needs, but none
+recover L2's broadband-noise velocity. Fully closing L2 would require **retuning the TinyMPC
+gains or a better sensor suite** — deliberately NOT done, to avoid overtuning to the sim.
+This is an honest capability boundary of the current sensor-based stack at the aggressive
+noise level, surfaced by the harness. Gyro-bias in Mahony remains a further item (attitude
+stayed <1°, low priority).
 
 Harness note: fixed the `rose_spike_sim` orphan leak at the root (`timeout --foreground`);
 confirmed 0 orphans after a completed run.
