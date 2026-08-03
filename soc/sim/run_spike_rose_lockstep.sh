@@ -17,7 +17,11 @@ NPROCS="${2:-1}"
 # Sync port: ROSE_SYNC_PORT (default 10001) must match the synchronizer's port. The parallel
 # stress harness sets this per cell so many co-sim cells share one host without colliding.
 ROSE_SYNC_PORT="${ROSE_SYNC_PORT:-10001}"
-timeout "${ROSE_SPIKE_TIMEOUT:-40}" "$BIN" -p "$NPROCS" \
+# `timeout --foreground`: without it, GNU timeout (>=8.13) runs the command in its OWN process
+# group, so a caller that kills THIS script's group (e.g. the parallel stress harness on cell
+# completion) misses the rose_spike_sim grandchild -> it orphans and pins a CPU core. With
+# --foreground the sim stays in this script's group and dies with it.
+timeout --foreground "${ROSE_SPIKE_TIMEOUT:-40}" "$BIN" -p "$NPROCS" \
   --rose-base=0x2000 --rose-irq=3 --rose-dma-base=0x88000000 \
   --rose-nreqrsp=2 --rose-ndma=1 --rose-port="$ROSE_SYNC_PORT" "$ELF" 2>&1
 echo "ROSE_SIM_EXIT=$?"
