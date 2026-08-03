@@ -154,7 +154,29 @@ Built with `-DROSE_USE_EKF=1` (`rose_flight_controller_ekf`).
 
 The accel-bias state **kills the altitude offset** (the dominant failure): L1 recovers fully
 to PASS, and L2's alt_rms drops 0.116→0.026. L2 still FAILs, but now purely on flow-noise
-**velocity/ripple** (vel 0.201, ripple 0.057) — precisely what remains for the next items:
-(2) `flow_valid` dropout handling and (3) innovation gating (χ²) on flow/ToF, plus (4)
-noise-matched `r_flow`. Gyro-bias in Mahony (attitude) is a further item (attitude stayed
-<1° here, so lower priority).
+**velocity/ripple** (vel 0.201, ripple 0.057).
+
+### Items 3 & 4 — innovation gating + noise-matched `r_flow` (done)
+
+Added a χ² (normalized-innovation) outlier gate to the `Kf3` position/velocity updates
+(reject when `resid²/S` > gate; flow gate 9, ToF 25) and raised `r_flow` 4e-4→9e-4 to match
+the aggressive flow std (~0.03 m/s).
+
+| cell | item-1 (accel-bias) | + items 3&4 (gating + r_flow) |
+|---|---|---|
+| L0 | PASS, alt_rms 0.023 | PASS, alt_rms 0.023 (no regression) |
+| L1 | PASS, ripple 0.021, vel 0.047 | PASS, ripple 0.021, vel 0.047 |
+| L2 | FAIL, vel 0.201, ripple 0.057 | FAIL, **vel 0.201 (unchanged)**, ripple 0.053 |
+
+Honest result: gating rejects the rare ±0.5 m/s flow spikes and slightly tightens ripple, but
+**does not recover L2** — its velocity RMS is dominated by *broadband* white flow noise plus
+the 3% flow **dropout** (the env holds the last value, and the guest cannot tell a sample is
+stale without a `flow_valid` bit on the wire). So the remaining L2 gap needs **item 2 —
+flow-validity dropout handling — which requires a protocol change** (a NaN/sentinel in the
+flow packet so the guest runs predict-only on dropout). Deliberately NOT closing it by
+retuning the TinyMPC gains (would overtune to the sim). Gating is kept anyway: it is sound,
+non-regressing robustness architecture for real-world outliers. Gyro-bias in Mahony is a
+further item (attitude stayed <1°, low priority).
+
+Harness note: fixed the `rose_spike_sim` orphan leak at the root (`timeout --foreground`);
+confirmed 0 orphans after a completed run.
