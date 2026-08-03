@@ -91,6 +91,18 @@ and e.g. `ROSE selftest: dma=PASS reqrsp=PASS => PASS`.
 
 Set `ROSE_SPIKE_DEBUG=1` for per-event tracing (routes, DMA writes, IRQ, grant budget).
 
+### Instruction-level SoC tracing in the lockstep
+
+- **Spike commit-log** (any `rose_spike_sim` run): `ROSE_SPIKE_COMMITLOG=<path>` writes the
+  per-instruction commit log (PC, insn, reg/mem) for hart 0. Bound it with
+  `ROSE_SPIKE_COMMITLOG_START=<step>` / `_END=<step>` — each co-sim step is ~5M instrs
+  (~350 MB), so use a 1-step window (`START=N END=N`) near the point of interest.
+- **TACIT / L-Trace** (`build.sh trace` → `rose_spike_trace`): same harness linked against
+  the l_trace spike (auto-registers the `0x3000000` encoder MMIO). Run a
+  `CONFIG_STARTUP_TACIT` guest under it; it emits `tacit.out` in the CWD, decodable by
+  `tacit_decoder/ltrace-decoder`. `ROSE_LTRACE_SPIKE` overrides the l_trace spike location.
+- `ROSE_SPIKE_MAX_STEPS=N` cleanly stops the co-sim after N steps (flushes either trace).
+
 ---
 
 ## Files
@@ -101,7 +113,7 @@ Set `ROSE_SPIKE_DEBUG=1` for per-event tracing (routes, DMA writes, IRQ, grant b
 | `rose_spike/rose_spike_device.cc` | passive `--extlib` MMIO plugin (`librose_spike.so`) |
 | `rose_spike/rose_spike_sim.cc` | lockstep harness (`rose_spike_sim`) — subclasses `sim_t`, owns `idle()` |
 | `rose_spike/rose_spike_sim_stepaccess.patch` | minimal spike patch (`step()` → protected), applied by `setup.sh` |
-| `rose_spike/build.sh` | builds both flavors |
+| `rose_spike/build.sh` | builds all flavors (`plugin`/`harness`/`trace`); `trace` also patches the l_trace spike's `sim.h` step() access idempotently |
 | `soc/sim/build_zephyr_rose.sh` | builds the `samples/rose` guest elfs |
 | `soc/sim/run_spike_rose{,_lockstep}.sh` | launch a guest elf on each tier |
 | `soc/sw/zephyr-rose/` | Zephyr rose driver + `subsys/rose` protocol layer |

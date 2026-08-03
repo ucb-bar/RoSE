@@ -85,12 +85,28 @@ vector `0x800001fe` → … → `End`). Toolchain: l_trace spike at
 `/scratch2/dima/chipyard-fsim/toolchains/riscv-tools/riscv-isa-sim/build/spike`,
 decoder at `/scratch2/dima/chipyard-fsim/software/tacit_decoder` (`misc_decoders`).
 
-Caveat for this hang specifically: `spike --trace=l` runs **standalone** (no RoSE
-bridge), so it cannot drive the flight-controller control loop (which blocks on bridge
-sensor I/O). Tracing the controller *inside* the lockstep would require the TACIT MMIO
-encoder (`0x3000000`) modeled in `rose_spike_sim`, or Spike commit-logging
-(`configure_log`) wired into the harness — both are straightforward follow-ups if an
-instruction-level SoC trace of a live hang is ever needed.
+### Instruction-level SoC tracing *inside* the lockstep (both wired)
+
+`spike --trace=l` runs standalone (no RoSE bridge), so it can't drive a bridge-dependent
+control loop. Two in-lockstep tracers are now built into the harness:
+
+1. **Spike commit-log** — `rose_spike_sim` (the normal harness). Set
+   `ROSE_SPIKE_COMMITLOG=<path>` (+ `ROSE_SPIKE_COMMITLOG_START/END` step window) to write
+   Spike's per-instruction commit log (PC, insn, reg/mem writes) for the boot hart during
+   the live co-sim. Each step is ~5M instructions (~350 MB), so use a 1-step window near
+   the point of interest. Verified: on a clean hover the window shows the SoC busy-polling
+   the RoSE STATUS reg (`0x2000`) — the reqrsp sensor-wait spin (SoC executing, not hung).
+
+2. **TACIT / L-Trace** — `rose_spike_trace` (`build.sh trace`), the same harness linked
+   against the l_trace spike, which auto-registers the `0x3000000` encoder MMIO. Run a
+   `CONFIG_STARTUP_TACIT` guest under it (sync supplies grants) and it emits
+   `tacit.out`/`.debug` in the CWD, decodable by `ltrace-decoder`. Verified end-to-end in
+   the lockstep (hello-world guest: 541,930 instrs → 793,201-line decoded trace).
+   `ROSE_SPIKE_MAX_STEPS=N` cleanly bounds either capture (flushes on stop).
+
+Tracing the *flight controller* this way needs it rebuilt with `CONFIG_STARTUP_TACIT=y`
+against a zephyr tree that has the TACIT SoC driver (present in the -fresh/`dev` tree, not
+the xpu-rt sample tree) — the harness side is done.
 
 ## Reproduction / evidence commands
 

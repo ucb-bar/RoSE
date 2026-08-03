@@ -318,6 +318,13 @@ public:
 				     (unsigned long long)step_count);
 				exit(0);
 			}
+			/* Clean bounded stop (both builds). exit() flushes stdio, so an
+			 * in-progress TACIT tacit.out / commit log is written out intact. */
+			if (max_steps != 0 && step_count >= max_steps) {
+				RDBG("reached max_steps=%llu -> stop\n",
+				     (unsigned long long)max_steps);
+				exit(0);
+			}
 		}
 	}
 
@@ -333,6 +340,8 @@ private:
 	uint64_t commit_step_start = 0;
 	uint64_t commit_step_end = 0;
 	uint64_t step_count = 0;
+public:
+	uint64_t max_steps = 0;   /* 0 = unbounded; else clean-stop after N steps */
 };
 
 /* ---------------------------------------------------------------------------
@@ -408,11 +417,23 @@ int main(int argc, char **argv) {
 	rose_sim_t s(&cfg, mems, htif_args, dm_config,
 		     rbase, rirq, rdma, nreqrsp, ndma, rhost, rport,
 		     commitlog_path, clog_start, clog_end);
+	/* ROSE_SPIKE_MAX_STEPS: clean-stop the co-sim after N physics steps (0 = unbounded).
+	 * Useful to bound a TACIT/commit-log capture so it flushes and stays small. */
+	if (const char *v = getenv("ROSE_SPIKE_MAX_STEPS")) s.max_steps = strtoull(v, nullptr, 0);
 
 	RDBG("rose_spike_sim: nprocs=%zu rose@0x%lx irq=%u dma=0x%lx sync=%s:%d commitlog=%s[%llu:%llu]\n",
 	     nprocs, (unsigned long)rbase, rirq, (unsigned long)rdma, rhost, rport,
 	     commitlog_path ? commitlog_path : "off",
 	     (unsigned long long)clog_start, (unsigned long long)clog_end);
+
+#ifdef ROSE_TRACE_BUILD
+	/* TACIT / L-Trace build (linked against the l_trace spike): enable the per-hart
+	 * trace-encoder commit hook. The l_trace sim_t auto-registers the 0x3000000 encoder
+	 * MMIO block, so a CONFIG_STARTUP_TACIT guest gates capture via TR_TE_CTRL and the
+	 * encoder writes tacit.out/.log/.debug in the CWD. Decode with ltrace-decoder. */
+	s.configure_log(/*enable_log*/false, /*enable_commitlog*/false, /*trace*/true);
+	RDBG("rose_spike_trace: TACIT encoder feed enabled (tacit.out in CWD)\n");
+#endif
 
 	int rc = s.run();
 	for (auto &m : mems) delete m.second;
