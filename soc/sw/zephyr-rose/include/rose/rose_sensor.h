@@ -21,6 +21,11 @@ enum rose_sensor_channel {
 	/* Multizone ToF: mean zone distance (m). The MIN zone distance is reported on the
 	 * standard SENSOR_CHAN_DISTANCE; the full grid is read via rose_tof_zone_grid(). */
 	ROSE_SENSOR_CHAN_TOF_ZONE_MEAN,
+	/* Multizone ToF: CENTER (bore) zone distance (m) -- the perpendicular distance to the
+	 * facing wall. Use this (not MIN) for position-relative-to-a-wall fusion: MIN is the
+	 * nearest obstacle anywhere in the FoV, so in a narrow corridor a forward sensor's MIN
+	 * catches the side-wall corner, not the wall it faces. */
+	ROSE_SENSOR_CHAN_TOF_ZONE_CENTER,
 };
 
 /* Full zone grid accessor for the ucbbar,rose-tof-zone driver (not part of the sensor API);

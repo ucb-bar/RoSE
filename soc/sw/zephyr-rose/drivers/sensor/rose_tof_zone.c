@@ -40,11 +40,22 @@ struct rose_tof_zone_config {
 
 struct rose_tof_zone_data {
 	float grid[ROSE_TOF_ZONE_MAX];
-	float min_m, mean_m;
+	float min_m, mean_m, center_m;
 	uint16_t nzones;
 	uint32_t ctr;
 	bool pending;
 };
+
+/* Integer sqrt for the square grid dimension (n = dim*dim), so the center (bore) zone can be
+ * located without linking libm. */
+static uint16_t rose_isqrt(uint16_t n)
+{
+	uint16_t r = 0;
+	while ((uint32_t)(r + 1) * (r + 1) <= n) {
+		r++;
+	}
+	return r;
+}
 
 static int rose_tof_zone_sample_fetch(const struct device *dev, enum sensor_channel chan)
 {
@@ -52,7 +63,8 @@ static int rose_tof_zone_sample_fetch(const struct device *dev, enum sensor_chan
 	struct rose_tof_zone_data *data = dev->data;
 
 	if (chan != SENSOR_CHAN_ALL && chan != SENSOR_CHAN_DISTANCE &&
-	    chan != (enum sensor_channel)ROSE_SENSOR_CHAN_TOF_ZONE_MEAN) {
+	    chan != (enum sensor_channel)ROSE_SENSOR_CHAN_TOF_ZONE_MEAN &&
+	    chan != (enum sensor_channel)ROSE_SENSOR_CHAN_TOF_ZONE_CENTER) {
 		return -ENOTSUP;
 	}
 	bool fresh = (data->ctr % cfg->decimation) == 0U;
@@ -93,6 +105,10 @@ static void rose_tof_zone_collect(const struct rose_tof_zone_config *cfg,
 	data->nzones = n;
 	data->min_m = mn;
 	data->mean_m = sum / (float)n;
+	/* center (bore) zone of the square grid = row dim/2, col dim/2 */
+	uint16_t dim = rose_isqrt(n);
+	uint16_t ci = (dim / 2) * dim + (dim / 2);
+	data->center_m = (ci < n) ? data->grid[ci] : data->mean_m;
 	data->pending = false;
 }
 
@@ -111,6 +127,9 @@ static int rose_tof_zone_channel_get(const struct device *dev, enum sensor_chann
 		return 0;
 	case ROSE_SENSOR_CHAN_TOF_ZONE_MEAN:
 		sensor_value_from_double(val, (double)data->mean_m);
+		return 0;
+	case ROSE_SENSOR_CHAN_TOF_ZONE_CENTER:
+		sensor_value_from_double(val, (double)data->center_m);
 		return 0;
 	default:
 		return -ENOTSUP;

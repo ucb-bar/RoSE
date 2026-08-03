@@ -14,7 +14,11 @@ Notes:
   `ROSE_ISAAC_FRAMEDIR`). The mp4/CSV sources are written to the run's scratch dir (session-
   temporary); the artifacts above are the durable record. Re-capture any run by setting those
   env vars on the sync process.
-- **Waypoint-flight caveat (tracked for estimator refinement):** the forward setpoint
-  overshoots slightly because the front/back sensor's *nearest* zone reads the side-wall corner
-  in a narrow corridor, so longitudinal position lags. Fix: use the perpendicular center zone
-  for longitudinal wall fusion (lateral min-zone is already clean).
+- **Waypoint-flight refinement (RESOLVED):** the first waypoint run overshot (true x→1.4 vs
+  setpoint 1.0) because the front/back sensor's *nearest* zone read the side-wall corner in a
+  narrow corridor, so the longitudinal estimate under-read (guest 0.79 vs true 1.32). Fix: the
+  `ucbbar,rose-tof-zone` driver now also exposes the perpendicular **center (bore) zone**
+  (`ROSE_SENSOR_CHAN_TOF_ZONE_CENTER`), and `fuse_walls` uses it for position. Re-run: the guest
+  estimate now matches truth (0.856 vs 0.858 at the setpoint) and x approaches 1.0 monotonically
+  with **no overshoot** — a clean waypoint arrival. (The near-flip video predates this; the
+  corridor video shows the pre-fix forward flight, which is still a valid nav demo.)
