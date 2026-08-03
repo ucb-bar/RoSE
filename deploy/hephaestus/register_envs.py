@@ -70,3 +70,11 @@ register(
     id='IsaacCrazyflieSensorEnv-v0',
     entry_point='envs.isaac_crazyflie.crazyflie_sensor_env:IsaacCrazyflieSensorEnv',
 )
+
+# docs/ROSE_FUTURE_SENSORS_PLAN.md: adds 4× VL53L5CX multizone ToF (F/R/B/L) + an HM01B0 FPV
+# camera on top of the sensor env. Not used by the stress loop (that env id is unchanged); this
+# is the navigation/obstacle-sensing env.
+register(
+    id='IsaacCrazyflieMultiSensorEnv-v0',
+    entry_point='envs.isaac_crazyflie.crazyflie_multisensor_env:IsaacCrazyflieMultiSensorEnv',
+)

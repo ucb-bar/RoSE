@@ -1,0 +1,49 @@
+# WIP starter config for the future multizone-ToF + FPV env (docs/ROSE_FUTURE_SENSORS_PLAN.md).
+# NOT wired into any run yet: the env registration is commented in register_envs.py and the
+# ucbbar,rose-tof-zone / ucbbar,rose-camera drivers do not exist yet. This documents the
+# intended RoSE wire format so the guest app + drivers can be built against it.
+#
+# Extends config_gym_IsaacCrazyflieSensorEnv-v0.yaml: keep accel(0x12)/gyro(0x15)/flow(0x13)/
+# tof(0x14)/thrust(0x20) exactly as there, and ADD the four horizontal VL53L5CX zone grids +
+# the HM01B0 FPV camera below.
+gym_env: 'IsaacCrazyflieMultiSensorEnv-v0'
+gym_timestep: 0.005
+
+packets:
+  # --- inherited from the sensor env (unchanged) ---
+  - {name: accel,  id: 0x12, type: reqrsp, latency: 0, channel: 2, indices: [accel]}
+  - {name: gyro,   id: 0x15, type: reqrsp, latency: 0, channel: 2, indices: [gyro]}
+  - {name: flow,   id: 0x13, type: reqrsp, latency: 0, channel: 1, indices: [flow]}
+  - {name: tof,    id: 0x14, type: reqrsp, latency: 0, channel: 1, indices: [tof]}
+
+  # --- NEW: 4× VL53L5CX horizontal multizone ToF (8×8 = 64 float32 words each, metres) ---
+  # Split F/B on ch2 and L/R on ch1 so opposite pairs pipeline in parallel. Low-rate (the
+  # ucbbar,rose-tof-zone driver decimates ~200 Hz/15 Hz -> 13).
+  - {name: tof_front, id: 0x30, type: reqrsp, latency: 0, channel: 1, indices: [tof_front]}
+  - {name: tof_right, id: 0x31, type: reqrsp, latency: 0, channel: 2, indices: [tof_right]}
+  - {name: tof_back,  id: 0x32, type: reqrsp, latency: 0, channel: 1, indices: [tof_back]}
+  - {name: tof_left,  id: 0x33, type: reqrsp, latency: 0, channel: 2, indices: [tof_left]}
+
+  # --- NEW: HM01B0 FPV mono camera (320×240×1 = 76,800 bytes) over the DMA channel ---
+  # Too large for reqrsp; uses DMA ch0 (guest: rose_dma_arm/rose_dma_wait/rose_dma_buffer).
+  # 'dma' packet type is illustrative — the DMA route wiring is a TODO (plan §2.3).
+  - {name: fpv, id: 0x40, type: dma, channel: 0, indices: [fpv]}
+
+  # SoC -> env: 4 normalized motor thrusts (unchanged)
+  - {name: thrust, id: 0x20, type: action_latch, indices: null}
+
+channel_bandwidth: [[0, 0, 0]]
+
+gym_kwargs:
+  headless: true
+  ctrl_freq: 200
+  phys_freq: 400
+  start_height: 0.9
+  # future-sensor knobs (see crazyflie_multisensor_env.py)
+  tof_zones: 8
+  tof_decimation: 13
+  # room: [[-x,-y,0],[x,y,z]] analytic obstacle box the horizontal ToFs range against
+  # obstacles: [[[minx,miny,minz],[maxx,maxy,maxz]], ...]
+
+n_gym_agents: 1
+n_fsim_nodes: 1
