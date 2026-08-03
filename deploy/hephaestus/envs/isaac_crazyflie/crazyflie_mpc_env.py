@@ -210,6 +210,9 @@ class IsaacCrazyflieMPCEnv(gym.Env):
         self._gravity = float(torch.tensor(self.sim.cfg.gravity, device=self.device).norm())
         self._hover_force_per_prop = self._robot_mass * self._gravity / 4.0
         self._sim_dt = self.sim.get_physics_dt()
+        # base ("body") link for external disturbances (stress plan section 3.2)
+        self._base_body_id = self.robot.find_bodies("body")[0][0]
+        self._dist = self._disturbance_cfg()   # None unless ROSE_WIND_*/ROSE_GUST_*/ROSE_TORQUE_* set
 
         if self._camera_on:
             self._camera = self.scene["rose_cam"]
@@ -284,6 +287,61 @@ class IsaacCrazyflieMPCEnv(gym.Env):
         eyes = torch.tensor([eye], device=self.device, dtype=torch.float32)
         targets = torch.tensor([look], device=self.device, dtype=torch.float32)
         self._camera.set_world_poses_from_view(eyes, targets)
+
+    def _disturbance_cfg(self):
+        """Parse external-disturbance config from env vars (stress plan section 3.2). Returns
+        None unless something is set, so the default physics path is bit-for-bit unchanged
+        (magnitude-0 gate). Steady wind (world-frame force), a timed gust, and a timed yaw
+        torque impulse; wind/gust magnitudes in N, torque in N*m, times/durations in seconds."""
+        def g(k, d=0.0):
+            return float(os.environ.get(k, d))
+        cfg = dict(
+            wind_n=g("ROSE_WIND_N"), wind_dir=g("ROSE_WIND_DIR_DEG"),
+            gust_n=g("ROSE_GUST_N"), gust_dir=g("ROSE_GUST_DIR_DEG"),
+            gust_start=g("ROSE_GUST_START", 3.0), gust_dur=g("ROSE_GUST_DUR", 0.15),
+            torque=g("ROSE_TORQUE_IMP"), torque_start=g("ROSE_TORQUE_START", 3.0),
+            torque_dur=g("ROSE_TORQUE_DUR", 0.1),
+        )
+        if cfg["wind_n"] == 0.0 and cfg["gust_n"] == 0.0 and cfg["torque"] == 0.0:
+            return None
+        return cfg
+
+    def _apply_disturbance(self):
+        """Apply the configured external wrench to the BASE body (separate body_id from the
+        rotor props, so the composer's per-body `set` leaves the rotor forces intact). World-
+        frame wind is rotated into the body frame (the composer's forces are body-local, like
+        the rotor thrust). No-op when unconfigured -> baseline unchanged."""
+        if self._dist is None:
+            return
+        torch = self._torch
+        c = self._dist
+        t = self._t
+        # world-frame horizontal force: steady wind + gust during its window
+        import math
+        fx = c["wind_n"] * math.cos(math.radians(c["wind_dir"]))
+        fy = c["wind_n"] * math.sin(math.radians(c["wind_dir"]))
+        if c["gust_n"] != 0.0 and c["gust_start"] <= t < c["gust_start"] + c["gust_dur"]:
+            fx += c["gust_n"] * math.cos(math.radians(c["gust_dir"]))
+            fy += c["gust_n"] * math.sin(math.radians(c["gust_dir"]))
+        # rotate world force into the body frame (f_body = R^T f_world)
+        q = self.robot.data.root_quat_w[0].detach().cpu().numpy().astype(np.float64)  # wxyz
+        w, x, y, z = q
+        R = np.array([
+            [1 - 2 * (y * y + z * z), 2 * (x * y - w * z), 2 * (x * z + w * y)],
+            [2 * (x * y + w * z), 1 - 2 * (x * x + z * z), 2 * (y * z - w * x)],
+            [2 * (x * z - w * y), 2 * (y * z + w * x), 1 - 2 * (x * x + y * y)],
+        ], dtype=np.float64)
+        f_body = R.T @ np.array([fx, fy, 0.0])
+        tau = 0.0
+        if c["torque"] != 0.0 and c["torque_start"] <= t < c["torque_start"] + c["torque_dur"]:
+            tau = c["torque"]
+        forces = torch.zeros(self.robot.num_instances, 1, 3, device=self.device)
+        torques = torch.zeros_like(forces)
+        forces[0, 0, :] = torch.as_tensor(f_body, dtype=forces.dtype, device=self.device)
+        torques[0, 0, 2] = float(tau)
+        self.robot.permanent_wrench_composer.set_forces_and_torques(
+            forces=forces, torques=torques, body_ids=[self._base_body_id],
+        )
 
     def _apply_wrench(self, forces_z):
         """forces_z: (4,) per-prop thrust in N -> set per-rotor z-force + yaw reaction torque."""
@@ -399,6 +457,7 @@ class IsaacCrazyflieMPCEnv(gym.Env):
         # sub-step physics `decimation` times per control tick, re-asserting the wrench
         for _ in range(self.decimation):
             self._apply_wrench(forces_z)
+            self._apply_disturbance()  # external wind/gust/torque (no-op unless configured)
             self.scene.write_data_to_sim()
             self.sim.step()
             self.scene.update(self._sim_dt)

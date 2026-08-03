@@ -112,6 +112,17 @@ def matrix_combined():
         cells.append(("L%d_delay2" % lvl, env))
     return cells
 
+def matrix_disturbance():
+    # stress plan section 3.2: external wind / gust / yaw-torque impulse (physics-side; the
+    # guest sees only sensors). Clean sensors so the disturbance response is isolated.
+    return [
+        ("none", {}),
+        ("wind_x", {"ROSE_WIND_N": "0.03", "ROSE_WIND_DIR_DEG": "0"}),
+        ("wind_y", {"ROSE_WIND_N": "0.03", "ROSE_WIND_DIR_DEG": "90"}),
+        ("gust_x", {"ROSE_GUST_N": "0.15", "ROSE_GUST_START": "4", "ROSE_GUST_DUR": "0.15"}),
+        ("yaw_kick", {"ROSE_TORQUE_IMP": "0.002", "ROSE_TORQUE_START": "4", "ROSE_TORQUE_DUR": "0.1"}),
+    ]
+
 def matrix_smoke():
     return [("clean", {})]
 
@@ -121,6 +132,7 @@ MATRICES = {
     "noise_quick": matrix_noise_quick,
     "delay": matrix_delay,
     "scenario": matrix_scenario,
+    "disturbance": matrix_disturbance,
     "combined": matrix_combined,
     "smoke": matrix_smoke,
 }

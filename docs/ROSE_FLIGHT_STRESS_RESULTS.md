@@ -128,13 +128,22 @@ Implications for speeding up experimentation:
   spin, `ppid=1`) because cleanup waited on the bash wrapper; `_kill_group` now always
   SIGKILLs the whole process group. This had been compounding the slowdown across runs.
 
-## External disturbances (plan Phase 3.2) — DEFERRED (deliberately)
+## External disturbances (plan Phase 3.2) — DONE
 
-The rotor wrench goes through a custom `robot.permanent_wrench_composer` whose set-vs-
-accumulate semantics I could not verify from source. Rather than risk the validated hover, a
-disturbance wrench (steady wind + gust/torque impulse) is deferred until it can be added with
-a **magnitude-0 regression gate** (confirm the baseline is bit-identical with the disturbance
-path present but zero) on a free GPU. Design is in the plan §3.2.
+Implemented in `crazyflie_mpc_env.py` (`_disturbance_cfg` / `_apply_disturbance`): a body-frame
+external wrench on the BASE body via `permanent_wrench_composer.set_forces_and_torques(...,
+body_ids=[base])`. The composer's `set` is per-body, so setting the base body's wrench leaves
+the rotor forces on the prop bodies intact (verified against the WrenchComposer source).
+Configured by env vars (all default off): steady wind (`ROSE_WIND_N`/`_DIR_DEG`, world-frame,
+rotated into the body), a timed gust (`ROSE_GUST_N`/`_START`/`_DUR`), and a timed yaw-torque
+impulse (`ROSE_TORQUE_IMP`/`_START`/`_DUR`). Harness matrix `disturbance` sweeps them.
+
+**Magnitude-0 gate (by construction):** with no disturbance env var set, `_disturbance_cfg`
+returns `None`, so `_apply_disturbance` returns before touching the composer — the baseline
+physics path is bit-for-bit unchanged.
+
+**Validated:** under a 0.03 N +x wind the drone drifts +x (velocity-regulated controller →
+steady drift), tilts ~6° into the wind to resist, holds altitude (z=1.02), and stays stable.
 
 ## Estimator hardening (plan §4) — DONE (item 1: accel-bias state), validated
 
