@@ -56,9 +56,13 @@ def _maze_walls(name):
         return []
     if name == "hallway":
         # a corridor along +x: two long walls ~1.4 m apart (y = +-0.7), open ahead/behind.
+        # Extents are env-overridable (ROSE_HALL_X0/X1) so a long corridor can be spawned for
+        # a traversal that stays *through* the hall rather than reaching the open end.
+        x0 = float(os.environ.get("ROSE_HALL_X0", -2.5))
+        x1 = float(os.environ.get("ROSE_HALL_X1", 2.5))
         return [
-            ((-2.5, 0.70, 0.0), (2.5, 0.85, 1.8)),    # left wall
-            ((-2.5, -0.85, 0.0), (2.5, -0.70, 1.8)),  # right wall
+            ((x0, 0.70, 0.0), (x1, 0.85, 1.8)),    # left wall
+            ((x0, -0.85, 0.0), (x1, -0.70, 1.8)),  # right wall
         ]
     if name == "maze":
         # hallway + a chicane: a partial wall from the right leaving a gap on the left, then
