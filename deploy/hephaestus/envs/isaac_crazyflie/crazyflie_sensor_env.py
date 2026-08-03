@@ -77,9 +77,12 @@ class IsaacCrazyflieSensorEnv(IsaacCrazyflieMPCEnv):
         big = np.finfo(f32).max
         # Structured per-modality observation (each modality is one reqrsp packet).
         self.observation_space = spaces.Dict({
-            "imu":  spaces.Box(-big, big, (6,), f32),   # [ax,ay,az, gx,gy,gz] body frame
-            "flow": spaces.Box(-big, big, (2,), f32),   # [vx,vy] body-frame optical flow
-            "tof":  spaces.Box(-big, big, (1,), f32),   # [h] downward ToF height (low-rate)
+            # Separate accel + gyro packets, matching the real BMI088's two I2C devices
+            # (the guest issues them as independent, pipelined reqrsp requests).
+            "accel": spaces.Box(-big, big, (3,), f32),  # [ax,ay,az] body specific force
+            "gyro":  spaces.Box(-big, big, (3,), f32),  # [gx,gy,gz] body rate
+            "flow":  spaces.Box(-big, big, (2,), f32),  # [vx,vy] body-frame optical flow
+            "tof":   spaces.Box(-big, big, (1,), f32),  # [h] downward ToF height (low-rate)
             # ground-truth pose kept for logging (never routed onto the wire)
             "pos":  spaces.Box(-big, big, (3,), f32),
             "quat": spaces.Box(-1.0, 1.0, (4,), f32),
@@ -121,9 +124,9 @@ class IsaacCrazyflieSensorEnv(IsaacCrazyflieMPCEnv):
         self._tof_ctr += 1
         tof = np.array([self._tof_held], dtype=np.float64)
 
-        imu = np.concatenate([accel_body, gyro_body]).astype(np.float32)
         obs = {
-            "imu": imu,
+            "accel": accel_body.astype(np.float32),
+            "gyro": gyro_body.astype(np.float32),
             "flow": flow.astype(np.float32),
             "tof": tof.astype(np.float32),
             "pos": pos.astype(np.float32),
@@ -139,8 +142,10 @@ class IsaacCrazyflieSensorEnv(IsaacCrazyflieMPCEnv):
             "gt_vel": vel_w.astype(np.float32),
             "gt_angvel": angv_w.astype(np.float32),
             "gt_state": gt_state,
-            "imu": imu,
+            "accel": accel_body.astype(np.float32),
+            "gyro": gyro_body.astype(np.float32),
             "flow": flow.astype(np.float32),
+            "tof": tof.astype(np.float32),
             "rotor_force_N": np.asarray(forces_z, dtype=np.float32),
             "action_norm": np.asarray(action_norm, dtype=np.float32),
             "target": self.target.astype(np.float32),

@@ -30,35 +30,43 @@ struct rose_flow_config {
 
 struct rose_flow_data {
 	float vx, vy;
+	bool pending;
 };
 
+/* Two-phase (pipelined): sample_fetch issues the request (TX only); channel_get collects
+ * (the blocking read) on first call. See rose_imu.c for the rationale. */
 static int rose_flow_sample_fetch(const struct device *dev, enum sensor_channel chan)
 {
 	const struct rose_flow_config *cfg = dev->config;
 	struct rose_flow_data *data = dev->data;
-	uint32_t raw[FLOW_WORDS];
 
 	if (chan != SENSOR_CHAN_ALL &&
 	    chan != (enum sensor_channel)ROSE_SENSOR_CHAN_FLOW_VX &&
 	    chan != (enum sensor_channel)ROSE_SENSOR_CHAN_FLOW_VY) {
 		return -ENOTSUP;
 	}
-
 	rose_request(cfg->rose, cfg->cmd, 0U);
-	int n = rose_recv_reqrsp(cfg->rose, cfg->channel, raw, FLOW_WORDS);
-	if (n < FLOW_WORDS) {
-		LOG_ERR("short FLOW read: %d/%d", n, FLOW_WORDS);
-		return -EIO;
-	}
-	memcpy(&data->vx, &raw[0], sizeof(float));
-	memcpy(&data->vy, &raw[1], sizeof(float));
+	data->pending = true;
 	return 0;
 }
 
 static int rose_flow_channel_get(const struct device *dev, enum sensor_channel chan,
 				 struct sensor_value *val)
 {
+	const struct rose_flow_config *cfg = dev->config;
 	struct rose_flow_data *data = dev->data;
+
+	if (data->pending) {
+		uint32_t raw[FLOW_WORDS];
+		int n = rose_recv_reqrsp(cfg->rose, cfg->channel, raw, FLOW_WORDS);
+		if (n < FLOW_WORDS) {
+			LOG_ERR("short FLOW read: %d/%d", n, FLOW_WORDS);
+			return -EIO;
+		}
+		memcpy(&data->vx, &raw[0], sizeof(float));
+		memcpy(&data->vy, &raw[1], sizeof(float));
+		data->pending = false;
+	}
 
 	switch ((int)chan) {
 	case ROSE_SENSOR_CHAN_FLOW_VX:

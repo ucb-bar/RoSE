@@ -12,9 +12,12 @@ import os
 import yaml
 from functools import reduce
 
-HOST = "localhost"
-SYNC_PORT = 10001
-DATA_PORT = 60002
+# Port/host are env-overridable so multiple co-sim cells can run in parallel on one host
+# (each on its own port). The parallel stress harness sets ROSE_SYNC_PORT per cell and
+# passes the matching --rose-port to rose_spike_sim. Defaults preserve the single-run flow.
+HOST = os.environ.get("ROSE_SYNC_HOST", "localhost")
+SYNC_PORT = int(os.environ.get("ROSE_SYNC_PORT", "10001"))
+DATA_PORT = int(os.environ.get("ROSE_DATA_PORT", "60002"))
 
 class CONTROL_HEADERS:
     # fsim->gym

@@ -14,7 +14,10 @@ ELF="$(readlink -f "$ELF")"   # resolve before cd
 cd "$ROSE_DIR/soc/sim/chipyard"; source env.sh
 BIN="$ROSE_DIR/soc/sim/rose_spike_sim"
 NPROCS="${2:-1}"
+# Sync port: ROSE_SYNC_PORT (default 10001) must match the synchronizer's port. The parallel
+# stress harness sets this per cell so many co-sim cells share one host without colliding.
+ROSE_SYNC_PORT="${ROSE_SYNC_PORT:-10001}"
 timeout "${ROSE_SPIKE_TIMEOUT:-40}" "$BIN" -p "$NPROCS" \
   --rose-base=0x2000 --rose-irq=3 --rose-dma-base=0x88000000 \
-  --rose-nreqrsp=2 --rose-ndma=1 "$ELF" 2>&1
+  --rose-nreqrsp=2 --rose-ndma=1 --rose-port="$ROSE_SYNC_PORT" "$ELF" 2>&1
 echo "ROSE_SIM_EXIT=$?"

@@ -11,15 +11,25 @@ gym_env: 'IsaacCrazyflieSensorEnv-v0'
 gym_timestep: 0.005
 
 packets:
-  # env -> SoC: IMU = [ax,ay,az, gx,gy,gz] (accelerometer specific force + rate gyro,
-  # BODY frame). 6 float32 words on reqrsp ch2.
-  - name: imu
-    id: 0x12                 # SoC command: request IMU
+  # env -> SoC: accelerometer = [ax,ay,az] (body specific force). Separate packet from the
+  # gyro, matching the real BMI088's two I2C devices; the guest issues both as independent
+  # PIPELINED reqrsp requests (streamed together, collected one grant later).
+  - name: accel
+    id: 0x12                 # SoC command: request accelerometer
     type: "reqrsp"
     latency: 0
     channel: 2               # reqrsp1 (ROSE_RX_DATA_2)
     indices:
-      - "imu"
+      - "accel"
+
+  # env -> SoC: gyroscope = [gx,gy,gz] (body rate). Its own packet (BMI088 gyro @0x68).
+  - name: gyro
+    id: 0x15                 # SoC command: request gyroscope
+    type: "reqrsp"
+    latency: 0
+    channel: 2               # reqrsp1 (ROSE_RX_DATA_2), sequential after accel
+    indices:
+      - "gyro"
 
   # env -> SoC: optical flow = [vx,vy] (body-frame horizontal velocity, PMW3901-like).
   # 2 float32 words on reqrsp ch1 (a separate channel so IMU and flow never interleave).

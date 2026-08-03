@@ -2,17 +2,24 @@
  * Copyright (c) 2026 UC Berkeley
  * SPDX-License-Identifier: Apache-2.0
  *
- * Virtual RoSE IMU sensor driver (BMI088-equivalent). Implements the standard
- * Zephyr sensor_driver_api on top of the RoSE bridge transport (rose_request /
- * rose_recv_reqrsp), so application/estimator code that reads a BMI088 via
- * DT_ALIAS(bmi088_accel)/(bmi088_gyro) + sensor_sample_fetch/sensor_channel_get
- * runs UNCHANGED in the RoSE co-sim; only the devicetree binding differs from the
- * real bosch,bmi08x-* driver.
+ * Virtual RoSE IMU sensor driver (BMI088-equivalent). Implements the standard Zephyr
+ * sensor_driver_api on top of the RoSE bridge, so app/estimator code that reads a BMI088
+ * via DT_ALIAS(bmi088_accel)/(bmi088_gyro) + sensor_sample_fetch/sensor_channel_get runs
+ * UNCHANGED in the RoSE co-sim; only the devicetree binding differs from the real
+ * bosch,bmi08x-* driver.
  *
- * One reqrsp packet (rose-cmd, e.g. 0x12) carries the full 6-axis frame
- * [ax,ay,az, gx,gy,gz] as float32 words, matching the env's IMU packet. Each
- * logical node (accel or gyro, selected by the `is-gyro` DT flag) fetches the
- * frame and exposes its half.
+ * Accelerometer and gyroscope are SEPARATE nodes with their own reqrsp command (like the
+ * real BMI088's two I2C devices at 0x18 / 0x68); each fetches its own 3-word frame.
+ *
+ * PIPELINED / async transport: on the lockstep Spike tier a reqrsp response is served one
+ * grant after the request, and rose_rx blocks (spins) on the read. To avoid paying a grant
+ * of latency PER sensor, this driver splits the two phases across the sensor API:
+ *   - sample_fetch()  ISSUES the request (TX only, non-blocking) and marks a read pending;
+ *   - channel_get()   COLLECTS (the blocking read) on first call, then serves from cache.
+ * So an app that batches all sample_fetch() calls, then all channel_get() calls, streams
+ * every sensor's request in one grant and collects them together in the next -> one grant
+ * for the whole sensor set. On real hardware the split is invisible (the real driver does
+ * the transaction in sample_fetch); the batched call pattern works identically.
  */
 
 #define DT_DRV_COMPAT ucbbar_rose_imu
@@ -26,7 +33,7 @@
 
 LOG_MODULE_REGISTER(rose_imu, CONFIG_SENSOR_LOG_LEVEL);
 
-#define IMU_WORDS 6
+#define IMU_AXES 3
 
 struct rose_imu_config {
 	const struct device *rose;
@@ -36,39 +43,23 @@ struct rose_imu_config {
 };
 
 struct rose_imu_data {
-	int _unused;
+	float v[IMU_AXES];
+	bool pending;   /* a request was issued (fetch) but not yet collected (get) */
 };
-
-/* Accel and gyro ride in ONE reqrsp frame, so fetch it once per tick into a shared cache:
- * the accelerometer node issues the request, the gyroscope node reuses the cache (no second
- * reqrsp round-trip, which matters for the control-loop cycle budget). Single IMU per
- * vehicle, so one shared frame suffices. */
-static float s_imu_frame[IMU_WORDS];   /* [ax,ay,az, gx,gy,gz] */
-static bool s_imu_valid;
 
 static int rose_imu_sample_fetch(const struct device *dev, enum sensor_channel chan)
 {
 	const struct rose_imu_config *cfg = dev->config;
-	uint32_t raw[IMU_WORDS];
+	struct rose_imu_data *data = dev->data;
 
 	if (chan != SENSOR_CHAN_ALL &&
 	    chan != SENSOR_CHAN_ACCEL_XYZ && chan != SENSOR_CHAN_GYRO_XYZ) {
 		return -ENOTSUP;
 	}
-
-	/* Gyro node: reuse the frame the accel node already fetched this tick. */
-	if (cfg->is_gyro) {
-		return s_imu_valid ? 0 : -EAGAIN;
-	}
-
+	/* Phase 1: issue the request only (non-blocking TX); the read happens in channel_get
+	 * so multiple sensors can be fetched back-to-back and stream in one grant. */
 	rose_request(cfg->rose, cfg->cmd, 0U);
-	int n = rose_recv_reqrsp(cfg->rose, cfg->channel, raw, IMU_WORDS);
-	if (n < IMU_WORDS) {
-		LOG_ERR("short IMU read: %d/%d", n, IMU_WORDS);
-		return -EIO;
-	}
-	memcpy(s_imu_frame, raw, sizeof(float) * IMU_WORDS);   /* words are float32 bits */
-	s_imu_valid = true;
+	data->pending = true;
 	return 0;
 }
 
@@ -76,19 +67,26 @@ static int rose_imu_channel_get(const struct device *dev, enum sensor_channel ch
 				struct sensor_value *val)
 {
 	const struct rose_imu_config *cfg = dev->config;
-	const float *v = cfg->is_gyro ? &s_imu_frame[3] : &s_imu_frame[0];
+	struct rose_imu_data *data = dev->data;
 
-	if (cfg->is_gyro) {
-		if (chan != SENSOR_CHAN_GYRO_XYZ) {
-			return -ENOTSUP;
-		}
-	} else {
-		if (chan != SENSOR_CHAN_ACCEL_XYZ) {
-			return -ENOTSUP;
-		}
+	if ((cfg->is_gyro  && chan != SENSOR_CHAN_GYRO_XYZ) ||
+	    (!cfg->is_gyro && chan != SENSOR_CHAN_ACCEL_XYZ)) {
+		return -ENOTSUP;
 	}
-	for (int i = 0; i < 3; i++) {
-		sensor_value_from_double(&val[i], (double)v[i]);
+	/* Phase 2: collect the response on the first get after a fetch (blocks until the
+	 * grant delivers it); subsequent gets read the cache. */
+	if (data->pending) {
+		uint32_t raw[IMU_AXES];
+		int n = rose_recv_reqrsp(cfg->rose, cfg->channel, raw, IMU_AXES);
+		if (n < IMU_AXES) {
+			LOG_ERR("short IMU read: %d/%d", n, IMU_AXES);
+			return -EIO;
+		}
+		memcpy(data->v, raw, sizeof(float) * IMU_AXES);   /* words are float32 bits */
+		data->pending = false;
+	}
+	for (int i = 0; i < IMU_AXES; i++) {
+		sensor_value_from_double(&val[i], (double)data->v[i]);
 	}
 	return 0;
 }

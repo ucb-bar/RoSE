@@ -1,10 +1,10 @@
 # Copyright (c) 2026 UC Berkeley
 # SPDX-License-Identifier: Apache-2.0
 #
-# Virtual RoSE IMU sensor (accelerometer OR gyroscope). Fetches a 6-word
-# [ax,ay,az, gx,gy,gz] float32 frame from the RoSE bridge (one reqrsp packet
-# carries both, like a real BMI088's accel+gyro). Bind one node per logical
-# device (accel and gyro) so aliases line up 1:1 with the real bosch,bmi08x-*.
+# Virtual RoSE IMU sensor (accelerometer OR gyroscope). Each node fetches its OWN 3-word
+# [x,y,z] float32 frame from the RoSE bridge via its own reqrsp command -- accel and gyro
+# are separate packets, mirroring the real BMI088's two independent I2C devices. Bind one
+# node per logical device (accel + gyro) so aliases line up 1:1 with bosch,bmi08x-*.
 
 description: RoSE co-sim virtual IMU (BMI088-equivalent) accelerometer/gyroscope
 

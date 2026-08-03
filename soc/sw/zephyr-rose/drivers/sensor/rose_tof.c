@@ -35,43 +35,49 @@ struct rose_tof_config {
 struct rose_tof_data {
 	float height;
 	uint32_t ctr;
+	bool pending;
 };
 
+/* Low-rate + two-phase (pipelined). sample_fetch: on a fresh step issue the request (TX
+ * only) and return 0; on other steps return -EAGAIN (no new sample -> the estimator skips
+ * altitude fusion this step). channel_get collects the response on first call. */
 static int rose_tof_sample_fetch(const struct device *dev, enum sensor_channel chan)
 {
 	const struct rose_tof_config *cfg = dev->config;
 	struct rose_tof_data *data = dev->data;
-	uint32_t raw;
 
 	if (chan != SENSOR_CHAN_ALL && chan != SENSOR_CHAN_DISTANCE) {
 		return -ENOTSUP;
 	}
 
-	/* Low-rate gate: only sample every `decimation` calls; -EAGAIN in between so the
-	 * consumer knows there is no fresh height this control step. */
 	bool fresh = (data->ctr % cfg->decimation) == 0U;
 	data->ctr++;
 	if (!fresh) {
 		return -EAGAIN;
 	}
-
-	rose_request(cfg->rose, cfg->cmd, 0U);
-	int n = rose_recv_reqrsp(cfg->rose, cfg->channel, &raw, 1U);
-	if (n < 1) {
-		LOG_ERR("short ToF read");
-		return -EIO;
-	}
-	memcpy(&data->height, &raw, sizeof(float));
+	rose_request(cfg->rose, cfg->cmd, 0U);   /* issue only; collected in channel_get */
+	data->pending = true;
 	return 0;
 }
 
 static int rose_tof_channel_get(const struct device *dev, enum sensor_channel chan,
 				struct sensor_value *val)
 {
+	const struct rose_tof_config *cfg = dev->config;
 	struct rose_tof_data *data = dev->data;
 
 	if (chan != SENSOR_CHAN_DISTANCE) {
 		return -ENOTSUP;
+	}
+	if (data->pending) {
+		uint32_t raw;
+		int n = rose_recv_reqrsp(cfg->rose, cfg->channel, &raw, 1U);
+		if (n < 1) {
+			LOG_ERR("short ToF read");
+			return -EIO;
+		}
+		memcpy(&data->height, &raw, sizeof(float));
+		data->pending = false;
 	}
 	sensor_value_from_double(val, (double)data->height);
 	return 0;
