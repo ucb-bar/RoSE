@@ -56,6 +56,11 @@ public:
 
 	bool is_connected() const { return connected; }
 
+	/* True once the synchronizer has closed the connection (read()==0 / EOF).
+	 * Lets the harness distinguish "peer gone" from "no data yet" (both make
+	 * read_words return false) and shut down instead of busy-spinning forever. */
+	bool peer_closed() const { return peer_closed_; }
+
 	/* Send a SoC TX packet [cmd][num_bytes][data...] to the synchronizer. */
 	void send_tx(uint32_t cmd, const uint32_t *data, uint32_t nwords);
 
@@ -81,6 +86,7 @@ private:
 	int portno;
 	int sockfd;
 	bool connected;
+	bool peer_closed_ = false;
 };
 
 #endif /* ROSE_SYNC_CLIENT_H_ */

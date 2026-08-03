@@ -127,6 +127,9 @@ public:
 
 	bool take_grant() { if (pending_grant) { pending_grant = false; return true; } return false; }
 	uint32_t cycle_budget() const { return step_size; }
+	/* The synchronizer has closed the socket (run over / crashed). Lets the harness
+	 * shut down instead of orphaning and busy-spinning a core until its wall-clock timeout. */
+	bool sync_gone() const { return client.peer_closed(); }
 
 	/* End of a granted step: the guest has already streamed its requests to the
 	 * synchronizer as it ran; ack so the synchronizer serves the responses. */
@@ -273,6 +276,15 @@ public:
 		if (done()) return;
 
 		ctrl.pump();  /* connect + deliver served data + latch config/grant */
+
+		/* If the synchronizer has gone away, stop — don't orphan and pin a core
+		 * busy-spinning idle() until the wall-clock timeout (that accumulation of
+		 * grantless spinners is a real host-load hazard across many co-sim runs). */
+		if (ctrl.sync_gone()) {
+			fprintf(stderr, "[rose_sim] synchronizer closed the connection at step=%llu -> exit\n",
+			        (unsigned long long)step_count);
+			exit(0);
+		}
 
 		if (!grant_active) {
 			if (!ctrl.take_grant()) return;   /* no grant yet -> machine stays frozen */

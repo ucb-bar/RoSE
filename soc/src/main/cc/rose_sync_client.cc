@@ -88,7 +88,8 @@ bool rose_sync_client_t::read_words(uint32_t *dst, uint32_t nwords)
 		if (n > 0) {
 			got += (size_t)n;
 		} else if (n == 0) {
-			return false; /* peer closed */
+			peer_closed_ = true; /* EOF: synchronizer closed the connection */
+			return false;
 		} else {
 			if (errno == EAGAIN || errno == EWOULDBLOCK) {
 				if (got == 0) {

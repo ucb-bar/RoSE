@@ -48,6 +48,40 @@ stall the barrier.**
 > defensive `sleep_threshold=0` is committed (`crazyflie_mpc_env.py`) and does help the
 > simple-scene case, but it is not, by itself, "the fix".
 
+## Follow-up: reproduction sweep + the "0% CPU" reframe + an orphan leak (2026-08-03)
+
+A dedicated hunt tried hard to reproduce the stall on the cleaned host, with the watchdog
++ gdb + commit-log all armed. It **did not reproduce** in any configuration:
+
+| Scenario (nav ctrl, multisensor + hallway walls + camera, long still hover) | Result |
+|---|---|
+| 1 instance | crossed 220 → 685 steps, healthy |
+| 3 instances concurrent (13.5 GB GPU) | all crossed 220 → 400–580 steps |
+| 1 instance under **2× CPU oversubscription** (56 hogs, 1-min load **94** on 48 cores) | crossed 220 → 393 steps |
+
+Two things came out of it:
+
+- **"Spike at 0% CPU / sync at ~113%" is the NORMAL steady state, not a hang signal.**
+  The physics step (Isaac `env.step`) is the bottleneck; the guest finishes its granted
+  budget quickly and then **blocks** (`S` state, ~0% CPU) waiting for the next grant. So
+  0% guest CPU says nothing about a hang — only *frozen physics-step progress* does (which
+  is exactly what the watchdog keys on). This corrects the original reading of the signature.
+
+- **Real bug found: an orphaned-spike CPU leak.** When a synchronizer dies, its
+  `rose_spike_sim` couldn't tell "peer closed" from "no data yet" (both made
+  `rose_sync_client::read_words` return false), so it kept calling `idle()` with no grant and
+  **busy-spun a core at 100% until its wall-clock timeout** (up to 600 s). Across a session
+  with many start/kill cycles these orphans accumulate and load the host — the most likely
+  source of the "degraded host state" the original hangs correlated with. **Fixed:**
+  `read_words` now flags EOF (`peer_closed()`), and `idle()` exits cleanly when the sync
+  is gone (verified: spike exits ~1 s after the sync dies, vs. spinning ~590 s before).
+
+**Working conclusion:** the ~220–236 stall is not a deterministic co-sim/protocol deadlock
+— it does not reproduce on a clean host even under heavy CPU/GPU contention. It correlated
+with a degraded host (accumulated grantless orphan spikes + post-reboot driver state), which
+the orphan-exit fix directly attacks. The watchdog + in-lockstep tracers remain armed to
+attribute any genuine recurrence.
+
 ## Where the hang actually points
 
 With the SoC acking normally, a synchronizer pinned at ~113% CPU is spinning in one of
