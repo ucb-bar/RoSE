@@ -361,7 +361,7 @@ class Synchronizer(DummySynchronizer):
                 print("Terminated due to completing objective!")
             
             # Close all connections to simulators
-            for socket_thread in self.socket_threads:
+            for socket_thread in self.nodes:
                 socket_thread.kill()
             
             # terminate simulation
@@ -384,11 +384,32 @@ class Synchronizer(DummySynchronizer):
         packet = Control_Packet(CONTROL_HEADERS.CS_GRANT_TOKEN, 0, None)
         target_thread.txqueue.append(packet)
 
+    def _bridge_disconnected_shutdown(self, target_thread):
+        """The bridge (spike) closed the socket — co-sim over (spike exit / timeout /
+        crash). Shut down cleanly instead of busy-spinning a core on a dead peer forever
+        (the sync-side mirror of the spike's own disconnect-exit)."""
+        print(f"[SYNC] bridge closed the connection at step {self.count} — co-sim ended; "
+              f"shutting down (was waiting on a SoC ack that will never come).", flush=True)
+        try:
+            self.logger.close()
+        except Exception:
+            pass
+        for st in self.nodes:
+            st.kill()
+        # Hard exit: sys.exit() only unwinds the main thread and then blocks waiting for
+        # Isaac's many non-daemon background threads to join (they never do), leaving the
+        # process alive and spinning. os._exit terminates now — the co-sim is over.
+        sys.stdout.flush()
+        sys.stderr.flush()
+        os._exit(0)
+
     def check_token_exhaustion(self, target_thread):
         while True:
             if len(target_thread.sync_rxqueue) > 0:
                 target_thread.sync_rxqueue.pop(0)
                 break
+            if target_thread.disconnected:
+                self._bridge_disconnected_shutdown(target_thread)
 
     def retrieve_obs_push_packet(self, cmd, target_thread, packet_config):
         if packet_config['indices'] is not None:
@@ -416,7 +437,8 @@ class Synchronizer(DummySynchronizer):
         target_thread.txqueue.append(packet)
 
         while len(target_thread.sync_rxqueue) == 0:
-            pass
+            if target_thread.disconnected:
+                self._bridge_disconnected_shutdown(target_thread)
         response = target_thread.sync_rxqueue.pop(0)
         return response.data[0]
 

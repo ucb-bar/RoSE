@@ -76,6 +76,21 @@ Two things came out of it:
   `read_words` now flags EOF (`peer_closed()`), and `idle()` exits cleanly when the sync
   is gone (verified: spike exits ~1 s after the sync dies, vs. spinning ~590 s before).
 
+### The watchdog earned its keep — and exposed the mirror bug (2026-08-03, later)
+
+A long hallway-traversal capture froze at a fixed step, and the **stall watchdog fired and
+pinned it exactly**: the sync main thread was in `check_token_exhaustion` (waiting on a SoC
+ack), sync spinning ~147% CPU, spike blocked at 0%. Root cause here was mundane — the spike
+had hit its own `ROSE_SPIKE_TIMEOUT` (600 s) mid-run and been killed — but it revealed the
+**sync-side mirror** of the orphan bug: when the bridge (spike) dies, the sync's ack
+busy-waits (`check_token_exhaustion` / `get_firesim_cycles`) had **no disconnect detection**
+and spun a core forever. **Fixed:** `SocketThread` now sets a `disconnected` flag on socket
+EOF, both busy-waits check it, and the sync does a hard `os._exit(0)` (a plain `sys.exit`
+hangs waiting for Isaac's non-daemon threads to join). Verified: sync exits ~1 s after the
+spike dies (was spinning at ~94% CPU indefinitely). Combined with the spike-side fix, **both
+ends now shut down within ~1 s of the other going away** — no more grantless/ackless spinners.
+(Also fixed a latent `self.socket_threads` → `self.nodes` typo on the shutdown paths.)
+
 **Working conclusion:** the ~220–236 stall is not a deterministic co-sim/protocol deadlock
 — it does not reproduce on a clean host even under heavy CPU/GPU contention. It correlated
 with a degraded host (accumulated grantless orphan spikes + post-reboot driver state), which

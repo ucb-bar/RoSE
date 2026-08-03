@@ -48,6 +48,9 @@ class SocketThread (threading.Thread):
         self.data_rxqueue = []
         self.sync_rxqueue = []
         self.killed = False
+        # Set once the bridge (spike) closes the socket, so the synchronizer's
+        # ack busy-waits can stop instead of spinning a core forever on a dead peer.
+        self.disconnected = False
         # Byte-accumulating RX buffer. Packets are framed as
         #   [cmd:u32][num_bytes:u32][data: num_bytes] (all little-endian).
         # We must NEVER lose partially-read bytes on a recv timeout (the old
@@ -94,7 +97,8 @@ class SocketThread (threading.Thread):
    def run(self):
         while not self.killed:
             if not self._fill():
-                break                 # peer closed
+                self.disconnected = True   # peer (bridge) closed the socket
+                break
             self._parse_packets()
             # process the txqueue
             if len(self.txqueue) > 0:
