@@ -66,6 +66,12 @@ class IsaacCrazyflieSensorEnv(IsaacCrazyflieMPCEnv):
         # Isaac's body_lin_acc_w matches dv/dt in flight (it is computed by finite-diff
         # internally), so "finitediff" is the verified default; "isaac" is available too.
         self._accel_src = os.environ.get("ROSE_ACCEL_SRC", "finitediff")
+        # Low-rate ToF: a real downward rangefinder (e.g. VL53L1x) samples every ~20-40 ms,
+        # far slower than the IMU/flow. Refresh the reported height only every _tof_period
+        # control steps (at 200 Hz, 6 -> ~30 ms); hold it in between.
+        self._tof_period = int(os.environ.get("ROSE_TOF_PERIOD", "6"))
+        self._tof_held = None
+        self._tof_ctr = 0
         f32 = np.float32
         big = np.finfo(f32).max
         # Structured per-modality observation (each modality is one reqrsp packet).
@@ -104,9 +110,12 @@ class IsaacCrazyflieSensorEnv(IsaacCrazyflieMPCEnv):
         # accelerometer specific force in body frame: f = R^T (a_world - g)
         accel_body = R.T @ (a_world - _G_WORLD)
         gyro_body = angv_b                        # rate gyro (body)
-        # flow deck: body-frame horizontal velocity + downward ToF height above ground
-        # (modeled as vertical height; near hover the tilt correction is negligible).
-        flow = np.array([vel_b[0], vel_b[1], pos[2]], dtype=np.float64)
+        # flow deck: body-frame horizontal velocity (fast) + downward ToF height (low-rate,
+        # held between samples to model the real ~20-40 ms rangefinder cadence).
+        if self._tof_held is None or (self._tof_ctr % self._tof_period) == 0:
+            self._tof_held = float(pos[2])
+        self._tof_ctr += 1
+        flow = np.array([vel_b[0], vel_b[1], self._tof_held], dtype=np.float64)
 
         imu = np.concatenate([accel_body, gyro_body]).astype(np.float32)
         obs = {
@@ -144,5 +153,7 @@ class IsaacCrazyflieSensorEnv(IsaacCrazyflieMPCEnv):
 
     def reset(self, *, seed=None, options=None):
         self._prev_vel_w = None
+        self._tof_held = None
+        self._tof_ctr = 0
         return super().reset(seed=seed, options=options)
 
