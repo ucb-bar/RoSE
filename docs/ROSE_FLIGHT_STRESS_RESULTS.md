@@ -67,14 +67,66 @@ plan anticipated.
 `SensorDelay`: per-modality ring buffer (`ROSE_SENSOR_DELAY_{ACCEL,GYRO,FLOW,TOF}` in
 control steps), applied after corruption. Stacks against the guest's forward
 delay-compensation, so the total compensation horizon must cover actuation + sensor delay.
-Default 0 = no latency. Matrix `delay` sweeps d ∈ {0,1,2,3}. Validation run pending GPU.
+Default 0 = no latency. Matrix `delay` sweeps d ∈ {0,1,2,3} (at noise L1).
+
+**Result (10 s, steady t ≥ 2.5 s):** delay0 alt_rms 0.0646 ≈ Phase-1 L1 (0.066) — the d=0
+**regression holds**. delay1/2/3 add only mild ripple (0.020→0.026 m) and tilt
+(0.23→0.26°); all four FAIL, but purely on the delay-*independent* L1 accel-bias altitude
+offset (~0.065 m). Takeaway: **1–3-step sensor delay is well tolerated** here (the guest's
+forward delay-compensation absorbs it at 200 Hz); the altitude offset dominates → Phase 3.
 
 ## Harder initial conditions (plan Phase 3.1) — DONE (env), validation pending
 
 `crazyflie_mpc_env.py` `reset()` applies seeded IC offsets (`ROSE_IC_POS`, `ROSE_IC_Z`,
 `ROSE_IC_TILT_DEG`, `ROSE_IC_VEL`, `ROSE_IC_VZ`, `ROSE_IC_RATE`; seed `ROSE_SCENARIO_SEED`).
-No-op unless set. Matrix `scenario` sweeps tilt / offset / velocity starts. Validation run
-pending GPU.
+No-op unless set. Matrix `scenario` sweeps tilt / offset / velocity starts.
+
+**Result (10 s, clean sensors):** the loop **recovers from hard ICs** — attitude, velocity,
+and altitude all return to nominal:
+- `ic_tilt` (~8° roll/pitch start) → levels to 0.0°, velocity damps to ~0.01 m/s, z→1.025;
+  drifts ~0.55 m horizontally *during* the recovery, which is then permanent.
+- `ic_offset` (z=0.76, lateral offset start) → climbs back to z≈1.02 via ToF, velocity 0,
+  the initial horizontal offset stays frozen (does not grow).
+
+Confirms the documented limitation: attitude/velocity/altitude are observable and recovered;
+**horizontal position excursions are permanent** (no GPS/mocap/position reference).
+
+**Scored (10 s, steady t ≥ 3.5 s):**
+
+| cell | verdict | alt_rms_m | ripple_m | vel_rms_ms | max_tilt_deg |
+|---|---|---|---|---|---|
+| ic_none | PASS | 0.023 | 0.000 | 0.000 | 0.0 |
+| ic_offset ×2 | PASS | 0.024 | 0.002 | 0.000 | 0.0 |
+| ic_tilt ×2 | PASS | 0.025–0.028 | 0.006–0.016 | 0.017–0.030 | 0.15–0.26 |
+| ic_velocity s0 | **FAIL** | 0.095 | 0.204 | 0.607 | **48.3** |
+| ic_velocity s1 | FAIL | 0.072 | 0.092 | 0.049 | 1.39 |
+
+Robust to position offset and ≤15° tilt starts; a hard initial **velocity + body-rate** combo
+(±0.3 m/s + ±0.5 rad/s) can drive a large tilt excursion (48° on seed 0 — a near-flip) — a
+genuine controller robustness limit worth revisiting alongside Phase 3.
+
+## Sim throughput — bottleneck & speedups
+
+Profiling showed the **GPU idle (1% util, 7/24 GB)** — the 1-drone scene is trivial. Each
+`rose_spike_sim` sits at 100% of one core, but a **controlled A/B disproved the spike-cycle
+theory**: cell at 5M cycles @1 GHz = **1.97 steps/s** vs 1.5M @300 MHz = **2.10 steps/s** —
+only ~7% faster for 3.3× fewer SoC cycles. So spike's 100% is a **busy-wait spin** (the guest
+blocks in `rose_rx`), **not** the bottleneck. The real long pole is **Isaac Sim's per-step
+CPU cost** (~0.5 s/step, single drone, on the CPU — GPU idle).
+
+Implications for speeding up experimentation:
+- **`--jobs` (parallelism) is the real win** — now defaults to 8. Each cell is ~2 steps/s
+  regardless of clock and uses ~1–2 CPU cores (Isaac + the spike spin), so on a 48-core host
+  ~10–14 cells run concurrently → ~5–7× matrix throughput (per-cell rate unchanged). Leave
+  headroom on a shared box.
+- **SoC clock (`--firesim-freq/--firesim-step`) does NOT speed things up** (~7%, A/B above);
+  kept only as an optional co-design knob, default = inherit config (1 GHz). `ROSE_FIRESIM_*`
+  overrides in `gym_synchronizer.load_config` implement it.
+- **Isaac per-step CPU** is where further single-cell speedup would come from (fewer physics
+  substeps, no rendering, leaner scene/extensions) — not pursued here.
+- Fixed a harness bug where a completed cell **orphaned its `rose_spike_sim`** (100%-CPU
+  spin, `ppid=1`) because cleanup waited on the bash wrapper; `_kill_group` now always
+  SIGKILLs the whole process group. This had been compounding the slowdown across runs.
 
 ## External disturbances (plan Phase 3.2) — DEFERRED (deliberately)
 

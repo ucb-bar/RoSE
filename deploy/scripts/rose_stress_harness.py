@@ -178,6 +178,11 @@ class Cell:
             "ROSE_TRAJ_CSV": self.csv,
             "ROSE_ENV_DEBUG": "0",
         })
+        # optional SoC-clock override (0 = inherit config); not a speedup, see argparse note
+        if self.args.firesim_freq:
+            env["ROSE_FIRESIM_FREQ"] = str(self.args.firesim_freq)
+        if self.args.firesim_step:
+            env["ROSE_FIRESIM_STEP"] = str(self.args.firesim_step)
         env.update(self.env_over)
         for f in (self.csv, self.sync_log, self.spike_log):
             if os.path.exists(f):
@@ -224,16 +229,29 @@ def _kill_group(proc):
     if proc is None:
         return
     try:
-        os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
+        pgid = os.getpgid(proc.pid)
+    except ProcessLookupError:
+        return
+    try:
+        os.killpg(pgid, signal.SIGTERM)
     except (ProcessLookupError, PermissionError):
         return
     try:
-        proc.wait(timeout=10)
+        proc.wait(timeout=5)
     except subprocess.TimeoutExpired:
-        try:
-            os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
-        except ProcessLookupError:
-            pass
+        pass
+    # ALWAYS escalate to SIGKILL on the whole group: the `bash run_spike_rose_lockstep.sh`
+    # wrapper dies fast on SIGTERM (so proc.wait returns), but its `rose_spike_sim`
+    # grandchild can survive SIGTERM and orphan (ppid=1), pinning a CPU core forever and
+    # starving later cells. Killing the group unconditionally reaps the grandchild too.
+    try:
+        os.killpg(pgid, signal.SIGKILL)
+    except ProcessLookupError:
+        pass
+    try:
+        proc.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        pass
 
 
 def main():
@@ -241,7 +259,23 @@ def main():
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--matrix", default="baseline", choices=list(MATRICES),
                     help="which cell matrix to run (default: baseline)")
-    ap.add_argument("--jobs", type=int, default=3, help="max concurrent cells (GPU-bound)")
+    ap.add_argument("--jobs", type=int, default=8,
+                    help="max concurrent cells. The loop is CPU-bound on spike (1 core/cell, "
+                         "GPU idle for the tiny scene), so on a many-core host this can be high "
+                         "(~10-14 on 48 cores); leave headroom on a shared box.")
+    # NOTE: a controlled A/B (5M@1GHz vs 1.5M@300MHz) showed only ~7% wall-clock difference,
+    # i.e. the SoC cycle budget is NOT the bottleneck -- Isaac Sim's per-step CPU cost is (the
+    # GPU is idle; spike's 100% CPU is a busy-wait spin in rose_rx, not real work). So these
+    # default to inheriting config_deploy_gym.yaml (1 GHz). They remain available to model a
+    # different SoC clock for a co-design study, but they do NOT speed up experimentation --
+    # raise --jobs for that instead.
+    ap.add_argument("--firesim-freq", type=int, default=0,
+                    help="override modeled SoC clock (Hz); 0 = inherit config. Does NOT speed "
+                         "up the sim (Isaac per-step CPU is the bottleneck), only changes the "
+                         "modeled clock for a co-design study.")
+    ap.add_argument("--firesim-step", type=int, default=0,
+                    help="override SoC cycles/step; 0 = inherit config. Keep "
+                         "firesim-step/firesim-freq == the env gym_timestep.")
     ap.add_argument("--duration", type=float, default=12.0, help="sim seconds per cell")
     ap.add_argument("--run-timeout", type=float, default=1800.0,
                     help="wall-clock ceiling per cell (s)")

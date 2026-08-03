@@ -74,6 +74,15 @@ class DummySynchronizer:
             self.firesim_step = config['firesim_step']
         if 'firesim_freq' in config:
             self.firesim_freq = config['firesim_freq']
+        # Env overrides so the stress harness can model a slower SoC clock (fewer cycles/step
+        # for spike to functionally simulate -> faster wall clock) WITHOUT editing the
+        # committed 1 GHz demo default. Keep firesim_step/firesim_freq == the same period so
+        # the control rate (gym_timestep) is unchanged; only shrink both to cut the per-step
+        # cycle budget down toward (but above) the TinyMPC solve cost.
+        if os.environ.get('ROSE_FIRESIM_STEP'):
+            self.firesim_step = int(os.environ['ROSE_FIRESIM_STEP'])
+        if os.environ.get('ROSE_FIRESIM_FREQ'):
+            self.firesim_freq = int(os.environ['ROSE_FIRESIM_FREQ'])
         if 'max_sim_time' in config:
             self.cycle_limit = config['max_sim_time'] * self.firesim_freq
         if 'render' in config:
