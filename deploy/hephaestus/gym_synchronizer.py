@@ -7,8 +7,11 @@ import register_envs
 from utils.logger import GymLogger
 import time
 import datetime
+import faulthandler
+import threading
 import numpy as np
 import os
+import sys
 import yaml
 from functools import reduce
 
@@ -200,11 +203,63 @@ class Synchronizer(DummySynchronizer):
         self.done = None
         print(f"Using firesim step: {self.firesim_step}, firesim freq: {self.firesim_freq}, gym timestep: {self.gym_timestep}, gym step per firesim step: {self.gym_step_per_firesim_step}")
 
+    def _start_stall_watchdog(self):
+        """Daemon thread that flags a stalled co-sim step and dumps thread stacks.
+
+        Normal env.step() takes ~0.1-0.4 s; a render/reset a few seconds. A stall of
+        tens of seconds means a hang. On stall we print the step it froze at and call
+        faulthandler.dump_traceback(all_threads=True) so the stuck frame is unambiguous:
+          - a frame in env.step / isaac / physx  -> Isaac/PhysX side (SoC is idle & fine)
+          - a frame in check_token_exhaustion / get_firesim_cycles -> waiting on SoC ack
+        Enabled by default; tune/disable via ROSE_SYNC_WATCHDOG_S (0 disables).
+        """
+        try:
+            timeout_s = float(os.environ.get("ROSE_SYNC_WATCHDOG_S", "45"))
+        except ValueError:
+            timeout_s = 45.0
+        if timeout_s <= 0:
+            return
+
+        def _watch():
+            last_count = -1
+            last_change = time.time()
+            fired_for = -1
+            while True:
+                time.sleep(min(5.0, timeout_s / 2.0))
+                if getattr(self, "done", False):
+                    return
+                c = getattr(self, "count", 0)
+                now = time.time()
+                if c != last_count:
+                    last_count = c
+                    last_change = now
+                    continue
+                # count has not advanced; check how long
+                if now - last_change >= timeout_s and c != fired_for:
+                    fired_for = c
+                    print(f"\n[SYNC WATCHDOG] co-sim step frozen at count={c} for "
+                          f"{now - last_change:.0f}s — dumping thread stacks to locate "
+                          f"the stall (env.step=Isaac side; check_token_exhaustion/"
+                          f"get_firesim_cycles=waiting on SoC ack):", flush=True)
+                    faulthandler.dump_traceback(file=sys.stderr, all_threads=True)
+                    sys.stderr.flush()
+
+        t = threading.Thread(target=_watch, name="sync-stall-watchdog", daemon=True)
+        t.start()
+
     def run(self):
         # Start running threads for each RTL simulator
         for socket_thread in self.nodes:
             socket_thread.start()
         self.start_time = time.time()
+
+        # Stall watchdog: the co-sim occasionally hangs (guest idle at 0% CPU, sync
+        # pinned busy). To attribute it — Isaac env.step() vs the SoC-ack busy-spin in
+        # check_token_exhaustion()/get_firesim_cycles() — a daemon thread watches step
+        # progress and, if self.count stops advancing for ROSE_SYNC_WATCHDOG_S seconds,
+        # dumps every thread's Python stack (which pins the exact stuck line). Diagnostic
+        # only: it never touches control flow, so normal runs are unaffected.
+        self._start_stall_watchdog()
 
         # Initialize the logger
         log_dir = f'{os.path.dirname(os.path.abspath(__file__))}/logs'

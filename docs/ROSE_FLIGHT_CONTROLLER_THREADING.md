@@ -37,17 +37,24 @@ Build the threaded architecture with `-DROSE_THREADED=1` (optionally `-DROSE_CTR
 
 ## Known issue — a SEPARATE, systemic co-sim hang (not the threading)
 
-While validating, the co-sim was found to **hang at ~235–236 steps on a perfectly-still clean
-hover** — the guest stalls waiting for the synchronizer's next grant while the synchronizer
-(Isaac) spins. **This is NOT caused by the threading:** building and running the *committed
-single-loop* controller reproduces the identical hang at 236. Moving runs (sensor noise, wind,
-maze navigation) sail past it (2400 / 358 / 1600 steps) — i.e. it is correlated with a
-perfectly-static hover and appeared after a host reboot, pointing at a physics/PhysX
-interaction (e.g. rigid-body sleep) or a synchronizer edge case, independent of this task. A
-quick `sleep_threshold=0` attempt via the physx view did not resolve it, so the exact fix is
-still open and tracked separately.
+While validating, the co-sim was found to **occasionally hang around ~220–236 steps**, most
+often on clean/still hovers — the guest sits at ~0% CPU while the synchronizer spins ~113%.
+**This is NOT caused by the threading:** the *committed single-loop* controller reproduces it.
 
-**Because of that systemic hang, `ROSE_THREADED` defaults to 0** (the proven single loop) so
-the existing stress/navigation flows are unaffected; the threaded blocks are fully implemented
-and validated-equivalent, available via `-DROSE_THREADED=1`, and ready to become the default
-once the systemic co-sim hang is run down (which will unblock clean-hover runs generally).
+It was subsequently investigated in depth (see **`ROSE_COSIM_HANG_INVESTIGATION.md`**). Key
+corrections to the guesses first recorded here:
+
+- The **SoC/WFI is ruled out.** The lockstep barrier releases on guest **mtime**, and this
+  Spike build keeps advancing mtime *even while the guest is in WFI* (`sim_t::step` ticks the
+  clint by the scheduled quantum; the WFI catch retires 1 insn/call), so an idle guest still
+  completes its grant. The device trace shows unbroken `grant→step→ack` cycles.
+- The hang is **intermittent and host/scene-correlated**, not a deterministic step. On a
+  cleaned host it did not reproduce (clean hover 685 steps; walls scenario 605 steps). Earlier
+  hangs coincided with a host loaded with orphaned Isaac/GPU processes.
+- `sleep_threshold=0` (committed, `crazyflie_mpc_env.py`) helps the simple-scene case but is
+  not on its own "the fix"; the evidence points at the Isaac/PhysX side. A synchronizer stall
+  watchdog was added to self-attribute the next occurrence.
+
+**`ROSE_THREADED` still defaults to 0** (the proven single loop) so existing stress/navigation
+flows are unaffected; the threaded blocks are fully implemented and validated-equivalent,
+available via `-DROSE_THREADED=1`.
