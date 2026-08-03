@@ -256,12 +256,15 @@ public:
 		   const std::vector<std::string> &htif_args,
 		   const debug_module_config_t &dm_config,
 		   reg_t rbase, uint32_t rirq, reg_t rdma, int nreqrsp, int ndma,
-		   const char *rhost, int rport)
+		   const char *rhost, int rport,
+		   const char *commitlog_path, uint64_t clog_start, uint64_t clog_end)
 		: sim_t(cfg, /*halted*/false, std::move(mems),
 			/*plugin_devices*/{}, htif_args, dm_config,
-			/*log_path*/nullptr, /*dtb_enabled*/true, /*dtb_file*/nullptr,
+			/*log_path*/commitlog_path, /*dtb_enabled*/true, /*dtb_file*/nullptr,
 			/*socket_enabled*/false, /*cmd_file*/nullptr, /*insn_limit*/std::nullopt),
-		  ctrl(this, rbase, rirq, rdma, nreqrsp, ndma, rhost, rport) {
+		  ctrl(this, rbase, rirq, rdma, nreqrsp, ndma, rhost, rport),
+		  commitlog_enabled(commitlog_path != nullptr),
+		  commit_step_start(clog_start), commit_step_end(clog_end) {
 		add_device(rbase, std::make_shared<rose_mmio_device_t>(&ctrl));
 	}
 
@@ -274,6 +277,16 @@ public:
 		if (!grant_active) {
 			if (!ctrl.take_grant()) return;   /* no grant yet -> machine stays frozen */
 			grant_active   = true;
+			/* Commit-log window: enable Spike's per-instruction commit log on the
+			 * boot hart once the co-sim reaches step commit_step_start, so the trace
+			 * covers a targeted window (e.g. the steps around a hang) instead of the
+			 * whole multi-billion-instruction run. Writes go to the log file passed
+			 * as log_path at construction. See ROSE_SPIKE_COMMITLOG in main(). */
+			if (commitlog_enabled && !commit_active && step_count >= commit_step_start) {
+				get_core((size_t)0)->enable_log_commits();
+				commit_active = true;
+				RDBG("commit-log ON at step=%llu\n", (unsigned long long)step_count);
+			}
 			uint32_t budget = ctrl.cycle_budget();
 			/* mtime advances 1 per INSNS_PER_RTC_TICK cycles; convert the cycle
 			 * budget to a global mtime delta (multicore-safe). */
@@ -293,6 +306,18 @@ public:
 			uint32_t spent = (uint32_t)((mtime_now() - step_start_mt) * INSNS_PER_RTC_TICK);
 			ctrl.ack_step(spent);
 			grant_active = false;
+			step_count++;
+			/* Bound the trace: once past the requested end step, flush the commit
+			 * log and stop, so the capture stays a manageable size. end==0 => no
+			 * upper bound (log start..end-of-run). */
+			if (commitlog_enabled && commit_active && commit_step_end != 0 &&
+			    step_count > commit_step_end) {
+				FILE *lf = get_core((size_t)0)->get_log_file();
+				if (lf) fflush(lf);
+				RDBG("commit-log window done at step=%llu -> stop\n",
+				     (unsigned long long)step_count);
+				exit(0);
+			}
 		}
 	}
 
@@ -303,6 +328,11 @@ private:
 	bool grant_active = false;
 	uint64_t budget_target = 0;
 	uint64_t step_start_mt = 0;
+	bool commitlog_enabled = false;
+	bool commit_active = false;
+	uint64_t commit_step_start = 0;
+	uint64_t commit_step_end = 0;
+	uint64_t step_count = 0;
 };
 
 /* ---------------------------------------------------------------------------
@@ -358,11 +388,31 @@ int main(int argc, char **argv) {
 	auto mems = make_mems(cfg.mem_layout);
 	debug_module_config_t dm_config;
 
-	rose_sim_t s(&cfg, mems, htif_args, dm_config,
-		     rbase, rirq, rdma, nreqrsp, ndma, rhost, rport);
+	/* Commit-log (instruction-level SoC trace during the live lockstep):
+	 *   ROSE_SPIKE_COMMITLOG=<path>          enable, write Spike commit log to <path>
+	 *   ROSE_SPIKE_COMMITLOG_START=<step>    begin logging at this co-sim step (default 0)
+	 *   ROSE_SPIKE_COMMITLOG_END=<step>      stop the sim after this step (default 0 = run to end)
+	 * Targeted windows keep the trace small — e.g. START just before a suspected hang. */
+	const char *commitlog_path = getenv("ROSE_SPIKE_COMMITLOG");
+	uint64_t clog_start = 0, clog_end = 0;
+	if (const char *v = getenv("ROSE_SPIKE_COMMITLOG_START")) clog_start = strtoull(v, nullptr, 0);
+	if (const char *v = getenv("ROSE_SPIKE_COMMITLOG_END"))   clog_end   = strtoull(v, nullptr, 0);
+	if (commitlog_path && clog_end == 0) {
+		/* Each co-sim step is millions of retired instructions (~5M -> ~5M trace
+		 * lines / ~350 MB per step). Unbounded logging can fill the disk. */
+		fprintf(stderr, "[rose_sim] WARNING: ROSE_SPIKE_COMMITLOG has no _END step "
+		        "(unbounded, ~350MB/step). For hang-debug set a 1-step window, e.g. "
+		        "ROSE_SPIKE_COMMITLOG_START=N ROSE_SPIKE_COMMITLOG_END=N.\n");
+	}
 
-	RDBG("rose_spike_sim: nprocs=%zu rose@0x%lx irq=%u dma=0x%lx sync=%s:%d\n",
-	     nprocs, (unsigned long)rbase, rirq, (unsigned long)rdma, rhost, rport);
+	rose_sim_t s(&cfg, mems, htif_args, dm_config,
+		     rbase, rirq, rdma, nreqrsp, ndma, rhost, rport,
+		     commitlog_path, clog_start, clog_end);
+
+	RDBG("rose_spike_sim: nprocs=%zu rose@0x%lx irq=%u dma=0x%lx sync=%s:%d commitlog=%s[%llu:%llu]\n",
+	     nprocs, (unsigned long)rbase, rirq, (unsigned long)rdma, rhost, rport,
+	     commitlog_path ? commitlog_path : "off",
+	     (unsigned long long)clog_start, (unsigned long long)clog_end);
 
 	int rc = s.run();
 	for (auto &m : mems) delete m.second;
