@@ -136,11 +136,25 @@ disturbance wrench (steady wind + gust/torque impulse) is deferred until it can 
 a **magnitude-0 regression gate** (confirm the baseline is bit-identical with the disturbance
 path present but zero) on a free GPU. Design is in the plan §3.2.
 
-## Estimator hardening (plan Phase 4/§4) — NEXT
+## Estimator hardening (plan §4) — DONE (item 1: accel-bias state), validated
 
-Motivated directly by the Phase-1 result. Priority: (1) accel-bias state in the vertical KF
-(kills the altitude offset — the dominant L1/L2 failure) + gyro-bias in the attitude filter;
-(2) `flow_valid`/`tof_valid` dropout handling (predict-only on dropout); (3) innovation
-gating (χ²) on ToF/flow for the L2 outliers. All behind `IStateEstimator`. Requires a guest
-rebuild + re-run of the noise matrix to show recovery (PASS/DEGRADED where the baseline
-FAILed), A/B EKF vs complementary.
+Item 1 implemented: the per-axis translational KF in the EKF grew from `Kf2` [pos, vel] to
+`Kf3` [pos, vel, **accel_bias**] (`estimator_ekf.hpp`). A constant IMU bias — the root cause
+of the altitude offset — is now estimated (observable via ToF position for z, optical flow
+for x/y) and subtracted in predict; the delay-comp lead uses the bias-corrected accel too.
+Built with `-DROSE_USE_EKF=1` (`rose_flight_controller_ekf`).
+
+**A/B result (noise matrix, 12 s, steady t ≥ 2.5 s) — EKF+bias vs the complementary baseline:**
+
+| cell | complementary (baseline) | EKF + accel-bias | outcome |
+|---|---|---|---|
+| L0 clean | PASS, alt_rms 0.023 | PASS, alt_rms 0.023 | no regression |
+| L1 nominal | **FAIL**, alt_rms 0.066 | **PASS**, alt_rms 0.024, ripple 0.021, vel 0.047 | **recovered FAIL→PASS** |
+| L2 aggressive | **FAIL**, alt_rms 0.116 | FAIL, alt_rms **0.026**, ripple 0.057, vel 0.201 | altitude offset eliminated; residual = flow noise |
+
+The accel-bias state **kills the altitude offset** (the dominant failure): L1 recovers fully
+to PASS, and L2's alt_rms drops 0.116→0.026. L2 still FAILs, but now purely on flow-noise
+**velocity/ripple** (vel 0.201, ripple 0.057) — precisely what remains for the next items:
+(2) `flow_valid` dropout handling and (3) innovation gating (χ²) on flow/ToF, plus (4)
+noise-matched `r_flow`. Gyro-bias in Mahony (attitude) is a further item (attitude stayed
+<1° here, so lower priority).
