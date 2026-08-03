@@ -1,0 +1,27 @@
+# Copyright (c) 2026 UC Berkeley
+# SPDX-License-Identifier: Apache-2.0
+#
+# Virtual RoSE optical-flow sensor (PMW3901-equivalent). Fetches a 2-word
+# [vx, vy] float32 body-frame horizontal-velocity frame from the RoSE bridge.
+# Exposed on private channels ROSE_SENSOR_CHAN_FLOW_VX/VY (see rose/rose_sensor.h)
+# since Zephyr has no standard optical-flow channel.
+
+description: RoSE co-sim virtual optical-flow sensor (body-frame horizontal velocity)
+
+compatible: "ucbbar,rose-flow"
+
+include: sensor-device.yaml
+
+properties:
+  rose:
+    type: phandle
+    required: true
+    description: The RoSE bridge adapter this sensor reads through.
+  rose-cmd:
+    type: int
+    required: true
+    description: RoSE reqrsp command ID that returns the 2-word [vx,vy] frame (e.g. 0x13).
+  rose-channel:
+    type: int
+    required: true
+    description: RoSE reqrsp RX channel the response lands on.

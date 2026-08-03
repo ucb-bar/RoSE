@@ -21,10 +21,8 @@ packets:
     indices:
       - "imu"
 
-  # env -> SoC: flow deck = [vx,vy,h] (body-frame horizontal velocity + ToF height above
-  # ground, modeling a Crazyflie Flow deck v2). 3 float32 words on reqrsp ch1 (a separate
-  # channel so IMU and flow responses never interleave). The ToF height makes altitude
-  # observable; x/y position and yaw remain unobservable (drift).
+  # env -> SoC: optical flow = [vx,vy] (body-frame horizontal velocity, PMW3901-like).
+  # 2 float32 words on reqrsp ch1 (a separate channel so IMU and flow never interleave).
   - name: flow
     id: 0x13                 # SoC command: request optical flow
     type: "reqrsp"
@@ -32,6 +30,17 @@ packets:
     channel: 1               # reqrsp0 (ROSE_RX_DATA_1)
     indices:
       - "flow"
+
+  # env -> SoC: downward ToF height = [h] (VL53L1x-like). 1 float32 word on ch1. LOW-RATE:
+  # the env holds it ~20-40 ms and the guest's ToF driver polls it at that cadence, so
+  # altitude is observable but the estimator fuses it only on fresh samples (multi-rate).
+  - name: tof
+    id: 0x14                 # SoC command: request ToF height
+    type: "reqrsp"
+    latency: 0
+    channel: 1               # reqrsp0 (ROSE_RX_DATA_1), sequential after flow
+    indices:
+      - "tof"
 
   # SoC -> env: 4 normalized motor thrusts, latched until the next command.
   - name: thrust

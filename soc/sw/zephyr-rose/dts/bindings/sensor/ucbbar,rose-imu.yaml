@@ -1,0 +1,33 @@
+# Copyright (c) 2026 UC Berkeley
+# SPDX-License-Identifier: Apache-2.0
+#
+# Virtual RoSE IMU sensor (accelerometer OR gyroscope). Fetches a 6-word
+# [ax,ay,az, gx,gy,gz] float32 frame from the RoSE bridge (one reqrsp packet
+# carries both, like a real BMI088's accel+gyro). Bind one node per logical
+# device (accel and gyro) so aliases line up 1:1 with the real bosch,bmi08x-*.
+
+description: RoSE co-sim virtual IMU (BMI088-equivalent) accelerometer/gyroscope
+
+compatible: "ucbbar,rose-imu"
+
+include: sensor-device.yaml
+
+properties:
+  rose:
+    type: phandle
+    required: true
+    description: The RoSE bridge adapter (ucbbar,RoseAdapter) this sensor reads through.
+  rose-cmd:
+    type: int
+    required: true
+    description: RoSE reqrsp command ID that returns the 6-word IMU frame (e.g. 0x12).
+  rose-channel:
+    type: int
+    required: true
+    description: RoSE reqrsp RX channel the response lands on (1 or 2).
+  is-gyro:
+    type: boolean
+    description: |
+      If present this node exposes the gyroscope half (SENSOR_CHAN_GYRO_XYZ,
+      words [3..5]); otherwise the accelerometer half (SENSOR_CHAN_ACCEL_XYZ,
+      words [0..2]).

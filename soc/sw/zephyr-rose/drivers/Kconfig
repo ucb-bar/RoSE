@@ -1,1 +1,2 @@
 rsource "rose/Kconfig"
+rsource "sensor/Kconfig"

@@ -5,7 +5,8 @@ This is the environment half of the "prep a real flight controller" flow. Where
 vehicle never has), this env exposes only what onboard sensors would measure:
 
     imu  = [ax, ay, az, gx, gy, gz]   accelerometer specific force + rate gyro (BODY frame)
-    flow = [vx, vy, h]                 optical-flow horizontal velocity (BODY) + ToF height
+    flow = [vx, vy]                    optical-flow horizontal velocity (BODY frame)
+    tof  = [h]                         downward ToF height above ground (LOW-RATE)
 
 The optical-flow modality models a real Crazyflie **Flow deck v2** (PMW3901 optical flow
 + VL53L1x downward ToF), which reports horizontal velocity AND height-above-ground in one
@@ -20,7 +21,7 @@ this set (no GPS/mocap/magnetometer), so estimated pose drifts over time — exp
 
 Observations are structured per modality (a dict of named sensors), and the RoSE routing
 serves each on its own reqrsp channel (see config_gym_IsaacCrazyflieSensorEnv-v0.yaml):
-imu -> cmd 0x12 (ch2), flow -> cmd 0x13 (ch1). The action is unchanged: 4 normalized
+imu -> cmd 0x12 (ch2), flow -> cmd 0x13 (ch1), tof -> cmd 0x14 (ch1). The action is 4 normalized
 per-rotor thrusts (cmd 0x20), so the same Crazyflie physics and camera/logging apply.
 
 Sensor synthesis from Isaac ground truth (per control step, dt = 1/ctrl_freq):
@@ -77,7 +78,8 @@ class IsaacCrazyflieSensorEnv(IsaacCrazyflieMPCEnv):
         # Structured per-modality observation (each modality is one reqrsp packet).
         self.observation_space = spaces.Dict({
             "imu":  spaces.Box(-big, big, (6,), f32),   # [ax,ay,az, gx,gy,gz] body frame
-            "flow": spaces.Box(-big, big, (3,), f32),   # [vx,vy] body flow + h (ToF height)
+            "flow": spaces.Box(-big, big, (2,), f32),   # [vx,vy] body-frame optical flow
+            "tof":  spaces.Box(-big, big, (1,), f32),   # [h] downward ToF height (low-rate)
             # ground-truth pose kept for logging (never routed onto the wire)
             "pos":  spaces.Box(-big, big, (3,), f32),
             "quat": spaces.Box(-1.0, 1.0, (4,), f32),
@@ -110,17 +112,20 @@ class IsaacCrazyflieSensorEnv(IsaacCrazyflieMPCEnv):
         # accelerometer specific force in body frame: f = R^T (a_world - g)
         accel_body = R.T @ (a_world - _G_WORLD)
         gyro_body = angv_b                        # rate gyro (body)
-        # flow deck: body-frame horizontal velocity (fast) + downward ToF height (low-rate,
-        # held between samples to model the real ~20-40 ms rangefinder cadence).
+        # Separate sensors, matching real hardware: optical flow (fast, body-frame
+        # horizontal velocity) and a downward ToF rangefinder (low-rate: the reported
+        # height is held between samples to model the real ~20-40 ms cadence).
+        flow = np.array([vel_b[0], vel_b[1]], dtype=np.float64)
         if self._tof_held is None or (self._tof_ctr % self._tof_period) == 0:
             self._tof_held = float(pos[2])
         self._tof_ctr += 1
-        flow = np.array([vel_b[0], vel_b[1], self._tof_held], dtype=np.float64)
+        tof = np.array([self._tof_held], dtype=np.float64)
 
         imu = np.concatenate([accel_body, gyro_body]).astype(np.float32)
         obs = {
             "imu": imu,
             "flow": flow.astype(np.float32),
+            "tof": tof.astype(np.float32),
             "pos": pos.astype(np.float32),
             "quat": np.array([quat[1], quat[2], quat[3], quat[0]], dtype=np.float32),
         }
