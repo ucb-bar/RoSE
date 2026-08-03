@@ -58,13 +58,72 @@ POLL = 0.5
 # (seeds are a no-op until the noise layer reads ROSE_SENSOR_NOISE_SEED, but wiring them now
 # means adding noise cells later is a one-line change).
 
+def _noise(level, seed):
+    return {"ROSE_SENSOR_NOISE_LEVEL": str(level), "ROSE_SENSOR_NOISE_SEED": str(seed)}
+
 def matrix_baseline():
-    return [("clean_seed%d" % s, {"ROSE_SENSOR_NOISE_SEED": str(s)}) for s in range(3)]
+    # clean hover over a few seeds (level 0 -> deterministic, seeds are a no-op but confirm
+    # reproducibility of the harness path itself)
+    return [("clean_seed%d" % s, _noise(0, s)) for s in range(3)]
+
+def matrix_noise():
+    # stress plan section 5.3 noise axis: {clean, L1, L2} x seeds. L0 deterministic (1 cell).
+    cells = [("L0_clean", _noise(0, 0))]
+    for lvl in (1, 2):
+        for seed in range(3):
+            cells.append(("L%d_seed%d" % (lvl, seed), _noise(lvl, seed)))
+    return cells
+
+def matrix_noise_quick():
+    # one cell per level at a fixed seed — cheap Phase-1 validation (clean/L1/L2)
+    return [("L%d_seed0" % lvl, _noise(lvl, 0)) for lvl in (0, 1, 2)]
+
+def matrix_delay():
+    # section 2: sensor transport delay (control steps). d=0 must equal Phase-1 L1 (regression).
+    base = _noise(1, 0)
+    cells = [("delay0", base)]
+    for d in (1, 2, 3):
+        env = dict(base)
+        env.update({"ROSE_SENSOR_DELAY_FLOW": str(d), "ROSE_SENSOR_DELAY_TOF": str(d),
+                    "ROSE_SENSOR_DELAY_ACCEL": str(min(d, 1)), "ROSE_SENSOR_DELAY_GYRO": str(min(d, 1))})
+        cells.append(("delay%d" % d, env))
+    return cells
+
+def matrix_scenario():
+    # section 3.1: harder initial conditions (level flight vs tilt/offset/velocity), clean sensors
+    cells = [("ic_none", _noise(0, 0))]
+    hard = {"tilt": {"ROSE_IC_TILT_DEG": "15"},
+            "offset": {"ROSE_IC_POS": "0.2", "ROSE_IC_Z": "0.15"},
+            "velocity": {"ROSE_IC_VEL": "0.3", "ROSE_IC_RATE": "0.5"}}
+    for name, over in hard.items():
+        for seed in range(2):
+            env = _noise(0, seed); env.update(over); env["ROSE_SCENARIO_SEED"] = str(seed)
+            cells.append(("ic_%s_s%d" % (name, seed), env))
+    return cells
+
+def matrix_combined():
+    # a representative noise x scenario cross-section (the section 5.3 matrix, trimmed)
+    cells = [("clean", _noise(0, 0))]
+    for lvl in (1, 2):
+        cells.append(("L%d" % lvl, _noise(lvl, 0)))
+        env = _noise(lvl, 0); env["ROSE_IC_TILT_DEG"] = "15"
+        cells.append(("L%d_tilt" % lvl, env))
+        env = _noise(lvl, 0); env.update({"ROSE_SENSOR_DELAY_FLOW": "2", "ROSE_SENSOR_DELAY_TOF": "2"})
+        cells.append(("L%d_delay2" % lvl, env))
+    return cells
 
 def matrix_smoke():
     return [("clean", {})]
 
-MATRICES = {"baseline": matrix_baseline, "smoke": matrix_smoke}
+MATRICES = {
+    "baseline": matrix_baseline,
+    "noise": matrix_noise,
+    "noise_quick": matrix_noise_quick,
+    "delay": matrix_delay,
+    "scenario": matrix_scenario,
+    "combined": matrix_combined,
+    "smoke": matrix_smoke,
+}
 
 
 class Cell:

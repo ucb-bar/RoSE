@@ -76,6 +76,19 @@ def _quat_to_rodrigues(qw, qx, qy, qz):
     return np.array([qx / qw, qy / qw, qz / qw], dtype=np.float64)
 
 
+def _euler_to_quat_wxyz(roll, pitch, yaw):
+    """roll/pitch/yaw (rad, ZYX) -> unit quaternion (w,x,y,z) for root_state[:,3:7]."""
+    cr, sr = np.cos(roll / 2), np.sin(roll / 2)
+    cp, sp = np.cos(pitch / 2), np.sin(pitch / 2)
+    cy, sy = np.cos(yaw / 2), np.sin(yaw / 2)
+    return np.array([
+        cr * cp * cy + sr * sp * sy,
+        sr * cp * cy - cr * sp * sy,
+        cr * sp * cy + sr * cp * sy,
+        cr * cp * sy - sr * sp * cy,
+    ], dtype=np.float64)
+
+
 class IsaacCrazyflieMPCEnv(gym.Env):
     """IsaacLab Crazyflie exposed as the TinyMPC full-state HIL loop over the RoSE bridge."""
 
@@ -278,6 +291,48 @@ class IsaacCrazyflieMPCEnv(gym.Env):
             forces=forces, torques=torques, body_ids=self._prop_ids,
         )
 
+    def _apply_hard_ic(self, root_state):
+        """Randomize the initial condition in place (stress plan section 3.1).
+
+        No-op unless any ROSE_IC_* env var is set. Adds seeded uniform offsets to position,
+        attitude (roll/pitch), linear velocity, and body rates so the estimator must converge
+        from a wrong prior and the controller must recover from an off-nominal start. Seeded by
+        ROSE_SCENARIO_SEED (falls back to ROSE_SENSOR_NOISE_SEED) for reproducibility.
+        """
+        pos_m = float(os.environ.get("ROSE_IC_POS", "0"))
+        z_m = float(os.environ.get("ROSE_IC_Z", "0"))
+        tilt_deg = float(os.environ.get("ROSE_IC_TILT_DEG", "0"))
+        vel_ms = float(os.environ.get("ROSE_IC_VEL", "0"))
+        vz_ms = float(os.environ.get("ROSE_IC_VZ", "0"))
+        rate = float(os.environ.get("ROSE_IC_RATE", "0"))
+        if not any((pos_m, z_m, tilt_deg, vel_ms, vz_ms, rate)):
+            return
+        seed = int(os.environ.get("ROSE_SCENARIO_SEED",
+                                  os.environ.get("ROSE_SENSOR_NOISE_SEED", "0")))
+        rng = np.random.default_rng(seed)
+        torch = self._torch
+        dev, dt = self.device, root_state.dtype
+
+        def T(v):
+            return torch.as_tensor(v, device=dev, dtype=dt)
+
+        if pos_m:
+            root_state[0, 0] += T(rng.uniform(-pos_m, pos_m))
+            root_state[0, 1] += T(rng.uniform(-pos_m, pos_m))
+        if z_m:
+            root_state[0, 2] += T(rng.uniform(-z_m, z_m))
+        if tilt_deg:
+            roll = np.radians(rng.uniform(-tilt_deg, tilt_deg))
+            pitch = np.radians(rng.uniform(-tilt_deg, tilt_deg))
+            root_state[0, 3:7] = T(_euler_to_quat_wxyz(roll, pitch, 0.0))
+        if vel_ms:
+            root_state[0, 7] += T(rng.uniform(-vel_ms, vel_ms))
+            root_state[0, 8] += T(rng.uniform(-vel_ms, vel_ms))
+        if vz_ms:
+            root_state[0, 9] += T(rng.uniform(-vz_ms, vz_ms))
+        if rate:
+            root_state[0, 10:13] += T(rng.uniform(-rate, rate, 3))
+
     def _thrusts_to_forces(self, u):
         """Normalized TinyMPC thrusts -> per-motor force in N (same scale as PyBullet env)."""
         thrust_n = (np.asarray(u, dtype=np.float64) + _HOVER_THRUST) * _MAX_THRUST_N
@@ -310,6 +365,7 @@ class IsaacCrazyflieMPCEnv(gym.Env):
         root_state = robot.data.default_root_state.clone()
         root_state[:, :3] += self.scene.env_origins
         root_state[:, 2] = self.start_height
+        self._apply_hard_ic(root_state)   # stress plan section 3.1 (no-op unless configured)
         robot.write_root_pose_to_sim(root_state[:, :7])
         robot.write_root_velocity_to_sim(root_state[:, 7:])
         self.scene.reset()

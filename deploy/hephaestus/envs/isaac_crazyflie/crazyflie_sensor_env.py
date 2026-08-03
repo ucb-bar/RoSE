@@ -43,6 +43,126 @@ from .crazyflie_mpc_env import IsaacCrazyflieMPCEnv
 
 _G_WORLD = np.array([0.0, 0.0, -9.81], dtype=np.float64)
 
+# ---- Sensor corruption models (stress plan section 1) --------------------------------
+# Per-modality, per-axis magnitudes for a Crazyflie-class stack (BMI088 IMU, PMW3901 flow,
+# VL53L1x ToF) at the 200 Hz control rate. Level 0 = clean (identity: preserves the
+# validated hover). Level 1 = nominal, Level 2 = aggressive. Selected by
+# ROSE_SENSOR_NOISE_LEVEL; runs are reproducible via ROSE_SENSOR_NOISE_SEED.
+_NOISE_LEVELS = {
+    0: None,  # clean
+    1: dict(
+        accel=dict(white=0.15, bias_rw=0.01, bias0=0.10, scale=0.005),
+        gyro=dict(white=0.02, bias_rw=0.002, bias0=0.01, scale=0.0),
+        flow=dict(white=0.01, dropout=0.005, outlier=0.0, outlier_mag=0.5),
+        tof=dict(white=0.008, quant=0.005, dropout=0.0),
+    ),
+    2: dict(
+        accel=dict(white=0.40, bias_rw=0.03, bias0=0.30, scale=0.015),
+        gyro=dict(white=0.05, bias_rw=0.006, bias0=0.03, scale=0.0),
+        flow=dict(white=0.03, dropout=0.03, outlier=0.002, outlier_mag=0.5),
+        tof=dict(white=0.02, quant=0.01, dropout=0.02),
+    ),
+}
+
+
+class SensorCorruptor:
+    """Applies realistic imperfections to the clean synthesized sensors (stress plan section 1).
+
+    White Gaussian noise + a slow bias random-walk (b += N(0,bias_rw)*sqrt(dt)) + a fixed
+    per-run scale-factor error on the inertial channels; optical flow noise scales as 1/height
+    (SNR falls as the ground recedes) with Bernoulli dropout + occasional outliers; ToF adds
+    Gaussian noise, quantization, and dropout. All randomness comes from one seeded RNG, reset
+    per episode, so a run is bit-for-bit reproducible and a seed sweep gives independent trials.
+    Returns corrupted values plus per-modality validity flags (the hook the guest uses in the
+    plan's estimator-hardening phase).
+    """
+
+    def __init__(self, cfg):
+        self.cfg = cfg
+        self.rng = None
+        self._init_states(np.random.default_rng(0))
+
+    def _init_states(self, rng):
+        self.rng = rng
+        c = self.cfg
+        self.accel_bias = rng.uniform(-c["accel"]["bias0"], c["accel"]["bias0"], 3)
+        self.gyro_bias = rng.uniform(-c["gyro"]["bias0"], c["gyro"]["bias0"], 3)
+        self.accel_scale = 1.0 + rng.uniform(-c["accel"]["scale"], c["accel"]["scale"], 3)
+        self.gyro_scale = 1.0 + rng.uniform(-c["gyro"]["scale"], c["gyro"]["scale"], 3)
+        self._last_flow = None
+        self._last_tof = None
+
+    def reset(self, seed):
+        self._init_states(np.random.default_rng(seed))
+
+    def apply(self, accel, gyro, flow, tof_h, height, dt):
+        c, rng = self.cfg, self.rng
+        sdt = np.sqrt(max(dt, 1e-9))
+        # inertial: scale-factor * true + slow bias walk + white noise
+        self.accel_bias += rng.normal(0.0, c["accel"]["bias_rw"], 3) * sdt
+        self.gyro_bias += rng.normal(0.0, c["gyro"]["bias_rw"], 3) * sdt
+        accel_c = (self.accel_scale * accel + self.accel_bias
+                   + rng.normal(0.0, c["accel"]["white"], 3))
+        gyro_c = (self.gyro_scale * gyro + self.gyro_bias
+                  + rng.normal(0.0, c["gyro"]["white"], 3))
+
+        # optical flow: white noise * (1/height clamp), dropout (hold last), rare outlier
+        hclamp = float(np.clip(1.0 / max(height, 1e-3), 0.3, 3.0))
+        flow_valid = True
+        if self._last_flow is not None and rng.random() < c["flow"]["dropout"]:
+            flow_c = self._last_flow.copy()
+            flow_valid = False
+        else:
+            flow_c = flow + rng.normal(0.0, c["flow"]["white"] * hclamp, 2)
+            if c["flow"]["outlier"] > 0 and rng.random() < c["flow"]["outlier"]:
+                flow_c = flow_c + rng.uniform(-1, 1, 2) * c["flow"]["outlier_mag"]
+            self._last_flow = flow_c.copy()
+
+        # ToF: gaussian + quantization + dropout (hold last)
+        tof_valid = True
+        if self._last_tof is not None and rng.random() < c["tof"]["dropout"]:
+            tof_c = self._last_tof
+            tof_valid = False
+        else:
+            tof_c = tof_h + rng.normal(0.0, c["tof"]["white"])
+            q = c["tof"]["quant"]
+            if q > 0:
+                tof_c = round(tof_c / q) * q
+            self._last_tof = tof_c
+        return (accel_c, gyro_c, flow_c, np.array([tof_c], dtype=np.float64),
+                flow_valid, tof_valid)
+
+
+class SensorDelay:
+    """Per-modality transport/sampling latency (stress plan section 2).
+
+    Each modality's freshly-corrupted sample is pushed into its own ring buffer and the sample
+    d steps old is emitted (deque(maxlen=d+1) -> emit buf[0]). Delays are integer control steps
+    (200 Hz): IMU is fast (0-1), optical flow ~1-2 (PMW3901 integration+SPI), ToF 1-3 on top of
+    its hold cadence. This STACKS against the guest's forward delay-compensation, so the loop's
+    total compensation horizon must cover actuation + sensor delay -- exactly the coupling the
+    stress matrix probes. All delays default 0 (no latency = the validated behavior).
+    """
+
+    def __init__(self, delays):
+        self.delays = delays            # {modality: int steps}
+        self.buf = {}
+
+    def reset(self):
+        self.buf = {}
+
+    def push(self, name, val):
+        d = self.delays.get(name, 0)
+        if d <= 0:
+            return val
+        import collections
+        q = self.buf.get(name)
+        if q is None or q.maxlen != d + 1:
+            q = collections.deque(maxlen=d + 1)
+            self.buf[name] = q
+        q.append(np.array(val, dtype=np.float64))
+        return q[0].copy()              # oldest available (== d steps old once warmed up)
+
 
 def _quat_to_matrix(qw, qx, qy, qz):
     """(w,x,y,z) unit quaternion -> body->world rotation matrix (v_world = R @ v_body)."""
@@ -73,6 +193,19 @@ class IsaacCrazyflieSensorEnv(IsaacCrazyflieMPCEnv):
         self._tof_period = int(os.environ.get("ROSE_TOF_PERIOD", "6"))
         self._tof_held = None
         self._tof_ctr = 0
+        # Sensor-corruption layer (stress plan section 1). Level 0 (default) is clean and
+        # identical to the validated hover; 1/2 add nominal/aggressive noise+bias. Seed makes
+        # each run reproducible; sweep the seed for independent stochastic trials.
+        self._noise_level = int(os.environ.get("ROSE_SENSOR_NOISE_LEVEL", "0"))
+        self._noise_seed = int(os.environ.get("ROSE_SENSOR_NOISE_SEED", "0"))
+        cfg = _NOISE_LEVELS.get(self._noise_level)
+        self._corruptor = SensorCorruptor(cfg) if cfg is not None else None
+        if self._corruptor is not None:
+            self._corruptor.reset(self._noise_seed)
+        # Sensor transport delay (stress plan section 2), integer control steps per modality.
+        delays = {m: int(os.environ.get("ROSE_SENSOR_DELAY_" + m.upper(), "0"))
+                  for m in ("accel", "gyro", "flow", "tof")}
+        self._delay = SensorDelay(delays) if any(delays.values()) else None
         f32 = np.float32
         big = np.finfo(f32).max
         # Structured per-modality observation (each modality is one reqrsp packet).
@@ -124,6 +257,20 @@ class IsaacCrazyflieSensorEnv(IsaacCrazyflieMPCEnv):
         self._tof_ctr += 1
         tof = np.array([self._tof_held], dtype=np.float64)
 
+        # keep the CLEAN values (post-synthesis) for offline estimator-error scoring
+        clean_accel, clean_gyro = accel_body.copy(), gyro_body.copy()
+        clean_flow, clean_tof = flow.copy(), tof.copy()
+        flow_valid = tof_valid = True
+        if self._corruptor is not None:
+            accel_body, gyro_body, flow, tof, flow_valid, tof_valid = self._corruptor.apply(
+                accel_body, gyro_body, flow, self._tof_held, float(pos[2]), self._ctrl_dt)
+
+        if self._delay is not None:
+            accel_body = self._delay.push("accel", accel_body)
+            gyro_body = self._delay.push("gyro", gyro_body)
+            flow = self._delay.push("flow", flow)
+            tof = self._delay.push("tof", tof)
+
         obs = {
             "accel": accel_body.astype(np.float32),
             "gyro": gyro_body.astype(np.float32),
@@ -146,6 +293,15 @@ class IsaacCrazyflieSensorEnv(IsaacCrazyflieMPCEnv):
             "gyro": gyro_body.astype(np.float32),
             "flow": flow.astype(np.float32),
             "tof": tof.astype(np.float32),
+            # clean (pre-corruption) sensors + validity flags for offline scoring / the
+            # guest-side validity hook (stress plan sections 1.2 & 4).
+            "gt_accel": clean_accel.astype(np.float32),
+            "gt_gyro": clean_gyro.astype(np.float32),
+            "gt_flow": clean_flow.astype(np.float32),
+            "gt_tof": clean_tof.astype(np.float32),
+            "flow_valid": bool(flow_valid),
+            "tof_valid": bool(tof_valid),
+            "noise_level": np.int32(self._noise_level),
             "rotor_force_N": np.asarray(forces_z, dtype=np.float32),
             "action_norm": np.asarray(action_norm, dtype=np.float32),
             "target": self.target.astype(np.float32),
@@ -165,5 +321,10 @@ class IsaacCrazyflieSensorEnv(IsaacCrazyflieMPCEnv):
         self._prev_vel_w = None
         self._tof_held = None
         self._tof_ctr = 0
+        if self._corruptor is not None:
+            # re-seed per episode so each run is bit-for-bit reproducible (seed sweep -> IID trials)
+            self._corruptor.reset(self._noise_seed)
+        if self._delay is not None:
+            self._delay.reset()
         return super().reset(seed=seed, options=options)
 

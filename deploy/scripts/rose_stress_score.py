@@ -53,7 +53,7 @@ def load(path):
     return rows
 
 
-def score_cell(path, steady_start):
+def score_cell(path, steady_start, intended_dur=None):
     rows = load(path)
     m = {"cell": os.path.splitext(os.path.basename(path))[0], "n": len(rows)}
     if not rows:
@@ -110,11 +110,18 @@ def score_cell(path, steady_start):
     m["ctrl_rms_u"] = round(math.sqrt(sum(u * u for u in us) / len(us)), 3)
 
     # --- verdict ---
-    truncated = survive_t < steady_start + MIN_STEADY_S
-    if crashed or diverged or nan or truncated:
+    # "died early" = ended well before the intended flight length (a real failure). If the run
+    # simply had a short intended duration (e.g. a smoke test), don't call it truncated -- score
+    # it on metrics but flag that it is too short for a full >=10 s-steady PASS certification.
+    if intended_dur is not None:
+        died_early = survive_t < 0.9 * intended_dur
+    else:
+        died_early = survive_t < steady_start + MIN_STEADY_S
+    short_run = (survive_t - steady_start) < MIN_STEADY_S
+    if crashed or diverged or nan or died_early:
         m["verdict"] = "FAIL"
         m["note"] = ("crash" if crashed else "diverge" if diverged else
-                     "NaN" if nan else "truncated")
+                     "NaN" if nan else "died_early")
         return m
     worst = 1.0
     breach = []
@@ -129,6 +136,8 @@ def score_cell(path, steady_start):
         m["verdict"] = "DEGRADED"; m["note"] = ", ".join(breach)
     else:
         m["verdict"] = "FAIL"; m["note"] = "exceeds 2x: " + ", ".join(breach)
+    if short_run:
+        m["note"] = (m.get("note", "") + " [short_run:not-full-cert]").strip()
     return m
 
 
@@ -156,7 +165,16 @@ def main():
     csvs = sorted(glob.glob(os.path.join(args.results_dir, "*.csv")))
     if not csvs:
         raise SystemExit("no CSVs in %s" % args.results_dir)
-    scored = [score_cell(p, args.steady_start) for p in csvs]
+    # intended per-cell flight length (to tell "died early" from "intentionally short")
+    intended = None
+    spath = os.path.join(args.results_dir, "summary.json")
+    if os.path.exists(spath):
+        try:
+            with open(spath) as f:
+                intended = json.load(f).get("duration")
+        except (ValueError, OSError):
+            intended = None
+    scored = [score_cell(p, args.steady_start, intended) for p in csvs]
 
     md = render_md(scored)
     print(md)
