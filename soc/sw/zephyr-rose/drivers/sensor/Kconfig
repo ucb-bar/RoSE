@@ -29,3 +29,13 @@ config ROSE_SENSOR_TOF
 	help
 	  Virtual downward ToF rangefinder exposing SENSOR_CHAN_DISTANCE at a low rate
 	  (returns -EAGAIN between samples) to model a real ~20-40 ms rangefinder.
+
+config ROSE_SENSOR_TOF_ZONE
+	bool "RoSE virtual multizone ToF (VL53L5CX-equivalent) driver"
+	default y
+	depends on SENSOR && ROSE_PROTOCOL
+	depends on DT_HAS_UCBBAR_ROSE_TOF_ZONE_ENABLED
+	help
+	  Virtual multizone ToF reading an NxN zone grid from the RoSE bridge and exposing
+	  the MIN zone distance on SENSOR_CHAN_DISTANCE (nearest obstacle in the FoV), the
+	  mean on ROSE_SENSOR_CHAN_TOF_ZONE_MEAN, and the full grid via rose_tof_zone_grid().

@@ -19,10 +19,10 @@ packets:
   # --- NEW: 4× VL53L5CX horizontal multizone ToF (8×8 = 64 float32 words each, metres) ---
   # Split F/B on ch2 and L/R on ch1 so opposite pairs pipeline in parallel. Low-rate (the
   # ucbbar,rose-tof-zone driver decimates ~200 Hz/15 Hz -> 13).
-  - {name: tof_front, id: 0x30, type: reqrsp, latency: 0, channel: 1, indices: [tof_front]}
-  - {name: tof_right, id: 0x31, type: reqrsp, latency: 0, channel: 2, indices: [tof_right]}
-  - {name: tof_back,  id: 0x32, type: reqrsp, latency: 0, channel: 1, indices: [tof_back]}
-  - {name: tof_left,  id: 0x33, type: reqrsp, latency: 0, channel: 2, indices: [tof_left]}
+  - {name: tof_front, id: 0x30, type: reqrsp, latency: 0, channel: 1, indices: [front]}
+  - {name: tof_right, id: 0x31, type: reqrsp, latency: 0, channel: 2, indices: [right]}
+  - {name: tof_back,  id: 0x32, type: reqrsp, latency: 0, channel: 1, indices: [back]}
+  - {name: tof_left,  id: 0x33, type: reqrsp, latency: 0, channel: 2, indices: [left]}
 
   # --- NEW: HM01B0 FPV mono camera (320×240×1 = 76,800 bytes) over the DMA channel ---
   # Too large for reqrsp; uses DMA ch0 (guest: rose_dma_arm/rose_dma_wait/rose_dma_buffer).

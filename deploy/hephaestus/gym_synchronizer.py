@@ -68,6 +68,9 @@ class DummySynchronizer:
         with open(os.path.join(script_dir, '../config/config_deploy_gym.yaml'), 'r') as f:
             config = yaml.safe_load(f)
             gym_env = config.get('gym_env', 'AirSimEnv-v0')  # Default to 'AirSimEnv-v0' if not found
+        # Env-var override so a run can select a different env (e.g. the multisensor nav env)
+        # without editing the committed config_deploy_gym.yaml default.
+        gym_env = os.environ.get('ROSE_GYM_ENV', gym_env)
         
         # Load timing information from the config
         if 'firesim_step' in config:
