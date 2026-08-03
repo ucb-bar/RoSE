@@ -203,3 +203,21 @@ stayed <1°, low priority).
 
 Harness note: fixed the `rose_spike_sim` orphan leak at the root (`timeout --foreground`);
 confirmed 0 orphans after a completed run.
+
+## Harder-scenario navigation (obstacle-relative estimator under disturbance)
+
+Combining the wall-fusion estimator + waypoint nav + disturbance infra (the "difficult
+scenarios" refinement):
+
+- **Corridor waypoint (clean):** wall fusion makes x/y observable; TinyMPC holds the corridor
+  center (y ≈ 2 mm) + altitude (1.023 m) and advances to the forward waypoint. After the
+  center-zone refinement (use the perpendicular bore zone, not the FoV min), the longitudinal
+  estimate matches truth (0.856 vs 0.858 at setpoint) and the waypoint arrives with **no
+  overshoot** (was true x → 1.4 with the min zone).
+- **Corridor + 0.03 N crosswind:** the wall-fused lateral position stays *observable* (the
+  estimate tracks y), but the **un-retuned TinyMPC gains do not reject a crosswind this strong**
+  in the 0.7 m-half-width corridor — the drone holds a ~6° tilt that balances the wind's
+  ~1.07 m/s² but drifts steadily to the wall (y: 0.19→0.42→0.78→0.89 m). This is a **control-
+  authority** limit (position weighting / no wind feed-forward), not an estimation one; left as
+  a finding rather than retuned, to avoid overtuning to the sim. Next refinements: stronger
+  position weighting or an integral/wind-estimate term; a gentler wind rejects cleanly.
