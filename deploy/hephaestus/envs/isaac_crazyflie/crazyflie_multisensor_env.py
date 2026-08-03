@@ -47,6 +47,31 @@ TOF_MOUNTS = (
 )
 
 
+# --- Navigation environments: named sets of axis-aligned wall boxes (min_xyz, max_xyz) in
+# world metres. The horizontal ToFs range against these (analytic ray-box) AND they are
+# spawned as visible cuboids so co-sim videos show the environment. Selected by ROSE_MAZE.
+def _maze_walls(name):
+    name = (name or "").strip().lower()
+    if name in ("", "none", "room"):
+        return []
+    if name == "hallway":
+        # a corridor along +x: two long walls ~1.4 m apart (y = +-0.7), open ahead/behind.
+        return [
+            ((-2.5, 0.70, 0.0), (2.5, 0.85, 1.8)),    # left wall
+            ((-2.5, -0.85, 0.0), (2.5, -0.70, 1.8)),  # right wall
+        ]
+    if name == "maze":
+        # hallway + a chicane: a partial wall from the right leaving a gap on the left, then
+        # a partial wall from the left -> the drone must weave.
+        return [
+            ((-2.5, 0.70, 0.0), (2.5, 0.85, 1.8)),    # left wall
+            ((-2.5, -0.85, 0.0), (2.5, -0.70, 1.8)),  # right wall
+            ((0.6, -0.70, 0.0), (0.75, 0.25, 1.8)),   # chicane 1 (from right, gap on left)
+            ((1.6, -0.25, 0.0), (1.75, 0.70, 1.8)),   # chicane 2 (from left, gap on right)
+        ]
+    return []
+
+
 def _yaw_matrix(deg):
     """Rotation about +z by `deg` degrees (body-frame yaw of a sensor mount)."""
     a = np.radians(deg)
@@ -83,13 +108,24 @@ def _aabb_exit_distance(o, d, box_min, box_max):
 
 
 def _aabb_entry_distance(o, d, box_min, box_max):
-    """Distance from `o` along unit ray `d` to ENTER an obstacle AABB, or +inf if missed."""
+    """Distance from `o` along unit ray `d` to ENTER an obstacle AABB, or +inf if missed.
+
+    Slab method: per axis [near, far] = sorted (box-o)/d; entry tmin = MAX of nears, exit
+    tmax = MIN of fars; hit iff tmin <= tmax and tmax >= 0. Axes parallel to a slab (d==0)
+    constrain nothing when the origin is inside that slab, and force a miss when outside.
+    (`o,d` are (N,3); box_* are (3,).)"""
     with np.errstate(divide="ignore", invalid="ignore"):
         inv = 1.0 / d
         t1 = (box_min - o) * inv
         t2 = (box_max - o) * inv
-        tmin = np.min(np.where(np.isfinite(np.minimum(t1, t2)), np.minimum(t1, t2), -np.inf), axis=1)
-        tmax = np.max(np.where(np.isfinite(np.maximum(t1, t2)), np.maximum(t1, t2), np.inf), axis=1)
+    near = np.minimum(t1, t2)
+    far = np.maximum(t1, t2)
+    parallel = (d == 0.0)
+    inside = (o >= box_min) & (o <= box_max)
+    near = np.where(parallel, np.where(inside, -np.inf, np.inf), near)
+    far = np.where(parallel, np.where(inside, np.inf, -np.inf), far)
+    tmin = np.max(near, axis=1)   # entry (max of per-axis nears)
+    tmax = np.min(far, axis=1)    # exit  (min of per-axis fars)
     hit = (tmax >= np.maximum(tmin, 0.0))
     return np.where(hit & (tmin > 0), tmin, np.inf)
 
@@ -107,9 +143,13 @@ class IsaacCrazyflieMultiSensorEnv(IsaacCrazyflieSensorEnv):
         rz = float(os.environ.get("ROSE_TOF_ROOM_Z", "2.5"))
         self._room_min = np.array(room[0] if room else (-rx, -ry, 0.0), dtype=np.float64)
         self._room_max = np.array(room[1] if room else (rx, ry, rz), dtype=np.float64)
-        # Optional obstacle AABBs: list of (min_xyz, max_xyz).
-        self._obstacles = [(np.asarray(a, np.float64), np.asarray(b, np.float64))
-                           for a, b in (obstacles or [])]
+        # Optional obstacle AABBs: list of (min_xyz, max_xyz). A named nav environment
+        # (ROSE_MAZE=hallway|maze) adds wall boxes the horizontal ToFs range against; the same
+        # boxes are spawned as visible cuboids in _spawn_walls so the co-sim video shows them.
+        self._maze = os.environ.get("ROSE_MAZE", "")
+        walls = [(np.asarray(a, np.float64), np.asarray(b, np.float64)) for a, b in _maze_walls(self._maze)]
+        self._obstacles = walls + [(np.asarray(a, np.float64), np.asarray(b, np.float64))
+                                   for a, b in (obstacles or [])]
         self._tof_zones = int(tof_zones)
         self._tof_ray_s = _zone_ray_dirs(self._tof_zones)     # sensor-frame rays
         self._tof_decim = max(1, int(os.environ.get("ROSE_MTOF_PERIOD", str(tof_decimation))))
@@ -125,6 +165,24 @@ class IsaacCrazyflieMultiSensorEnv(IsaacCrazyflieSensorEnv):
         extra["fpv"] = spaces.Box(0, 255, (self._fpv_h * self._fpv_w,), np.uint8)
         # additive: keep all existing modality/pose keys, add the new ones
         self.observation_space = spaces.Dict({**self.observation_space.spaces, **extra})
+
+    def _spawn_walls(self, sim_utils):
+        """Spawn the named nav environment's walls as visible static cuboids in /World, so the
+        co-sim video shows the maze/hallway. Geometry matches the analytic AABBs the ToFs range
+        against (ROSE_MAZE). Read from the env var (not self._maze, which isn't set yet at the
+        base-__init__ call site) so both derive from the same source."""
+        walls = _maze_walls(os.environ.get("ROSE_MAZE", ""))
+        if not walls:
+            return
+        for i, (mn, mx) in enumerate(walls):
+            size = (float(mx[0] - mn[0]), float(mx[1] - mn[1]), float(mx[2] - mn[2]))
+            center = (float(0.5 * (mn[0] + mx[0])), float(0.5 * (mn[1] + mx[1])),
+                      float(0.5 * (mn[2] + mx[2])))
+            cfg = sim_utils.CuboidCfg(
+                size=size,
+                visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=(0.55, 0.56, 0.62)),
+            )
+            cfg.func("/World/maze/wall_%d" % i, cfg, translation=center)
 
     # ---- analytic multizone ToF (numpy, no Isaac) --------------------------------------
     def _synth_multizone_tof(self, pos, quat):

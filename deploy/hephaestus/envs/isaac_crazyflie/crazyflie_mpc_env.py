@@ -198,6 +198,9 @@ class IsaacCrazyflieMPCEnv(gym.Env):
         sim_cfg = sim_utils.SimulationCfg(dt=1.0 / self.phys_freq, device=self.device, log_dir=log_dir)
         self.sim = SimulationContext(sim_cfg)
         self.scene = InteractiveScene(_SceneCfg(num_envs=1, env_spacing=2.0))
+        # Subclass hook: spawn static environment geometry (e.g. maze/hallway walls) into
+        # /World before the sim reset so they are part of the stage. Base env: no-op.
+        self._spawn_walls(sim_utils)
         self.sim.reset()
 
         self.robot = self.scene["robot"]
@@ -226,6 +229,11 @@ class IsaacCrazyflieMPCEnv(gym.Env):
         # 4 normalized motor thrusts (controller output, ~[-0.583, 0.417])
         self.action_space = spaces.Box(-1.0, 1.0, (4,), f32)
         self._dbg = 0
+
+    def _spawn_walls(self, sim_utils):
+        """Hook: spawn static environment geometry into /World (maze/hallway walls). Base
+        env has none. Subclasses (e.g. the multisensor nav env) override this."""
+        return
 
     # --- state read: world-frame pos/vel/angvel + Rodrigues attitude (matches PyBullet env) ---
     def _read_state(self):
