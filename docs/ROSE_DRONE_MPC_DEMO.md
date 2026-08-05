@@ -39,7 +39,7 @@ is exactly what RoSÉ exists to expose.
 
 Repo legend: **[R]** = `ucb-bar/RoSE` (`chipyard-top`) · **[X]** = `ucb-bar/XPU-RT`
 submodule (`dev`) · **[Z]** = `ucb-bar/zephyr-chipyard-sw` nested submodule
-(`rose-bridge-samples`) · **[T]** = `ucb-bar/Accelerated-TinyMPC` (nested in Z).
+(`rose-2-dev`) · **[T]** = `ucb-bar/Accelerated-TinyMPC` (nested in Z).
 
 ### Physics side — simulator, environment, synchronizer
 | Component | Path | Repo |
