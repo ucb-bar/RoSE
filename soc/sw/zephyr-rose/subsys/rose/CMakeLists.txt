@@ -1,2 +1,0 @@
-zephyr_library_named(rose_proto)
-zephyr_library_sources(rose_proto.c)

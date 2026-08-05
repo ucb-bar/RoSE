@@ -1,9 +1,0 @@
-config ROSE_PROTOCOL
-	bool "RoSE co-simulation protocol/transport layer"
-	default y
-	depends on ROSE
-	help
-	  Transport-neutral RoSE packet protocol layer (request/response framing,
-	  command set) on top of the RoSE adapter driver. Used by higher-level
-	  shims (rose-i2c bus, rose sensor drivers) so the same user-facing API
-	  works in co-sim or on real hardware.

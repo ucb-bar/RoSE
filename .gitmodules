@@ -7,3 +7,6 @@
 [submodule "soc/sw/xpu-rt"]
 	path = soc/sw/xpu-rt
 	url = https://github.com/ucb-bar/XPU-RT
+[submodule "soc/sw/zephyr-rose"]
+	path = soc/sw/zephyr-rose
+	url = git@github.com:ucb-bar/zephyr-rose.git
