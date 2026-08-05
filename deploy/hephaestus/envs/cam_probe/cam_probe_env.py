@@ -41,6 +41,12 @@ class CrazyflieCamProbeEnv(gym.Env):
                              % (self._w, self._h))
         self._fov = float(os.environ.get("ROSE_FPV_FOV", str(FPV_FOV_DEG)))
         self._dirs = _pixel_ray_dirs(self._w, self._h, self._fov)
+        # RGB (HM01B0-ANA-00FT870 is a color sensor) -> flat H*W*3; else 8-bit GREY H*W.
+        self._rgb = int(os.environ.get("ROSE_FPV_RGB", "0")) != 0
+        # STATIC freezes the served frame at the reset pose (deterministic single-frame oracle).
+        self._static = int(os.environ.get("ROSE_CAMPROBE_STATIC", "0")) != 0
+        if self._rgb and (self._h * self._w * 3) % 4 != 0:
+            raise ValueError("FPV RGB H*W*3 must be a multiple of 4 (DMA word packing)")
 
         # Same room + hallway model as the multisensor env (ROSE_MAZE, ROSE_HALL_X0/X1).
         rx = float(os.environ.get("ROSE_TOF_ROOM_X", "8.0"))
@@ -58,8 +64,9 @@ class CrazyflieCamProbeEnv(gym.Env):
         self._z = float(os.environ.get("ROSE_CAMPROBE_Z", "0.9"))
         self._t = 0
 
+        fpv_len = self._h * self._w * (3 if self._rgb else 1)
         self.observation_space = spaces.Dict({
-            "fpv": spaces.Box(0, 255, (self._h * self._w,), np.uint8),
+            "fpv": spaces.Box(0, 255, (fpv_len,), np.uint8),
             "pose": spaces.Box(-np.inf, np.inf, (7,), np.float32),
         })
         # action ignored (scripted flight); present so the synchronizer can latch one.
@@ -69,14 +76,28 @@ class CrazyflieCamProbeEnv(gym.Env):
                  self._vx, self._x0, self._z), flush=True)
 
     def _pose(self):
-        x = self._x0 + self._vx * self._t * self._dt
+        t = 0 if self._static else self._t
+        x = self._x0 + self._vx * t * self._dt
         return (np.array([x, 0.0, self._z], np.float64),
                 np.array([1.0, 0.0, 0.0, 0.0], np.float64))   # level, facing +x
 
+    @staticmethod
+    def colorize_rgb(gray):
+        """Deterministic gray (H,W) -> RGB888 (H,W,3): a depth FPV given color so a real
+        (RGB) HM01B0-ANA feed is exercised. R=depth, G=dimmed depth, B=inverse depth. Purely
+        deterministic (integer), so the host oracle reproduces it exactly. Not a substitute
+        for the real Isaac RGB render (that's the GPU path); this is the headless stand-in."""
+        g = gray.astype(np.uint16)
+        r = gray
+        gg = ((g * 180) // 255).astype(np.uint8)
+        b = (255 - g).astype(np.uint8)
+        return np.stack([r, gg, b], axis=-1).astype(np.uint8)   # (H,W,3)
+
     def _obs(self):
         pos, quat = self._pose()
-        frame = synth_fpv_analytic(pos, quat, self._room_min, self._room_max,
-                                   self._walls, self._dirs, self._w, self._h)
+        gray = synth_fpv_analytic(pos, quat, self._room_min, self._room_max,
+                                  self._walls, self._dirs, self._w, self._h)
+        frame = self.colorize_rgb(gray) if self._rgb else gray
         obs = {"fpv": frame.reshape(-1),
                "pose": np.concatenate([pos, quat]).astype(np.float32)}
         info = {"fpv_checksum": frame_checksum(frame), "fpv_x": float(pos[0])}

@@ -1,0 +1,24 @@
+# GPU-free co-sim config for the DroNet vision-nav controller (P3). Serves the full flight
+# sensor set + forward FPV RGB camera from a fixed hover (CrazyflieVisionNavProbeEnv), so the
+# on-SoC camera->DroNet->TinyMPC-setpoint->control loop runs headlessly (no isaaclab/GPU).
+# Packet layout matches config_gym_IsaacCrazyflieMultiSensorEnv-v0.yaml (same guest overlay),
+# except the FPV is RGB888 (3 B/px) — the HM01B0-ANA-00FT870 is a color sensor.
+gym_env: 'CrazyflieVisionNavProbeEnv-v0'
+gym_timestep: 0.005
+
+packets:
+  - {name: accel,  id: 0x12, type: reqrsp, latency: 0, channel: 2, indices: [accel]}
+  - {name: gyro,   id: 0x15, type: reqrsp, latency: 0, channel: 2, indices: [gyro]}
+  - {name: flow,   id: 0x13, type: reqrsp, latency: 0, channel: 1, indices: [flow]}
+  - {name: tof,    id: 0x14, type: reqrsp, latency: 0, channel: 1, indices: [tof]}
+  - {name: tof_front, id: 0x30, type: reqrsp, latency: 0, channel: 1, indices: [front]}
+  - {name: tof_right, id: 0x31, type: reqrsp, latency: 0, channel: 2, indices: [right]}
+  - {name: tof_back,  id: 0x32, type: reqrsp, latency: 0, channel: 1, indices: [back]}
+  - {name: tof_left,  id: 0x33, type: reqrsp, latency: 0, channel: 2, indices: [left]}
+  - {name: fpv, id: 0x11, type: dma, channel: 0, indices: [fpv]}
+  - {name: thrust, id: 0x20, type: action_latch, indices: null}
+
+channel_bandwidth: [[0, 0, 0]]
+gym_kwargs: {}
+n_gym_agents: 1
+n_fsim_nodes: 1

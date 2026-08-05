@@ -86,3 +86,11 @@ register(
     id='CrazyflieCamProbeEnv-v0',
     entry_point='envs.cam_probe.cam_probe_env:CrazyflieCamProbeEnv',
 )
+# GPU-free bench env for the DroNet vision-nav controller (P3): serves the full flight sensor
+# set (IMU/flow/ToF/4x multizone) + forward FPV RGB from a fixed hover, so the on-SoC
+# camera->DroNet->setpoint->control integration runs headlessly. Pair with
+# config_gym_CrazyflieVisionNavProbeEnv-v0.yaml.
+register(
+    id='CrazyflieVisionNavProbeEnv-v0',
+    entry_point='envs.vision_nav_probe.vision_nav_probe_env:CrazyflieVisionNavProbeEnv',
+)
