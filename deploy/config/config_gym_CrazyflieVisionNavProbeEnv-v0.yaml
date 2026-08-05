@@ -4,7 +4,7 @@
 # Packet layout matches config_gym_IsaacCrazyflieMultiSensorEnv-v0.yaml (same guest overlay),
 # except the FPV is RGB888 (3 B/px) — the HM01B0-ANA-00FT870 is a color sensor.
 gym_env: 'CrazyflieVisionNavProbeEnv-v0'
-gym_timestep: 0.005
+gym_timestep: 0.0005   # Isaac 2 kHz, decoupled from the 200 Hz control loop (10 env steps/control cmd)
 
 packets:
   - {name: accel,  id: 0x12, type: reqrsp, latency: 0, channel: 2, indices: [accel]}

@@ -227,10 +227,74 @@ under the default-ISA lockstep spike). Camera path switched to **RGB** (ANA-00FT
   ~0.418), no lockstep hang. The physics-closed flight is the real Isaac multisensor env (GPU)
   — the same guest ELF, its RGB-FPV render being the remaining env hook.
 
+**P3b — threaded producer/consumer split (2026-08-05).** `rose_nav_controller -DROSE_THREADED=1`
+splits into five threads with real-time priorities (lower = higher): **ctrl(3) > est(5) > io(7) >
+vision(10) > keepalive(14)**. The pipeline is deterministic (io paces via a per-grant `sem_done`
+barrier); **all bridge I/O — sensor reqrsp, camera capture, control TX — stays in the io thread**
+so the RoSE transport is never touched concurrently. The vision thread is **compute-only**
+(preproc + the ~455 ms DroNet inference) and runs at the lowest app priority, so control always
+preempts it. `keepalive` busy-spins to stop the "all-threads-WFI → mtime halts → lockstep
+deadlock" failure.
+
+Because the reqrsp FIFO **busy-polls** (no RX IRQ), a lower-priority thread would be starved; the
+fix is a Kconfig-gated **cooperative transport** (`CONFIG_ROSE_TRANSPORT_COOP`, threaded build
+only — it needs the keepalive) that `k_usleep`s between polls so the ~80%/tick I/O-wait slack goes
+to vision, plus a fine tick (`SYS_CLOCK_TICKS_PER_SEC=100000`). Control still preempts, so the
+rate holds.
+
+Validated (GPU-free probe env, A/B): **max actuator-command staleness 467 ms (single-loop, inline
+inference stalls control) → 12 ms threaded** (~2 control periods) — a **~39× reduction**; control
+runs at ~5 ms/tick throughout while vision completes **6 background inferences** over the run,
+driving the setpoint (`cmd 0.208` from the real DroNet collision). Clean exit, no hang. The
+compute-only vision thread is the on-SoC analogue of a dedicated vision core/NPU on real HW.
+
 Repro: `tools/host_oracle/run_oracle.sh` (P2 host side); guest builds via the in-tree Zephyr
 env with `-DZEPHYR_EXTRA_MODULES=<zephyr-rose> -DMODEL_DIR=<generated/scalar>`; co-sim via
 `run_spike_rose_lockstep.sh` + a synchronizer (`minimal_sync.py` for P0/P1, the probe env for
 P3).
+
+## 7c. Timer-driven control — co-sim-agnostic decoupling (2026-08-05)
+
+Replaced the lockstep pipeline with the **real-prototype paradigm**: the control loop is a
+periodic `k_timer`-paced task (sensors → EKF → TinyMPC → actuate), with vision a lower-priority
+background task. The app has **no co-sim awareness** — the same source runs on real HW. The
+control rate is driven by the guest's own timer, NOT the simulator; if a control tick overruns,
+the physics keeps stepping on the last (ZOH-latched) actuation — realistic degradation, not the
+sim waiting for the SoC.
+
+**Spike time-model facts (verified against `soc/sim/chipyard/.../riscv-isa-sim`):** this spike
+uses the **deterministic internal clint** (`real_time_clint=false`, not the wall-clock
+`--real-time-clint`), and `sim_t::step` ticks the clint by a **constant per round-robin**
+(driven by the requested step count, not retired instructions). So **mtime advances during WFI**
+(the FireSim/RTL digital-top-clock model) while `minstret`/mcycle stalls — exactly the intended
+HW semantics. Empirically confirmed: a guest that only `k_msleep`s (pure WFI idle, **no
+keepalive**) gets 15/15 timer wakeups with deterministic 200000-tick deltas. **The keepalive
+busy-spin was a workaround for a misdiagnosed "WFI halts mtime" and is deleted; so is the
+cooperative-transport hack** — with the control task WFI-idling between ticks, the idle CPU goes
+to the vision task by ordinary preemption.
+
+**Scheduling granularity (measured, both tick rates):** `k_msleep`/timeout waits **quantize to
+the system tick** (+1-tick ceil: `k_msleep(1)` = 19.8 ms at 100 Hz, 1.0 ms at 10 kHz), but
+**preemptive context switches are instruction-granular and tick-independent** (<100 ns at both).
+This is why a thread pool parking workers on timed condvars shows ~20 ms switching at the 100 Hz
+tick while directly-scheduled threads switch sub-ms. Design consequence: preemption for
+vision↔control interleave; a periodic timer only for control pacing, with a fine tick
+(`SYS_CLOCK_TICKS_PER_SEC=10000`, threaded-build only).
+
+**Decoupling validated (GPU-free probe env):**
+- Control period **tracks the guest timer**: CTRL_HZ=200 → `period_us=5000`, CTRL_HZ=100 →
+  `period_us=9990`, while the grant quantum is 0.5 ms and Isaac runs at 2 kHz
+  (`ROSE_FIRESIM_STEP=500000`, `gym_timestep=0.0005`, 1 env step/grant) — so control is paced by
+  its own clock, independent of the sim step rate. The `action_latch` ZOH holds each command
+  across the fine physics steps.
+- Control-tick compute breakdown: **sensor reqrsp round-trip 0.5 ms (≈1 grant), EKF 1.9 ms,
+  TinyMPC 1.0 ms** → ~3.4 ms floor (EKF-dominated, ~294 Hz max). Above that rate control becomes
+  compute-limited (run-as-fast-as-possible) and the sim steps on stale actions.
+- Vision completes in the background (no coop), DroNet drives the setpoint, no keepalive, no hang.
+
+Open follow-up: **push-based sensors** (bridge DMAs a sensor buffer per env step + IRQ on new
+data) would make sensor reads a plain memory load instead of a reqrsp round-trip — fully
+non-blocking, the last coupling to remove for arbitrary control rates.
 
 ## 8. Milestone ladder (each independently validatable)
 
