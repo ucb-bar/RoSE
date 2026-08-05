@@ -184,14 +184,11 @@ private:
 		int ch = route_for(p.cmd);
 		RDBG("deliver cmd=0x%x nwords=%zu -> ch%d\n", p.cmd, p.data.size(), ch);
 		if (ch == 0) {
-			/* DMA channel: write to guest DRAM, raise completion IRQ.
-			 * addr_to_mem is public on the simif_t base (private on sim_t). */
-			char *mem = static_cast<simif_t *>(sim)->addr_to_mem(dma_base);
-			RDBG("dma write base=0x%lx mem=%p nbytes=%zu\n",
-			     (unsigned long)dma_base, (void *)mem, p.data.size() * 4);
-			if (mem) {
-				memcpy(mem, p.data.data(), p.data.size() * 4);
-			}
+			/* DMA channel: write to guest DRAM (page by page — spike mem_t is sparse,
+			 * so addr_to_mem() is valid for only one 4 KB page), raise completion IRQ. */
+			RDBG("dma write base=0x%lx nbytes=%zu\n",
+			     (unsigned long)dma_base, p.data.size() * 4);
+			dma_write(dma_base, (const uint8_t *)p.data.data(), p.data.size() * 4);
 			dma_done = true;
 			set_irq(true);
 		} else {
@@ -207,6 +204,21 @@ private:
 	int route_for(uint32_t cmd) {
 		auto it = routes.find(cmd);
 		return (it != routes.end()) ? it->second : 2; /* default reqrsp ch2 */
+	}
+
+	/* Page-chunked DMA write (spike mem_t is sparse: addr_to_mem() is valid for one 4 KB page
+	 * only; a single memcpy across pages corrupts the host heap for frames > 4 KB). */
+	void dma_write(reg_t addr, const uint8_t *src, size_t nbytes) {
+		static const reg_t PG = 4096;
+		size_t off = 0;
+		while (off < nbytes) {
+			char *mem = static_cast<simif_t *>(sim)->addr_to_mem(addr + off);
+			if (!mem) break;
+			size_t page_left = PG - ((size_t)(addr + off) & (PG - 1));
+			size_t chunk = (nbytes - off < page_left) ? (nbytes - off) : page_left;
+			memcpy(mem, src + off, chunk);
+			off += chunk;
+		}
 	}
 
 	/* Service the synchronizer: apply config, deliver data, satisfy budget. */

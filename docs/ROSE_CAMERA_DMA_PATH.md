@@ -69,18 +69,45 @@ soc/sim/run_spike_rose_lockstep.sh soc/sim/zephyr_rose_builds/camvalidate/zephyr
 # Real Isaac (env_isaaclab python): ROSE_GYM_ENV=IsaacCrazyflieMultiSensorEnv-v0 ... same guest.
 ```
 
-## DMA engine notes (model + limits)
+## Forward FPV camera (real Isaac render)
 
-The bridge DMA is a **functional** engine, not a descriptor DMA:
-- **Fixed landing zone.** Frames always land at `dma_base`; the guest reads there. `arm()`
-  programs only the size, not a target address. Fine for a single camera; the guest copies
-  `dma_base` -> its video buffer. A future enhancement (a guest-programmed target-address
-  register threaded into `deliver()`) would enable zero-copy DMA straight into the video
-  buffer and multiple concurrent DMA buffers.
-- **Single payload per frame.** `deliver()` `memcpy`s one payload to `dma_base`, so a DMA
-  frame must be served as ONE contiguous payload (`retrieve_obs_push_dma_frame` enforces a
-  1-D obs). A 2-D per-row serve (as AirSim stereo uses on a reqrsp channel) would overwrite
-  `dma_base` row by row and is rejected.
-- **Size.** `dma_base` (0x88000000) sits in guest DRAM (256 MB region); the camera frame and
-  the guest's `dma_base` reservation must both fit. Validation uses 64×48; HM01B0 QVGA
-  (320×240 = 76,800 B) also fits.
+`ROSE_ISAAC_FPV=1` mounts a **body-fixed forward camera** on the drone (`crazyflie_mpc_env.py`,
+prim `{ENV}/Robot/body/rose_fpv`, `OffsetCfg` looking down body +x, up +z), with properties
+matched to a real **HM01B0**: 320×240 QVGA, 8-bit monochrome (rendered RGB → luma in
+`render_fpv_gray()`), pixel pitch 3.6 µm → physical sensor width `W*3.6µm`, and a pinhole
+focal length derived so the horizontal FoV = `ROSE_FPV_FOV` (default 70°, ≈ the AI-deck lens).
+`_synth_fpv` uses this real render when present, else the GPU-free analytic projection. The
+frame flows through the exact same DMA serve path.
+
+## DMA engine notes (model + fixes)
+
+The bridge DMA is a **functional** engine (not a descriptor DMA). Two correctness properties
+were fixed while bringing up the camera:
+
+- **Page-chunked writes (fix).** Spike's `mem_t` is *sparse* (a per-4 KB-page host
+  allocation), so `addr_to_mem()` returns a pointer valid for only ONE page. The original
+  `deliver()` did a single `memcpy` of the whole payload, which ran off the page into the
+  host heap for frames > 4 KB (silent for the 16-word dmavalidate, **host heap corruption**
+  for a 76,800-byte camera frame). `deliver()` now writes page by page, re-resolving
+  `addr_to_mem()` per page (`dma_write()` in `rose_spike_sim.cc` / `rose_spike_device.cc`).
+- **Landing zone above the guest heap (fix).** `dma_base` is now **0x90000000** — the first
+  address *above* the Zephyr guest's 256 MB SRAM (`0x80000000..0x90000000`) yet inside
+  spike's 2 GB physical RAM (no MMU/PMP, so flat-addressable). At the old `0x88000000`
+  (mid-SRAM) a DMA'd frame overwrote the kernel heap. The guest overlay's
+  `dma-base-address` and the runner's `--rose-dma-base` (via `ROSE_DMA_BASE`, default
+  0x90000000) must agree.
+- **Fixed landing zone / single payload.** Frames land at `dma_base` and the guest copies
+  them into its video buffer; `deliver()` writes one payload, so a DMA frame must be one
+  contiguous serve (`retrieve_obs_push_dma_frame` enforces a 1-D obs; a 2-D per-row serve
+  would overwrite `dma_base`). A future enhancement (a guest-programmed target-address
+  register) would allow zero-copy DMA into the video buffer and multiple DMA buffers.
+
+## Validation (updated)
+
+CRC32 consistent across env (`frame_checksum`), synchronizer (`zlib.crc32`), and guest
+(`crc32_ieee`); a match proves the exact frame reached the SoC. All at HM01B0 QVGA 320×240
+(76,800 B) unless noted:
+- **GPU-free analytic (deterministic):** CamProbe → guest `crc32=0x21968170` == served.
+- **Real Isaac forward FPV (Titan RTX):** body-mounted HM01B0 camera → guest
+  `crc32=0x54e06b9e` == served; the SoC's ASCII thumbnail shows the rendered corridor
+  (ceiling/walls/floor), fully structured (76,800/76,800 non-zero).

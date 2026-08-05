@@ -57,6 +57,10 @@ static const uint32_t ST_RX2_VALID = 1u << 1; /* channel 2 */
 static const uint32_t ST_RX1_VALID = 1u << 2; /* channel 1 */
 static const uint32_t ST_DMA0_DONE = 1u << 3;
 
+/* Spike sparse-memory page granule (mem_t allocates per 4 KB page; addr_to_mem() returns a
+ * pointer valid only within one page). DMA writes must be chunked to this. */
+static const reg_t ROSE_PGSIZE = 4096;
+
 /* ---------------------------------------------------------------------------
  * rose_bridge_ctrl: protocol + regmap state. Owns the synchronizer socket and
  * all bridge state; the harness (rose_sim_t) drives its step-boundary hooks and
@@ -180,8 +184,7 @@ private:
 		int ch = route_for(p.cmd);
 		RDBG("deliver cmd=0x%x nwords=%zu -> ch%d\n", p.cmd, p.data.size(), ch);
 		if (ch == 0) {
-			char *mem = static_cast<simif_t *>(sim)->addr_to_mem(dma_base);
-			if (mem) memcpy(mem, p.data.data(), p.data.size() * 4);
+			dma_write(dma_base, (const uint8_t *)p.data.data(), p.data.size() * 4);
 			dma_done = true;
 			set_irq(true);
 		} else {
@@ -194,6 +197,27 @@ private:
 	int route_for(uint32_t cmd) {
 		auto it = routes.find(cmd);
 		return (it != routes.end()) ? it->second : 2;
+	}
+
+	/* Write a DMA payload into guest DRAM at `addr`. Spike's mem_t is SPARSE (a per-page
+	 * host allocation, see devices.h sparse_memory_map), so addr_to_mem() returns a pointer
+	 * valid for only ONE page. A single memcpy across pages runs off the page into unrelated
+	 * host heap (heap corruption for frames > 4 KB, e.g. a camera frame). Copy page by page,
+	 * re-resolving addr_to_mem() for each page. Stops cleanly if a page is unmapped. */
+	void dma_write(reg_t addr, const uint8_t *src, size_t nbytes) {
+		size_t off = 0;
+		while (off < nbytes) {
+			char *mem = static_cast<simif_t *>(sim)->addr_to_mem(addr + off);
+			if (!mem) {
+				RDBG("dma_write: unmapped at 0x%llx after %zu/%zu bytes\n",
+				     (unsigned long long)(addr + off), off, nbytes);
+				break;
+			}
+			size_t page_left = ROSE_PGSIZE - ((size_t)(addr + off) & (ROSE_PGSIZE - 1));
+			size_t chunk = (nbytes - off < page_left) ? (nbytes - off) : page_left;
+			memcpy(mem, src + off, chunk);
+			off += chunk;
+		}
 	}
 
 	void set_irq(bool level) {

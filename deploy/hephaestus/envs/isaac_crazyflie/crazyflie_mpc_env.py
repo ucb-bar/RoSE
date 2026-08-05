@@ -99,7 +99,7 @@ class IsaacCrazyflieMPCEnv(gym.Env):
                  traj_csv=None, camera=None, camera_res=(640, 480),
                  camera_eye=(2.0, 2.0, 1.6), camera_look=(0.0, 0.0, 1.0),
                  camera_follow=True, camera_offset=(0.45, 0.45, 0.18),
-                 camera_focal=35.0, frame_dir=None, **kwargs):
+                 camera_focal=35.0, frame_dir=None, fpv_isaac=None, **kwargs):
         # ctrl_freq matches the TinyMPC problem data (quadrotor_50hz_params_*); physics
         # runs faster and is sub-stepped (decimation) per control step.
         self.ctrl_freq = int(ctrl_freq)
@@ -147,10 +147,25 @@ class IsaacCrazyflieMPCEnv(gym.Env):
         self._camera_focal = float(os.environ.get("ROSE_CAM_FOCAL", self._camera_focal))
         self._camera = None
 
+        # Forward-facing FPV camera (HM01B0-equivalent), body-mounted, for a real rendered
+        # first-person frame served to the SoC. Opt-in via ROSE_ISAAC_FPV=1 (needs the render
+        # pipeline, so it must be decided BEFORE AppLauncher). Distinct from the chase cam above
+        # (which is for offscreen video). HM01B0: QVGA 320×240, 8-bit mono, 3.6 µm pixel (1/6"
+        # optical format); FoV is lens-dependent (AI-deck stock lens ≈ 87° diagonal) — modeled
+        # as a pinhole with horizontal FoV = ROSE_FPV_FOV (default 70°).
+        if fpv_isaac is None:
+            fpv_isaac = os.environ.get("ROSE_ISAAC_FPV", "") not in ("", "0", "false", "False")
+        self._fpv_isaac_on = bool(fpv_isaac)
+        self._fpv_isaac_res = (int(os.environ.get("ROSE_FPV_ISAAC_W", "320")),
+                               int(os.environ.get("ROSE_FPV_ISAAC_H", "240")))
+        self._fpv_fov = float(os.environ.get("ROSE_FPV_FOV", "70.0"))
+        self._fpv_mount = _vec3("ROSE_FPV_MOUNT", (0.03, 0.0, 0.0))  # body +x, forward
+        self._fpv_camera = None
+
         # --- 1. Boot Isaac Sim (once per process) BEFORE importing any isaaclab.sim/.assets ---
         from isaaclab.app import AppLauncher  # noqa: E402
         launcher_kwargs = {"headless": bool(headless)}
-        if self._camera_on:
+        if self._camera_on or self._fpv_isaac_on:
             launcher_kwargs["enable_cameras"] = True
         if device is not None:
             launcher_kwargs["device"] = device
@@ -191,6 +206,35 @@ class IsaacCrazyflieMPCEnv(gym.Env):
                 ),
             )
 
+        # Forward FPV camera (HM01B0), mounted on the drone body so it moves+rotates with it.
+        # Properties matched to a real HM01B0: 320×240 QVGA, 3.6 µm pixel -> physical sensor
+        # width = W*3.6µm; the pinhole focal length is derived so the horizontal FoV equals the
+        # modeled AI-deck lens (ROSE_FPV_FOV). The frame is rendered RGB and converted to 8-bit
+        # grayscale in render_fpv_gray() (HM01B0 is monochrome).
+        fpv_field = None
+        if self._fpv_isaac_on:
+            import math
+            from isaaclab.sensors import CameraCfg
+            hm_w, hm_h = self._fpv_isaac_res
+            px_mm = 3.6e-3                               # HM01B0 pixel pitch (mm)
+            aperture = hm_w * px_mm                      # physical sensor width (mm)
+            focal = (aperture / 2.0) / math.tan(math.radians(self._fpv_fov) / 2.0)
+            fpv_field = CameraCfg(
+                prim_path="{ENV_REGEX_NS}/Robot/body/rose_fpv",   # child of the body link
+                update_period=0.0,
+                height=hm_h, width=hm_w,
+                data_types=["rgb"],
+                # look down body +x (forward), image-up = body +z, right = body -y
+                offset=CameraCfg.OffsetCfg(pos=tuple(self._fpv_mount),
+                                           rot=(0.5, -0.5, 0.5, -0.5), convention="ros"),
+                spawn=sim_utils.PinholeCameraCfg(
+                    focal_length=focal, focus_distance=100.0,
+                    horizontal_aperture=aperture, clipping_range=(0.02, 100.0),
+                ),
+            )
+            print("[crazyflie_env] FPV(HM01B0) %dx%d hfov=%.0f focal=%.3fmm aperture=%.3fmm"
+                  % (hm_w, hm_h, self._fpv_fov, focal, aperture), flush=True)
+
         # Robot cfg with rigid-body SLEEP DISABLED. Defensive only: a perfectly-still hover lets
         # PhysX sleep the body after ~1 s, a plausible contributor to the systemic ~235-step
         # co-sim stall (docs/ROSE_FLIGHT_CONTROLLER_THREADING.md). NOTE: this alone does NOT
@@ -217,12 +261,18 @@ class IsaacCrazyflieMPCEnv(gym.Env):
             )
             robot = _robot_cfg
 
+        # Chain a subclass per optional camera (configclass fields are declared per class).
+        _SceneCfg = _CrazyflieSceneCfg
         if cam_field is not None:
             @configclass
-            class _SceneCfg(_CrazyflieSceneCfg):
+            class _SceneCfgCam(_SceneCfg):
                 rose_cam = cam_field
-        else:
-            _SceneCfg = _CrazyflieSceneCfg
+            _SceneCfg = _SceneCfgCam
+        if fpv_field is not None:
+            @configclass
+            class _SceneCfgFpv(_SceneCfg):
+                rose_fpv = fpv_field
+            _SceneCfg = _SceneCfgFpv
 
         sim_cfg = sim_utils.SimulationCfg(dt=1.0 / self.phys_freq, device=self.device, log_dir=log_dir)
         self.sim = SimulationContext(sim_cfg)
@@ -246,6 +296,8 @@ class IsaacCrazyflieMPCEnv(gym.Env):
         if self._camera_on:
             self._camera = self.scene["rose_cam"]
             self._update_camera_pose()
+        if self._fpv_isaac_on:
+            self._fpv_camera = self.scene["rose_fpv"]
         if self._frame_dir:
             os.makedirs(self._frame_dir, exist_ok=True)
 
@@ -490,10 +542,10 @@ class IsaacCrazyflieMPCEnv(gym.Env):
             self.scene.write_data_to_sim()
             self.sim.step()
             self.scene.update(self._sim_dt)
-        if self._camera_on:
-            self._update_camera_pose()        # chase the drone before rendering
-            self.sim.render()
-            self.scene.update(self._sim_dt)   # pull the freshly-rendered camera frame
+        if self._camera_on or self._fpv_isaac_on:
+            self._update_camera_pose()        # chase cam (no-op for the body-mounted FPV)
+            self.sim.render()                 # renders all cameras (chase + forward FPV)
+            self.scene.update(self._sim_dt)   # pull the freshly-rendered camera frame(s)
         self._t += 1.0 / self.ctrl_freq
         obs, info, gt = self._obs_info(forces_z, a[:4])
         self._traj_row(gt, forces_z, a[:4])
@@ -519,6 +571,19 @@ class IsaacCrazyflieMPCEnv(gym.Env):
         if rgb is None or rgb.shape[0] == 0:
             return None
         return rgb[0, ..., :3].detach().cpu().numpy().astype(np.uint8)
+
+    def render_fpv_gray(self):
+        """Return the forward FPV (HM01B0) camera frame as 8-bit grayscale (H,W) uint8 at the
+        native HM01B0 resolution, or None if the FPV camera is off/not ready. HM01B0 is a
+        monochrome sensor, so the rendered RGB is converted to luma."""
+        if not self._fpv_isaac_on or self._fpv_camera is None:
+            return None
+        rgb = self._fpv_camera.data.output["rgb"]
+        if rgb is None or rgb.shape[0] == 0:
+            return None
+        arr = rgb[0, ..., :3].detach().cpu().numpy().astype(np.float32)
+        gray = 0.299 * arr[..., 0] + 0.587 * arr[..., 1] + 0.114 * arr[..., 2]
+        return gray.astype(np.uint8)
 
     def close(self):
         try:

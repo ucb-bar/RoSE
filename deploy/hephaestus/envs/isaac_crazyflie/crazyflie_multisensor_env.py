@@ -285,19 +285,18 @@ class IsaacCrazyflieMultiSensorEnv(IsaacCrazyflieSensorEnv):
 
     # ---- FPV frame -----------------------------------------------------------------------
     def _synth_fpv(self, pos, quat):
-        """Return (frame uint8 (H,W), valid bool).
+        """Return (frame uint8 (H,W), valid bool) — the transport frame at (fpv_w, fpv_h).
 
-        Two legitimate sources of camera sensing data:
-          1. If a real Isaac render is available (GPU, ROSE_ISAAC_CAMERA=1 -> base camera on),
-             convert the rendered RGB to 8-bit grayscale and resize to the HM01B0 frame.
+        Two legitimate sources of forward-FPV camera sensing data:
+          1. A real Isaac render from the body-mounted HM01B0 camera (ROSE_ISAAC_FPV=1):
+             render_fpv_gray() returns the native-resolution 8-bit grayscale frame, resized to
+             the transport size. This is a true first-person view with HM01B0 optics.
           2. Otherwise render the scene ANALYTICALLY from ground-truth pose (numpy pinhole ray
-             cast against the room + obstacle AABBs) — the same GPU-free path the multizone ToF
-             uses. This is real, pose-dependent scene data (not a placeholder), so the co-sim
-             DMA path can be validated headlessly. `valid` is True in both cases."""
-        rgb = self.render() if getattr(self, "_camera_on", False) else None
-        if rgb is not None and rgb.size:
-            gray = (0.299 * rgb[..., 0] + 0.587 * rgb[..., 1] + 0.114 * rgb[..., 2])
-            return _resize_nn(gray.astype(np.uint8), self._fpv_h, self._fpv_w), True
+             cast against the room + obstacle AABBs) — GPU-free, the same path the multizone ToF
+             uses; real pose-dependent scene data (not a placeholder). `valid` is True either way."""
+        gray = self.render_fpv_gray() if getattr(self, "_fpv_isaac_on", False) else None
+        if gray is not None and gray.size:
+            return _resize_nn(gray, self._fpv_h, self._fpv_w), True
         frame = synth_fpv_analytic(pos, quat, self._room_min, self._room_max,
                                    self._obstacles, self._fpv_dirs_body,
                                    self._fpv_w, self._fpv_h)
