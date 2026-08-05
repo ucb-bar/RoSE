@@ -78,3 +78,11 @@ register(
     id='IsaacCrazyflieMultiSensorEnv-v0',
     entry_point='envs.isaac_crazyflie.crazyflie_multisensor_env:IsaacCrazyflieMultiSensorEnv',
 )
+
+# GPU-free stand-in for validating the HM01B0 FPV camera DMA path headlessly: serves the SAME
+# analytic scene-derived frames as the Isaac multisensor env, from a scripted hallway flight,
+# with no isaaclab dependency. Pair with config_gym_CrazyflieCamProbeEnv-v0.yaml.
+register(
+    id='CrazyflieCamProbeEnv-v0',
+    entry_point='envs.cam_probe.cam_probe_env:CrazyflieCamProbeEnv',
+)

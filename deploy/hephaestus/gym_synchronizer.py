@@ -13,6 +13,7 @@ import numpy as np
 import os
 import sys
 import yaml
+import zlib
 from functools import reduce
 
 # Port/host are env-overridable so multiple co-sim cells can run in parallel on one host
@@ -432,6 +433,36 @@ class Synchronizer(DummySynchronizer):
                 packet = Payload_Packet(cmd, len(row_packet_arr) * 4, row_packet_arr)  # You might need to adjust the multiplier
                 stable_heap_push(target_thread.txpq, packet)
 
+    def retrieve_obs_push_dma_frame(self, cmd, target_thread, packet_config):
+        """Serve a large sensor frame (e.g. the HM01B0 FPV camera) over the DMA channel.
+
+        The bridge's DMA engine memcpy's ONE served payload into guest DRAM at dma_base and
+        raises the completion IRQ (see rose_spike_sim.cc deliver() ch0). So — unlike a 2D
+        camera served row-per-packet on a reqrsp channel — a DMA frame MUST be a single
+        contiguous payload, or successive packets would overwrite the same dma_base. We
+        require a 1-D obs (flat frame) and emit exactly one Payload_Packet. Routing (cmd ->
+        channel 0) is already configured via send_route() at startup.
+
+        Logs the served frame's CRC32 (== Zephyr crc32_ieee on the guest) + byte length so the
+        co-sim can confirm the exact frame landed intact on the SoC."""
+        obs_data = self.obs
+        for idx in (packet_config['indices'] or []):
+            obs_data = obs_data[idx]
+        obs_data = np.ascontiguousarray(obs_data)
+        if obs_data.ndim != 1:
+            raise ValueError("DMA frame '%s' must be a flat 1-D array (got shape %s); a DMA "
+                             "payload is a single contiguous transfer" % (packet_config.get('name'), obs_data.shape))
+        raw = obs_data.tobytes()
+        if len(raw) % 4 != 0:
+            raise ValueError("DMA frame '%s' byte length %d not a multiple of 4 (word packing)"
+                             % (packet_config.get('name'), len(raw)))
+        packet_arr = np.frombuffer(raw, dtype=np.uint32).tolist()
+        packet = Payload_Packet(cmd, len(packet_arr) * 4, packet_arr)
+        stable_heap_push(target_thread.txpq, packet)
+        crc = zlib.crc32(raw) & 0xffffffff
+        print("[dma-serve] cmd=0x%02x '%s' nbytes=%d crc32=0x%08x"
+              % (cmd, packet_config.get('name'), len(raw), crc), flush=True)
+
     def get_firesim_cycles(self, target_thread):
         packet = Control_Packet(CONTROL_HEADERS.CS_REQ_CYCLES, 0, None)
         target_thread.txqueue.append(packet)
@@ -479,6 +510,10 @@ class Synchronizer(DummySynchronizer):
         # Retrieve observation related to the packet name
         if packet_config['type'] == 'reqrsp':
             self.retrieve_obs_push_packet(cmd, target_thread, packet_config)
+
+        # Large frames over the DMA channel (camera): single contiguous payload -> ch0 DMA.
+        if packet_config['type'] == 'dma':
+            self.retrieve_obs_push_dma_frame(cmd, target_thread, packet_config)
 
         if packet_config['type'] == 'stream':
             assert packet.num_bytes == 4, "Stream packets must be 4 bytes"

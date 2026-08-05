@@ -24,10 +24,12 @@ packets:
   - {name: tof_back,  id: 0x32, type: reqrsp, latency: 0, channel: 1, indices: [back]}
   - {name: tof_left,  id: 0x33, type: reqrsp, latency: 0, channel: 2, indices: [left]}
 
-  # --- NEW: HM01B0 FPV mono camera (320×240×1 = 76,800 bytes) over the DMA channel ---
+  # --- HM01B0 FPV mono camera (W×H×1 bytes) over the DMA channel ---
   # Too large for reqrsp; uses DMA ch0 (guest: rose_dma_arm/rose_dma_wait/rose_dma_buffer).
-  # 'dma' packet type is illustrative — the DMA route wiring is a TODO (plan §2.3).
-  - {name: fpv, id: 0x40, type: dma, channel: 0, indices: [fpv]}
+  # Served as a single contiguous payload -> bridge memcpy to dma_base + completion IRQ
+  # (gym_synchronizer.retrieve_obs_push_dma_frame). Uses CS_CAMERA_LEFT (0x11), the canonical
+  # camera-DMA command in rose_packet.h (the same one dmavalidate/PatternEnv exercise).
+  - {name: fpv, id: 0x11, type: dma, channel: 0, indices: [fpv]}
 
   # SoC -> env: 4 normalized motor thrusts (unchanged)
   - {name: thrust, id: 0x20, type: action_latch, indices: null}

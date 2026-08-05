@@ -36,6 +36,8 @@ TOF_ZONES = 8              # 8×8 @ ~15 Hz (4 for 4×4 @ ~60 Hz)
 
 # HM01B0 specs (see plan §2.1)
 FPV_W, FPV_H = 320, 240    # QVGA mono
+FPV_FOV_DEG = 70.0         # AI-deck stock lens ≈ 60–90° horizontal (modeled as a pinhole)
+FPV_NEAR, FPV_FAR = 0.05, 8.0   # grayscale depth-shading range (m): near = bright
 
 # Four horizontal mounts: (name, bore direction in body frame, yaw about +z in degrees).
 # Body frame: +x forward, +y left, +z up.
@@ -134,6 +136,57 @@ def _aabb_entry_distance(o, d, box_min, box_max):
     return np.where(hit & (tmin > 0), tmin, np.inf)
 
 
+def _pixel_ray_dirs(width, height, fov_h_deg=FPV_FOV_DEG):
+    """(height*width, 3) unit ray dirs in the CAMERA/body frame (bore = +x, +y left, +z up).
+
+    Forward-facing pinhole: az sweeps horizontally (about +z), el vertically (about +y), with
+    square pixels (vertical FoV scaled by height/width). Row-major over (row, col) so pixel
+    (i, j) -> index i*width + j, matching an image raster. Column 0 = image left = +y (az>0),
+    row 0 = image top = +z (el>0). This mirrors _zone_ray_dirs so the same ray/AABB machinery
+    that synthesizes the multizone ToF also renders the FPV frame."""
+    fov_h = np.radians(fov_h_deg)
+    fov_v = fov_h * (float(height) / float(width))
+    az = np.linspace(+fov_h / 2.0, -fov_h / 2.0, width)     # cols: left(+y) -> right(-y)
+    el = np.linspace(+fov_v / 2.0, -fov_v / 2.0, height)    # rows: top(+z) -> bottom(-z)
+    ca, sa = np.cos(az), np.sin(az)
+    ce, se = np.cos(el), np.sin(el)
+    dirs = np.empty((height, width, 3), dtype=np.float64)
+    dirs[..., 0] = np.outer(ce, ca)     # x = cos(el)cos(az)  (forward)
+    dirs[..., 1] = np.outer(ce, sa)     # y = cos(el)sin(az)  (left/right)
+    dirs[..., 2] = np.outer(se, np.ones_like(ca))  # z = sin(el) (up/down)
+    dirs = dirs.reshape(-1, 3)
+    return dirs / np.linalg.norm(dirs, axis=1, keepdims=True)
+
+
+def synth_fpv_analytic(pos, quat, room_min, room_max, obstacles, dirs_body,
+                       width, height, near=FPV_NEAR, far=FPV_FAR, seg_len=0.30):
+    """Render a legitimate depth-shaded grayscale FPV frame analytically (numpy, no GPU).
+
+    Casts one pinhole ray per pixel (dirs_body, camera frame) from the drone pose into the
+    same axis-aligned room + obstacle AABBs the multizone ToF ranges against, takes the nearest
+    hit distance, and shades it: near walls bright, far dark (an 8-bit "depth FPV"). A light
+    stripe modulation keyed to the world hit point mirrors the striped corridor walls spawned in
+    _spawn_walls, so the frame carries recognizable, pose-dependent structure (parallax as the
+    drone moves) rather than a flat gradient. Returns uint8 (height, width)."""
+    R_bw = _quat_to_matrix(quat[0], quat[1], quat[2], quat[3])       # body->world
+    d_world = dirs_body @ R_bw.T
+    d_world /= np.linalg.norm(d_world, axis=1, keepdims=True)
+    o = np.broadcast_to(np.asarray(pos, np.float64), d_world.shape)
+    dist = _aabb_exit_distance(o, d_world, room_min, room_max)       # room interior -> walls
+    for (bmin, bmax) in obstacles:
+        dist = np.minimum(dist, _aabb_entry_distance(o, d_world, bmin, bmax))
+    dist = np.clip(dist, near, far)
+    # depth shade: near = bright (255), far = dark (0)
+    shade = 255.0 * (1.0 - (dist - near) / (far - near))
+    # stripe texture from the world hit point (parity of the summed horizontal coords), so the
+    # walls show the same alternating banding as the spawned cuboids and it slides with motion.
+    hit = o + dist[:, None] * d_world
+    band = np.floor((hit[:, 0] + hit[:, 1]) / seg_len).astype(np.int64)
+    shade = shade * np.where(band % 2 == 0, 1.0, 0.82)
+    frame = np.clip(shade, 0.0, 255.0).astype(np.uint8).reshape(height, width)
+    return frame
+
+
 class IsaacCrazyflieMultiSensorEnv(IsaacCrazyflieSensorEnv):
     """WIP: adds 4× VL53L5CX zone grids + HM01B0 FPV to the sensor env (see module docstring)."""
 
@@ -159,7 +212,17 @@ class IsaacCrazyflieMultiSensorEnv(IsaacCrazyflieSensorEnv):
         self._tof_decim = max(1, int(os.environ.get("ROSE_MTOF_PERIOD", str(tof_decimation))))
         self._mtof_ctr = 0
         self._mtof_held = None
-        self._fpv_w, self._fpv_h = int(fpv_size[0]), int(fpv_size[1])
+        # FPV frame size: env-overridable (ROSE_FPV_W/H) so validation can use a small,
+        # fast-to-serialize frame while production keeps HM01B0 QVGA. Force W*H % 4 == 0 (the
+        # synchronizer packs 4 grayscale bytes per uint32 DMA word).
+        self._fpv_w = int(os.environ.get("ROSE_FPV_W", str(fpv_size[0])))
+        self._fpv_h = int(os.environ.get("ROSE_FPV_H", str(fpv_size[1])))
+        if (self._fpv_w * self._fpv_h) % 4 != 0:
+            raise ValueError("FPV W*H must be a multiple of 4 (DMA word packing); got %dx%d"
+                             % (self._fpv_w, self._fpv_h))
+        self._fpv_fov = float(os.environ.get("ROSE_FPV_FOV", str(FPV_FOV_DEG)))
+        # Cache the per-pixel camera-frame ray directions (pose-independent).
+        self._fpv_dirs_body = _pixel_ray_dirs(self._fpv_w, self._fpv_h, self._fpv_fov)
 
         f32 = np.float32
         big = np.finfo(f32).max
@@ -220,17 +283,25 @@ class IsaacCrazyflieMultiSensorEnv(IsaacCrazyflieSensorEnv):
             out[name] = dist.astype(np.float32)
         return out
 
-    # ---- FPV frame (stand-in until a dedicated forward CameraCfg is added) --------------
-    def _synth_fpv(self):
-        """Return (frame uint8 (H,W), valid bool). Uses the base camera if present, else 0s."""
-        frame = np.zeros((self._fpv_h, self._fpv_w), dtype=np.uint8)
-        valid = False
+    # ---- FPV frame -----------------------------------------------------------------------
+    def _synth_fpv(self, pos, quat):
+        """Return (frame uint8 (H,W), valid bool).
+
+        Two legitimate sources of camera sensing data:
+          1. If a real Isaac render is available (GPU, ROSE_ISAAC_CAMERA=1 -> base camera on),
+             convert the rendered RGB to 8-bit grayscale and resize to the HM01B0 frame.
+          2. Otherwise render the scene ANALYTICALLY from ground-truth pose (numpy pinhole ray
+             cast against the room + obstacle AABBs) — the same GPU-free path the multizone ToF
+             uses. This is real, pose-dependent scene data (not a placeholder), so the co-sim
+             DMA path can be validated headlessly. `valid` is True in both cases."""
         rgb = self.render() if getattr(self, "_camera_on", False) else None
         if rgb is not None and rgb.size:
             gray = (0.299 * rgb[..., 0] + 0.587 * rgb[..., 1] + 0.114 * rgb[..., 2])
-            frame = _resize_nn(gray.astype(np.uint8), self._fpv_h, self._fpv_w)
-            valid = True
-        return frame, valid
+            return _resize_nn(gray.astype(np.uint8), self._fpv_h, self._fpv_w), True
+        frame = synth_fpv_analytic(pos, quat, self._room_min, self._room_max,
+                                   self._obstacles, self._fpv_dirs_body,
+                                   self._fpv_w, self._fpv_h)
+        return frame, True
 
     def _obs_info(self, forces_z, action_norm):
         obs, info, gt = super()._obs_info(forces_z, action_norm)
@@ -242,7 +313,7 @@ class IsaacCrazyflieMultiSensorEnv(IsaacCrazyflieSensorEnv):
         for name, grid in self._mtof_held.items():
             obs[name] = grid
             info["mtof_%s" % name] = grid
-        fpv, fpv_valid = self._synth_fpv()
+        fpv, fpv_valid = self._synth_fpv(pos, quat)
         obs["fpv"] = fpv.reshape(-1)
         info["fpv_valid"] = np.bool_(fpv_valid)
         return obs, info, gt

@@ -1,0 +1,20 @@
+# HM01B0 FPV camera DMA-path validation config (GPU-free stand-in env).
+# Serves the analytic scene FPV frame on CS_CAMERA_LEFT (0x11) over the DMA channel (ch0):
+#   guest arms DMA0 + rose_tx(0x11) -> synchronizer serves obs["fpv"] as one payload ->
+#   bridge routes cmd 0x11 -> ch0 -> DMA memcpy into guest DRAM @ dma_base -> completion IRQ.
+# Pair with: ROSE_GYM_ENV=CrazyflieCamProbeEnv-v0 python run_sync_only.py --yaml_path <this>
+packets:
+  - name: fpv
+    id: 0x11            # CS_CAMERA_LEFT (rose_packet.h) — canonical camera-DMA command
+    type: dma
+    latency: 0
+    channel: 0          # DMA0 -> bridge memcpy to dma_base (0x88000000) + completion IRQ
+    indices:
+      - fpv
+
+channel_bandwidth: [[0, 0, 0]]
+
+gym_timestep: 0.005   # must divide the firesim period (config_deploy_gym.yaml)
+gym_kwargs: {}
+n_gym_agents: 1
+n_fsim_nodes: 1
