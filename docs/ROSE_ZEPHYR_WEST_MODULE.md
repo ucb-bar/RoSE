@@ -116,38 +116,32 @@ workspace — instead of pointing at `soc/sw/zephyr-rose`.)
   risk the generated header exists to prevent. Only choose this if standalone buildability
   strictly outranks protocol cohesion.
 
-## Status: split executed (local), publish pending
+## Status: split DONE (2026-08-04)
 
-The history-preserving extraction is **done** (2026-08-04). `git subtree split
---prefix=soc/sw/zephyr-rose` produced a standalone repo with the module's full 5-commit
-history (files moved to repo root, `zephyr/module.yml` at top), plus a README commit:
+`soc/sw/zephyr-rose` is now a **submodule** tracking the standalone
+[`ucb-bar/zephyr-rose`](https://github.com/ucb-bar/zephyr-rose) repo:
 
-- **Standalone repo:** `../zephyr-rose/` (sibling of the RoSE checkout) — 6 commits, tree
-  verified byte-identical to the in-tree `soc/sw/zephyr-rose`.
-- **Portable bundle:** `../zephyr-rose.bundle` (32 KB, complete history) — clone-able
-  anywhere with `git clone zephyr-rose.bundle`.
+- Extracted with `git subtree split --prefix=soc/sw/zephyr-rose` (full 5-commit history
+  preserved, files at repo root, `zephyr/module.yml` at top) + a README commit → pushed to
+  `ucb-bar/zephyr-rose` `main` at `ac87770`; tree verified byte-identical to the old in-tree
+  module.
+- RoSE now pins the submodule at that commit (`.gitmodules` +
+  `soc/sw/zephyr-rose` gitlink). A portable `git bundle` also exists at
+  `../zephyr-rose.bundle`.
+- Executed via `soc/sim/finalize_zephyr_rose_split.sh` (push + swap; idempotent, re-runnable
+  with `SKIP_PUSH=1`).
 
-The two remaining steps need the live remote (there is no `gh` on this host, so the repo
-must be created on GitHub first):
+**RoSE builds are unchanged:** `build_zephyr_rose.sh` injects the module by *path*
+(`-DZEPHYR_EXTRA_MODULES=$ROSE_DIR/soc/sw/zephyr-rose`), and the submodule checkout occupies
+that same path — no build-script change required. Fresh clones must
+`git submodule update --init soc/sw/zephyr-rose` before building the rose samples.
 
-1. **Create** an *empty* `ucb-bar/zephyr-rose` on GitHub (no README/license, so the pushed
-   history is the only content).
-2. **Publish + swap** — run the helper, which pushes the standalone repo and converts RoSE's
-   in-tree directory into a submodule:
+### Remaining (optional) follow-ups
 
-   ```
-   bash soc/sim/finalize_zephyr_rose_split.sh
-   # or target a fork first:  REMOTE=git@github.com:<you>/zephyr-rose.git bash soc/sim/finalize_zephyr_rose_split.sh
-   ```
-
-   The RoSE build is **unaffected**: `build_zephyr_rose.sh` injects the module by *path*
-   (`-DZEPHYR_EXTRA_MODULES=$ROSE_DIR/soc/sw/zephyr-rose`), and the submodule checkout sits
-   at that same path — no build-script change required. (Moving RoSE itself onto the
-   west-project consumption path, and dropping the `-DZEPHYR_EXTRA_MODULES` flag, stays an
-   optional later cleanup.)
-
-3. **zephyr-chipyard-sw:** add the app-level `west.yml` above, `west update`, then its rose
+1. **zephyr-chipyard-sw:** add the app-level `west.yml` above, `west update`, then its rose
    samples build standalone (no `ZEPHYR_EXTRA_MODULES`).
-4. (Bonus) the low-level bridge validators (`rxvalidate`/`protovalidate`/`dmavalidate`)
-   ride along as module samples inside `zephyr-rose`; the application samples stay in
+2. Move RoSE itself onto west-project consumption and drop the `-DZEPHYR_EXTRA_MODULES` flag
+   (cleanup; not required for correctness).
+3. The low-level bridge validators (`rxvalidate`/`protovalidate`/`dmavalidate`) already ride
+   along as module samples inside `zephyr-rose`; the application samples stay in
    zephyr-chipyard-sw with their estimator/TinyMPC deps.
