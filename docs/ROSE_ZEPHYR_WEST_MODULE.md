@@ -116,12 +116,38 @@ workspace — instead of pointing at `soc/sw/zephyr-rose`.)
   risk the generated header exists to prevent. Only choose this if standalone buildability
   strictly outranks protocol cohesion.
 
-## Status / next steps
+## Status: split executed (local), publish pending
 
-1. Split `soc/sw/zephyr-rose` → `ucb-bar/zephyr-rose` (guest module repo).
-2. Add the app-level `west.yml` to zephyr-chipyard-sw; `west update`.
-3. Drop `-DZEPHYR_EXTRA_MODULES` from `build_zephyr_rose.sh`; have RoSE pull `zephyr-rose`
-   via west too.
+The history-preserving extraction is **done** (2026-08-04). `git subtree split
+--prefix=soc/sw/zephyr-rose` produced a standalone repo with the module's full 5-commit
+history (files moved to repo root, `zephyr/module.yml` at top), plus a README commit:
+
+- **Standalone repo:** `../zephyr-rose/` (sibling of the RoSE checkout) — 6 commits, tree
+  verified byte-identical to the in-tree `soc/sw/zephyr-rose`.
+- **Portable bundle:** `../zephyr-rose.bundle` (32 KB, complete history) — clone-able
+  anywhere with `git clone zephyr-rose.bundle`.
+
+The two remaining steps need the live remote (there is no `gh` on this host, so the repo
+must be created on GitHub first):
+
+1. **Create** an *empty* `ucb-bar/zephyr-rose` on GitHub (no README/license, so the pushed
+   history is the only content).
+2. **Publish + swap** — run the helper, which pushes the standalone repo and converts RoSE's
+   in-tree directory into a submodule:
+
+   ```
+   bash soc/sim/finalize_zephyr_rose_split.sh
+   # or target a fork first:  REMOTE=git@github.com:<you>/zephyr-rose.git bash soc/sim/finalize_zephyr_rose_split.sh
+   ```
+
+   The RoSE build is **unaffected**: `build_zephyr_rose.sh` injects the module by *path*
+   (`-DZEPHYR_EXTRA_MODULES=$ROSE_DIR/soc/sw/zephyr-rose`), and the submodule checkout sits
+   at that same path — no build-script change required. (Moving RoSE itself onto the
+   west-project consumption path, and dropping the `-DZEPHYR_EXTRA_MODULES` flag, stays an
+   optional later cleanup.)
+
+3. **zephyr-chipyard-sw:** add the app-level `west.yml` above, `west update`, then its rose
+   samples build standalone (no `ZEPHYR_EXTRA_MODULES`).
 4. (Bonus) the low-level bridge validators (`rxvalidate`/`protovalidate`/`dmavalidate`)
    ride along as module samples inside `zephyr-rose`; the application samples stay in
    zephyr-chipyard-sw with their estimator/TinyMPC deps.
