@@ -115,3 +115,32 @@ LSTM FX-quant is fragile — a follow-up"). So the hard parts for the DroNet-sty
 **Success criteria:** an int8-lowered piece of the fused net (at minimum the encoder+fuse)
 verifying bit-exact vs its PyTorch golden on the co-sim spike, plus a clear statement of what the
 LSTM needs. Full-net on-SoC inference is the stretch goal pending LSTM int8 support.
+
+### Path B — results (2026-08-05)
+
+Both feed-forward encoders of the v12 CNN were quantized + lowered to int8 via ModelBlaster
+(extract_graph int8 → skeleton → kernels, scalar backend) and **verified bit-exact on the co-sim
+spike** (ModelBlaster harness under rose_spike_sim + minimal_sync, golden compare):
+
+| sub-model | input (int8) | output (int8) | in_scale | spike verify | wall cycles |
+|---|---|---|---|---|---|
+| **fused_vision** (front_grey→CNN stem→`vision_fc`→512) | 5400 (1×1×60×90) | 512 | 0.032945862 | **max_abs_err=0, n=512** | ~1.74 M |
+| **fused_depth** (tof_cross→conv→`depth_fc`→64) | 256 (1×4×8×8) | 64 | 0.026229556 | **max_abs_err=0, n=64** | ~72 K |
+
+Artifacts in `ModelBlaster/examples/{fused_vision,fused_depth}/int8/generated/scalar/`
+(`run_model_fused_{vision,depth}`, DroNet-shaped 12-file set). Wrappers `models/fused_{vision,
+depth}.py` + `models/_fused_loader.py` load `FusedSensorNet(cnn)` from the vitfly checkout + the
+v12 ckpt, fold `spectral_norm`, and expose each encoder as a single-input conv/linear net.
+Gotcha that mattered: use `torch.flatten(x, 1)` not `x.flatten(1)` (the latter traces as a
+`call_method` the int8 extractor rejects).
+
+**Full-net blockers (confirmed, three compounding):** (1) FX `symbolic_trace` fails on the
+data-dependent `if img.shape[-2:] != (60,90)` guard in `forward`; (2) inlining past it hits
+`int8 extract: get_attr _tensor_constant0 not supported` (tensor constants); (3) **`nn.LSTM` has
+no int8 lowering path at all** — the extractor's allowlist is {Linear, ReLU, ReLU6, Conv2d,
+MaxPool2d, AdaptiveAvgPool2d, BatchNorm2d, Upsample}; grep for lstm/rnn/gru in `extract_graph.py`
+returns nothing. So the full net needs (a) a traceable single-tensor front-end and (b) a new int8
+LSTM kernel + extractor support. The **encoder GEMMs are the bulk of the compute and now run int8
+on the SoC**; the remaining LSTM+head (~636 K params, tiny GEMMs + elementwise gating) is the
+piece to either add as an int8 kernel or run fp on the scalar/RVV path (matches the
+hw_cycle_model "LSTM gates on RVV" split).
