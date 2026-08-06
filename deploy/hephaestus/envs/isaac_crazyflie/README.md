@@ -25,12 +25,17 @@ for TinyMPC's 4-thrust output.
 
 ## Requirements
 
-Needs the Isaac Sim toolchain — the **same IsaacLab version pinned at
-`soc/sw/xpu-rt/sims/IsaacLab`** (`isaac-sim/IsaacLab@4df6560`), plus `isaacsim` and
-`isaaclab_assets`. It is imported **lazily** (string entry_point), so the synchronizer stays
-dependency-light unless this env is actually `gym.make()`d. Run the synchronizer with a
-Python that has Isaac Sim on it (e.g. the `env_isaaclab` conda env), not the light
-`deploy/.venv-rose`.
+Needs the Isaac Sim toolchain. **Concrete live setup (host `garden`, verified 2026-08-05):**
+run the synchronizer with the **`env_isaaclab` conda env** —
+`/scratch2/dima/miniforge3/envs/env_isaaclab/bin/python` (Python 3.11, `isaacsim` +
+`isaaclab` v0.54.3 editable from **`/scratch2/dima/IsaacLab`**, bootstrapped from the
+FreshScheduler IsaacLab submodule). **Not** `deploy/.venv-rose` (no Isaac). The repo's own
+`soc/sw/xpu-rt/sims/IsaacLab` submodule (pinned `isaac-sim/IsaacLab@4df6560`) is provenance
+only and is currently **unpopulated** — the live install is `/scratch2/dima/IsaacLab`. The env
+is imported **lazily** (string entry_point), so the synchronizer stays dependency-light unless
+this env is actually `gym.make()`d.
+
+> **Full path-concrete flow (Spike co-sim + video rendering): [`docs/ROSE_ISAAC_COSIM_FLOW.md`](../../../../docs/ROSE_ISAAC_COSIM_FLOW.md).**
 
 ## Run (Spike path)
 
@@ -48,7 +53,7 @@ max_sim_time: 3.0
 # Terminal 1 — synchronizer (Isaac Sim boots in-process; ~1 min first launch)
 cd deploy/hephaestus
 ROSE_DIR=$(git rev-parse --show-toplevel) \
-  /path/to/env_isaaclab/bin/python run_sync_only.py        # waits: "listening on localhost:10001..."
+  /scratch2/dima/miniforge3/envs/env_isaaclab/bin/python run_sync_only.py   # waits: "listening on localhost:10001..."
 
 # Terminal 2 — Spike lockstep bridge with the TinyMPC guest
 soc/src/main/cc/rose_spike/build.sh                          # once (-> soc/sim/rose_spike_sim)
