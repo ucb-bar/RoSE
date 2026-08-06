@@ -26,7 +26,12 @@ ROSE_SYNC_PORT="${ROSE_SYNC_PORT:-10001}"
 # never overwrite the kernel heap (0x88000000 sits mid-SRAM and corrupts it for large frames).
 # The guest overlay's dma-base-address MUST match this. Override with ROSE_DMA_BASE.
 ROSE_DMA_BASE="${ROSE_DMA_BASE:-0x90000000}"
+# Optional ISA override. Models with an fp16 (Zfh) tail must run with --isa=rv64gc_zfh
+# (compiled with CONFIG_RISCV_ISA_EXT_ZFH=y, which emits fadd.h/fcvt.s.h). Set
+# ROSE_ISA=rv64gc_zfh for those; unset preserves the sim's default ISA (DroNet et al.).
+ISA_ARG=()
+[ -n "${ROSE_ISA:-}" ] && ISA_ARG=(--isa="$ROSE_ISA")
 timeout --foreground "${ROSE_SPIKE_TIMEOUT:-40}" "$BIN" -p "$NPROCS" \
-  --rose-base=0x2000 --rose-irq=3 --rose-dma-base="$ROSE_DMA_BASE" \
+  "${ISA_ARG[@]}" --rose-base=0x2000 --rose-irq=3 --rose-dma-base="$ROSE_DMA_BASE" \
   --rose-nreqrsp=2 --rose-ndma=1 --rose-port="$ROSE_SYNC_PORT" "$ELF" 2>&1
 echo "ROSE_SIM_EXIT=$?"

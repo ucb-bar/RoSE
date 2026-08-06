@@ -1,0 +1,17 @@
+# GPU-free deterministic bench for the on-SoC fused-vision nav model (M1). Serves ONE baked,
+# pre-quantized frame (scratchpad/prep_frame0.py) so the guest's model output can be compared
+# byte-for-byte against the host reference with no Isaac/GPU. Wire contract matches
+# samples/rose_fused_nav (front DMA 0x11, tof 0x41 ch1, lowdim 0x42 ch2, action 0x20).
+gym_env: 'FusedNavProbeEnv-v0'
+gym_timestep: 0.0005
+
+packets:
+  - {name: front,  id: 0x11, type: dma,          channel: 0, indices: [front]}
+  - {name: tof,    id: 0x41, type: reqrsp,       latency: 0, channel: 1, indices: [tof]}
+  - {name: lowdim, id: 0x42, type: reqrsp,       latency: 0, channel: 2, indices: [lowdim]}
+  - {name: action, id: 0x20, type: action_latch, indices: null}
+
+channel_bandwidth: [[0, 0, 0]]
+gym_kwargs: {}
+n_gym_agents: 1
+n_fsim_nodes: 1

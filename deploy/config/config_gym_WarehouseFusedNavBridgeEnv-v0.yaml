@@ -1,0 +1,17 @@
+# RoSE bridge config for the photoreal warehouse-gate fused-vision nav co-sim (M1). Serves the
+# real onboard sense() suite pre-quantized per the host reference; applies the guest's
+# (yaw_rate, forward_speed) via the warehouse velocity action. 1 env.step per SoC control cmd
+# (gym_timestep == firesim_period = 0.005 s). Wire contract matches samples/rose_fused_nav.
+gym_env: 'WarehouseFusedNavBridgeEnv-v0'
+gym_timestep: 0.005
+
+packets:
+  - {name: front,  id: 0x11, type: dma,          channel: 0, indices: [front]}
+  - {name: tof,    id: 0x41, type: reqrsp,       latency: 0, channel: 1, indices: [tof]}
+  - {name: lowdim, id: 0x42, type: reqrsp,       latency: 0, channel: 2, indices: [lowdim]}
+  - {name: action, id: 0x20, type: action_latch, indices: null}
+
+channel_bandwidth: [[0, 0, 0]]
+gym_kwargs: {}
+n_gym_agents: 1
+n_fsim_nodes: 1

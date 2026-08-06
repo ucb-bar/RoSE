@@ -94,3 +94,21 @@ register(
     id='CrazyflieVisionNavProbeEnv-v0',
     entry_point='envs.vision_nav_probe.vision_nav_probe_env:CrazyflieVisionNavProbeEnv',
 )
+
+# M1 (fused-vision nav on spike-in-the-loop): GPU-free deterministic bench that serves ONE
+# baked pre-quantized frame so the guest's model output can be byte-compared to the host
+# reference. Pair with config_gym_FusedNavProbeEnv-v0.yaml.
+register(
+    id='FusedNavProbeEnv-v0',
+    entry_point='envs.warehouse_fused_nav.fused_nav_probe_env:FusedNavProbeEnv',
+)
+
+# M1 real path: instantiates the SAME photoreal warehouse-gate IsaacLab env as
+# sims/scripts/eval_fused_warehouse.py, serving the real onboard sense() suite pre-quantized
+# per the host reference over the RoSE bridge, and applying the guest's (yaw_rate,
+# forward_speed) via the warehouse velocity action. Needs env_isaaclab (GPU); imported lazily.
+# Pair with config_gym_WarehouseFusedNavBridgeEnv-v0.yaml.
+register(
+    id='WarehouseFusedNavBridgeEnv-v0',
+    entry_point='envs.warehouse_fused_nav.warehouse_fused_nav_env:WarehouseFusedNavBridgeEnv',
+)

@@ -92,6 +92,12 @@ class DummySynchronizer:
             self.firesim_freq = int(os.environ['ROSE_FIRESIM_FREQ'])
         if 'max_sim_time' in config:
             self.cycle_limit = config['max_sim_time'] * self.firesim_freq
+        # ROSE_MAX_SIM_TIME overrides the config cap. Needed when a slow on-SoC
+        # guest (e.g. the scalar_f16 fused-nav model) burns many firesim grants
+        # per physics step under the freeze seam, so the default 12 s cap would
+        # cut the episode short (~1.4 s of flight) before reaching a gate.
+        if os.environ.get('ROSE_MAX_SIM_TIME'):
+            self.cycle_limit = float(os.environ['ROSE_MAX_SIM_TIME']) * self.firesim_freq
         if 'render' in config:
             self.render = config['render']
         
@@ -534,6 +540,15 @@ class Synchronizer(DummySynchronizer):
                 self.action = data_to_assign
             if 'latch' in packet_config['type']:
                 self.default_action = self.action.copy()
+            # Optional, non-breaking hook: notify the env that a FRESH action packet was received
+            # this iteration (a "receive" event, not a value change). Envs that implement a
+            # freeze/one-coherent-tick-per-command control seam use this; others ignore it.
+            try:
+                base = self.env.unwrapped
+                if hasattr(base, "on_action_received"):
+                    base.on_action_received()
+            except Exception:
+                pass
             print(f"action: {data_to_assign}")
         
         self.logger.count_packet(cmd)
