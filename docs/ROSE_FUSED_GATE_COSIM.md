@@ -139,3 +139,57 @@ bash $S/run_wh_flight.sh gate 0 3000 1 1
   480×270) assembled from `wh_gate2_frames/` via `assemble_video.py` →
   `rose_cosim_gate_flight.{mp4,avi}`. This is the DroNet-study milestone for the fused
   net: one Zephyr ELF, live warehouse sensors → on-SoC vision model → policy → gate flight.
+
+---
+
+## Stage 2 — the FULL flight-control stack on the SoC (estimator + TinyMPC → motor thrusts)
+
+Stage 1 ran the fused vision model on-SoC but let a **host** velocity controller (Isaac's Lee
+tracker) fly the platform. **Stage 2** moves the *entire* controller onto the guest: the on-SoC
+**EKF estimator + TinyMPC** consume the raw sensor suite and the fused model's `(yaw_rate,
+forward_speed)`, and output **4 per-rotor motor thrusts**. The Isaac side (`WarehouseThrustEnv`,
+`deploy/hephaestus/envs/warehouse_fused_nav/warehouse_thrust_env.py`, config
+`deploy/config/config_gym_WarehouseThrustEnv-v0.yaml`) serves the sensors + applies those thrusts
+via `MotorThrustAction` — replacing the host Lee tracker. Guest sample: `rose_fused_mpc`
+(zephyr-chipyard-sw). Estimator-driven (EKF), 200 Hz, RVV, freeze, real Isaac cameras, seed 1000.
+
+### Yaw root cause + fix (the Stage-2 headline)
+Forward/altitude/roll/pitch worked immediately, but **yaw never actuated** — the drone held its
+spawn heading (~99°) and drifted off the weaving gate line (1/4 gates). Root cause, found via a
+fast host-only prototype (`tools/host_control_proto/`):
+
+- **Plant bug:** `MotorThrustAction` applied the propeller-drag **yaw torque to the prop bodies**,
+  which are **free-spinning revolute-z joints** (`ImplicitActuatorCfg` stiffness=damping=0). A
+  z-torque on a free-z joint spins the prop, **not the frame** → the yaw reaction was lost → zero
+  base yaw actuation. (Forces transfer through the joints → roll/pitch/collective fly fine; only
+  the yaw z-torque was lost.) Stage-1's Lee controller applied its wrench — including yaw — to the
+  **base body**, which is why the same model flew 4/4 there.
+  **Fix:** sum the per-rotor drag torques and apply the total to the **base frame**
+  (`mdp_motor_thrust_action.py`; mirrored in `crazyflie_mpc_env.py`). Physically correct.
+- **Model mixing bug (secondary):** the committed TinyMPC `Bdyn` yaw rows used spin signs
+  `(+,−,−,+)` but the physical CRAZYFLIE spin is `(+,−,+,−)` (`m1:+,m2:−,m3:+,m4:−`, from the
+  asset joint_vel; m3,m4 were flipped). **Fix:** regenerate the params with the yaw mixing matched
+  to the plant spin + a boosted yaw-rate weight (`tools/host_control_proto/gen_strongyaw_params.py`
+  → `quadrotor_yawfix_params.hpp`). Host-validated: 99% weave-tracking, ±ε altitude.
+
+The params' "mixed" Adyn discretization (dt 0.005/0.01/0.02) is **benign** — it's the Rodrigues
+attitude parameterization (`ṙ=½ω`, `θ≈2r`), one consistent model at nominal dt=0.01. Running a
+100 Hz-generated gain at the 200 Hz loop is the intended, M2-validated "lower-rate-gain @ higher
+loop" pattern (not a mismatch to fix).
+
+### Honest status
+With the plant fix + yawfix params, **yaw now actuates and steers** on-SoC (real yaw differential
+in `u`, physical yaw follows the commands), altitude held, estimator-driven. Two yaw-command
+variants both pass **gate 1/4**: the body-relative offset (`err[5]=−yr·GAIN`, clamped) oscillates
+(bang-bang), while the faithful yaw-**rate** command (`setpoint[11]=yr`, the Stage-1-matching
+interface) is smoother and converges toward the gate-line heading — chosen as the deliverable.
+Both still miss gate 2: from the off-line 99° spawn the −x drift accumulates faster than the yaw
+converges, so the drone overshoots the gate line and crashes at the far wall (episode resets).
+Videos (pixel-diff-verified live): `m4_rate_{chase,fpv}.mp4` (final), `m4_bodyrel_{chase,fpv}.mp4`.
+
+### Open item + plan (option 2)
+Remaining gap is **yaw-loop convergence rate vs the −x drift**, a tuning problem (yaw angular-accel
+authority is ~10× roll/pitch in the model, so it aligns slower than Stage-1's full-authority Lee
+tracker). Plan: tune the yaw loop (smooth non-saturating convergence + a yaw-priority-vs-forward
+trade during the initial off-line correction) in the **fast host loop** (`host_quad_proto.py`,
+sub-second iterations), prove a config, then port to the co-sim for the final gate video.

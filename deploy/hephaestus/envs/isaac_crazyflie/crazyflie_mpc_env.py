@@ -431,11 +431,18 @@ class IsaacCrazyflieMPCEnv(gym.Env):
         torques = torch.zeros_like(forces)
         fz = torch.as_tensor(forces_z, dtype=forces.dtype, device=self.device)
         forces[0, :, 2] = fz
-        # propeller drag reaction about body z (alternating spin sign)
-        tz = torch.as_tensor(_SPIN_SIGN * _KM_OVER_KF, dtype=forces.dtype, device=self.device)
-        torques[0, :, 2] = tz * fz
         self.robot.permanent_wrench_composer.set_forces_and_torques(
-            forces=forces, torques=torques, body_ids=self._prop_ids,
+            forces=forces, torques=torch.zeros_like(forces), body_ids=self._prop_ids,
+        )
+        # propeller-drag YAW reaction -> apply the SUMMED torque to the BASE (frame), not the
+        # free-spinning revolute-z prop joints (a z-torque there spins the prop, never the frame).
+        # Physically correct (a real frame feels the drag reaction); for straight-line flight the
+        # net yaw torque is ~0 so this does not change the hallway env's existing results.
+        tz = torch.as_tensor(_SPIN_SIGN * _KM_OVER_KF, dtype=forces.dtype, device=self.device)
+        base_wr = torch.zeros(self.robot.num_instances, 1, 3, device=self.device)
+        base_wr[0, 0, 2] = (tz * fz).sum()
+        self.robot.permanent_wrench_composer.set_forces_and_torques(
+            forces=torch.zeros_like(base_wr), torques=base_wr, body_ids=[self._base_body_id],
         )
 
     def _apply_hard_ic(self, root_state):

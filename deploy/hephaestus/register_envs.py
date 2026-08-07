@@ -112,3 +112,11 @@ register(
     id='WarehouseFusedNavBridgeEnv-v0',
     entry_point='envs.warehouse_fused_nav.warehouse_fused_nav_env:WarehouseFusedNavBridgeEnv',
 )
+
+# Stage-2: the FULL flight-control stack (estimator + TinyMPC) runs ON the SoC guest, which
+# outputs 4 motor thrusts. This env serves the raw sensor suite + applies the guest's thrusts via
+# MotorThrustAction (replacing the host Lee tracker). Pair with config_gym_WarehouseThrustEnv-v0.yaml.
+register(
+    id='WarehouseThrustEnv-v0',
+    entry_point='envs.warehouse_fused_nav.warehouse_thrust_env:WarehouseThrustEnv',
+)

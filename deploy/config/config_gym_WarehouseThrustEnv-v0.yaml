@@ -1,0 +1,26 @@
+# Stage-2 co-sim: warehouse env with the on-SoC estimator+TinyMPC controller. Serves the RAW
+# sensor suite the nav guest reads (matches config_gym_IsaacCrazyflieMultiSensorEnv-v0.yaml +
+# the rose_nav_controller overlay bindings) and applies the guest's 4 MOTOR THRUSTS (0x20) via
+# MotorThrustAction (replacing the host Lee tracker). 1 env.step per received thrust command.
+gym_env: 'WarehouseThrustEnv-v0'
+gym_timestep: 0.005
+
+packets:
+  - {name: accel,     id: 0x12, type: reqrsp, latency: 0, channel: 2, indices: [accel]}
+  - {name: gyro,      id: 0x15, type: reqrsp, latency: 0, channel: 2, indices: [gyro]}
+  - {name: flow,      id: 0x13, type: reqrsp, latency: 0, channel: 1, indices: [flow]}
+  - {name: tof,       id: 0x14, type: reqrsp, latency: 0, channel: 1, indices: [tof]}
+  - {name: tof_front, id: 0x30, type: reqrsp, latency: 0, channel: 1, indices: [front]}
+  - {name: tof_right, id: 0x31, type: reqrsp, latency: 0, channel: 2, indices: [right]}
+  - {name: tof_back,  id: 0x32, type: reqrsp, latency: 0, channel: 1, indices: [back]}
+  - {name: tof_left,  id: 0x33, type: reqrsp, latency: 0, channel: 2, indices: [left]}
+  - {name: state,     id: 0x16, type: reqrsp, latency: 0, channel: 1, indices: [state]}
+  - {name: cam_front, id: 0x11, type: dma,    channel: 0, indices: [cam_front]}
+  - {name: tof_cross, id: 0x41, type: reqrsp, latency: 0, channel: 1, indices: [tof_cross]}
+  - {name: lowdim,    id: 0x42, type: reqrsp, latency: 0, channel: 2, indices: [lowdim]}
+  - {name: thrust,    id: 0x20, type: action_latch, indices: null}
+
+channel_bandwidth: [[0, 0, 0]]
+gym_kwargs: {}
+n_gym_agents: 1
+n_fsim_nodes: 1
