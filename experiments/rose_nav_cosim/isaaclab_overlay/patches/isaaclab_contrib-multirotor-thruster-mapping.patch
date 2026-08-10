@@ -1,0 +1,22 @@
+diff --git a/source/isaaclab_contrib/isaaclab_contrib/assets/multirotor/multirotor.py b/source/isaaclab_contrib/isaaclab_contrib/assets/multirotor/multirotor.py
+index 6f8800c3221..3c6e0142f83 100644
+--- a/source/isaaclab_contrib/isaaclab_contrib/assets/multirotor/multirotor.py
++++ b/source/isaaclab_contrib/isaaclab_contrib/assets/multirotor/multirotor.py
+@@ -416,7 +416,7 @@ class Multirotor(Articulation):
+ 
+             # Create 0-based thruster array indices starting from current count
+             start_idx = len(all_thruster_names)
+-            thruster_array_indices = list(range(start_idx, start_idx + len(body_indices)))
++            thruster_array_indices = torch.arange(start_idx, start_idx + len(body_indices), device=self.device, dtype=torch.long)
+ 
+             # Track all thruster names
+             all_thruster_names.extend(thruster_names)
+@@ -424,7 +424,7 @@ class Multirotor(Articulation):
+             # Store the mapping
+             self._thruster_body_mapping[actuator_name] = {
+                 "body_indices": body_indices,
+-                "array_indices": thruster_array_indices,
++                "array_indices": thruster_array_indices.tolist() if isinstance(thruster_array_indices, torch.Tensor) else thruster_array_indices,
+                 "thruster_names": thruster_names,
+             }
+ 

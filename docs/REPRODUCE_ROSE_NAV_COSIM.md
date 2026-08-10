@@ -35,10 +35,22 @@ install/point at them once. (All were pre-validated for this experiment; see the
 memory notes for the exact provenance.)
 
 **Prereq A — IsaacLab + `env_isaaclab` conda env** (the Isaac side).
-- IsaacLab checkout (reference: `/scratch2/dima/IsaacLab`).
-- conda env `env_isaaclab` with Isaac Sim (reference python: `/scratch2/dima/miniforge3/envs/env_isaaclab/bin/python`).
+- **Now pinned + automated + partly validated** — see [`REPRODUCE_ISAACLAB.md`](REPRODUCE_ISAACLAB.md)
+  and the tracked overlay [`../experiments/rose_nav_cosim/isaaclab_overlay/`](../experiments/rose_nav_cosim/isaaclab_overlay/).
+- IsaacLab is a **clean checkout** of `isaac-sim/IsaacLab` @ `4df6560e187…` (v2.3.2);
+  Isaac Sim **5.1.0.0** (PyPI wheels), Python 3.11.15, torch 2.7.0+cu128. Full manifest:
+  `isaaclab_overlay/pip_freeze_isaaclab.txt` + `environment_isaaclab.yml`.
 - Our warehouse gate task lives in-tree at `soc/sw/xpu-rt/sims/isaaclab_tasks/warehouse_nav/`
-  and the bridge env at `deploy/hephaestus/envs/warehouse_fused_nav/warehouse_thrust_env.py`.
+  (imported as the `sims.isaaclab_tasks` package via `PYTHONPATH`, **not** copied into
+  IsaacLab), and the bridge env at `deploy/hephaestus/envs/warehouse_fused_nav/warehouse_thrust_env.py`.
+  The only untracked delta inside the IsaacLab tree (a 2-line multirotor fix + a demo)
+  is captured in the overlay.
+- Reproduce: `SCRATCH_BASE=/scratch2/$USER bash experiments/rose_nav_cosim/setup_isaaclab.sh`
+  (clones the pinned IsaacLab, builds `env_isaaclab`, applies the overlay, runs a
+  GPU-free registration check). Isaac Sim install is a multi-GB external download.
+- **Validated (no GPU):** the co-sim gym ids register in `env_isaaclab`
+  (`isaaclab_overlay/check_registration.py` → PASS). **Deferred to a GPU box:** a
+  clean-machine `setup_isaaclab.sh` run and any `gym.make()`/Isaac Sim session.
 - See memory `rose-isaac-cosim-flow` and `docs/ROSE_ISAAC_COSIM_FLOW.md`.
 
 **Prereq B — Zephyr / RISC-V toolchain bootstrap** (the guest side).

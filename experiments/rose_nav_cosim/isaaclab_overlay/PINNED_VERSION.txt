@@ -1,0 +1,19 @@
+# Pinned upstream IsaacLab / Isaac Sim versions for the RoSE nav co-sim
+# (captured from the validated install at /scratch2/dima/IsaacLab, 2026-08-10)
+
+IsaacLab repo   : git@github.com:isaac-sim/IsaacLab.git  (https://github.com/isaac-sim/IsaacLab.git)
+IsaacLab branch : main
+IsaacLab commit : 4df6560e187f2cc66685b41b21b259f4485d0c22
+IsaacLab VERSION: 2.3.2
+
+Isaac Sim       : 5.1.0.0   (installed as pip wheels: isaacsim==5.1.0.0 + isaacsim-* extensions)
+Python          : 3.11.15
+torch           : 2.7.0+cu128
+gymnasium       : 1.2.1
+rsl-rl-lib      : 5.0.1
+warp-lang       : 1.12.1
+
+# The full authoritative package manifest is pip_freeze_isaaclab.txt (pip, 260 pkgs)
+# and environment_isaaclab.yml (conda export). Isaac Sim is installed from PyPI wheels,
+# NOT from a nucleus/omniverse-launcher install, so `pip install isaacsim==5.1.0.0 ...`
+# reproduces it (multi-GB download; see setup_isaaclab.sh).
