@@ -1,0 +1,4 @@
+# Build + run outputs (regenerable; not committed)
+build_guest/
+run_out/
+regen_work/

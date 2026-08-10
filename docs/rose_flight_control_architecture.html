@@ -1,0 +1,322 @@
+<style>
+  :root {
+    --bg:#0e1319; --panel:#151d27; --panel-2:#1b2531; --ink:#e8eef4; --muted:#93a2b4;
+    --line:#2b3644; --accent:#ffb03a;
+    --sense:#39c0d2; --estimate:#a98bff; --vision:#ffb03a; --control:#4fcb8b; --actuate:#ff7d6b;
+    --sim:#6ea3ff; --bridge:#93a2b4;
+    --soc-wash:rgba(255,176,58,.05); --sim-wash:rgba(110,163,255,.05);
+    --mono:ui-monospace,"Cascadia Code","JetBrains Mono","SF Mono",Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg:#eef1f5; --panel:#ffffff; --panel-2:#f3f6fa; --ink:#141b23; --muted:#566475;
+      --line:#d2dae3; --accent:#c9800a;
+      --sense:#0d8ca0; --estimate:#6b4fd0; --vision:#c07500; --control:#1a9c5d; --actuate:#d5473a;
+      --sim:#3a6fd0; --bridge:#64717f;
+      --soc-wash:rgba(201,128,10,.05); --sim-wash:rgba(58,111,208,.05);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0e1319; --panel:#151d27; --panel-2:#1b2531; --ink:#e8eef4; --muted:#93a2b4;
+    --line:#2b3644; --accent:#ffb03a;
+    --sense:#39c0d2; --estimate:#a98bff; --vision:#ffb03a; --control:#4fcb8b; --actuate:#ff7d6b;
+    --sim:#6ea3ff; --bridge:#93a2b4; --soc-wash:rgba(255,176,58,.05); --sim-wash:rgba(110,163,255,.05);
+  }
+  :root[data-theme="light"]{
+    --bg:#eef1f5; --panel:#ffffff; --panel-2:#f3f6fa; --ink:#141b23; --muted:#566475;
+    --line:#d2dae3; --accent:#c9800a;
+    --sense:#0d8ca0; --estimate:#6b4fd0; --vision:#c07500; --control:#1a9c5d; --actuate:#d5473a;
+    --sim:#3a6fd0; --bridge:#64717f; --soc-wash:rgba(201,128,10,.05); --sim-wash:rgba(58,111,208,.05);
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0}
+  .wrap{
+    background:var(--bg); color:var(--ink); font-family:var(--sans);
+    min-height:100vh; padding:48px 24px 72px; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .col{max-width:1060px; margin:0 auto}
+
+  .eyebrow{
+    font-family:var(--mono); font-size:12px; letter-spacing:.22em; text-transform:uppercase;
+    color:var(--accent); margin:0 0 14px;
+  }
+  h1{
+    font-family:var(--mono); font-weight:650; font-size:clamp(26px,4.2vw,40px);
+    line-height:1.12; letter-spacing:-.01em; margin:0 0 16px; text-wrap:balance;
+  }
+  .lede{font-size:clamp(16px,2vw,18.5px); color:var(--muted); max-width:64ch; margin:0 0 26px}
+  .lede b{color:var(--ink); font-weight:600}
+
+  .chips{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 40px}
+  .chip{
+    font-family:var(--mono); font-size:12.5px; color:var(--ink);
+    background:var(--panel); border:1px solid var(--line); border-radius:6px;
+    padding:6px 11px; display:inline-flex; align-items:center; gap:7px;
+  }
+  .chip i{width:8px; height:8px; border-radius:50%; display:inline-block; font-style:normal}
+
+  figure{margin:0 0 14px}
+  .figframe{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:20px; overflow-x:auto;
+  }
+  svg{display:block; width:100%; height:auto; min-width:720px; color:var(--muted)}
+  figcaption{font-size:14px; color:var(--muted); margin-top:14px; max-width:74ch}
+  figcaption b{color:var(--ink); font-weight:600}
+
+  /* svg element theming via classes */
+  .panel-soc{fill:var(--soc-wash); stroke:var(--line)}
+  .panel-sim{fill:var(--sim-wash); stroke:var(--line)}
+  .panel-bridge{fill:var(--panel-2); stroke:var(--line)}
+  .blk{fill:var(--panel); stroke-width:1.6}
+  .blk-dash{fill:var(--panel); stroke-width:1.6; stroke-dasharray:5 4}
+  .t-title{font-family:var(--mono); font-weight:600; fill:var(--ink)}
+  .t-sub{font-family:var(--mono); fill:var(--muted)}
+  .t-hdr{font-family:var(--mono); font-weight:600; letter-spacing:.12em}
+  .t-rate{font-family:var(--mono); font-weight:600}
+  .t-edge{font-family:var(--mono); fill:var(--muted)}
+  .flow{fill:none; stroke-width:2}
+  .flow-soc{stroke:var(--accent)}
+  .grid-int{stroke:var(--line); stroke-width:1.4; fill:none}
+
+  h2{
+    font-family:var(--mono); font-size:13px; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--muted); margin:52px 0 18px; padding-bottom:10px; border-bottom:1px solid var(--line);
+  }
+
+  .tablewrap{overflow-x:auto; border:1px solid var(--line); border-radius:10px}
+  table{border-collapse:collapse; width:100%; font-size:14px; min-width:640px}
+  th,td{text-align:left; padding:11px 15px; border-bottom:1px solid var(--line)}
+  thead th{
+    font-family:var(--mono); font-size:11.5px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--muted); font-weight:600; background:var(--panel-2);
+  }
+  tbody tr:last-child td{border-bottom:none}
+  td code, .mono{font-family:var(--mono); font-size:13px}
+  td .dir{font-family:var(--mono); font-size:12px; color:var(--accent)}
+  .fmt{color:var(--muted)}
+
+  .stages{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px}
+  .stage{
+    background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px 17px;
+    border-top:3px solid var(--sc, var(--accent));
+  }
+  .stage .k{font-family:var(--mono); font-size:11.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--sc, var(--accent)); margin:0 0 4px}
+  .stage h3{margin:0 0 8px; font-size:16px; font-family:var(--mono); font-weight:600}
+  .stage p{margin:0; font-size:13.5px; color:var(--muted)}
+  .stage .rate{font-family:var(--mono); font-size:12px; color:var(--ink); margin-top:10px; display:inline-block; border:1px solid var(--line); border-radius:5px; padding:2px 8px}
+
+  .fixes{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:14px}
+  .fix{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px 18px}
+  .fix h3{margin:0 0 8px; font-size:14.5px; display:flex; gap:9px; align-items:baseline}
+  .fix h3 .n{font-family:var(--mono); color:var(--accent); font-size:13px}
+  .fix p{margin:0; font-size:13.5px; color:var(--muted)}
+  .fix p b{color:var(--ink); font-weight:600}
+
+  .note{
+    margin-top:44px; padding:18px 20px; background:var(--panel); border:1px solid var(--line);
+    border-left:3px solid var(--accent); border-radius:8px; font-size:14px; color:var(--muted);
+  }
+  .note b{color:var(--ink)}
+  .foot{margin-top:40px; padding-top:20px; border-top:1px solid var(--line); font-family:var(--mono); font-size:12px; color:var(--muted); display:flex; flex-wrap:wrap; gap:6px 20px}
+  a{color:var(--accent)}
+</style>
+
+<div class="wrap">
+<div class="col">
+
+  <p class="eyebrow">RoSE ↔ IsaacLab · spike-in-the-loop co-simulation</p>
+  <h1>On-SoC flight-control architecture</h1>
+  <p class="lede">The whole flight stack — <b>sensing, EKF state estimation, the fused vision policy, and TinyMPC control</b> — runs on the simulated RISC-V SoC (spike). It steps in lockstep with the IsaacLab warehouse gate scene, consuming sensors and returning four motor thrusts. This is the loop that flies the course.</p>
+
+  <div class="chips">
+    <span class="chip"><i style="background:var(--control)"></i>200 Hz control loop</span>
+    <span class="chip"><i style="background:var(--vision)"></i>20 Hz vision (ZOH)</span>
+    <span class="chip"><i style="background:var(--estimate)"></i>EKF-driven — no ground truth</span>
+    <span class="chip"><i style="background:var(--sense)"></i>rv64gcv RVV kernels</span>
+    <span class="chip"><i style="background:var(--actuate)"></i>4 motor thrusts out</span>
+  </div>
+
+  <figure>
+    <div class="figframe">
+      <svg viewBox="0 0 1040 720" role="img" aria-label="Closed-loop diagram: the IsaacLab warehouse plant sends sensors across the RoSE lockstep bridge to the on-SoC guest, whose 200 Hz control loop runs sense, EKF estimate, a 20 Hz fused-vision stage, and TinyMPC, returning four motor thrusts that IsaacLab applies as per-rotor forces plus base-frame yaw torque before stepping physics once.">
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/>
+          </marker>
+          <marker id="ahn" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/>
+          </marker>
+        </defs>
+
+        <!-- ===== panels ===== -->
+        <rect class="panel-soc" x="34" y="86" width="392" height="606" rx="12"/>
+        <rect class="panel-bridge" x="452" y="86" width="136" height="606" rx="12"/>
+        <rect class="panel-sim" x="614" y="86" width="392" height="606" rx="12"/>
+
+        <text class="t-hdr" x="54" y="70" font-size="13" fill="var(--accent)">SoC GUEST · spike (rv64gcv)</text>
+        <text class="t-hdr" x="470" y="70" font-size="12" fill="var(--bridge)">RoSE BRIDGE</text>
+        <text class="t-hdr" x="634" y="70" font-size="13" fill="var(--sim)">ISAACLAB · warehouse gates</text>
+
+        <!-- ===== SoC stages ===== -->
+        <!-- SENSE -->
+        <rect class="blk" x="62" y="104" width="336" height="78" rx="8" stroke="var(--sense)"/>
+        <text class="t-title" x="80" y="130" font-size="15">SENSE  ·  read_nav_frame()</text>
+        <text class="t-sub" x="80" y="150" font-size="12">accel · gyro · optical-flow · down-ToF</text>
+        <text class="t-sub" x="80" y="168" font-size="12">reqrsp / DMA over the bridge</text>
+        <text class="t-rate" x="372" y="124" font-size="11.5" text-anchor="end" fill="var(--sense)">200 Hz</text>
+
+        <!-- ESTIMATE -->
+        <rect class="blk" x="62" y="212" width="336" height="86" rx="8" stroke="var(--estimate)"/>
+        <text class="t-title" x="80" y="238" font-size="15">ESTIMATE  ·  EKF</text>
+        <text class="t-sub" x="80" y="258" font-size="12">Mahony attitude + per-axis Kalman</text>
+        <text class="t-sub" x="80" y="276" font-size="12">→ 12-state x̂ · z init from ToF, yaw seeded</text>
+        <text class="t-rate" x="372" y="232" font-size="11.5" text-anchor="end" fill="var(--estimate)">200 Hz</text>
+
+        <!-- VISION -->
+        <rect class="blk-dash" x="62" y="328" width="336" height="96" rx="8" stroke="var(--vision)"/>
+        <text class="t-title" x="80" y="354" font-size="15">VISION  ·  fused policy (RVV)</text>
+        <text class="t-sub" x="80" y="374" font-size="12">front_grey int8 + tof_cross int8 + lowdim fp16</text>
+        <text class="t-sub" x="80" y="392" font-size="12">int8 encoders + fp16 LSTM tail</text>
+        <text class="t-sub" x="80" y="410" font-size="12">→ (yaw_rate, forward_speed) · ZOH</text>
+        <text class="t-rate" x="372" y="348" font-size="11.5" text-anchor="end" fill="var(--vision)">20 Hz</text>
+
+        <!-- CONTROL -->
+        <rect class="blk" x="62" y="454" width="336" height="96" rx="8" stroke="var(--control)"/>
+        <text class="t-title" x="80" y="480" font-size="15">CONTROL  ·  TinyMPC</text>
+        <text class="t-sub" x="80" y="500" font-size="12">body-frame velocity + yaw-rate setpoint</text>
+        <text class="t-sub" x="80" y="518" font-size="12">alignment gate · altitude hold 2.0 m</text>
+        <text class="t-sub" x="80" y="536" font-size="12">→ 4 rotor thrusts u (clamped)</text>
+        <text class="t-rate" x="372" y="474" font-size="11.5" text-anchor="end" fill="var(--control)">200 Hz</text>
+
+        <!-- ACTUATE -->
+        <rect class="blk" x="62" y="580" width="336" height="70" rx="8" stroke="var(--actuate)"/>
+        <text class="t-title" x="80" y="606" font-size="15">ACTUATE  ·  send_control()</text>
+        <text class="t-sub" x="80" y="626" font-size="12">thrusts u[4] → bridge (cmd 0x20)</text>
+        <text class="t-rate" x="372" y="600" font-size="11.5" text-anchor="end" fill="var(--actuate)">200 Hz</text>
+
+        <!-- internal spine arrows -->
+        <path class="flow flow-soc" d="M230,182 L230,210" marker-end="url(#ah)"/>
+        <path class="flow flow-soc" d="M230,298 L230,326" marker-end="url(#ah)"/>
+        <path class="flow flow-soc" d="M230,424 L230,452" marker-end="url(#ah)"/>
+        <path class="flow flow-soc" d="M230,550 L230,578" marker-end="url(#ah)"/>
+        <!-- estimate -> control (state bypass), curved on the right -->
+        <path class="grid-int" d="M398,255 C438,255 438,500 400,500" marker-end="url(#ahn)"/>
+        <text class="t-edge" x="444" y="380" font-size="11" transform="rotate(90 444 380)">12-state x̂</text>
+
+        <!-- ===== bridge channel ===== -->
+        <text class="t-sub" x="520" y="360" font-size="11.5" text-anchor="middle" transform="rotate(-90 520 360)" fill="var(--bridge)">cycle-accurate lockstep · freeze seam</text>
+
+        <!-- sensors: Isaac -> SoC (top) -->
+        <path class="flow" stroke="var(--sim)" d="M612,140 L400,140" marker-end="url(#ahn)"/>
+        <text class="t-edge" x="506" y="128" font-size="11.5" text-anchor="middle" fill="var(--sim)">sensors →</text>
+        <!-- thrusts: SoC -> Isaac (bottom) -->
+        <path class="flow flow-soc" d="M400,614 L612,470" marker-end="url(#ah)"/>
+        <text class="t-edge" x="506" y="560" font-size="11.5" text-anchor="middle" fill="var(--accent)">u[4] · 0x20 →</text>
+
+        <!-- ===== Isaac blocks ===== -->
+        <rect class="blk" x="640" y="112" width="340" height="96" rx="8" stroke="var(--sim)"/>
+        <text class="t-title" x="658" y="138" font-size="15">SCENE + SENSOR MODEL</text>
+        <text class="t-sub" x="658" y="158" font-size="12">PhysX rigid body · FPV + cross-ToF cameras</text>
+        <text class="t-sub" x="658" y="176" font-size="12">pre-quantizes vision inputs to host ref</text>
+        <text class="t-sub" x="658" y="194" font-size="12">seed 1000 spawn · gate centers z = 2.0 m</text>
+
+        <rect class="blk" x="640" y="300" width="340" height="92" rx="8" stroke="var(--actuate)"/>
+        <text class="t-title" x="658" y="326" font-size="15">MotorThrustAction</text>
+        <text class="t-sub" x="658" y="346" font-size="12">u → per-rotor force  (u+0.583)·0.145 N</text>
+        <text class="t-sub" x="658" y="364" font-size="12">+ propeller-drag yaw torque</text>
+        <text class="t-sub" x="658" y="382" font-size="12">applied to the BASE frame (not props)</text>
+
+        <rect class="blk" x="640" y="470" width="340" height="80" rx="8" stroke="var(--sim)"/>
+        <text class="t-title" x="658" y="496" font-size="15">FREEZE-SEAM STEP</text>
+        <text class="t-sub" x="658" y="516" font-size="12">advance physics exactly once per thrust cmd</text>
+        <text class="t-sub" x="658" y="534" font-size="12">1 : 1 sensors → command → step</text>
+
+        <!-- Isaac internal loop: action -> step -> scene -->
+        <path class="flow flow-soc" d="M810,392 L810,468" marker-end="url(#ah)"/>
+        <path class="grid-int" d="M978,510 C1006,510 1006,160 982,160" marker-end="url(#ahn)"/>
+        <text class="t-edge" x="1012" y="335" font-size="11" transform="rotate(90 1012 335)">next frame</text>
+      </svg>
+    </div>
+    <figcaption><b>The closed control loop.</b> IsaacLab serves sensors across the RoSE lockstep bridge; the on-SoC 200 Hz loop senses, estimates (EKF), runs the fused vision policy at 20 Hz (zero-order-held between updates), and solves TinyMPC to four motor thrusts, which IsaacLab applies as per-rotor forces plus a base-frame yaw torque before advancing physics one step. Solid arrows are the actively-flying signal path; the thin curves are the state bypass and the plant's own frame-to-frame recurrence.</figcaption>
+  </figure>
+
+  <h2>Wire contract — what crosses the bridge each cycle</h2>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Signal</th><th>Dir</th><th>Cmd</th><th>Transport</th><th>Format</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">front_grey</td><td><span class="dir">Isaac → SoC</span></td><td><code>0x11</code></td><td>DMA ch0</td><td class="fmt">int8[5400] · 60×90</td></tr>
+        <tr><td class="mono">tof_cross</td><td><span class="dir">Isaac → SoC</span></td><td><code>0x41</code></td><td>reqrsp</td><td class="fmt">int8[256]</td></tr>
+        <tr><td class="mono">lowdim + desired_vel</td><td><span class="dir">Isaac → SoC</span></td><td><code>0x42</code></td><td>reqrsp</td><td class="fmt">fp16[21] · EKF quat inserted</td></tr>
+        <tr><td class="mono">accel · gyro · flow · down-ToF</td><td><span class="dir">Isaac → SoC</span></td><td><code>0x12–15</code></td><td>reqrsp</td><td class="fmt">raw flight sensors → EKF</td></tr>
+        <tr><td class="mono">motor thrusts u[4]</td><td><span class="dir">SoC → Isaac</span></td><td><code>0x20</code></td><td>action</td><td class="fmt">f32[4] → MotorThrustAction</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>The pipeline, stage by stage</h2>
+  <div class="stages">
+    <div class="stage" style="--sc:var(--sense)">
+      <p class="k">Sensing</p><h3>read_nav_frame</h3>
+      <p>Pulls accel, gyro, optical-flow and downward-ToF from IsaacLab over the bridge each tick — the same reads the real riskybird firmware makes from its IMU / flow / ToF drivers.</p>
+      <span class="rate">200 Hz</span>
+    </div>
+    <div class="stage" style="--sc:var(--estimate)">
+      <p class="k">State estimation</p><h3>EKF</h3>
+      <p>Mahony attitude filter (gyro + accel) plus a per-axis Kalman filter fusing flow-velocity and ToF-altitude into a 12-state estimate. Altitude initialized from the first ToF; heading seeded once at takeoff.</p>
+      <span class="rate">200 Hz</span>
+    </div>
+    <div class="stage" style="--sc:var(--vision)">
+      <p class="k">Vision policy</p><h3>fused model</h3>
+      <p>int8 per-channel convolutional encoders + an fp16 LSTM tail on curated RVV kernels, over the FPV frame, cross-ToF and low-dim state → a (yaw-rate, forward-speed) command, held between runs.</p>
+      <span class="rate">20 Hz · ZOH</span>
+    </div>
+    <div class="stage" style="--sc:var(--control)">
+      <p class="k">Control</p><h3>TinyMPC</h3>
+      <p>Derotates the EKF velocity into the body-heading frame, applies the vision command as a body-frame velocity + yaw-rate setpoint with an alignment gate and altitude hold, and solves for four clamped rotor thrusts.</p>
+      <span class="rate">200 Hz</span>
+    </div>
+    <div class="stage" style="--sc:var(--actuate)">
+      <p class="k">Actuation</p><h3>send_control</h3>
+      <p>Emits the four thrusts back over the bridge. IsaacLab converts each to a per-rotor force and sums the propeller-drag yaw torque onto the airframe, then steps physics once.</p>
+      <span class="rate">200 Hz</span>
+    </div>
+  </div>
+
+  <h2>Four fixes that made it fly the course</h2>
+  <div class="fixes">
+    <div class="fix">
+      <h3><span class="n">01</span> Yaw torque to the airframe</h3>
+      <p>Propeller-drag yaw torque was being applied to the free-spinning prop bodies, where it vanished. <b>Summing it onto the base frame</b> gave the controller real yaw authority.</p>
+    </div>
+    <div class="fix">
+      <h3><span class="n">02</span> Fly at the trained altitude</h3>
+      <p>A relative spawn range put the drone at ~2.5 m — 0.5 m above the gate centerline, off-distribution. <b>Holding target z = 2.0 m</b> put every gate back in the camera frame.</p>
+    </div>
+    <div class="fix">
+      <h3><span class="n">03</span> Vision at 20 Hz</h3>
+      <p>The policy was schedule-capped at 10 Hz, not compute-bound. <b>Running it every 10th tick (20 Hz)</b> — free on the current SoC — halved the between-gate steering lag.</p>
+    </div>
+    <div class="fix">
+      <h3><span class="n">04</span> Body-frame velocity feedback</h3>
+      <p>The EKF reports world-frame velocity but the model is body-linearized; feeding one into the other made the drone crab. <b>Derotating the feedback into the heading frame</b> turned yaw into coordinated turns.</p>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>Concurrency model.</b> The flown gate configuration is a single cooperative 200 Hz control loop — sense → estimate → vision → control → actuate run sequentially each tick, with the vision policy invoked inline every 10th tick and its command zero-order-held in between. The guest also ships a threaded producer/consumer variant (a high-priority control thread plus a preemptible low-priority vision thread, the DroNet pattern) for when inference must overlap control; the fused-nav course uses the inline single loop.
+  </div>
+
+  <div class="foot">
+    <span>result: controlled 3 / 4 gates</span>
+    <span>estimator-driven · seed 1000</span>
+    <span>guest: rose_fused_mpc</span>
+    <span>spike ISA: rv64gcv_zicntr_zihpm_zfh_zvfh</span>
+  </div>
+
+</div>
+</div>

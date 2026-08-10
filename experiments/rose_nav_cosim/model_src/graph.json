@@ -1,0 +1,941 @@
+{
+  "name": "fused_full",
+  "version": 1,
+  "quant": "int8",
+  "input": {
+    "tensors": [
+      "front_grey",
+      "tof_cross",
+      "lowdim"
+    ],
+    "tensor": null
+  },
+  "output": {
+    "tensors": [
+      "head"
+    ],
+    "tensor": "head"
+  },
+  "tensors": {
+    "front_grey": {
+      "shape": [
+        1,
+        1,
+        60,
+        90
+      ],
+      "dtype": "i8",
+      "quant": {
+        "scale": 0.007683348467969519,
+        "zero_point": 0
+      }
+    },
+    "tof_cross": {
+      "shape": [
+        1,
+        4,
+        8,
+        8
+      ],
+      "dtype": "i8",
+      "quant": {
+        "scale": 0.007874015748031496,
+        "zero_point": 0
+      }
+    },
+    "lowdim": {
+      "shape": [
+        1,
+        21
+      ],
+      "dtype": "f16",
+      "quant": {
+        "scale": 2.6205295352485236,
+        "zero_point": 0
+      }
+    },
+    "vision_cnn_0": {
+      "shape": [
+        1,
+        16,
+        30,
+        45
+      ],
+      "dtype": "i8",
+      "quant": {
+        "scale": 0.009221509685666542,
+        "zero_point": 0
+      }
+    },
+    "vision_cnn_1": {
+      "shape": [
+        1,
+        16,
+        30,
+        45
+      ],
+      "dtype": "i8",
+      "quant": {
+        "scale": 0.009221509685666542,
+        "zero_point": 0
+      }
+    },
+    "vision_cnn_2": {
+      "shape": [
+        1,
+        32,
+        15,
+        23
+      ],
+      "dtype": "i8",
+      "quant": {
+        "scale": 0.016812861435056673,
+        "zero_point": 0
+      }
+    },
+    "vision_cnn_3": {
+      "shape": [
+        1,
+        32,
+        15,
+        23
+      ],
+      "dtype": "i8",
+      "quant": {
+        "scale": 0.016812861435056673,
+        "zero_point": 0
+      }
+    },
+    "vision_cnn_4": {
+      "shape": [
+        1,
+        64,
+        8,
+        12
+      ],
+      "dtype": "i8",
+      "quant": {
+        "scale": 0.02709545676163801,
+        "zero_point": 0
+      }
+    },
+    "vision_cnn_5": {
+      "shape": [
+        1,
+        64,
+        8,
+        12
+      ],
+      "dtype": "i8",
+      "quant": {
+        "scale": 0.02709545676163801,
+        "zero_point": 0
+      }
+    },
+    "vision_cnn_6": {
+      "shape": [
+        1,
+        64,
+        4,
+        6
+      ],
+      "dtype": "i8",
+      "quant": {
+        "scale": 0.020152685210460753,
+        "zero_point": 0
+      }
+    },
+    "vision_cnn_7": {
+      "shape": [
+        1,
+        64,
+        4,
+        6
+      ],
+      "dtype": "i8",
+      "quant": {
+        "scale": 0.020152685210460753,
+        "zero_point": 0
+      }
+    },
+    "flatten": {
+      "shape": [
+        1,
+        1536
+      ],
+      "dtype": "i8",
+      "quant": {
+        "scale": 0.008873706727515994,
+        "zero_point": 0
+      }
+    },
+    "vision_fc": {
+      "shape": [
+        1,
+        512
+      ],
+      "dtype": "f16",
+      "quant": null
+    },
+    "depth_conv_0": {
+      "shape": [
+        1,
+        16,
+        8,
+        8
+      ],
+      "dtype": "i8",
+      "quant": {
+        "scale": 0.015104933986513634,
+        "zero_point": 0
+      }
+    },
+    "depth_conv_1": {
+      "shape": [
+        1,
+        16,
+        8,
+        8
+      ],
+      "dtype": "i8",
+      "quant": {
+        "scale": 0.015104933986513634,
+        "zero_point": 0
+      }
+    },
+    "depth_conv_2": {
+      "shape": [
+        1,
+        16,
+        8,
+        8
+      ],
+      "dtype": "i8",
+      "quant": {
+        "scale": 0.006175575763221801,
+        "zero_point": 0
+      }
+    },
+    "depth_conv_3": {
+      "shape": [
+        1,
+        16,
+        8,
+        8
+      ],
+      "dtype": "i8",
+      "quant": {
+        "scale": 0.006175575763221801,
+        "zero_point": 0
+      }
+    },
+    "flatten_1": {
+      "shape": [
+        1,
+        1024
+      ],
+      "dtype": "i8",
+      "quant": {
+        "scale": 0.002843392880882804,
+        "zero_point": 0
+      }
+    },
+    "depth_fc": {
+      "shape": [
+        1,
+        64
+      ],
+      "dtype": "f16",
+      "quant": null
+    },
+    "cat": {
+      "shape": [
+        1,
+        597
+      ],
+      "dtype": "f16",
+      "quant": null
+    },
+    "lstm_h_l0": {
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "f16",
+      "quant": null
+    },
+    "lstm_c_l0": {
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "f16",
+      "quant": null
+    },
+    "lstm_out_l0": {
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "f16",
+      "quant": null
+    },
+    "lstm_h_l1": {
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "f16",
+      "quant": null
+    },
+    "lstm_c_l1": {
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "f16",
+      "quant": null
+    },
+    "lstm_out_l1": {
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "f16",
+      "quant": null
+    },
+    "lstm_h_l2": {
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "f16",
+      "quant": null
+    },
+    "lstm_c_l2": {
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "f16",
+      "quant": null
+    },
+    "getitem": {
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "f16",
+      "quant": null
+    },
+    "head": {
+      "shape": [
+        1,
+        2
+      ],
+      "dtype": "f16",
+      "quant": null
+    },
+    "flatten__cast_f16": {
+      "shape": [
+        1,
+        1536
+      ],
+      "dtype": "f16",
+      "quant": null
+    },
+    "flatten_1__cast_f16": {
+      "shape": [
+        1,
+        1024
+      ],
+      "dtype": "f16",
+      "quant": null
+    }
+  },
+  "ops": [
+    {
+      "name": "vision_cnn.0",
+      "op": "conv2d_s8_pc",
+      "inputs": [
+        "front_grey"
+      ],
+      "outputs": [
+        "vision_cnn_1"
+      ],
+      "weight": "vision_cnn.0.weight_q",
+      "bias": "vision_cnn.0.bias_q",
+      "shape": {
+        "N": 1,
+        "IC": 1,
+        "IH": 60,
+        "IW": 90,
+        "OC": 16,
+        "OH": 30,
+        "OW": 45,
+        "KH": 5,
+        "KW": 5,
+        "SH": 2,
+        "SW": 2,
+        "PH": 2,
+        "PW": 2
+      },
+      "quant": {
+        "input_offset": 0,
+        "filter_offset": 0,
+        "output_offset": 0,
+        "activation_min": 0,
+        "activation_max": 127,
+        "output_multiplier_per_oc_key": "vision_cnn.0.output_multiplier_per_oc",
+        "output_shift_per_oc_key": "vision_cnn.0.output_shift_per_oc"
+      },
+      "precision": "int8",
+      "dispatch_id": 0,
+      "hardware_target": "any",
+      "depends_on": []
+    },
+    {
+      "name": "vision_cnn.2",
+      "op": "conv2d_s8_pc",
+      "inputs": [
+        "vision_cnn_1"
+      ],
+      "outputs": [
+        "vision_cnn_3"
+      ],
+      "weight": "vision_cnn.2.weight_q",
+      "bias": "vision_cnn.2.bias_q",
+      "shape": {
+        "N": 1,
+        "IC": 16,
+        "IH": 30,
+        "IW": 45,
+        "OC": 32,
+        "OH": 15,
+        "OW": 23,
+        "KH": 3,
+        "KW": 3,
+        "SH": 2,
+        "SW": 2,
+        "PH": 1,
+        "PW": 1
+      },
+      "quant": {
+        "input_offset": 0,
+        "filter_offset": 0,
+        "output_offset": 0,
+        "activation_min": 0,
+        "activation_max": 127,
+        "output_multiplier_per_oc_key": "vision_cnn.2.output_multiplier_per_oc",
+        "output_shift_per_oc_key": "vision_cnn.2.output_shift_per_oc"
+      },
+      "precision": "int8",
+      "dispatch_id": 1,
+      "hardware_target": "any",
+      "depends_on": [
+        0
+      ]
+    },
+    {
+      "name": "vision_cnn.4",
+      "op": "conv2d_s8_pc",
+      "inputs": [
+        "vision_cnn_3"
+      ],
+      "outputs": [
+        "vision_cnn_5"
+      ],
+      "weight": "vision_cnn.4.weight_q",
+      "bias": "vision_cnn.4.bias_q",
+      "shape": {
+        "N": 1,
+        "IC": 32,
+        "IH": 15,
+        "IW": 23,
+        "OC": 64,
+        "OH": 8,
+        "OW": 12,
+        "KH": 3,
+        "KW": 3,
+        "SH": 2,
+        "SW": 2,
+        "PH": 1,
+        "PW": 1
+      },
+      "quant": {
+        "input_offset": 0,
+        "filter_offset": 0,
+        "output_offset": 0,
+        "activation_min": 0,
+        "activation_max": 127,
+        "output_multiplier_per_oc_key": "vision_cnn.4.output_multiplier_per_oc",
+        "output_shift_per_oc_key": "vision_cnn.4.output_shift_per_oc"
+      },
+      "precision": "int8",
+      "dispatch_id": 2,
+      "hardware_target": "any",
+      "depends_on": [
+        1
+      ]
+    },
+    {
+      "name": "vision_cnn.6",
+      "op": "conv2d_s8_pc",
+      "inputs": [
+        "vision_cnn_5"
+      ],
+      "outputs": [
+        "vision_cnn_7"
+      ],
+      "weight": "vision_cnn.6.weight_q",
+      "bias": "vision_cnn.6.bias_q",
+      "shape": {
+        "N": 1,
+        "IC": 64,
+        "IH": 8,
+        "IW": 12,
+        "OC": 64,
+        "OH": 4,
+        "OW": 6,
+        "KH": 3,
+        "KW": 3,
+        "SH": 2,
+        "SW": 2,
+        "PH": 1,
+        "PW": 1
+      },
+      "quant": {
+        "input_offset": 0,
+        "filter_offset": 0,
+        "output_offset": 0,
+        "activation_min": 0,
+        "activation_max": 127,
+        "output_multiplier_per_oc_key": "vision_cnn.6.output_multiplier_per_oc",
+        "output_shift_per_oc_key": "vision_cnn.6.output_shift_per_oc"
+      },
+      "precision": "int8",
+      "dispatch_id": 3,
+      "hardware_target": "any",
+      "depends_on": [
+        2
+      ]
+    },
+    {
+      "name": "flatten",
+      "op": "view",
+      "inputs": [
+        "vision_cnn_7"
+      ],
+      "outputs": [
+        "flatten"
+      ],
+      "shape": {
+        "n": 1536
+      },
+      "precision": "int8",
+      "dispatch_id": null,
+      "hardware_target": "any",
+      "depends_on": []
+    },
+    {
+      "name": "flatten__cast_f16",
+      "op": "cast_i8_to_f16",
+      "precision": "fp16",
+      "inputs": [
+        "flatten"
+      ],
+      "outputs": [
+        "flatten__cast_f16"
+      ],
+      "shape": {
+        "n": 1536
+      },
+      "quant": {
+        "scale": 0.008873706727515994,
+        "zero_point": 0
+      },
+      "dispatch_id": 4,
+      "hardware_target": "any",
+      "depends_on": [
+        3
+      ]
+    },
+    {
+      "name": "vision_fc",
+      "op": "linear_f16",
+      "inputs": [
+        "flatten__cast_f16"
+      ],
+      "outputs": [
+        "vision_fc"
+      ],
+      "weight": "vision_fc.weight_q",
+      "bias": "vision_fc.bias_q",
+      "shape": {
+        "M": 1,
+        "K": 1536,
+        "N": 512
+      },
+      "quant": {
+        "input_offset": 0,
+        "filter_offset": 0,
+        "output_offset": 0,
+        "output_multiplier": 1264277562,
+        "output_shift": 9,
+        "activation_min": -128,
+        "activation_max": 127
+      },
+      "precision": "fp16",
+      "dispatch_id": 5,
+      "hardware_target": "any",
+      "depends_on": [
+        4
+      ]
+    },
+    {
+      "name": "depth_conv.0",
+      "op": "conv2d_s8_pc",
+      "inputs": [
+        "tof_cross"
+      ],
+      "outputs": [
+        "depth_conv_1"
+      ],
+      "weight": "depth_conv.0.weight_q",
+      "bias": "depth_conv.0.bias_q",
+      "shape": {
+        "N": 1,
+        "IC": 4,
+        "IH": 8,
+        "IW": 8,
+        "OC": 16,
+        "OH": 8,
+        "OW": 8,
+        "KH": 3,
+        "KW": 3,
+        "SH": 1,
+        "SW": 1,
+        "PH": 1,
+        "PW": 1
+      },
+      "quant": {
+        "input_offset": 0,
+        "filter_offset": 0,
+        "output_offset": 0,
+        "activation_min": 0,
+        "activation_max": 127,
+        "output_multiplier_per_oc_key": "depth_conv.0.output_multiplier_per_oc",
+        "output_shift_per_oc_key": "depth_conv.0.output_shift_per_oc"
+      },
+      "precision": "int8",
+      "dispatch_id": 6,
+      "hardware_target": "any",
+      "depends_on": []
+    },
+    {
+      "name": "depth_conv.2",
+      "op": "conv2d_s8_pc",
+      "inputs": [
+        "depth_conv_1"
+      ],
+      "outputs": [
+        "depth_conv_3"
+      ],
+      "weight": "depth_conv.2.weight_q",
+      "bias": "depth_conv.2.bias_q",
+      "shape": {
+        "N": 1,
+        "IC": 16,
+        "IH": 8,
+        "IW": 8,
+        "OC": 16,
+        "OH": 8,
+        "OW": 8,
+        "KH": 3,
+        "KW": 3,
+        "SH": 1,
+        "SW": 1,
+        "PH": 1,
+        "PW": 1
+      },
+      "quant": {
+        "input_offset": 0,
+        "filter_offset": 0,
+        "output_offset": 0,
+        "activation_min": 0,
+        "activation_max": 127,
+        "output_multiplier_per_oc_key": "depth_conv.2.output_multiplier_per_oc",
+        "output_shift_per_oc_key": "depth_conv.2.output_shift_per_oc"
+      },
+      "precision": "int8",
+      "dispatch_id": 7,
+      "hardware_target": "any",
+      "depends_on": [
+        6
+      ]
+    },
+    {
+      "name": "flatten_1",
+      "op": "view",
+      "inputs": [
+        "depth_conv_3"
+      ],
+      "outputs": [
+        "flatten_1"
+      ],
+      "shape": {
+        "n": 1024
+      },
+      "precision": "int8",
+      "dispatch_id": null,
+      "hardware_target": "any",
+      "depends_on": []
+    },
+    {
+      "name": "flatten_1__cast_f16",
+      "op": "cast_i8_to_f16",
+      "precision": "fp16",
+      "inputs": [
+        "flatten_1"
+      ],
+      "outputs": [
+        "flatten_1__cast_f16"
+      ],
+      "shape": {
+        "n": 1024
+      },
+      "quant": {
+        "scale": 0.002843392880882804,
+        "zero_point": 0
+      },
+      "dispatch_id": 8,
+      "hardware_target": "any",
+      "depends_on": [
+        7
+      ]
+    },
+    {
+      "name": "depth_fc",
+      "op": "linear_f16",
+      "inputs": [
+        "flatten_1__cast_f16"
+      ],
+      "outputs": [
+        "depth_fc"
+      ],
+      "weight": "depth_fc.weight_q",
+      "bias": "depth_fc.bias_q",
+      "shape": {
+        "M": 1,
+        "K": 1024,
+        "N": 64
+      },
+      "quant": {
+        "input_offset": 0,
+        "filter_offset": 0,
+        "output_offset": 0,
+        "output_multiplier": 1277769400,
+        "output_shift": 9,
+        "activation_min": -128,
+        "activation_max": 127
+      },
+      "precision": "fp16",
+      "dispatch_id": 9,
+      "hardware_target": "any",
+      "depends_on": [
+        8
+      ]
+    },
+    {
+      "name": "cat",
+      "op": "cat3_c1_f16",
+      "inputs": [
+        "vision_fc",
+        "depth_fc",
+        "lowdim"
+      ],
+      "outputs": [
+        "cat"
+      ],
+      "shape": {
+        "N": 1,
+        "H": 1,
+        "W": 1,
+        "C_inputs": [
+          512,
+          64,
+          21
+        ],
+        "C_total": 597
+      },
+      "quant": {
+        "scales_in": [
+          0.001922250497998215,
+          0.004529809857916644,
+          2.6205295352485236
+        ],
+        "scale_out": 2.6205295352485236,
+        "activation_min": -128,
+        "activation_max": 127
+      },
+      "precision": "fp16",
+      "dispatch_id": 10,
+      "hardware_target": "any",
+      "depends_on": [
+        5,
+        9
+      ]
+    },
+    {
+      "name": "lstm_l0",
+      "op": "lstm_f16",
+      "inputs": [
+        "cat"
+      ],
+      "outputs": [
+        "lstm_out_l0"
+      ],
+      "state": {
+        "h": "lstm_h_l0",
+        "c": "lstm_c_l0"
+      },
+      "weight_ih": "lstm_wih_l0",
+      "weight_hh": "lstm_whh_l0",
+      "bias": "lstm_bias_l0",
+      "shape": {
+        "in_size": 597,
+        "H": 128
+      },
+      "quant": {
+        "s_x": 2.6205295352485236,
+        "s_wih": 0.009038756212850255,
+        "s_whh": 0.004837726044842577,
+        "s_h": 0.0058591553545373634,
+        "s_c": 0.023436621418149454
+      },
+      "precision": "fp16",
+      "dispatch_id": 11,
+      "hardware_target": "any",
+      "depends_on": [
+        10
+      ]
+    },
+    {
+      "name": "lstm_l1",
+      "op": "lstm_f16",
+      "inputs": [
+        "lstm_out_l0"
+      ],
+      "outputs": [
+        "lstm_out_l1"
+      ],
+      "state": {
+        "h": "lstm_h_l1",
+        "c": "lstm_c_l1"
+      },
+      "weight_ih": "lstm_wih_l1",
+      "weight_hh": "lstm_whh_l1",
+      "bias": "lstm_bias_l1",
+      "shape": {
+        "in_size": 128,
+        "H": 128
+      },
+      "quant": {
+        "s_x": 0.0058591553545373634,
+        "s_wih": 0.006288941450945036,
+        "s_whh": 0.0037378434121139404,
+        "s_h": 0.0058591553545373634,
+        "s_c": 0.023436621418149454
+      },
+      "precision": "fp16",
+      "dispatch_id": 12,
+      "hardware_target": "any",
+      "depends_on": [
+        11
+      ]
+    },
+    {
+      "name": "lstm_l2",
+      "op": "lstm_f16",
+      "inputs": [
+        "lstm_out_l1"
+      ],
+      "outputs": [
+        "getitem"
+      ],
+      "state": {
+        "h": "lstm_h_l2",
+        "c": "lstm_c_l2"
+      },
+      "weight_ih": "lstm_wih_l2",
+      "weight_hh": "lstm_whh_l2",
+      "bias": "lstm_bias_l2",
+      "shape": {
+        "in_size": 128,
+        "H": 128
+      },
+      "quant": {
+        "s_x": 0.0058591553545373634,
+        "s_wih": 0.004744925367550587,
+        "s_whh": 0.0037151284105195774,
+        "s_h": 0.0058591553545373634,
+        "s_c": 0.023436621418149454
+      },
+      "precision": "fp16",
+      "dispatch_id": 13,
+      "hardware_target": "any",
+      "depends_on": [
+        12
+      ]
+    },
+    {
+      "name": "head",
+      "op": "linear_f16",
+      "inputs": [
+        "getitem"
+      ],
+      "outputs": [
+        "head"
+      ],
+      "weight": "head.weight_q",
+      "bias": "head.bias_q",
+      "shape": {
+        "M": 1,
+        "K": 128,
+        "N": 2
+      },
+      "quant": {
+        "input_offset": 0,
+        "filter_offset": 0,
+        "output_offset": 0,
+        "output_multiplier": 1203544683,
+        "output_shift": 9,
+        "activation_min": -128,
+        "activation_max": 127
+      },
+      "precision": "fp16",
+      "dispatch_id": 14,
+      "hardware_target": "any",
+      "depends_on": [
+        13
+      ]
+    }
+  ],
+  "dispatches": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14
+  ]
+}

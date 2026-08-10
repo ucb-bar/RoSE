@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "target": "rvv_f16",
+  "picks": {
+    "cast_i8_to_f16": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "cat3_c1_f16": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "conv2d_s8_pc": {
+      "source": "curated",
+      "algorithm": "direct",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/ModelBlaster/kernels/rvv_f16/rvv_f16_conv2d_s8_pc_direct.c"
+    },
+    "linear_f16": {
+      "source": "curated",
+      "algorithm": "narrow",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/ModelBlaster/kernels/rvv_f16/rvv_f16_linear_f16_narrow.c"
+    },
+    "lstm_f16": {
+      "source": "curated",
+      "algorithm": "direct",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/ModelBlaster/kernels/rvv_f16/rvv_f16_lstm_f16_direct.c"
+    }
+  }
+}
