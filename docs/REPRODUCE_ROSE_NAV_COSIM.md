@@ -181,11 +181,26 @@ Artifacts land in `experiments/rose_nav_cosim/run_out/` (`sync.log`, `sim.log`,
 
 ---
 
-## 9. Reproduction coverage (this repo)
+## 9. Reproduction coverage (validated 2026-08-10)
 
-- **Validated:** committed model dir builds the guest ELF with zero Python deps;
-  guest ELF built from the committed sources; short co-sim run against Isaac.
-- **Deferred to prereqs (heavy, pre-validated, documented above):** the Zephyr/SDK
-  bootstrap (Prereq B), the `rose_spike_sim`/Chipyard build (Prereq C), and the
-  IsaacLab + `env_isaaclab` install (Prereq A). These are multi-GB installs reused
-  across runs, not rebuilt per reproduction.
+**Validated from a fresh clone** (temp clone on `/scratch`, submodules sourced from
+local so the unpushed cascade materializes):
+- superproject clone carries the full `experiments/rose_nav_cosim/` bundle;
+  `model/rvv_f16/weights.c` is byte-identical to source (md5 match).
+- submodule cascade checks out the committed tips (xpu-rt `b6cb578`, zcs `c953690`,
+  tinympc `c1192f3`) and the **coordinated-turn fix is present** in the fresh
+  clone's `rose_fused_mpc/src/main.cpp`.
+- the **guest ELF builds** from the fresh clone's sources + committed model dir
+  (`-march=…zfh_zvfh`, ~3.88 MB), reusing the Prereq-B toolchain.
+- the co-sim harness is wired: `run_cosim.sh` resolves all committed inputs and
+  its preflight guard correctly flags the one missing heavy prereq.
+
+**Deferred (heavy prereqs, documented above; reused not rebuilt):** Zephyr/SDK
+bootstrap (Prereq B), `rose_spike_sim`/Chipyard build (Prereq C), IsaacLab +
+`env_isaaclab` (Prereq A).
+
+**Deferred — live short co-sim run:** not executed during this capture because the
+single shared GPU was in active use by another Isaac workload; launching a
+competing Isaac Sim would have risked disturbing it. The exact build+run recipe
+here is the one that produced the controlled 3/4 result on seed 1000 (the
+coordinated-turn commit `c953690`).
