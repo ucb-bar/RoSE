@@ -27,7 +27,17 @@ class RoseTLRocketMMIOOnlyConfig extends Config(
   new WithDefaultMMIOOnlyFireSimBridges ++
   // new WithDefaultMemModel ++
   new WithFireSimConfigTweaks ++
-  new chipyard.config.RoseTLRocketConfig) 
+  new chipyard.config.RoseTLRocketConfig)
+
+// Saturn RVV vector-core variant: identical MMIO-only RoSE FireSim bridge stack
+// (WithRoseBridge + MMIO-only bridges + FireSim tweaks) applied on top of the
+// Saturn-vector Rocket base (V + Zfh + Zvfh). Target for the U250 bitstream that
+// runs the curated RVV fp16 vision kernels on real HW.
+class RoseTLRocketSaturnMMIOOnlyConfig extends Config(
+  new WithRoseBridge ++
+  new WithDefaultMMIOOnlyFireSimBridges ++
+  new WithFireSimConfigTweaks ++
+  new chipyard.config.RoseTLRocketSaturnConfig)
 
 // class RoseTLRocketStereoAccMMIOOnlyDMAConfig extends Config(
 //   new WithRoseBridge ++

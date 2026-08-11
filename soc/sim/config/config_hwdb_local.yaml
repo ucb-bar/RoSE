@@ -36,3 +36,8 @@ alveo_u250_firesim-rocket-singlecore-with-rose-fast-no-nic-l2-llc4mb-ddr3:
     bitstream_tar: file:///scratch/dima/rose-infra/RoSE/soc/sim/chipyard/sims/firesim/deploy/results-build/2026-07-01--01-45-06-alveo_u250_firesim-rocket-singlecore-with-rose-fast-no-nic-l2-llc4mb-ddr3/cl_xilinx_alveo_u250-firesim-FireSim-RoseTLRocketMMIOOnlyConfig-BaseXilinxAlveoU250Config/firesim.tar.gz
     deploy_quintuplet_override: null
     custom_runtime_config: null
+# Saturn RVV vector-core (V + Zfh + Zvfh, VLEN=128) + RoSE bridge. RoseTLRocketSaturnMMIOOnlyConfig.
+alveo_u250_firesim-rocket-saturn-with-rose-fast-no-nic-l2-llc4mb-ddr3:
+    bitstream_tar: file:///scratch/dima/rose-infra/RoSE/soc/sim/chipyard/sims/firesim/deploy/results-build/2026-08-10--19-31-57-alveo_u250_firesim-rocket-saturn-with-rose-fast-no-nic-l2-llc4mb-ddr3/cl_xilinx_alveo_u250-firesim-FireSim-RoseTLRocketSaturnMMIOOnlyConfig-BaseXilinxAlveoU250Config/firesim.tar.gz
+    deploy_quintuplet_override: null
+    custom_runtime_config: null

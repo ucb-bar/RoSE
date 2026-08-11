@@ -22,3 +22,5 @@ soc/sim/rose_spike_sim
 soc/sim/rose_spike_trace
 # Zephyr rose sample build outputs (west build)
 soc/sim/zephyr_*build*/
+# Large media (co-sim videos): permanent on disk, not committed
+docs/media/

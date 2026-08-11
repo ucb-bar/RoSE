@@ -208,11 +208,25 @@ f1_firesim-rocket-singlecore-nic-l2-llc4mb-ddr3:
     bit_builder_recipe: bit-builder-recipes/f1.yaml
 
 alveo_u250_firesim-rocket-singlecore-with-rose-fast-no-nic-l2-llc4mb-ddr3:
-    PLATFORM: xilinx_alveo_u250 
+    PLATFORM: xilinx_alveo_u250
     TARGET_PROJECT: firesim
     DESIGN: FireSim
     TARGET_CONFIG: RoseTLRocketMMIOOnlyConfig
-    PLATFORM_CONFIG: BaseXilinxAlveoU250Config 
+    PLATFORM_CONFIG: BaseXilinxAlveoU250Config
+    deploy_triplet: null
+    platform_config_args:
+        fpga_frequency: 60
+        build_strategy: TIMING
+    post_build_hook: null
+    metasim_customruntimeconfig: null
+    bit_builder_recipe: bit-builder-recipes/xilinx_alveo_u250.yaml
+
+alveo_u250_firesim-rocket-saturn-with-rose-fast-no-nic-l2-llc4mb-ddr3:
+    PLATFORM: xilinx_alveo_u250
+    TARGET_PROJECT: firesim
+    DESIGN: FireSim
+    TARGET_CONFIG: RoseTLRocketSaturnMMIOOnlyConfig
+    PLATFORM_CONFIG: BaseXilinxAlveoU250Config
     deploy_triplet: null
     platform_config_args:
         fpga_frequency: 60

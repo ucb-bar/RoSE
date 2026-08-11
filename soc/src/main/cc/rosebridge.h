@@ -65,7 +65,7 @@ struct serial_cosmo_data_t {
 #include <deque>
 #include <mutex>
 
-#define ROBOTICS_COSIM_BUFSIZE 1024// *1024
+#define ROBOTICS_COSIM_BUFSIZE (1024*1024)
 // COSIM-CODE
 
 // Synchronization Commands 

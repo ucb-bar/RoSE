@@ -21,8 +21,27 @@ class RoseTLRocketConfig extends Config(
     DstParams(port_type="DMA", DMA_address = 0x88000000L, name="DMA0"),
     DstParams(port_type="reqrsp", name="reqrsp0"),
     DstParams(port_type="reqrsp", name="reqrsp1"),
-  ))) ++        
+  ))) ++
   new freechips.rocketchip.rocket.WithNBigCores(1) ++         // single rocket-core
+  new chipyard.config.AbstractRoseConfig)
+
+// Saturn RVV vector-core variant of RoseTLRocketConfig.
+// Adds a Saturn vector unit (V + Zfh scalar-fp16 + Zvfh vector-fp16) so the
+// curated RVV vision kernels (conv2d_s8_pc / linear_f16 / lstm_f16, which use
+// vfmacc.vv f16, vfredusum f16, zvfh) run on real HW, matching the co-sim ISA
+// rv64gcv_zicntr_zihpm_zfh_zvfh. WithRocketVectorUnit sets vfh=true (Zvfh) and
+// minFLen=16 (Zfh) on the Rocket tile. VLEN=128/DLEN=64 mirrors the co-sim
+// Saturn rocket config (MINV128D64RocketCosimConfig); refParams gives SIMD
+// FP16 FMUs for real-HW throughput. Everything else is identical to
+// RoseTLRocketConfig (RoSE adapter dst_ports, single big core, AbstractRoseConfig).
+class RoseTLRocketSaturnConfig extends Config(
+  new rose.WithRoseAdapter(dst_ports = new DstParams_Container(Seq(
+    DstParams(port_type="DMA", DMA_address = 0x88000000L, name="DMA0"),
+    DstParams(port_type="reqrsp", name="reqrsp0"),
+    DstParams(port_type="reqrsp", name="reqrsp1"),
+  ))) ++
+  new saturn.rocket.WithRocketVectorUnit(128, 64, VectorParams.refParams) ++
+  new freechips.rocketchip.rocket.WithNBigCores(1) ++         // single rocket-core + Saturn VPU
   new chipyard.config.AbstractRoseConfig)
 
 // class RocketStereoAccRoCCConfig extends Config(
