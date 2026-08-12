@@ -1,0 +1,113 @@
+{
+  "workload": "828 M target cycles / 563 control ticks @ 5M step",
+  "unit": "run-level wall seconds (lower = faster)",
+  "steps": [
+    {
+      "label": "Baseline (all-old)",
+      "compute": 13.8,
+      "barrier": 20.3680114962,
+      "render": 17.453,
+      "delta": null,
+      "eff_mhz": 16.2
+    },
+    {
+      "label": "+ socket fix",
+      "compute": 13.8,
+      "barrier": 3.9742461456,
+      "render": 17.453,
+      "delta": 16.393765350600003,
+      "eff_mhz": 23.5
+    },
+    {
+      "label": "+ lazy render",
+      "compute": 13.8,
+      "barrier": 3.9742461456,
+      "render": 4.5603,
+      "delta": 12.8927,
+      "eff_mhz": 37.1
+    },
+    {
+      "label": "+ DMA datapath",
+      "compute": 13.8,
+      "barrier": 3.9742461456,
+      "render": 4.5603,
+      "delta": 0.0,
+      "eff_mhz": 37.1,
+      "note": "DMA touches the num_bytes=0 barrier by ~0 ms; it recovers camera-frame PAYLOAD bandwidth (a different axis)."
+    },
+    {
+      "label": "Ceiling (free-run)",
+      "compute": 13.8,
+      "barrier": 0.0,
+      "render": 0.0,
+      "delta": 8.5345461456,
+      "eff_mhz": 59.9
+    }
+  ],
+  "granularity_curve": [
+    {
+      "step_M": 1,
+      "eff_mhz_oldsock": 7.2,
+      "eff_mhz_newsock": 24.6,
+      "grants": 828.0,
+      "measured": false
+    },
+    {
+      "step_M": 5,
+      "eff_mhz_oldsock": 24.6,
+      "eff_mhz_newsock": 46.6,
+      "grants": 165.6,
+      "measured": true
+    },
+    {
+      "step_M": 10,
+      "eff_mhz_oldsock": 34.3,
+      "eff_mhz_newsock": 52.4,
+      "grants": 82.8,
+      "measured": true
+    },
+    {
+      "step_M": 50,
+      "eff_mhz_oldsock": 52.3,
+      "eff_mhz_newsock": 58.3,
+      "grants": 16.6,
+      "measured": false
+    },
+    {
+      "step_M": 100,
+      "eff_mhz_oldsock": 55.9,
+      "eff_mhz_newsock": 59.1,
+      "grants": 8.3,
+      "measured": false
+    },
+    {
+      "step_M": 500,
+      "eff_mhz_oldsock": 59.1,
+      "eff_mhz_newsock": 59.8,
+      "grants": 1.7,
+      "measured": false
+    }
+  ],
+  "ceiling_mhz": 59.9,
+  "spike_barrier": {
+    "old": {
+      "total": 115.478,
+      "send": 105.13,
+      "rtt": 10.289,
+      "n": 37,
+      "source": "measured-now"
+    },
+    "new": {
+      "total": 16.324,
+      "send": 6.104,
+      "rtt": 10.2015,
+      "n": 40,
+      "source": "measured-now"
+    }
+  },
+  "env_step": {
+    "old": 31.0,
+    "new": 8.1,
+    "floor": 6.06
+  }
+}

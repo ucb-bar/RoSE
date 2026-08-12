@@ -1,0 +1,126 @@
+[rose_sim] rose_spike_sim: nprocs=1 rose@0x2000 irq=3 dma=0x90000000 sync=localhost:10072 commitlog=off[0:0]
+[rose_sync] connected to localhost:10072
+[rose_sim] define_step size=1000
+[rose_sim] route cmd=0x11 -> ch0
+[rose_sim] route cmd=0x12 -> ch2
+[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=0 -> target=10
+[rose_sim] ack step (spent ~5000 cyc)
+[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=50 -> target=60
+[rose_sim] ack step (spent ~5000 cyc)
+[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=100 -> target=110
+[rose_sim] ack step (spent ~5000 cyc)
+[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=150 -> target=160
+[rose_sim] ack step (spent ~5000 cyc)
+*[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=200 -> target=210
+[rose_sim] ack step (spent ~5000 cyc)
+*[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=250 -> target=260
+[rose_sim] ack step (spent ~5000 cyc)
+*[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=300 -> target=310
+[rose_sim] ack step (spent ~5000 cyc)
+ [rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=350 -> target=360
+[rose_sim] ack step (spent ~5000 cyc)
+B[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=400 -> target=410
+[rose_sim] ack step (spent ~5000 cyc)
+o[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=450 -> target=460
+[rose_sim] ack step (spent ~5000 cyc)
+o[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=500 -> target=510
+[rose_sim] ack step (spent ~5000 cyc)
+t[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=550 -> target=560
+[rose_sim] ack step (spent ~5000 cyc)
+i[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=600 -> target=610
+[rose_sim] ack step (spent ~5000 cyc)
+n[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=650 -> target=660
+[rose_sim] ack step (spent ~5000 cyc)
+g[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=700 -> target=710
+[rose_sim] ack step (spent ~5000 cyc)
+ [rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=750 -> target=760
+[rose_sim] ack step (spent ~5000 cyc)
+Z[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=800 -> target=810
+[rose_sim] ack step (spent ~5000 cyc)
+e[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=850 -> target=860
+[rose_sim] ack step (spent ~5000 cyc)
+p[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=900 -> target=910
+[rose_sim] ack step (spent ~5000 cyc)
+h[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=950 -> target=960
+[rose_sim] ack step (spent ~5000 cyc)
+y[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=1000 -> target=1010
+[rose_sim] ack step (spent ~5000 cyc)
+r[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=1050 -> target=1060
+[rose_sim] ack step (spent ~5000 cyc)
+ [rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=1100 -> target=1110
+[rose_sim] ack step (spent ~5000 cyc)
+O[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=1150 -> target=1160
+[rose_sim] ack step (spent ~5000 cyc)
+S[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=1200 -> target=1210
+[rose_sim] ack step (spent ~5000 cyc)
+ [rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=1250 -> target=1260
+[rose_sim] ack step (spent ~5000 cyc)
+b[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=1300 -> target=1310
+[rose_sim] ack step (spent ~5000 cyc)
+u[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=1350 -> target=1360
+[rose_sim] ack step (spent ~5000 cyc)
+i[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=1400 -> target=1410
+[rose_sim] ack step (spent ~5000 cyc)
+l[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=1450 -> target=1460
+[rose_sim] ack step (spent ~5000 cyc)
+d[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=1500 -> target=1510
+[rose_sim] ack step (spent ~5000 cyc)
+ [rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=1550 -> target=1560
+[rose_sim] ack step (spent ~5000 cyc)
+c[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=1600 -> target=1610
+[rose_sim] ack step (spent ~5000 cyc)
+9[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=1650 -> target=1660
+[rose_sim] ack step (spent ~5000 cyc)
+3[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=1700 -> target=1710
+[rose_sim] ack step (spent ~5000 cyc)
+d[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=1750 -> target=1760
+[rose_sim] ack step (spent ~5000 cyc)
+5[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=1800 -> target=1810
+[rose_sim] ack step (spent ~5000 cyc)
+b[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=1850 -> target=1860
+[rose_sim] ack step (spent ~5000 cyc)
+d[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=1900 -> target=1910
+[rose_sim] ack step (spent ~5000 cyc)
+b[rose_sim] grant received
+[rose_sim] step start: budget=1000 mtime=1950 -> target=1960
+[rose_sim] ack step (spent ~5000 cyc)
+6[rose_sim] synchronizer closed the connection at step=40 -> exit

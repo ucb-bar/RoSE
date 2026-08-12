@@ -1,0 +1,27 @@
+Using Gym environment: PatternEnv-v0
+Loading config from file: /scratch/dima/rose-infra/RoSE/deploy/config/config_gym_PatternEnv-v0.yaml
+Using firesim step: 1000, firesim freq: 1000000, gym timestep: 0.001, gym step per firesim step: 1
+[seam2] env=PatternEnv-v0 firesim_step=1000 freq=1000000 recv_timeout=0.001s
+[seam2] listening on localhost:10071 — waiting for bridge...
+Entered server pc waiting
+[seam2] bridge connected — starting loop
+Packet counts: {17: 0, 18: 0}
+Setting bandwidth to node 0 to channel 0 with 0
+Setting bandwidth to node 0 to channel 1 with 0
+Setting bandwidth to node 0 to channel 2 with 0
+Sending route for 0x11 to channel 0
+Sending route for 0x12 to channel 2
+*** Starting RoSE Simulation Loop ***
+Stepping simulation: 20 iters (sim time = 0.02s)
+RX counts: 0x84=25
+Stepping simulation: 40 iters (sim time = 0.04s)
+[seam2] reached 40 grants — dumping
+
+==== POST-FIX SEAM DECOMPOSITION (n=43 grants, 3 warmup skipped, ROSE_SYNC_RECV_TIMEOUT=0.001s) ====
+component            min      median     mean      max   (ms)
+  send  (B-A)       5.06     6.10     6.07     6.12
+  rtt   (C-B)      10.18    10.20    11.84    20.32
+  pickup(D-C)       0.02     0.03     0.03     0.05
+  TOTAL (D-A)      15.27    16.32    17.94    26.47
+[correctness] data (payload) packets RX from guest: {}
+csv -> /scratch/dima/rose-infra/RoSE/experiments/rose_throughput_ablation/run_out/seam_newsock.csv

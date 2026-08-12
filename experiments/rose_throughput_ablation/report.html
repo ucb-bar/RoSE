@@ -1,0 +1,537 @@
+<title>RoSE Co-Sim Throughput Ablation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root{
+  --bg:#f5f7f9; --surface:#ffffff; --surface-2:#eef1f5; --surface-3:#e5eaef;
+  --ink:#14181d; --ink-2:#54606b; --ink-3:#87929d; --line:#dde3ea; --line-2:#cbd4dd;
+  --accent:#2a6fd6; --accent-soft:#e6eefb;
+  --compute:#9aa4ae; --barrier:#eb6834; --render:#4a3aa7;
+  --old:#d94a49; --new:#2a6fd6; --good:#0f9d6b;
+  --mono:ui-monospace,"SF Mono","JetBrains Mono","Cascadia Code",Menlo,Consolas,monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0d1116; --surface:#141b22; --surface-2:#1b232c; --surface-3:#222c37;
+    --ink:#e9eef3; --ink-2:#a4b1bd; --ink-3:#6c7883; --line:#26313c; --line-2:#334150;
+    --accent:#4d90ea; --accent-soft:#182636;
+    --compute:#6d7883; --barrier:#d95926; --render:#9085e9;
+    --old:#e66767; --new:#4d90ea; --good:#1fb37e;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#f5f7f9; --surface:#ffffff; --surface-2:#eef1f5; --surface-3:#e5eaef;
+  --ink:#14181d; --ink-2:#54606b; --ink-3:#87929d; --line:#dde3ea; --line-2:#cbd4dd;
+  --accent:#2a6fd6; --accent-soft:#e6eefb;
+  --compute:#9aa4ae; --barrier:#eb6834; --render:#4a3aa7;
+  --old:#d94a49; --new:#2a6fd6; --good:#0f9d6b;
+}
+:root[data-theme="dark"]{
+  --bg:#0d1116; --surface:#141b22; --surface-2:#1b232c; --surface-3:#222c37;
+  --ink:#e9eef3; --ink-2:#a4b1bd; --ink-3:#6c7883; --line:#26313c; --line-2:#334150;
+  --accent:#4d90ea; --accent-soft:#182636;
+  --compute:#6d7883; --barrier:#d95926; --render:#9085e9;
+  --old:#e66767; --new:#4d90ea; --good:#1fb37e;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+  line-height:1.55;font-size:16px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1060px;margin:0 auto;padding:0 24px}
+h1,h2,h3{text-wrap:balance;line-height:1.15;margin:0}
+a{color:var(--accent)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:600}
+
+/* ---- hero ---- */
+header{border-bottom:1px solid var(--line);background:
+  radial-gradient(120% 140% at 82% -20%,var(--accent-soft) 0%,transparent 55%);}
+.hero{padding:54px 0 40px}
+.hero h1{font-size:clamp(30px,5vw,50px);font-weight:750;letter-spacing:-.02em;margin:14px 0 0}
+.hero .lead{font-size:clamp(16px,2vw,19px);color:var(--ink-2);max-width:60ch;margin:18px 0 0}
+.hero .thesis{margin-top:22px;padding:16px 20px;border-left:3px solid var(--accent);
+  background:var(--surface);border-radius:0 10px 10px 0;max-width:70ch;box-shadow:0 1px 0 var(--line)}
+.hero .thesis b{color:var(--ink)}
+.metaline{margin-top:20px;display:flex;flex-wrap:wrap;gap:8px 10px;font-family:var(--mono);font-size:12px}
+.chip{border:1px solid var(--line-2);border-radius:999px;padding:4px 11px;color:var(--ink-2);background:var(--surface)}
+.chip b{color:var(--ink)}
+
+/* ---- stat tiles ---- */
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:34px 0 6px}
+@media(max-width:760px){.tiles{grid-template-columns:repeat(2,1fr)}}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 18px 16px;
+  display:flex;flex-direction:column;gap:2px;min-height:118px}
+.tile .k{font-family:var(--mono);font-size:34px;font-weight:650;letter-spacing:-.02em;line-height:1}
+.tile .k small{font-size:16px;color:var(--ink-2);font-weight:500}
+.tile .lbl{font-size:13px;color:var(--ink-2);margin-top:8px}
+.tile .sub{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-top:auto;padding-top:8px}
+.tile.win .k{color:var(--accent)}
+.tile.flat .k{color:var(--ink-2)}
+
+/* ---- sections ---- */
+section{padding:44px 0;border-top:1px solid var(--line)}
+section > .head{margin-bottom:26px}
+section h2{font-size:clamp(21px,3vw,27px);font-weight:700;letter-spacing:-.01em;margin-top:8px}
+section .desc{color:var(--ink-2);max-width:72ch;margin-top:10px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px 24px}
+figure{margin:0}
+.figcap{font-size:12.5px;color:var(--ink-3);margin-top:14px;font-family:var(--mono);line-height:1.5}
+
+/* ---- legend ---- */
+.legend{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:center;margin:2px 0 16px;font-size:13px;color:var(--ink-2)}
+.legend .it{display:flex;align-items:center;gap:7px}
+.sw{width:13px;height:13px;border-radius:3px;display:inline-block}
+.sw.line{height:3px;width:20px;border-radius:2px}
+.hatchkey{position:relative;overflow:hidden}
+
+/* ---- chart svg ---- */
+.chart-scroll{overflow-x:auto}
+svg{display:block;width:100%;height:auto}
+svg text{font-family:var(--mono);fill:var(--ink-2)}
+.axlbl{fill:var(--ink-3);font-size:11px}
+.vlbl{fill:var(--ink);font-weight:650}
+.gridln{stroke:var(--line);stroke-width:1}
+.deltaflag{fill:var(--ink);font-weight:650}
+
+/* ---- table ---- */
+.tbl-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:900px}
+thead th{position:sticky;top:0;background:var(--surface-2);text-align:left;font-family:var(--mono);
+  font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2);
+  padding:11px 12px;border-bottom:1px solid var(--line-2);white-space:nowrap}
+tbody td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tbody tr:hover{background:var(--surface-2)}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+td.cid{font-family:var(--mono);font-size:12px;color:var(--ink);white-space:nowrap}
+.grouprow td{background:var(--surface-3);font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink-2);font-weight:700;padding:8px 12px}
+.badge{font-family:var(--mono);font-size:10.5px;padding:2px 7px;border-radius:999px;white-space:nowrap;
+  border:1px solid transparent;font-weight:600}
+.b-now{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good);border-color:color-mix(in srgb,var(--good) 34%,transparent)}
+.b-prior{background:var(--accent-soft);color:var(--accent);border-color:color-mix(in srgb,var(--accent) 30%,transparent)}
+.b-comp{background:var(--surface-2);color:var(--ink-3);border:1px dashed var(--line-2)}
+.hl{color:var(--accent);font-weight:650}
+
+/* ---- notes ---- */
+.notes{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:760px){.notes{grid-template-columns:1fr}}
+.note{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+.note h3{font-size:15px;margin-bottom:8px}
+.note p,.note li{font-size:13.5px;color:var(--ink-2)}
+.note ul{margin:6px 0 0;padding-left:18px}
+.note code{font-family:var(--mono);font-size:12px;background:var(--surface-2);padding:1px 5px;border-radius:5px;color:var(--ink)}
+footer{padding:36px 0 60px;color:var(--ink-3);font-size:12.5px;font-family:var(--mono);border-top:1px solid var(--line)}
+.tooltip{position:fixed;pointer-events:none;z-index:50;background:var(--surface);border:1px solid var(--line-2);
+  border-radius:9px;padding:8px 11px;font-family:var(--mono);font-size:12px;color:var(--ink);
+  box-shadow:0 6px 24px rgba(0,0,0,.18);opacity:0;transition:opacity .1s;max-width:280px}
+</style>
+
+<header>
+  <div class="wrap hero">
+    <div class="eyebrow">RoSE &middot; FireSim co-sim &middot; simulation-throughput ablation</div>
+    <h1>Where the co-sim throughput actually goes</h1>
+    <p class="lead">A controlled ablation over every architectural lever we tuned in the RoSE&nbsp;&harr;&nbsp;IsaacLab
+      SoC co-sim &mdash; sync granularity, the synchronizer socket poll, lazy camera render, the MMIO&nbsp;vs&nbsp;DMA
+      datapath, free-running vs barrier sync, and camera-free vs live-Isaac. One baseline, single-lever flips, all-new.</p>
+    <div class="thesis">
+      <b>Headline.</b> The two biggest throughput wins are <b>host-side</b> (the synchronizer socket poll,
+      <b>7.1&times;</b> on the per-grant barrier, measured&nbsp;now) and <b>environment-side</b> (lazy camera render,
+      <b>3.9&times;</b> on Isaac <span class="mono">env.step</span>). The FPGA <b>datapath</b> (MMIO&rarr;DMA) moves the
+      per-grant sync barrier by <b>~0&thinsp;ms</b> &mdash; the barrier is a <span class="mono">num_bytes=0</span> control-plane
+      handshake, so DMA's value is on the orthogonal camera-payload axis, not throughput.
+    </div>
+    <div class="metaline">
+      <span class="chip">workload <b>828&nbsp;M target cyc</b></span>
+      <span class="chip">host clock <b>60&nbsp;MHz</b> (FMR&nbsp;1.0&nbsp;=&nbsp;59.9)</span>
+      <span class="chip">18 configs</span>
+      <span class="chip">measured-now + measured-prior + computed</span>
+      <span class="chip">FPGA rows scripted, <b>not run</b> (capstone flight live)</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="tiles">
+    <div class="tile win">
+      <div class="k">7.1<small>&times;</small></div>
+      <div class="lbl">Socket-poll fix on the per-grant barrier</div>
+      <div class="sub">115.5 &rarr; 16.3 ms/grant &middot; measured-now</div>
+    </div>
+    <div class="tile win">
+      <div class="k">3.9<small>&times;</small></div>
+      <div class="lbl">Lazy render on Isaac <span class="mono">env.step</span></div>
+      <div class="sub">31.0 &rarr; 8.1 ms/step &middot; measured-prior</div>
+    </div>
+    <div class="tile flat">
+      <div class="k">~0<small>&thinsp;ms</small></div>
+      <div class="lbl">DMA datapath on the sync barrier</div>
+      <div class="sub">num_bytes=0 control plane</div>
+    </div>
+    <div class="tile">
+      <div class="k">59.9<small>&nbsp;MHz</small></div>
+      <div class="lbl">Free-running ceiling (FMR&nbsp;1.0)</div>
+      <div class="sub">= the 60 MHz FPGA host clock</div>
+    </div>
+  </div>
+
+  <!-- ============ WATERFALL ============ -->
+  <section id="waterfall">
+    <div class="head">
+      <div class="eyebrow">the ablation, as a cost waterfall</div>
+      <h2>Each lever peels a slice off the run-level wall time</h2>
+      <p class="desc">Total wall time for the fixed 828&nbsp;M-cycle / 563-control-tick warehouse workload, decomposed into
+        the irreducible <b style="color:var(--compute)">compute floor</b>, the host-side <b style="color:var(--barrier)">sync-barrier tax</b>
+        (grants &times; per-grant cost), and the Isaac-side <b style="color:var(--render)">render tax</b> (ticks &times; <span class="mono">env.step</span>).
+        Shorter is faster; the effective throughput is printed above each bar.</p>
+    </div>
+    <div class="card">
+      <div class="legend">
+        <span class="it"><span class="sw" style="background:var(--compute)"></span>compute floor (13.8&nbsp;s, fixed)</span>
+        <span class="it"><span class="sw" style="background:var(--barrier)"></span>sync-barrier tax</span>
+        <span class="it"><span class="sw" style="background:var(--render)"></span>render tax</span>
+        <span class="it"><span class="sw hatchkey" style="background:var(--barrier)"><span style="position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.55) 0 2px,transparent 2px 4px)"></span></span>computed / FPGA-run-later</span>
+      </div>
+      <div class="chart-scroll"><figure><svg id="wf" viewBox="0 0 980 430" role="img" aria-label="Throughput cost waterfall"></svg></figure></div>
+      <p class="figcap">Baseline &amp; ceiling are measured (prior FPGA / free-run). +socket-fix uses the measured-now Spike barrier
+        collapse mapped onto the FPGA freeze floor; +render uses the measured Isaac <span class="mono">env.step</span>. Bars past the
+        baseline are model-projected (hatched) pending the FPGA re-run.</p>
+    </div>
+  </section>
+
+  <!-- ============ GRANULARITY ============ -->
+  <section id="granularity">
+    <div class="head">
+      <div class="eyebrow">lever 1 &middot; sync granularity</div>
+      <h2>Coarser grants trade the barrier away &mdash; and the socket fix lifts the whole curve</h2>
+      <p class="desc">Effective throughput vs <span class="mono">firesim_step</span> (cycles granted per sync token). Fewer, larger
+        grants amortize the per-grant barrier toward the 59.9&nbsp;MHz ceiling; the socket fix (blue) shifts every operating point up,
+        most at fine granularity. Filled dots are measured on FPGA; open dots are model-projected.</p>
+    </div>
+    <div class="card">
+      <div class="legend">
+        <span class="it"><span class="sw line" style="background:var(--old)"></span>old socket poll (123&nbsp;ms/grant)</span>
+        <span class="it"><span class="sw line" style="background:var(--new)"></span>socket-fixed (~24&nbsp;ms/grant)</span>
+        <span class="it"><span class="sw line" style="background:var(--ink-3)"></span>free-running ceiling 59.9&nbsp;MHz</span>
+        <span class="it">&#9679;&nbsp;measured &nbsp; &#9711;&nbsp;computed</span>
+      </div>
+      <div class="chart-scroll"><figure><svg id="gc" viewBox="0 0 980 420" role="img" aria-label="Throughput vs sync granularity"></svg></figure></div>
+    </div>
+  </section>
+
+  <!-- ============ BARRIER DECOMP ============ -->
+  <section id="barrier">
+    <div class="head">
+      <div class="eyebrow">lever 2 &middot; synchronizer socket poll &middot; measured now</div>
+      <h2>The barrier tax was a recv-before-send poll, not the datapath</h2>
+      <p class="desc">Per-grant round-trip on the functional Spike bridge (no FPGA, no GPU), decomposed with high-res timestamps.
+        <span class="mono">ROSE_SYNC_RECV_TIMEOUT=0.1</span> reproduces the old regime; <span class="mono">0.001</span> is the committed fast path.
+        The <b style="color:var(--barrier)">send</b> term &mdash; the synchronizer blocking in <span class="mono">recv()</span> before
+        transmitting a queued grant &mdash; collapses 105&rarr;6&nbsp;ms; the <b style="color:var(--compute)">bridge/freeze floor</b> is untouched.</p>
+    </div>
+    <div class="card">
+      <div class="legend">
+        <span class="it"><span class="sw" style="background:var(--barrier)"></span>send &mdash; socket poll backoff (recoverable)</span>
+        <span class="it"><span class="sw" style="background:var(--compute)"></span>rtt &mdash; bridge / freeze-seam floor (irreducible)</span>
+      </div>
+      <div class="chart-scroll"><figure><svg id="bd" viewBox="0 0 980 210" role="img" aria-label="Per-grant barrier decomposition, old vs new socket poll"></svg></figure></div>
+      <p class="figcap">Spike, PatternEnv-v0 camera-free, reqrsp guest, firesim_step=1000; median over 37 grants (3 warmup skipped).
+        Same host-Python mechanism the FPGA runs &mdash; on FPGA the ~10&nbsp;ms Spike floor becomes the ~18&nbsp;ms freeze-seam floor.</p>
+    </div>
+  </section>
+
+  <!-- ============ FULL TABLE ============ -->
+  <section id="matrix">
+    <div class="head">
+      <div class="eyebrow">the full ablation matrix</div>
+      <h2>18 configs: baseline &rarr; single-lever flips &rarr; all-new</h2>
+      <p class="desc">Grouped by measurement substrate. <b>silicon</b> = FPGA effective-MHz (throughput). <b>spike</b> = the
+        socket-fix barrier, run now. <b>isaac</b> = the render axis (<span class="mono">env.step</span>). <b>cosim</b> = run-level
+        effective-MHz on the live warehouse, folding the render tax in. Every number is labeled by source.</p>
+    </div>
+    <div class="tbl-scroll"><table id="mtx"><thead><tr>
+      <th>config</th><th>sync</th><th>env</th><th>step</th><th>datapath</th>
+      <th style="text-align:right">per-grant ms</th><th style="text-align:right">eff MHz</th>
+      <th style="text-align:right">ticks/s</th><th style="text-align:right">&times; base</th><th>source</th>
+    </tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <!-- ============ METHOD / HONESTY ============ -->
+  <section id="method">
+    <div class="head">
+      <div class="eyebrow">method &amp; provenance</div>
+      <h2>What was run now, what is prior, what is computed</h2>
+    </div>
+    <div class="notes">
+      <div class="note">
+        <h3>Runnable now &mdash; and run</h3>
+        <p>The socket-fix axis needs no FPGA or GPU. The harness drove the real tracked
+          <code>gym_synchronizer</code> + <code>socket_thread</code> against the <code>rose_spike_sim</code> bridge and
+          timestamped every grant&rarr;RSP_STALL round-trip.</p>
+        <ul>
+          <li><b>old</b> <code>0.1</code>: 115.5 ms/grant (send 105.1, rtt 10.3)</li>
+          <li><b>new</b> <code>0.001</code>: 16.3 ms/grant (send 6.1, rtt 10.2)</li>
+        </ul>
+        <p>Reproduce: <code>run_ablation.sh --now</code>.</p>
+      </div>
+      <div class="note">
+        <h3>Measured prior &mdash; reused, not re-run</h3>
+        <ul>
+          <li>Free ceiling 59.9&nbsp;MHz (FMR 1.0), barrier @5M 24.6 / @10M 34.3&nbsp;MHz &mdash; FPGA recon sweep.</li>
+          <li>Render <span class="mono">env.step</span> 31.0&rarr;8.1&nbsp;ms, physics floor 6.06&nbsp;ms &mdash; direct GPU timing.</li>
+          <li>DMA metasim byte-exact (<span class="mono">dma=PASS reqrsp=PASS</span>).</li>
+        </ul>
+        <p>The GPU is shared with a live capstone flight, so the render row reuses these rather than launching a competing Isaac session.</p>
+      </div>
+      <div class="note">
+        <h3>Computed &mdash; and scripted for FPGA</h3>
+        <p>Effective-MHz rows follow one transparent model:
+          <code>wall = 13.8&nbsp;s + (tcyc/step)&times;per_grant + ticks&times;env_step</code>,
+          validated against the measured anchors:</p>
+        <ul>
+          <li>@5M model 24.2 vs measured 24.6&nbsp;MHz</li>
+          <li>@10M model 34.5 vs measured 34.3&nbsp;MHz</li>
+          <li>baseline warehouse model 16.0 vs anchor 16.2&nbsp;MHz</li>
+        </ul>
+        <p>The granularity sweep, socket-fixed FPGA points, and MMIO-vs-DMA rows are scripted for
+          <code>run_ablation.sh --fpga</code> &mdash; not run (FPGA busy).</p>
+      </div>
+      <div class="note">
+        <h3>Why DMA is ~0 on the barrier</h3>
+        <p>The grant&rarr;RSP_STALL handshake carries <span class="mono">num_bytes=0</span>. DMA replaces the per-word MMIO
+          drain of served <em>payload</em> (sensor/camera words) with a 512-bit stream &mdash; it touches the payload-delivery
+          path, not the control-plane barrier. Its win is camera-frame bandwidth <em>within</em> a granted step, a different
+          axis than the per-grant tax. So the datapath choice does not move co-sim throughput; the host and env levers do.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap">
+    experiments/rose_throughput_ablation &middot; RoSE rose-2-dev &middot; committed toggles 72fa33e (socket) &middot; b4c946c (render) &middot; d5778bd (DMA)<br>
+    Numbers labeled measured-now / measured-prior / computed. Data: results/ablation_results.csv + results/waterfall.json.
+  </div>
+</footer>
+
+<div class="tooltip" id="tt"></div>
+
+<script>
+"use strict";
+const CSS = k => getComputedStyle(document.documentElement).getPropertyValue(k).trim();
+const TT = document.getElementById('tt');
+function showTT(html,x,y){TT.innerHTML=html;TT.style.opacity=1;
+  const r=TT.getBoundingClientRect();let nx=x+14,ny=y+14;
+  if(nx+r.width>innerWidth-8)nx=x-r.width-14; if(ny+r.height>innerHeight-8)ny=y-r.height-14;
+  TT.style.left=nx+'px';TT.style.top=ny+'px';}
+function hideTT(){TT.style.opacity=0;}
+const SVGNS="http://www.w3.org/2000/svg";
+function el(n,a){const e=document.createElementNS(SVGNS,n);for(const k in a)e.setAttribute(k,a[k]);return e;}
+
+// ---------- DATA (embedded; mirrors results/waterfall.json + ablation_results.csv) ----------
+const WF = [
+  {label:"Baseline",tag:"all-old",compute:13.8,barrier:20.37,render:17.45,mhz:16.2,measured:true,delta:null},
+  {label:"+ socket fix",tag:"barrier 123→24 ms",compute:13.8,barrier:3.97,render:17.45,mhz:23.5,measured:false,delta:{who:"barrier",amt:16.4}},
+  {label:"+ lazy render",tag:"env.step 31→8 ms",compute:13.8,barrier:3.97,render:4.56,mhz:37.1,measured:false,delta:{who:"render",amt:12.9}},
+  {label:"+ DMA",tag:"~0 on barrier",compute:13.8,barrier:3.97,render:4.56,mhz:37.1,measured:false,delta:{who:"none",amt:0}},
+  {label:"Ceiling",tag:"free-running",compute:13.8,barrier:0,render:0,mhz:59.9,measured:true,delta:{who:"both",amt:8.53}},
+];
+const CURVE = [
+  {x:1,old:7.2,nw:24.6,grants:828,m:false},
+  {x:5,old:24.6,nw:46.6,grants:165.6,m:true},
+  {x:10,old:34.3,nw:52.4,grants:82.8,m:true},
+  {x:50,old:52.3,nw:58.3,grants:16.6,m:false},
+  {x:100,old:55.9,nw:59.1,grants:8.3,m:false},
+  {x:500,old:59.1,nw:59.8,grants:1.7,m:false},
+];
+const CEIL=59.9;
+const BAR=[
+  {label:"OLD  ROSE_SYNC_RECV_TIMEOUT=0.1",send:105.1,rtt:10.3,total:115.5},
+  {label:"NEW  ROSE_SYNC_RECV_TIMEOUT=0.001",send:6.1,rtt:10.2,total:16.3},
+];
+const ROWS=[
+ ["group","SILICON — FPGA effective-MHz (throughput)"],
+ ["ceiling_free_running","free","PatternEnv","cont","MMIO 60MHz","0.0","59.9","","","measured-prior"],
+ ["gran_1M_oldsock","barrier","PatternEnv","1M","MMIO 60MHz","123","7.2","7.16","0.29","computed"],
+ ["gran_5M_oldsock","barrier","PatternEnv","5M","MMIO 60MHz","123","24.6","4.85","1.00","measured-prior"],
+ ["gran_10M_oldsock","barrier","PatternEnv","10M","MMIO 60MHz","123","34.3","3.45","1.39","measured-prior"],
+ ["gran_50M_oldsock","barrier","PatternEnv","50M","MMIO 60MHz","123","52.3","1.05","2.13","computed"],
+ ["gran_100M_oldsock","barrier","PatternEnv","100M","MMIO 60MHz","123","55.9","0.56","2.27","computed"],
+ ["gran_500M_oldsock","barrier","PatternEnv","500M","MMIO 60MHz","123","59.1","0.12","2.40","computed"],
+ ["gran_5M_newsock_mmio","barrier","PatternEnv","5M","MMIO 60MHz","24","46.6","9.32","1.89","computed"],
+ ["gran_5M_newsock_dma","barrier","PatternEnv","5M","DMA-Saturn","24","46.6","9.32","1.89","computed"],
+ ["group","SPIKE — socket-fix barrier (run now)"],
+ ["spike_barrier_oldsock","barrier","PatternEnv","1000","spike bridge","115.5","","8.66","1.00","measured-now"],
+ ["spike_barrier_newsock","barrier","PatternEnv","1000","spike bridge","16.3","","61.3","7.07","measured-now"],
+ ["group","ISAAC — render axis (env.step)"],
+ ["isaac_render_every_step","barrier","Warehouse","5M","—","","","32.3","1.00","measured-prior"],
+ ["isaac_render_lazy_10hz","barrier","Warehouse","5M","—","","","123.5","3.83","measured-prior"],
+ ["isaac_physics_floor","barrier","Warehouse","5M","—","","","165.0","5.12","measured-prior"],
+ ["group","COSIM — live-warehouse run-level effective-MHz"],
+ ["cosim_warehouse_all_old","barrier","Warehouse","5M","MMIO 60MHz","123","16.2","","1.00","measured-prior"],
+ ["cosim_warehouse_socketfix","barrier","Warehouse","5M","MMIO 60MHz","24","23.5","","1.45","computed"],
+ ["cosim_warehouse_lazyrender","barrier","Warehouse","5M","MMIO 60MHz","123","21.4","","1.32","computed"],
+ ["cosim_warehouse_all_new","barrier","Warehouse","5M","MMIO 60MHz","24","37.1","","2.29","computed"],
+];
+
+// ---------- WATERFALL ----------
+function drawWF(){
+  const svg=document.getElementById('wf');svg.innerHTML='';
+  const W=980,H=430,mL=48,mR=24,mT=54,mB=70;
+  const iw=W-mL-mR, ih=H-mT-mB;
+  const maxV=52, n=WF.length, gap=34, bw=(iw-gap*(n-1))/n;
+  const yOf=v=>mT+ih-(v/maxV)*ih;
+  // gridlines
+  for(let g=0;g<=50;g+=10){const y=yOf(g);
+    svg.appendChild(el('line',{x1:mL,y1:y,x2:W-mR,y2:y,class:'gridln'}));
+    const t=el('text',{x:mL-8,y:y+4,'text-anchor':'end',class:'axlbl'});t.textContent=g;svg.appendChild(t);}
+  const yl=el('text',{x:mL-8,y:mT-16,'text-anchor':'end',class:'axlbl'});yl.textContent='wall s';svg.appendChild(yl);
+  const segdef=[["compute","compute"],["barrier","barrier"],["render","render"]];
+  // hatch pattern
+  const defs=el('defs',{});
+  const pat=el('pattern',{id:'hatch',width:6,height:6,patternTransform:'rotate(45)',patternUnits:'userSpaceOnUse'});
+  pat.appendChild(el('rect',{width:6,height:6,fill:'transparent'}));
+  pat.appendChild(el('line',{x1:0,y1:0,x2:0,y2:6,stroke:'rgba(255,255,255,.5)','stroke-width':2}));
+  defs.appendChild(pat);svg.appendChild(defs);
+  WF.forEach((d,i)=>{
+    const x=mL+i*(bw+gap); let acc=0;
+    // connector to next (running total baseline)
+    segdef.forEach(([key,varn])=>{
+      const v=d[key]; if(v<=0){return;}
+      const y=yOf(acc+v), h=(v/maxV)*ih;
+      const rect=el('rect',{x,y,width:bw,height:Math.max(h-2,1),rx:4,fill:CSS('--'+varn),
+        style:'cursor:pointer'});
+      rect.addEventListener('mousemove',e=>showTT(
+        `<b>${d.label}</b><br>${varn} tax<br>${v.toFixed(1)} s`,e.clientX,e.clientY));
+      rect.addEventListener('mouseleave',hideTT);
+      svg.appendChild(rect);
+      if(!d.measured && key!=='compute'){ // computed overlay
+        svg.appendChild(el('rect',{x,y,width:bw,height:Math.max(h-2,1),rx:4,fill:'url(#hatch)','pointer-events':'none'}));
+      }
+      acc+=v;
+    });
+    const top=yOf(acc);
+    // mhz label
+    const mh=el('text',{x:x+bw/2,y:top-26,'text-anchor':'middle',class:'vlbl','font-size':17});
+    mh.textContent=d.mhz+' MHz';svg.appendChild(mh);
+    const tot=el('text',{x:x+bw/2,y:top-11,'text-anchor':'middle',class:'axlbl','font-size':11});
+    tot.textContent=acc.toFixed(1)+' s';svg.appendChild(tot);
+    // x labels
+    const xl=el('text',{x:x+bw/2,y:H-mB+22,'text-anchor':'middle',class:'vlbl','font-size':13});
+    xl.textContent=d.label;svg.appendChild(xl);
+    const xt=el('text',{x:x+bw/2,y:H-mB+38,'text-anchor':'middle',class:'axlbl','font-size':11});
+    xt.textContent=d.tag;svg.appendChild(xt);
+    // delta flag between bars
+    if(d.delta && d.delta.amt>0){
+      const px=mL+(i-1)*(bw+gap)+bw, cx=x, my=(px+cx)/2;
+      const col=d.delta.who==='barrier'?'--barrier':d.delta.who==='render'?'--render':'--good';
+      const fl=el('text',{x:my,y:mT+8,'text-anchor':'middle',class:'deltaflag','font-size':12.5,fill:CSS(col)});
+      fl.textContent='−'+d.delta.amt.toFixed(1)+' s';svg.appendChild(fl);
+      svg.appendChild(el('line',{x1:my,y1:mT+14,x2:my,y2:mT+ih,stroke:CSS(col),'stroke-width':1,'stroke-dasharray':'3 4','opacity':.5}));
+    }
+    if(d.delta && d.delta.who==='none'){
+      const px=mL+(i-1)*(bw+gap)+bw, my=(px+x)/2;
+      const fl=el('text',{x:my,y:mT+8,'text-anchor':'middle',class:'axlbl','font-size':12});
+      fl.textContent='~0 s';svg.appendChild(fl);
+    }
+  });
+}
+
+// ---------- GRANULARITY CURVE ----------
+function drawGC(){
+  const svg=document.getElementById('gc');svg.innerHTML='';
+  const W=980,H=420,mL=48,mR=90,mT=24,mB=54;
+  const iw=W-mL-mR, ih=H-mT-mB;
+  const xs=CURVE.map(d=>d.x);
+  const lx=Math.log10, x0=lx(1), x1=lx(500);
+  const X=v=>mL+((lx(v)-x0)/(x1-x0))*iw;
+  const Y=v=>mT+ih-(v/60)*ih;
+  for(let g=0;g<=60;g+=10){const y=Y(g);
+    svg.appendChild(el('line',{x1:mL,y1:y,x2:W-mR,y2:y,class:'gridln'}));
+    const t=el('text',{x:mL-8,y:y+4,'text-anchor':'end',class:'axlbl'});t.textContent=g;svg.appendChild(t);}
+  const yl=el('text',{x:mL-8,y:mT-8,'text-anchor':'end',class:'axlbl'});yl.textContent='MHz';svg.appendChild(yl);
+  [1,5,10,50,100,500].forEach(v=>{const x=X(v);
+    const t=el('text',{x,y:H-mB+22,'text-anchor':'middle',class:'axlbl','font-size':11});t.textContent=v+'M';svg.appendChild(t);});
+  const xlab=el('text',{x:mL+iw/2,y:H-mB+40,'text-anchor':'middle',class:'axlbl'});
+  xlab.textContent='firesim_step  (cycles per grant, log scale)';svg.appendChild(xlab);
+  // ceiling
+  const cy=Y(CEIL);
+  svg.appendChild(el('line',{x1:mL,y1:cy,x2:W-mR,y2:cy,stroke:CSS('--ink-3'),'stroke-width':1.5,'stroke-dasharray':'6 5'}));
+  const cl=el('text',{x:W-mR+6,y:cy+4,class:'axlbl',fill:CSS('--ink-3'),'font-size':11});cl.textContent='59.9 ceiling';svg.appendChild(cl);
+  function line(key,col){
+    let dd='';CURVE.forEach((d,i)=>{dd+=(i?'L':'M')+X(d.x)+' '+Y(d[key]);});
+    svg.appendChild(el('path',{d:dd,fill:'none',stroke:CSS(col),'stroke-width':2.5,'stroke-linejoin':'round'}));
+    CURVE.forEach(d=>{const cx=X(d.x),cyy=Y(d[key]);
+      const c=el('circle',{cx,cy:cyy,r:d.m?5.5:5,fill:d.m?CSS(col):CSS('--surface'),stroke:CSS(col),'stroke-width':2.5,style:'cursor:pointer'});
+      c.addEventListener('mousemove',e=>showTT(
+        `<b>${d.x}M step</b> &middot; ${key==='nw'?'socket-fixed':'old socket'}<br>${d[key].toFixed(1)} MHz &middot; ${d.grants} grants<br>${d.m?'measured (FPGA)':'computed'}`,e.clientX,e.clientY));
+      c.addEventListener('mouseleave',hideTT);svg.appendChild(c);});
+    // end label
+    const last=CURVE[CURVE.length-1];
+    const t=el('text',{x:X(last.x),y:Y(last[key])-11,'text-anchor':'end',class:'vlbl','font-size':12,fill:CSS(col)});
+    t.textContent=last[key].toFixed(0);svg.appendChild(t);
+  }
+  line('old','--old');line('nw','--new');
+}
+
+// ---------- BARRIER DECOMP ----------
+function drawBD(){
+  const svg=document.getElementById('bd');svg.innerHTML='';
+  const W=980,H=210,mL=290,mR=90,mT=14,mB=34;
+  const iw=W-mL-mR;const maxV=120;const X=v=>(v/maxV)*iw;
+  const rowH=54, gap=30;
+  for(let g=0;g<=120;g+=20){const x=mL+X(g);
+    svg.appendChild(el('line',{x1:x,y1:mT,x2:x,y2:mT+2*rowH+gap,class:'gridln'}));
+    const t=el('text',{x,y:mT+2*rowH+gap+18,'text-anchor':'middle',class:'axlbl','font-size':11});t.textContent=g;svg.appendChild(t);}
+  const xl=el('text',{x:mL+iw/2,y:H-4,'text-anchor':'middle',class:'axlbl'});xl.textContent='ms per grant';svg.appendChild(xl);
+  BAR.forEach((d,i)=>{
+    const y=mT+i*(rowH+gap);
+    const lab=el('text',{x:mL-14,y:y+rowH/2-2,'text-anchor':'end',class:'mono','font-size':12.5,fill:CSS('--ink')});
+    lab.textContent=(i?'NEW':'OLD');svg.appendChild(lab);
+    const lab2=el('text',{x:mL-14,y:y+rowH/2+14,'text-anchor':'end',class:'axlbl','font-size':10.5});
+    lab2.textContent=d.label.split('  ')[1];svg.appendChild(lab2);
+    // send
+    const sw=X(d.send);
+    const rs=el('rect',{x:mL,y,width:Math.max(sw-2,1),height:rowH,rx:4,fill:CSS('--barrier'),style:'cursor:pointer'});
+    rs.addEventListener('mousemove',e=>showTT(`send (socket backoff)<br><b>${d.send} ms</b>`,e.clientX,e.clientY));
+    rs.addEventListener('mouseleave',hideTT);svg.appendChild(rs);
+    // rtt
+    const rr=el('rect',{x:mL+sw,y,width:Math.max(X(d.rtt)-2,1),height:rowH,rx:4,fill:CSS('--compute'),style:'cursor:pointer'});
+    rr.addEventListener('mousemove',e=>showTT(`rtt (bridge/freeze floor)<br><b>${d.rtt} ms</b>`,e.clientX,e.clientY));
+    rr.addEventListener('mouseleave',hideTT);svg.appendChild(rr);
+    // total
+    const tt=el('text',{x:mL+X(d.total)+10,y:y+rowH/2+5,class:'vlbl','font-size':15});
+    tt.textContent=d.total+' ms';svg.appendChild(tt);
+  });
+  // speedup flag
+  const f=el('text',{x:mL+X(60),y:mT+2*rowH+gap-6,'text-anchor':'middle',class:'deltaflag','font-size':13,fill:CSS('--accent')});
+  f.textContent='7.1×  (send 105→6 ms)';svg.appendChild(f);
+}
+
+// ---------- TABLE ----------
+function drawTable(){
+  const tb=document.querySelector('#mtx tbody');tb.innerHTML='';
+  const badge=s=>s==='measured-now'?'<span class="badge b-now">measured&middot;now</span>'
+    :s==='measured-prior'?'<span class="badge b-prior">measured&middot;prior</span>'
+    :'<span class="badge b-comp">computed</span>';
+  ROWS.forEach(r=>{
+    const tr=document.createElement('tr');
+    if(r[0]==='group'){tr.className='grouprow';const td=document.createElement('td');td.colSpan=10;td.textContent=r[1];tr.appendChild(td);tb.appendChild(tr);return;}
+    const [cid,sync,env,step,dp,pg,mhz,tps,mult,src]=r;
+    const cells=[
+      ['cid',cid],['',sync],['',env],['num',step],['',dp],
+      ['num',pg||'—'],['num',mhz?`<span class="hl">${mhz}</span>`:'—'],['num',tps||'—'],
+      ['num',mult?mult+'×':'—'],['',badge(src)]];
+    cells.forEach(([cls,html])=>{const td=document.createElement('td');if(cls)td.className=cls;td.innerHTML=html;tr.appendChild(td);});
+    tb.appendChild(tr);
+  });
+}
+
+function renderAll(){drawWF();drawGC();drawBD();}
+drawTable();renderAll();
+// re-render on theme change so CSS-var colors refresh
+new MutationObserver(renderAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+matchMedia('(prefers-color-scheme:dark)').addEventListener('change',renderAll);
+addEventListener('resize',()=>{clearTimeout(window._rt);window._rt=setTimeout(renderAll,150);});
+</script>

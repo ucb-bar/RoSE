@@ -1,0 +1,52 @@
+{
+  "_README": "Constants for the RoSE co-sim throughput ablation. Every value carries a `source` and a `provenance` (the log/doc it came from). analyze.py merges these with the measured-NOW spike seam CSVs in ../run_out/ to emit results/ablation_results.csv. Do NOT hand-edit derived numbers here; put only anchors + model params.",
+
+  "model": {
+    "tcyc_counted": 827967947,
+    "tcyc_note": "target cycles counted for effective_MHz (spin5e8 guest; dcyc=500001039 tcyc=827967947). effective_MHz = (tcyc/1e6)/wall_s.",
+    "compute_floor_wall_s": 13.8,
+    "compute_floor_note": "free-running wall for the whole 827.968M-cycle workload => 59.9 MHz at FMR 1.0 (= the 60 MHz FPGA host clock). This is the irreducible sim-advance time; the barrier tax adds ON TOP of it.",
+    "fpga_freq_mhz": 60,
+    "warehouse_control_ticks": 563,
+    "warehouse_control_ticks_note": "COMPUTED from two measured anchors: camera-free synced ceiling 24.6 MHz (wall 33.66 s) and live Isaac warehouse 16.2 MHz (wall 51.11 s) at 5M step / old socket => (51.11-33.66)/0.031 s-per-render = 563 control ticks. Used to fold env.step render cost into a run-level effective_MHz."
+  },
+
+  "levers": {
+    "sync_granularity": {"env": "ROSE_FIRESIM_STEP", "old": null, "new": null, "sweep_cycles": [1000000, 5000000, 10000000, 50000000, 100000000, 500000000]},
+    "socket_fix":       {"env": "ROSE_SYNC_RECV_TIMEOUT", "old": 0.1, "new": 0.001, "committed": "72fa33e (txqueue-before-recv reorder)"},
+    "lazy_render":      {"env": "ROSE_RENDER_HZ", "old": 0, "new": 10, "camera_env": "ROSE_ISAAC_CAMERA", "committed": "b4c946c"},
+    "datapath":         {"bitstream_mmio": "RoseTLRocketSaturnMMIOOnlyConfig / alveo_u250_firesim-rocket-saturn-with-rose-fast", "bitstream_dma": "RoseTLRocketSaturnDMAMMIOOnlyConfig", "committed": "d5778bd"},
+    "sync_mode":        {"free": "minimal_sync.py (continuous grant, no barrier)", "barrier": "run_sync_only.py + gym_synchronizer"},
+    "environment":      {"camera_free": "PatternEnv-v0", "isaac": "WarehouseThrustEnv-v0"}
+  },
+
+  "per_grant_ms": {
+    "spike_old_socket": {"total": 115.5, "send": 105.2, "rtt": 10.3, "source": "measured-prior", "provenance": "scratchpad/seam_decomposition.md (spike, PatternEnv, reqrsp guest, firesim_step=1000); superseded by measured-now run_out/seam_oldsock.csv"},
+    "spike_new_socket": {"total": 18.0, "send": 6.1, "rtt": 10.3, "source": "measured-prior", "provenance": "scratchpad/seam_decomposition.md POST-FIX (16-21 ms); superseded by measured-now run_out/seam_newsock.csv"},
+    "fpga_old_socket":  {"total": 123.0, "send": 105.0, "freeze_floor": 18.0, "source": "measured-prior", "provenance": "FPGA Saturn+RoSE recon (recon_sweep.csv @5M/@10M back-solve wall=13.8+N*0.123)"},
+    "fpga_new_socket":  {"total": 24.0, "send": 6.0, "freeze_floor": 18.0, "source": "computed", "provenance": "socket fix (send 105->6, spike-proven, identical host-Python mechanism) + FPGA freeze/MMIO-poll floor ~18 ms (unchanged); TO-BE-VERIFIED on FPGA"},
+    "fpga_stepping_5M": {"total": 83.0, "source": "measured-prior", "provenance": "5M cyc / 60 MHz = 83 ms/grant FPGA sim-advance compute; already inside the 13.8 s compute floor (165.6 grants * 83 ms = 13.7 s)"}
+  },
+
+  "effective_mhz_fpga": {
+    "free_ceiling":        {"mhz": 59.9, "fmr": 1.0, "step": "continuous", "socket": "n/a", "source": "measured-prior", "provenance": "recon_sweep.csv free_minimal_sync (garden + firesim1, spin guest)"},
+    "barrier_5M_oldsock":  {"mhz": 24.6, "fmr": 2.44, "step": 5000000, "socket": 0.1, "source": "measured-prior", "provenance": "recon_sweep.csv barrier_run_sync_only_PatternEnv @5M (165 grants, wall 33.7 s)"},
+    "barrier_10M_oldsock": {"mhz": 34.3, "fmr": 1.75, "step": 10000000, "socket": 0.1, "source": "measured-prior", "provenance": "recon_sweep.csv @10M (82 grants, wall 24.1 s)"}
+  },
+
+  "env_step_ms": {
+    "render_every_step": {"mean": 31.0, "median": 30.8, "source": "measured-prior", "provenance": "camera_render_timing.md camera-ON (WarehouseThrustEnv, RTX every 200 Hz step, chase 960x540); ROSE_RENDER_HZ=0"},
+    "render_lazy_10hz":  {"mean": 8.1, "median": 6.9, "source": "measured-prior", "provenance": "camera_render_timing.md POST-FIX lazy (render_interval=20, chase off); ROSE_RENDER_HZ=10"},
+    "physics_floor":     {"mean": 6.06, "median": 6.0, "source": "measured-prior", "provenance": "camera_render_timing.md camera-OFF physics-only floor"}
+  },
+
+  "isaac_effective_mhz": {
+    "warehouse_oldrender_5M_oldsock": {"mhz": 16.2, "source": "measured-prior", "provenance": "camera_render_timing.md interpretation (live Isaac warehouse co-sim ~16.2 MHz; ~1.5x over camera-free 24.6 due to render)"}
+  },
+
+  "dma": {
+    "barrier_recovery_ms": 0.0,
+    "barrier_recovery_note": "the grant->RSP_STALL barrier carries num_bytes=0 (pure control plane); DMA touches 0 ms of it. DMA value is on the ORTHOGONAL camera-frame payload-bandwidth axis (per-serve), not the per-grant barrier.",
+    "selftest": {"result": "byte-exact", "source": "measured-prior", "provenance": "scratchpad/DMA_SELFTEST_PASS.txt (metasim ROSE dma=PASS reqrsp=PASS, 16 words [0]=0xc0de0000); DMA impl d5778bd"}
+  }
+}
