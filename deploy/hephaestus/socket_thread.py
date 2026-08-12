@@ -22,7 +22,11 @@ class ServerThread (threading.Thread):
         s.listen()
         while self.connected_sockets < self.num_sockets:
             sync_conn, sync_addr = s.accept()
-            sync_conn.settimeout(0.1)
+            # Small idle recv timeout so the SocketThread loop re-checks its txqueue
+            # promptly. With the old 0.1 s a grant appended while the thread was blocked
+            # in recv() waited out the FULL 100 ms before transmission -- ~105 ms/grant,
+            # the dominant co-sim sync-barrier cost (seam decomposition, task #98).
+            sync_conn.settimeout(float(os.environ.get("ROSE_SYNC_RECV_TIMEOUT", "0.001")))
             socket_thread = SocketThread(sync_conn)
             self.syn.nodes.append(socket_thread)
             self.connected_sockets += 1
@@ -96,12 +100,16 @@ class SocketThread (threading.Thread):
 
    def run(self):
         while not self.killed:
+            # Service the txqueue FIRST so a queued grant/response is transmitted
+            # immediately, rather than after the recv() timeout in _fill(). TX and RX
+            # are independent directions; the old order (recv-then-send) added up to
+            # the full recv timeout of latency PER GRANT, which was ~105 ms/grant --
+            # the single largest term in the co-sim sync barrier (task #98).
+            while len(self.txqueue) > 0:
+                packet = self.txqueue.pop(0)
+                self.sync_conn.sendall(packet.encode())
             if not self._fill():
                 self.disconnected = True   # peer (bridge) closed the socket
                 break
             self._parse_packets()
-            # process the txqueue
-            if len(self.txqueue) > 0:
-                packet = self.txqueue.pop(0)
-                self.sync_conn.sendall(packet.encode())
         self.sync_conn.close()
