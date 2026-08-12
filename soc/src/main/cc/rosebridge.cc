@@ -10,6 +10,9 @@
 
 #include <pthread.h>
 #include <queue>
+#include <vector>
+#include <algorithm>
+#include <cstring>
 
 char rosebridge_t::KIND;
 
@@ -214,10 +217,19 @@ void * queue_func(void * arg){
         }
     }
 }
-rosebridge_t::rosebridge_t(simif_t &sim, const ROSEBRIDGEMODULE_struct &mmio_addrs, int rosebridgeno, const std::vector<std::string> &args) : bridge_driver_t(sim, &KIND)
+rosebridge_t::rosebridge_t(simif_t &sim, StreamEngine &stream, const ROSEBRIDGEMODULE_struct &mmio_addrs, int rosebridgeno, const std::vector<std::string> &args, int stream_from_cpu_idx, int stream_from_cpu_depth) : streaming_bridge_driver_t(sim, stream, &KIND)
 {
     printf("[ROSE DRIVER] Initiated bridge driver!\n");
     this->mmio_addrs = mmio_addrs;
+    this->stream_from_cpu_idx = stream_from_cpu_idx;
+    this->stream_from_cpu_depth = stream_from_cpu_depth;
+    this->dma_pending_off = 0;
+#ifdef ROSE_DMA_RX
+    printf("[ROSE DRIVER] host->FPGA rxfifo datapath: DMA stream (idx=%d depth=%d)\n",
+           stream_from_cpu_idx, stream_from_cpu_depth);
+#else
+    printf("[ROSE DRIVER] host->FPGA rxfifo datapath: per-word MMIO\n");
+#endif
     this->loggingfd = 0; // unused
     this->connect_synchronizer();
 
@@ -709,6 +721,55 @@ void rosebridge_t::tick()
         }
         // printf("[ROSE DRIVER]: I tried");
     }
+#ifdef ROSE_DMA_RX
+    // DMA datapath: deliver the SAME 32b word sequence the arbiter expects
+    // (cmd, num_bytes, payload...) into rxfifo, but over the 512b host-managed
+    // stream instead of per-word MMIO. Pack words into 512b beats with in-band
+    // length framing (word[0]=count in [1,15], words[1..count]=payload) and
+    // push() them. schedule_firesim_data() refills fsim_txdata one complete
+    // packet at a time; only frame a new packet once the previous beats are
+    // fully pushed, so budget/bigstep (still MMIO) stay paired-by-order with
+    // the data at the arbiter. push() is non-blocking (min_batch=0): it takes
+    // as many whole beats as the FPGA-side queue has room for and we retry the
+    // remainder on later ticks, mirroring the MMIO loop's per-word backpressure.
+    if (this->dma_pending_off >= this->dma_pending.size()) {
+        this->dma_pending.clear();
+        this->dma_pending_off = 0;
+        if (!this->fsim_txdata.empty()) {
+            m.lock();
+            std::vector<uint32_t> words(this->fsim_txdata.begin(), this->fsim_txdata.end());
+            this->fsim_txdata.clear();
+            m.unlock();
+            size_t i = 0;
+            while (i < words.size()) {
+                uint32_t beat[16];
+                memset(beat, 0, sizeof(beat));
+                uint32_t n = (uint32_t)std::min<size_t>(15, words.size() - i);
+                beat[0] = n; // in-band valid-count
+                for (uint32_t k = 0; k < n; k++) {
+                    beat[1 + k] = words[i + k];
+                    #ifdef CAPTURE
+                    fprintf(this->fsim_tx_capture, "%08x ", words[i + k]);
+                    #endif
+                }
+                i += n;
+                const uint8_t *bp = reinterpret_cast<const uint8_t *>(beat);
+                this->dma_pending.insert(this->dma_pending.end(), bp, bp + 64);
+            }
+            #ifdef CAPTURE
+            fputc('\n', this->fsim_tx_capture);
+            fflush(this->fsim_tx_capture);
+            #endif
+        }
+    }
+    if (this->dma_pending_off < this->dma_pending.size()) {
+        size_t remaining = this->dma_pending.size() - this->dma_pending_off;
+        size_t pushed = this->push(this->stream_from_cpu_idx,
+                                   this->dma_pending.data() + this->dma_pending_off,
+                                   remaining, 0);
+        this->dma_pending_off += pushed;
+    }
+#else
     while (this->fsim_txdata.size() > 0) {
         m.lock();
         data.in.bits = this->fsim_txdata.front();
@@ -726,6 +787,7 @@ void rosebridge_t::tick()
             break;
         }
     }
+#endif
 }
 
 

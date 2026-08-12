@@ -64,6 +64,8 @@ struct serial_cosmo_data_t {
 
 #include <deque>
 #include <mutex>
+#include <vector>
+#include <cstdint>
 
 #define ROBOTICS_COSIM_BUFSIZE (1024*1024)
 // COSIM-CODE
@@ -156,9 +158,15 @@ struct CompareBudget
     }
 };
 
-class rosebridge_t final: public bridge_driver_t{
+// A streaming bridge driver: the host->FPGA bulk data (rxfifo feed) can travel
+// over a 512b host-managed StreamFromHostCPU instead of per-word MMIO. The
+// StreamEngine& and the from-CPU stream idx/depth are supplied by the generated
+// constructor (genConstructor(..., hasStreams=true)). The actual data path is
+// selected at compile time by ROSE_DMA_RX (must match the RTL's ROSE_DMA_RX
+// elaboration env var); budget/bigstep/grant/config/recv stay on MMIO in both.
+class rosebridge_t final: public streaming_bridge_driver_t{
     public:
-      rosebridge_t(simif_t &sim, const ROSEBRIDGEMODULE_struct &mmio_addrs, int rosebridgeno, const std::vector<std::string> &args);
+      rosebridge_t(simif_t &sim, StreamEngine &stream, const ROSEBRIDGEMODULE_struct &mmio_addrs, int rosebridgeno, const std::vector<std::string> &args, int stream_from_cpu_idx, int stream_from_cpu_depth);
       ~rosebridge_t();
       virtual void tick();
       // Our ROSE bridge's initialzation and teardown procedures don't
@@ -226,6 +234,15 @@ class rosebridge_t final: public bridge_driver_t{
       void send_route();
 
       void recv();
+
+      // Host->FPGA DMA stream (Phase 1). stream_from_cpu_idx/depth come from the
+      // generated constructor. dma_pending holds the framed 512b beats for the
+      // in-flight data packet; dma_pending_off tracks how many bytes have been
+      // push()-ed so far (incremental, non-blocking across ticks).
+      int stream_from_cpu_idx;
+      int stream_from_cpu_depth;
+      std::vector<uint8_t> dma_pending;
+      size_t dma_pending_off;
 };
 
 #endif // __ROSEBRIDGE_H

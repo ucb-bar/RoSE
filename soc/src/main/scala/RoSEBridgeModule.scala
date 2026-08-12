@@ -223,7 +223,59 @@ class rxcontroller(width: Int) extends Module{
   }
 }
 
-class RoSEBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModule[HostPortIO[RoseBridgeTargetIO]]()(p) {
+// 512b -> 32b width adapter with IN-BAND LENGTH FRAMING for the host->FPGA
+// bulk DMA datapath. Each 512b beat carries word[0] = valid-count n in [1,15]
+// and words[1..n] = payload; the adapter dequeues one beat and enqueues exactly
+// n 32b words downstream (into rxfifo). The trailing pad words are dropped so
+// the arbiter's byte-exact framing (cmd/num_bytes/payload) is never corrupted.
+// Runs entirely in the host clock domain (same domain as streamDeq and the
+// rxfifo enq side), so no CDC lives here.
+class RoseStreamToRxAdapter extends Module {
+  val io = IO(new Bundle {
+    val streamIn = Flipped(Decoupled(UInt(512.W)))
+    val rxOut    = Decoupled(UInt(32.W))
+  })
+
+  val words = Reg(Vec(16, UInt(32.W)))
+  val count = Reg(UInt(5.W)) // valid payload word count n, in [1,15]
+  val idx   = Reg(UInt(5.W)) // payload cursor, walks 1..count
+
+  val sIdle :: sEmit :: Nil = Enum(2)
+  val state = RegInit(sIdle)
+
+  io.streamIn.ready := (state === sIdle)
+  io.rxOut.valid    := (state === sEmit)
+  io.rxOut.bits     := words(idx)
+
+  switch(state) {
+    is(sIdle) {
+      when(io.streamIn.fire) {
+        val vec = io.streamIn.bits.asTypeOf(Vec(16, UInt(32.W)))
+        words := vec
+        val n = vec(0)(4, 0) // count lives in the low bits of word[0]
+        count := n
+        idx   := 1.U
+        state := Mux(n === 0.U, sIdle, sEmit) // guard against a malformed empty beat
+      }
+    }
+    is(sEmit) {
+      when(io.rxOut.fire) {
+        when(idx === count) {
+          state := sIdle
+        }.otherwise {
+          idx := idx + 1.U
+        }
+      }
+    }
+  }
+}
+
+class RoSEBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModule[HostPortIO[RoseBridgeTargetIO]]()(p)
+    with StreamFromHostCPU {
+  // Depth (in 512b beats) of the host->FPGA DMA stream that feeds rxfifo when
+  // the ROSE_DMA_RX datapath is selected. Idle (allocated but unused) in the
+  // default per-word MMIO build.
+  val fromHostCPUQueueDepth = 512
   lazy val module = new BridgeModuleImp(this) {
     val params = key.roseparams
     val io = IO(new WidgetIO())
@@ -351,6 +403,21 @@ class RoSEBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
       rxctrl.io.bww_valid := bww.io.output_valid(i)
     }
     
+    // --- Host->FPGA bulk DMA datapath (Phase 1) ------------------------------
+    // Select, at FireSim elaboration time, whether rxfifo (all host->FPGA data
+    // words: cmd/num_bytes/payload incl. the camera frame) is fed by the
+    // per-word MMIO in_bits path (default) or by the 512b host-managed
+    // StreamFromHostCPU with in-band length framing. Toggle with the
+    // ROSE_DMA_RX env var (must match the driver's -DROSE_DMA_RX compile flag).
+    // Everything else (grant token, cycle_step/budget, rx_budget_fifo,
+    // rx_bigstep_fifo, bww/routing config, and the FPGA->host txfifo) stays
+    // on MMIO exactly as before.
+    val roseDmaRx: Boolean =
+      sys.env.get("ROSE_DMA_RX").exists(v => v == "1" || v.equalsIgnoreCase("true"))
+
+    val dmaRxAdapter = Module(new RoseStreamToRxAdapter)
+    dmaRxAdapter.io.streamIn <> streamDeq
+
     txfifo.io.enq.valid := target.tx.valid && fire
     txfifo.io.enq.bits  := target.tx.bits
     target.tx.ready := txfifo.io.enq.ready
@@ -373,10 +440,28 @@ class RoSEBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     // after pulseLength cycles to prevent multiple dequeues
     Pulsify(genWORegInit(txfifo.io.deq.ready, "out_ready", false.B), pulseLength = 1)
 
-    // Generate regisers for the rx-side of the RoSE bridge; this is eseentially the reverse of the above
-    genWOReg(rxfifo.io.enq.bits, "in_bits")
-    Pulsify(genWORegInit(rxfifo.io.enq.valid, "in_valid", false.B), pulseLength = 1)
-    genROReg(rxfifo.io.enq.ready, "in_ready")
+    // Generate regisers for the rx-side of the RoSE bridge; this is eseentially the reverse of the above.
+    // NOTE: the in_bits/in_valid/in_ready registers are emitted in the SAME order in
+    // both modes so the ROSEBRIDGEMODULE_struct register-map / offsets are byte-identical
+    // between the MMIO and DMA builds (the host driver struct is one shared file).
+    if (roseDmaRx) {
+      // DMA: the 512b stream adapter drives rxfifo. Keep the MMIO in_bits regs
+      // present but routed to a self-draining dead sink so the register map is
+      // unchanged; the host driver simply never writes them in DMA mode.
+      rxfifo.io.enq <> dmaRxAdapter.io.rxOut
+      val deadRx = Module(new Queue(UInt(32.W), 2))
+      deadRx.reset := reset.asBool || targetReset
+      deadRx.io.deq.ready := true.B
+      genWOReg(deadRx.io.enq.bits, "in_bits")
+      Pulsify(genWORegInit(deadRx.io.enq.valid, "in_valid", false.B), pulseLength = 1)
+      genROReg(deadRx.io.enq.ready, "in_ready")
+    } else {
+      // MMIO (default): per-word host writes drive rxfifo; the stream stays idle.
+      dmaRxAdapter.io.rxOut.ready := false.B
+      genWOReg(rxfifo.io.enq.bits, "in_bits")
+      Pulsify(genWORegInit(rxfifo.io.enq.valid, "in_valid", false.B), pulseLength = 1)
+      genROReg(rxfifo.io.enq.ready, "in_ready")
+    }
     // COSIM-CODE
     genWOReg(rx_bigstep_fifo.io.enq.bits, "in_bigstep_bits")
     Pulsify(genWORegInit(rx_bigstep_fifo.io.enq.valid, "in_bigstep_valid", false.B), pulseLength = 1)
@@ -416,7 +501,18 @@ class RoSEBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     
     // This method invocation is required to wire up the bridge to the simulated software
     override def genHeader(base: BigInt, memoryRegions: Map[String, BigInt], sb: StringBuilder): Unit = {
-      genConstructor(base, sb, "rosebridge_t", "rosebridge")
+      // Always construct the driver as a streaming bridge (StreamEngine& + the
+      // host->FPGA stream idx/depth). The DMA build actually pushes over it; the
+      // MMIO build leaves the stream idle. Emitting the same signature in both
+      // keeps hardware and driver consistent regardless of ROSE_DMA_RX.
+      genConstructor(
+        base,
+        sb,
+        "rosebridge_t",
+        "rosebridge",
+        Seq(UInt32(fromHostStreamIdx), UInt32(fromHostCPUQueueDepth)),
+        hasStreams = true,
+      )
     }
 
     // Emits a C header for this bridge construction
