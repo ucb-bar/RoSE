@@ -132,16 +132,24 @@ for step in D["levers"]["sync_granularity"]["sweep_cycles"]:
 for bs, dma_note in (("MMIO-Saturn-60MHz", ""),
                      ("DMA-Saturn (30MHz built / 60MHz building)",
                       "DMA control-plane == MMIO on the num_bytes=0 barrier (~0 ms recovered); DMA value = camera-frame payload bandwidth per-serve (orthogonal axis). ")):
-    w = wall_s(5000000, PG_FPGA_NEW)
-    e = eff_mhz(w)
+    # MMIO row: prefer the firesim1-measured anchor if present (data/measured_prior.json
+    # fpga_measured); DMA row stays computed (no apples-to-apples 60 MHz DMA bitstream yet).
+    meas = D.get("fpga_measured", {}).get("5M_newsock_mmio")
+    if "DMA" not in bs and meas:
+        pg, e, w, src = meas["per_grant_ms"], meas["mhz"], meas["wall_s"], meas["source"]
+        note = meas["note"]
+    else:
+        w = wall_s(5000000, PG_FPGA_NEW)
+        e = eff_mhz(w)
+        pg, src = PG_FPGA_NEW, "computed(FPGA-run-later)"
+        note = dma_note + "socket fix send 105->6 ms (spike-proven) + 18 ms FPGA freeze floor => ~24 ms/grant. DEFERRED FPGA."
     row(config_id=f"gran_5M_newsock_{'dma' if 'DMA' in bs else 'mmio'}", group="silicon",
         sync_mode="barrier", environment="PatternEnv-v0", guest="bench:spin",
         socket_timeout_s=0.001, render_hz="n/a", isaac_camera="no", firesim_step=5000000,
-        bitstream=bs, per_grant_ms=PG_FPGA_NEW, effective_MHz=round(e, 1),
+        bitstream=bs, per_grant_ms=pg, effective_MHz=round(e, 1),
         ticks_per_s=round(grants(5000000) / w, 3),
         speedup_vs_baseline=round(e / FMHZ["barrier_5M_oldsock"]["mhz"], 2),
-        source="computed(FPGA-run-later)",
-        notes=dma_note + "socket fix send 105->6 ms (spike-proven) + 18 ms FPGA freeze floor => ~24 ms/grant. DEFERRED FPGA.")
+        source=src, notes=note)
 
 # -- Group SPIKE: measured-NOW / -prior barrier decomposition (socket-fix axis) --
 for tag, sp, to in (("spike_barrier_oldsock", spike_old, 0.1),

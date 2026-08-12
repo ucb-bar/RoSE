@@ -218,7 +218,7 @@ footer{padding:36px 0 60px;color:var(--ink-3);font-size:12.5px;font-family:var(-
     <div class="card">
       <div class="legend">
         <span class="it"><span class="sw line" style="background:var(--old)"></span>old socket poll (123&nbsp;ms/grant)</span>
-        <span class="it"><span class="sw line" style="background:var(--new)"></span>socket-fixed (~24&nbsp;ms/grant)</span>
+        <span class="it"><span class="sw line" style="background:var(--new)"></span>socket-fixed (~14&nbsp;ms/grant, FPGA-measured @5M)</span>
         <span class="it"><span class="sw line" style="background:var(--ink-3)"></span>free-running ceiling 59.9&nbsp;MHz</span>
         <span class="it">&#9679;&nbsp;measured &nbsp; &#9711;&nbsp;computed</span>
       </div>
@@ -291,7 +291,7 @@ footer{padding:36px 0 60px;color:var(--ink-3);font-size:12.5px;font-family:var(-
         <p>The GPU is shared with a live capstone flight, so the render row reuses these rather than launching a competing Isaac session.</p>
       </div>
       <div class="note">
-        <h3>Computed &mdash; and scripted for FPGA</h3>
+        <h3>Computed + one FPGA-measured anchor</h3>
         <p>Effective-MHz rows follow one transparent model:
           <code>wall = 13.8&nbsp;s + (tcyc/step)&times;per_grant + ticks&times;env_step</code>,
           validated against the measured anchors:</p>
@@ -300,8 +300,10 @@ footer{padding:36px 0 60px;color:var(--ink-3);font-size:12.5px;font-family:var(-
           <li>@10M model 34.5 vs measured 34.3&nbsp;MHz</li>
           <li>baseline warehouse model 16.0 vs anchor 16.2&nbsp;MHz</li>
         </ul>
-        <p>The granularity sweep, socket-fixed FPGA points, and MMIO-vs-DMA rows are scripted for
-          <code>run_ablation.sh --fpga</code> &mdash; not run (FPGA busy).</p>
+        <p>The socket-fixed @5M point is now <b>measured on firesim1 silicon</b>:
+          <b>51.7&nbsp;MHz</b> effective (FMR&nbsp;1.16, 827.97M tcyc / 16.0&nbsp;s), <b>86% of the 59.9&nbsp;MHz ceiling</b> and
+          <b>2.10&times;</b> the old-socket 24.6&nbsp;MHz &mdash; barrier tax ~13.75&nbsp;ms/grant, beating the 24&nbsp;ms model.
+          The remaining granularity and MMIO-vs-DMA rows stay scripted for <code>run_ablation.sh --fpga</code>.</p>
       </div>
       <div class="note">
         <h3>Why DMA is ~0 on the barrier</h3>
@@ -311,12 +313,17 @@ footer{padding:36px 0 60px;color:var(--ink-3);font-size:12.5px;font-family:var(-
           axis than the per-grant tax. So the datapath choice does not move co-sim throughput; the host and env levers do.</p>
       </div>
       <div class="note" style="border-color:color-mix(in srgb,var(--barrier) 40%,var(--line));grid-column:1/-1">
-        <h3>Caveat &mdash; throughput validated, flight-path separately blocked</h3>
-        <p>This report is about <b>simulation throughput</b>, which is validated end-to-end (measured 3.09&times; on silicon).
-          It is <b>not</b> a claim about the 4-gate flight result. The full gate course is currently blocked by a
-          <b>separate, orthogonal guest-side vision-DMA stall</b> (under investigation) &mdash; a flight-path / data-delivery
-          issue on the guest, not a sync or throughput one. <span class="mono">gates_passed</span> is gated by that bug;
-          the sync-barrier, render, and datapath findings here are unaffected by it.</p>
+        <h3>Update &mdash; throughput validated; flight-path root-caused &amp; unblocked</h3>
+        <p>This report is about <b>simulation throughput</b>, validated end-to-end (measured 3.09&times; co-sim on silicon;
+          socket-fix point 51.7&nbsp;MHz measured on firesim1). An earlier revision flagged the gate course as blocked by a
+          suspected &ldquo;guest-side vision-DMA stall.&rdquo; That was a <b>misdiagnosis</b>. Root cause: the split co-sim was
+          <b>completing cleanly at the default 12&nbsp;s <span class="mono">max_sim_time</span> cap</b> (2400 iters &mdash;
+          0x14/camera served fine throughout, zero tracebacks) and then hanging on a <b>cosmetic Python shutdown bug</b>
+          (a non-daemon <span class="mono">ServerThread</span> parked on <span class="mono">pc.wait()</span>, never notified by the
+          <span class="mono">run_sync_only.py</span> launcher). Fixed: daemon <span class="mono">ServerThread</span> +
+          <span class="mono">os._exit</span> at both termination sites. With a raised sim-time cap the split flight
+          (firesim1 FPGA &harr; garden Isaac) flies the gate course. The sync-barrier, render, and datapath findings are
+          unaffected either way.</p>
       </div>
     </div>
   </section>
@@ -353,7 +360,7 @@ const WF = [
 ];
 const CURVE = [
   {x:1,old:7.2,nw:24.6,grants:828,m:false},
-  {x:5,old:24.6,nw:46.6,grants:165.6,m:true},
+  {x:5,old:24.6,nw:51.7,grants:165.6,m:true},
   {x:10,old:34.3,nw:52.4,grants:82.8,m:true},
   {x:50,old:52.3,nw:58.3,grants:16.6,m:false},
   {x:100,old:55.9,nw:59.1,grants:8.3,m:false},
@@ -373,7 +380,7 @@ const ROWS=[
  ["gran_50M_oldsock","barrier","PatternEnv","50M","MMIO 60MHz","123","52.3","1.05","2.13","computed"],
  ["gran_100M_oldsock","barrier","PatternEnv","100M","MMIO 60MHz","123","55.9","0.56","2.27","computed"],
  ["gran_500M_oldsock","barrier","PatternEnv","500M","MMIO 60MHz","123","59.1","0.12","2.40","computed"],
- ["gran_5M_newsock_mmio","barrier","PatternEnv","5M","MMIO 60MHz","24","46.6","9.32","1.89","computed"],
+ ["gran_5M_newsock_mmio","barrier","PatternEnv","5M","MMIO 60MHz","13.75","51.7","10.3","2.10","measured·FPGA✓"],
  ["gran_5M_newsock_dma","barrier","PatternEnv","5M","DMA-Saturn","24","46.6","9.32","1.89","computed"],
  ["group","SPIKE — socket-fix barrier (run now)"],
  ["spike_barrier_oldsock","barrier","PatternEnv","1000","spike bridge","115.5","","8.66","1.00","measured-now"],
