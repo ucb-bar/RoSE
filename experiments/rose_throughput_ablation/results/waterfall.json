@@ -27,20 +27,22 @@
       "eff_mhz": 37.1
     },
     {
-      "label": "+ DMA datapath",
+      "label": "All-new \u2713 measured",
       "compute": 13.8,
-      "barrier": 3.9742461456,
-      "render": 4.5603,
-      "delta": 0.0,
-      "eff_mhz": 37.1,
-      "note": "DMA touches the num_bytes=0 barrier by ~0 ms; it recovers camera-frame PAYLOAD bandwidth (a different axis)."
+      "barrier": 1.3,
+      "render": 1.5,
+      "delta": 5.73,
+      "delta_kind": "measured",
+      "eff_mhz": 50.0,
+      "measured": true,
+      "note": "MEASURED on FPGA (garden capstone, 2 runs): 50.0 MHz, wall ~16.6 s beat the modeled 22.3 s. DMA ~0 on the barrier. Barrier/render split shown by modeled ratio (only the total wall was measured)."
     },
     {
       "label": "Ceiling (free-run)",
       "compute": 13.8,
       "barrier": 0.0,
       "render": 0.0,
-      "delta": 8.5345461456,
+      "delta": 2.8,
       "eff_mhz": 59.9
     }
   ],

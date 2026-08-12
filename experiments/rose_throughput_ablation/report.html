@@ -140,6 +140,11 @@ footer{padding:36px 0 60px;color:var(--ink-3);font-size:12.5px;font-family:var(-
       <b>3.9&times;</b> on Isaac <span class="mono">env.step</span>). The FPGA <b>datapath</b> (MMIO&rarr;DMA) moves the
       per-grant sync barrier by <b>~0&thinsp;ms</b> &mdash; the barrier is a <span class="mono">num_bytes=0</span> control-plane
       handshake, so DMA's value is on the orthogonal camera-payload axis, not throughput.
+      <br><br><b>Now validated on silicon.</b> The combined host+env fix was <b>measured on the FPGA</b>
+      (garden capstone flight, 2 agreeing runs): <b>50.0&nbsp;MHz</b> full-run mean on the live co-sim &mdash;
+      a <b>3.09&times;</b> speedup over the 16.2&nbsp;MHz baseline that <b>beat the 37.1&nbsp;MHz model</b> (the real barrier
+      + render taxes were smaller). At <b>~86% of the 60&nbsp;MHz host-clock ceiling</b>, the co-sim is now
+      <b>FPGA-emulation-bound</b> &mdash; the goal.
     </div>
     <div class="metaline">
       <span class="chip">workload <b>828&nbsp;M target cyc</b></span>
@@ -169,10 +174,10 @@ footer{padding:36px 0 60px;color:var(--ink-3);font-size:12.5px;font-family:var(-
       <div class="lbl">DMA datapath on the sync barrier</div>
       <div class="sub">num_bytes=0 control plane</div>
     </div>
-    <div class="tile">
-      <div class="k">59.9<small>&nbsp;MHz</small></div>
-      <div class="lbl">Free-running ceiling (FMR&nbsp;1.0)</div>
-      <div class="sub">= the 60 MHz FPGA host clock</div>
+    <div class="tile win">
+      <div class="k">3.09<small>&times;</small></div>
+      <div class="lbl">Combined host+env, <b>measured on silicon</b></div>
+      <div class="sub">16.2 &rarr; 50.0 MHz &middot; 86% of 60 MHz ceiling</div>
     </div>
   </div>
 
@@ -194,9 +199,10 @@ footer{padding:36px 0 60px;color:var(--ink-3);font-size:12.5px;font-family:var(-
         <span class="it"><span class="sw hatchkey" style="background:var(--barrier)"><span style="position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.55) 0 2px,transparent 2px 4px)"></span></span>computed / FPGA-run-later</span>
       </div>
       <div class="chart-scroll"><figure><svg id="wf" viewBox="0 0 980 430" role="img" aria-label="Throughput cost waterfall"></svg></figure></div>
-      <p class="figcap">Baseline &amp; ceiling are measured (prior FPGA / free-run). +socket-fix uses the measured-now Spike barrier
-        collapse mapped onto the FPGA freeze floor; +render uses the measured Isaac <span class="mono">env.step</span>. Bars past the
-        baseline are model-projected (hatched) pending the FPGA re-run.</p>
+      <p class="figcap">Baseline, ceiling, and the <b>All-new</b> bar are measured (prior FPGA / free-run / <b>garden capstone FPGA, 2 runs</b>).
+        The intermediate <b>+socket-fix</b> and <b>+lazy-render</b> bars are model-projected single-lever isolations (hatched) &mdash; they were not
+        measured in isolation on silicon. The measured all-new wall (~16.6&nbsp;s, 50.0&nbsp;MHz) <b>beat</b> the 22.3&nbsp;s / 37.1&nbsp;MHz model;
+        its barrier/render split is shown by the modeled ratio (only the total wall was measured).</p>
     </div>
   </section>
 
@@ -304,6 +310,14 @@ footer{padding:36px 0 60px;color:var(--ink-3);font-size:12.5px;font-family:var(-
           path, not the control-plane barrier. Its win is camera-frame bandwidth <em>within</em> a granted step, a different
           axis than the per-grant tax. So the datapath choice does not move co-sim throughput; the host and env levers do.</p>
       </div>
+      <div class="note" style="border-color:color-mix(in srgb,var(--barrier) 40%,var(--line));grid-column:1/-1">
+        <h3>Caveat &mdash; throughput validated, flight-path separately blocked</h3>
+        <p>This report is about <b>simulation throughput</b>, which is validated end-to-end (measured 3.09&times; on silicon).
+          It is <b>not</b> a claim about the 4-gate flight result. The full gate course is currently blocked by a
+          <b>separate, orthogonal guest-side vision-DMA stall</b> (under investigation) &mdash; a flight-path / data-delivery
+          issue on the guest, not a sync or throughput one. <span class="mono">gates_passed</span> is gated by that bug;
+          the sync-barrier, render, and datapath findings here are unaffected by it.</p>
+      </div>
     </div>
   </section>
 </div>
@@ -333,9 +347,9 @@ function el(n,a){const e=document.createElementNS(SVGNS,n);for(const k in a)e.se
 const WF = [
   {label:"Baseline",tag:"all-old",compute:13.8,barrier:20.37,render:17.45,mhz:16.2,measured:true,delta:null},
   {label:"+ socket fix",tag:"barrier 123→24 ms",compute:13.8,barrier:3.97,render:17.45,mhz:23.5,measured:false,delta:{who:"barrier",amt:16.4}},
-  {label:"+ lazy render",tag:"env.step 31→8 ms",compute:13.8,barrier:3.97,render:4.56,mhz:37.1,measured:false,delta:{who:"render",amt:12.9}},
-  {label:"+ DMA",tag:"~0 on barrier",compute:13.8,barrier:3.97,render:4.56,mhz:37.1,measured:false,delta:{who:"none",amt:0}},
-  {label:"Ceiling",tag:"free-running",compute:13.8,barrier:0,render:0,mhz:59.9,measured:true,delta:{who:"both",amt:8.53}},
+  {label:"+ lazy render",tag:"model 37.1 MHz",compute:13.8,barrier:3.97,render:4.56,mhz:37.1,measured:false,delta:{who:"render",amt:12.9}},
+  {label:"All-new",tag:"measured · FPGA ✓",compute:13.8,barrier:1.30,render:1.50,mhz:50.0,measured:true,delta:{who:"measured",amt:5.7}},
+  {label:"Ceiling",tag:"free-running",compute:13.8,barrier:0,render:0,mhz:59.9,measured:true,delta:{who:"none2",amt:2.8}},
 ];
 const CURVE = [
   {x:1,old:7.2,nw:24.6,grants:828,m:false},
@@ -372,7 +386,7 @@ const ROWS=[
  ["cosim_warehouse_all_old","barrier","Warehouse","5M","MMIO 60MHz","123","16.2","","1.00","measured-prior"],
  ["cosim_warehouse_socketfix","barrier","Warehouse","5M","MMIO 60MHz","24","23.5","","1.45","computed"],
  ["cosim_warehouse_lazyrender","barrier","Warehouse","5M","MMIO 60MHz","123","21.4","","1.32","computed"],
- ["cosim_warehouse_all_new","barrier","Warehouse","5M","MMIO 60MHz","24","37.1","","2.29","computed"],
+ ["cosim_warehouse_all_new","barrier","Warehouse","5M","MMIO 60MHz","84–107","50.0","","3.09","measured-now"],
 ];
 
 // ---------- WATERFALL ----------
@@ -425,15 +439,12 @@ function drawWF(){
     // delta flag between bars
     if(d.delta && d.delta.amt>0){
       const px=mL+(i-1)*(bw+gap)+bw, cx=x, my=(px+cx)/2;
-      const col=d.delta.who==='barrier'?'--barrier':d.delta.who==='render'?'--render':'--good';
+      const who=d.delta.who;
+      const col=who==='barrier'?'--barrier':who==='render'?'--render':who==='measured'?'--accent':who==='none2'?'--ink-3':'--good';
       const fl=el('text',{x:my,y:mT+8,'text-anchor':'middle',class:'deltaflag','font-size':12.5,fill:CSS(col)});
       fl.textContent='−'+d.delta.amt.toFixed(1)+' s';svg.appendChild(fl);
+      if(who==='measured'){const fl2=el('text',{x:my,y:mT-8,'text-anchor':'middle',class:'deltaflag','font-size':11,fill:CSS('--accent')});fl2.textContent='beat model';svg.appendChild(fl2);}
       svg.appendChild(el('line',{x1:my,y1:mT+14,x2:my,y2:mT+ih,stroke:CSS(col),'stroke-width':1,'stroke-dasharray':'3 4','opacity':.5}));
-    }
-    if(d.delta && d.delta.who==='none'){
-      const px=mL+(i-1)*(bw+gap)+bw, my=(px+x)/2;
-      const fl=el('text',{x:my,y:mT+8,'text-anchor':'middle',class:'axlbl','font-size':12});
-      fl.textContent='~0 s';svg.appendChild(fl);
     }
   });
 }

@@ -41,7 +41,8 @@
   },
 
   "isaac_effective_mhz": {
-    "warehouse_oldrender_5M_oldsock": {"mhz": 16.2, "source": "measured-prior", "provenance": "camera_render_timing.md interpretation (live Isaac warehouse co-sim ~16.2 MHz; ~1.5x over camera-free 24.6 due to render)"}
+    "warehouse_oldrender_5M_oldsock": {"mhz": 16.2, "source": "measured-prior", "provenance": "camera_render_timing.md interpretation (live Isaac warehouse co-sim ~16.2 MHz; ~1.5x over camera-free 24.6 due to render)"},
+    "warehouse_allnew_5M_measured": {"mhz_mean": 50.0, "mhz_steady": 51.6, "mhz_active": 46.9, "speedup": 3.09, "wall_s": 16.6, "per_grant_ms_range": "84-107", "source": "measured-now", "provenance": "garden capstone flight, 60 MHz MMIO Saturn+RoSE, live co-sim, 2 independent runs agree: all-new (socket fix + lazy render) full-run mean 50.0 / steady-state 51.6 / active-flight 46.9 MHz vs baseline 16.2 => 3.09x; wall ~16.6 s for the 828M-cyc workload (below modeled 22.3 s), ~86% of the 60 MHz host-clock ceiling => now FPGA-emulation-bound. BEAT the computed 37.1 MHz (real barrier+render taxes < model)."}
   },
 
   "dma": {

@@ -4,10 +4,15 @@ A fully-automated, reproducible ablation over every **simulation-throughput** ar
 lever in the RoSE ↔ IsaacLab / FireSim SoC co-sim. Answers, with sourced numbers: *which knobs
 actually move throughput, and by how much?*
 
-**Headline:** the two biggest wins are **host-side** (synchronizer socket poll, **7.0×** on the
+**Headline:** the two biggest wins are **host-side** (synchronizer socket poll, **7.1×** on the
 per-grant barrier — measured now) and **environment-side** (lazy camera render, **3.9×** on Isaac
 `env.step`). The FPGA **datapath** (MMIO→DMA) moves the `num_bytes=0` per-grant barrier by **~0 ms** —
 its value is on the orthogonal camera-payload axis, not co-sim throughput.
+
+**Validated on silicon:** the combined host+env fix was **measured on the FPGA** (garden capstone flight,
+2 agreeing runs): **50.0 MHz** on the live co-sim, a **3.09×** speedup over the 16.2 MHz baseline that
+**beat the 37.1 MHz model** — now ~86% of the 60 MHz host-clock ceiling (FPGA-emulation-bound). *(The full
+4-gate flight is separately blocked by an orthogonal guest-side vision-DMA stall; throughput is unaffected.)*
 
 ## Layout
 

@@ -138,6 +138,13 @@ Every row in `results/ablation_results.csv` carries a `source`:
   `wall = 13.8 s + (tcyc/step)·per_grant + ticks·env_step`, validated against the three
   measured anchors (≤1% error), used for the granularity sweep, socket-fixed FPGA, and DMA rows.
 
-**Headline:** the big throughput wins are host-side (socket poll, 7.0×) and env-side (lazy
+**Headline:** the big throughput wins are host-side (socket poll, 7.1×) and env-side (lazy
 render, 3.9×). The FPGA datapath (MMIO→DMA) moves the `num_bytes=0` per-grant barrier by ~0 ms —
 DMA's value is camera-frame payload bandwidth, a different axis than co-sim throughput.
+
+**Validated on silicon (garden capstone, 2 runs):** the combined all-new config measured **50.0 MHz**
+on the live co-sim (**3.09×** over the 16.2 MHz baseline), beating the 37.1 MHz model and reaching ~86%
+of the 60 MHz host-clock ceiling — the co-sim is now FPGA-emulation-bound. The measured all-new row is
+folded into `results/ablation_results.csv` (`cosim_warehouse_all_new`, source `measured-now`) via
+`data/measured_prior.json`; `analyze.py` prefers it over the computed projection. *(The 4-gate flight is
+separately blocked by an orthogonal guest-side vision-DMA stall — a flight-path bug, not a throughput one.)*

@@ -184,11 +184,25 @@ cosim_specs = [
 ]
 # calibrate: baseline model must reproduce the 16.2 MHz anchor
 base_wall = wall_s(5000000, PG_FPGA_OLD, R_OLD, TICKS)
+# The all-new config was MEASURED on silicon (garden capstone flight); it beat the model.
+MEAS_ALLNEW = D["isaac_effective_mhz"].get("warehouse_allnew_5M_measured")
 for cid, pg, rm, src, note in cosim_specs:
     w = wall_s(5000000, pg, rm, TICKS)
     e = eff_mhz(w)
     if cid == "cosim_warehouse_all_old":
         e = WH  # pin to measured anchor
+    if cid == "cosim_warehouse_all_new" and MEAS_ALLNEW:
+        # measured-now on FPGA overrides the computed projection
+        e = MEAS_ALLNEW["mhz_mean"]
+        row(config_id=cid, group="cosim", sync_mode="barrier", environment="WarehouseThrustEnv-v0",
+            guest="fused-nav (RVV)", socket_timeout_s=0.001, render_hz=10, isaac_camera="no",
+            firesim_step=5000000, bitstream="MMIO-Saturn-60MHz",
+            per_grant_ms=f"{MEAS_ALLNEW['per_grant_ms_range']}", effective_MHz=round(e, 1),
+            ticks_per_s="", speedup_vs_baseline=MEAS_ALLNEW["speedup"], source="measured-now",
+            notes=f"MEASURED FPGA capstone: {MEAS_ALLNEW['mhz_mean']} mean / {MEAS_ALLNEW['mhz_steady']} steady / "
+                  f"{MEAS_ALLNEW['mhz_active']} active, {MEAS_ALLNEW['speedup']}x, 2 runs. Wall ~{MEAS_ALLNEW['wall_s']} s "
+                  f"(< modeled 22.3 s) => ~86% of the 60 MHz ceiling; co-sim now FPGA-emulation-bound. Beat computed 37.1 MHz.")
+        continue
     row(config_id=cid, group="cosim", sync_mode="barrier", environment="WarehouseThrustEnv-v0",
         guest="fused-nav (RVV)", socket_timeout_s=(0.001 if pg == PG_FPGA_NEW else 0.1),
         render_hz=(10 if rm == R_NEW else 0), isaac_camera=("no" if rm == R_NEW else "yes"),
@@ -217,6 +231,27 @@ def barrier_tax(step, pg):
 def render_tax(rm):
     return TICKS * rm / 1000.0
 
+def _allnew_step():
+    """The all-new (socket fix + lazy render + DMA) bar. Measured on silicon if available,
+    else the computed projection. The measured residual tax (wall - compute floor) is split
+    by the modeled barrier:render ratio for display (only the TOTAL wall was measured on FPGA)."""
+    prev = wall_s(5e6, PG_FPGA_NEW, R_NEW, TICKS)  # modeled "+ lazy render" cumulative wall
+    if MEAS_ALLNEW:
+        resid = MEAS_ALLNEW["wall_s"] - FLOOR       # measured barrier+render tax
+        mb, mr = barrier_tax(5e6, PG_FPGA_NEW), render_tax(R_NEW)
+        ratio = mb / (mb + mr)
+        return {"label": "All-new ✓ measured", "compute": FLOOR,
+                "barrier": round(resid * ratio, 2), "render": round(resid * (1 - ratio), 2),
+                "delta": round(prev - MEAS_ALLNEW["wall_s"], 2), "delta_kind": "measured",
+                "eff_mhz": MEAS_ALLNEW["mhz_mean"], "measured": True,
+                "note": f"MEASURED on FPGA (garden capstone, 2 runs): {MEAS_ALLNEW['mhz_mean']} MHz, "
+                        f"wall ~{MEAS_ALLNEW['wall_s']} s beat the modeled {prev:.1f} s. DMA ~0 on the barrier. "
+                        "Barrier/render split shown by modeled ratio (only the total wall was measured)."}
+    return {"label": "+ DMA datapath", "compute": FLOOR,
+            "barrier": barrier_tax(5e6, PG_FPGA_NEW), "render": render_tax(R_NEW),
+            "delta": 0.0, "eff_mhz": round(eff_mhz(prev), 1), "measured": False,
+            "note": "DMA touches the num_bytes=0 barrier by ~0 ms (payload axis)."}
+
 waterfall = {
     "workload": f"{TCYC/1e6:.0f} M target cycles / {TICKS} control ticks @ 5M step",
     "unit": "run-level wall seconds (lower = faster)",
@@ -232,13 +267,9 @@ waterfall = {
          "barrier": barrier_tax(5e6, PG_FPGA_NEW), "render": render_tax(R_NEW),
          "delta": render_tax(R_OLD) - render_tax(R_NEW),
          "eff_mhz": round(eff_mhz(wall_s(5e6, PG_FPGA_NEW, R_NEW, TICKS)), 1)},
-        {"label": "+ DMA datapath", "compute": FLOOR,
-         "barrier": barrier_tax(5e6, PG_FPGA_NEW), "render": render_tax(R_NEW),
-         "delta": 0.0,
-         "eff_mhz": round(eff_mhz(wall_s(5e6, PG_FPGA_NEW, R_NEW, TICKS)), 1),
-         "note": "DMA touches the num_bytes=0 barrier by ~0 ms; it recovers camera-frame PAYLOAD bandwidth (a different axis)."},
+        _allnew_step(),
         {"label": "Ceiling (free-run)", "compute": FLOOR, "barrier": 0.0, "render": 0.0,
-         "delta": barrier_tax(5e6, PG_FPGA_NEW) + render_tax(R_NEW),
+         "delta": round((MEAS_ALLNEW["wall_s"] if MEAS_ALLNEW else wall_s(5e6, PG_FPGA_NEW, R_NEW, TICKS)) - FLOOR, 2),
          "eff_mhz": FMHZ["free_ceiling"]["mhz"]},
     ],
     "granularity_curve": [
