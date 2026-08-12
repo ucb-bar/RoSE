@@ -263,9 +263,12 @@ void rosebridge_t::connect_synchronizer()
     // COSIM-CODE
     // Adapted from: https://www.cs.cmu.edu/afs/cs/academic/class/15213-f99/www/class26/tcpclient.c
     // this->hostname = "192.168.0.47";
-    this->hostname = "localhost";
+    // Sync host/port are env-configurable so the FPGA sim (run farm) can reach a
+    // synchronizer on ANOTHER host over the LAN -- e.g. FPGA on firesim1, Isaac+GPU
+    // on garden. Default localhost preserves the co-located flow.
+    { char *h = getenv("ROSE_SYNC_HOST"); this->hostname = (h && *h) ? h : (char *)"localhost"; }
     // this->sync_portno   = 10100 + uartno;
-    this->sync_portno = 10001;
+    { char *p = getenv("ROSE_SYNC_PORT"); this->sync_portno = (p && *p) ? atoi(p) : 10001; }
     this->data_portno = 60002;
     
     printf("Starting simulation!\n");
