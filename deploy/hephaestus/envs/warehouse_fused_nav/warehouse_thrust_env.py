@@ -104,7 +104,28 @@ class WarehouseThrustEnv(gym.Env):
         # motion 4x and TinyMPC chased a stale estimate -> divergence. control_dt = dt*decim = 0.005.
         cfg.sim.dt = float(os.environ.get("ROSE_WH_SIM_DT", "0.005"))
         cfg.decimation = int(os.environ.get("ROSE_WH_DECIM", "1"))
-        cfg.sim.render_interval = cfg.decimation
+        # LAZY / on-demand camera render (dima 2026-08-11): the guest-consumed cam_front sensor
+        # (front_camera, update_period=0.1) only refreshes at 10 Hz and is served over the bridge at
+        # ~5 Hz, but IsaacLab paid a FULL RTX render EVERY 200 Hz physics step (render_interval=decim=1,
+        # forced by the always-on 960x540 chase_camera at update_period=0). Measured: 30.96 ms/step
+        # camera-on vs 6.06 ms physics-only -> ~24.9 ms/step (80%) was redundant render.
+        # Fix: DECOUPLE the RTX pass from physics by aligning render_interval to cam_front's cadence
+        # (ManagerBasedRLEnv only calls sim.render() when _sim_step_counter % render_interval == 0),
+        # so physics still steps every tick but the render fires only when cam_front is due. This is
+        # functionally equivalent for the guest (same frames at the same sim states) — it drops only
+        # redundant renders. ROSE_RENDER_HZ=0 restores the old per-step render (render_interval=decim).
+        _render_hz = float(os.environ.get("ROSE_RENDER_HZ", "10"))
+        if _render_hz > 0:
+            cfg.sim.render_interval = max(cfg.decimation, int(round((1.0 / _render_hz) / cfg.sim.dt)))
+        else:
+            cfg.sim.render_interval = cfg.decimation
+        # chase_camera is a 960x540 VIDEO/visualization product NOT consumed by the guest; drop it from
+        # the co-sim scene unless we're explicitly recording (ROSE_ISAAC_CAMERA=1). Its every-render
+        # 960x540 pass is the single biggest render cost. When recording it comes back at render_hz rate.
+        if os.environ.get("ROSE_ISAAC_CAMERA", "") != "1" and getattr(cfg.scene, "chase_camera", None) is not None:
+            cfg.scene.chase_camera = None
+        print(f"[WarehouseThrust] lazy_render: render_hz={_render_hz} render_interval={cfg.sim.render_interval} "
+              f"chase_cam={'on' if getattr(cfg.scene, 'chase_camera', None) is not None else 'off'}", flush=True)
         # Fixed spawn altitude so it MATCHES the guest estimator's START_Z init (no huge ToF
         # innovation transient). Set together with the guest's -DSTART_Z.
         _sz = os.environ.get("ROSE_WH_SPAWN_Z", "")
