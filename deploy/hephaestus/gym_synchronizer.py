@@ -182,7 +182,11 @@ class Synchronizer(DummySynchronizer):
             print(f"Loading config from default: {gym_env}")
             self.load_gym_sim_config(gym_env)
 
-        self.env = gym.make(gym_env, render_mode='rgb_array', **self.gym_kwargs)
+        # disable_env_checker: the reset-time passive checker asserts reset() obs keys
+        # match the observation_space, but cam_front/lowdim/tof_cross populate on the
+        # first step (lazy camera render), not at reset(0). The co-sim serves obs from
+        # post-step obs, so the reset-only check is spurious here.
+        self.env = gym.make(gym_env, render_mode='rgb_array', disable_env_checker=True, **self.gym_kwargs)
         
         # Check if firesim step in seconds is a multiple of gym timestep
         self.firesim_period = self.firesim_step / self.firesim_freq
@@ -346,7 +350,11 @@ class Synchronizer(DummySynchronizer):
 
         # Once the loop ends, close the logger to finalize logs and save video
         self.logger.close()
-        exit()
+        # Hard-exit (see _bridge_disconnected_shutdown): exit()/sys.exit only unwinds
+        # main and then blocks forever joining Isaac's non-daemon threads.
+        sys.stdout.flush()
+        sys.stderr.flush()
+        os._exit(0)
 
     def process_count(self):
         if self.count % 20 == 0:
@@ -370,10 +378,19 @@ class Synchronizer(DummySynchronizer):
             # Close all connections to simulators
             for socket_thread in self.nodes:
                 socket_thread.kill()
-            
-            # terminate simulation
+
+            # Finalize logs/video, then hard-exit. This is the normal-termination path
+            # (cycle_limit / objective done); it hit the same shutdown hang as the
+            # disconnect path — exit() unwinds only main and blocks forever joining
+            # Isaac's non-daemon threads. Mirror _bridge_disconnected_shutdown.
+            try:
+                self.logger.close()
+            except Exception:
+                pass
             time.sleep(1)
-            exit()
+            sys.stdout.flush()
+            sys.stderr.flush()
+            os._exit(0)
 
     def send_firesim_step(self, target_thread):
         packet = Control_Packet(CONTROL_HEADERS.CS_DEFINE_STEP, 4, [self.firesim_step])

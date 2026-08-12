@@ -9,7 +9,12 @@ from rose_packet import *
 # Will be joined by main after all nodes are connected
 class ServerThread (threading.Thread):
     def __init__(self, syn, pc):
-        threading.Thread.__init__(self) 
+        threading.Thread.__init__(self)
+        # Daemon so interpreter shutdown never blocks joining this thread. It parks
+        # forever on self.pc.wait() (notified only by rose.py's driver, not by the
+        # run_sync_only.py bench/flight launcher), which otherwise hangs the process
+        # AFTER a clean "Terminated due to exceeding maximum cycles!" completion.
+        self.daemon = True
         self.syn = syn
         self.connected_sockets = 0
         self.num_sockets = syn.n_fsim_nodes
