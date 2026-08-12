@@ -13,6 +13,7 @@
 #include <vector>
 #include <algorithm>
 #include <cstring>
+#include <errno.h>
 
 char rosebridge_t::KIND;
 
@@ -34,6 +35,39 @@ ssize_t net_write(int fd, const void *buf, size_t count)
 ssize_t net_read(int fd, void *buf, size_t count)
 {
    return recv(fd, buf, count, 0);
+}
+
+/*
+ * Read EXACTLY `count` bytes from the (non-blocking) sync socket, accumulating
+ * across partial reads and spinning past EAGAIN. Returns count on success, or the
+ * bytes read so far (< count) only if the peer closed.
+ *
+ * WHY: the cosim wire protocol is length-framed ([cmd][num_bytes][payload...]).
+ * A plain recv() on a SOCK_NONBLOCK socket may return a PARTIAL read (fewer than
+ * `count` bytes) or -1/EAGAIN. The previous `while(!net_read(fd,buf,n)){usleep}`
+ * idiom mis-handled BOTH: a partial (>0) read exits the loop treating the buffer as
+ * complete, and a -1 (EAGAIN) also exits (it is truthy). Either desyncs the word
+ * stream -- every subsequent packet is then misframed/misrouted. The hazard scales
+ * with payload size and packet cadence, so it surfaced as an intermittent hard hang
+ * around the 5400-byte cam_front frame once the co-sim throughput fixes (socket
+ * TX-before-RX + lazy render) ~tripled the grant/packet rate: a reqrsp RESPONSE that
+ * follows a vision tick lands misframed, the FPGA never sees a valid word on the
+ * guest's awaited channel, and the guest's blocking reqrsp/DMA read spins forever.
+ * Reading full-length here makes framing cadence-independent and size-independent.
+ */
+static ssize_t net_read_full(int fd, void *buf, size_t count)
+{
+    size_t got = 0;
+    while (got < count) {
+        ssize_t n = recv(fd, (char *)buf + got, count - got, 0);
+        if (n > 0) { got += (size_t)n; continue; }
+        if (n == 0) return (ssize_t)got;   /* peer closed mid-packet */
+        if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
+            continue;                       /* no data yet: header already arrived, tail imminent */
+        }
+        return -1;                          /* genuine socket error */
+    }
+    return (ssize_t)count;
 }
 
 void * queue_func(void * arg){
@@ -63,6 +97,11 @@ void * queue_func(void * arg){
         //usleep(1);
         n = net_read(sim->sync_sockfd, sim->buf, 4);
         if(n > 0) {
+            /* Non-blocking poll may return a partial first word; top it up so the
+             * cmd is a complete 32b word before we commit to the packet. */
+            if (n < 4) {
+                net_read_full(sim->sync_sockfd, (char *)sim->buf + n, 4 - n);
+            }
             cmd = ((uint32_t *) sim->buf)[0];
             // printf("[ROSE BRIDGE THREAD]: Got cmd in multithreading: 0x%x, %d\n", cmd, n);
             usleep(1);
@@ -78,12 +117,7 @@ void * queue_func(void * arg){
                 // printf("[ROSE BRIDGE THREAD]: detected cmd >= 80, pushed to curr_q\n");
                 // printf("[RoSE Bridge Thread]: Pushed word 0x%x\n", cmd);
 
-                uint32_t i = 1;
-                while(!net_read(sim->sync_sockfd, sim->buf, 4))
-                {
-                    usleep(i);
-                    i = i * 2;
-                }
+                net_read_full(sim->sync_sockfd, sim->buf, 4);
                 num_bytes = ((uint32_t *) sim->buf)[0];
                 // printf("[ROSE BRIDGE THREAD]: Got num_bytes in multithreading: 0x%x, %d\n", num_bytes , n);
                 m.lock();
@@ -94,14 +128,7 @@ void * queue_func(void * arg){
 
                 if(num_bytes > 0)
                 {
-                    //usleep(1);
-                    i = 1;
-                    while(!net_read(sim->sync_sockfd, sim->buf, num_bytes))
-                    {
-                        usleep(i);
-                        i = i * 2;
-                    }
-                    //usleep(1);
+                    net_read_full(sim->sync_sockfd, sim->buf, num_bytes);
                     for(int i = 0; i < num_bytes / 4; i++)
                     {
                         m.lock();
@@ -117,39 +144,18 @@ void * queue_func(void * arg){
             // if this is a data sequence... (cmd < 0x80)
             } else { 
                 // printf("[ROSE BRIDGE THREAD]: Got data cmd in multithreading: 0x%x\n", cmd);
-                uint32_t i = 1;
-                while(!net_read(sim->sync_sockfd, sim->buf, 4))
-                {
-                    usleep(i);
-                    i = i * 2;
-                }
-                big_step = ((uint32_t *) sim->buf)[0]; 
-                i = 1;
+                net_read_full(sim->sync_sockfd, sim->buf, 4);
+                big_step = ((uint32_t *) sim->buf)[0];
                 // printf("[ROSE BRIDGE THREAD]: Got big_step in multithreading: 0x%x\n", big_step);
-                while(!net_read(sim->sync_sockfd, sim->buf, 4))
-                {
-                    usleep(i);
-                    i = i * 2;
-                }
+                net_read_full(sim->sync_sockfd, sim->buf, 4);
                 budget = ((uint32_t *) sim->buf)[0];
                 // printf("[ROSE BRIDGE THREAD]: Got budget in multithreading: 0x%x\n", budget);
-                i = 1;
-                while(!net_read(sim->sync_sockfd, sim->buf, 4))
-                {
-                    usleep(i);
-                    i = i * 2;
-                }
+                net_read_full(sim->sync_sockfd, sim->buf, 4);
                 num_bytes = ((uint32_t *) sim->buf)[0];
                 // printf("[ROSE BRIDGE THREAD]: Got num_bytes in multithreading: 0x%x\n", num_bytes);
                 if(num_bytes > 0)
                 {
-                    //usleep(1);
-                    i = 1;
-                    while(!net_read(sim->sync_sockfd, sim->buf, num_bytes))
-                    {
-                        usleep(i);
-                        i = i * 2;
-                    }
+                    net_read_full(sim->sync_sockfd, sim->buf, num_bytes);
                 }
                 // printf("[ROSE BRIDGE THREAD]: Finished receiving one packet\n");
                 for (int i = 0; i < num_bytes / 4; i++) {
