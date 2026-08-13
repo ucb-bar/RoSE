@@ -440,6 +440,13 @@ class Synchronizer(DummySynchronizer):
             obs_data = self.obs
             for idx in packet_config['indices']:
                 obs_data = obs_data[idx]
+        # CHUNKED camera (0x11 over reqrsp): a single 1350-word reqrsp read stalls the guest on
+        # FPGA (large-read/HW-timing), but small per-row reads (like the 64-word ToF) work. Serve
+        # the flat 5400-int8 cam_front as 2-D rows so it goes out as many small packets that the
+        # guest reads+assembles. 27 rows x 200 bytes = 50 words each.
+        if os.environ.get('ROSE_CAM_CHUNK') and packet_config.get('name') == 'cam_front' \
+                and hasattr(obs_data, 'reshape') and obs_data.size % 27 == 0:
+            obs_data = np.ascontiguousarray(obs_data).reshape(27, obs_data.size // 27)
         if len(obs_data.shape) == 1:
             # Just a 1D array, process accordingly (send one response packet)
             #packet_arr = obs_data.view(np.uint32).tolist()
@@ -528,6 +535,13 @@ class Synchronizer(DummySynchronizer):
         # Guest vision-I/O diagnostic echo (cmd 0x21, FMPC_VISION_DBG): 5 words =
         # [cam_hash, tof_hash, low_hash, out0_fp16bits, out1_fp16bits]. Logged so we can
         # compare the FPGA guest's model inputs+output against the spike guest's.
+        if packet.cmd == 0x24:
+            d = packet.data
+            cc = int(d[0]) if len(d) > 0 else -1
+            st = int(d[1]) if len(d) > 1 else -1
+            print(f"[DMADIAG] curr_counter={cc} (0x{cc:x}) status=0x{st:x} half={(st>>3)&1}", flush=True)
+            return
+
         if packet.cmd == 0x23:
             d = packet.data
             ch = int(d[0]) if len(d) > 0 else -1
