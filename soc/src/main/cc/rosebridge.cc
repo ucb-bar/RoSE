@@ -705,8 +705,11 @@ void rosebridge_t::tick()
         uint32_t irx = read(this->mmio_addrs.arb_counter_idle_rxstall);
         uint32_t iadv= read(this->mmio_addrs.arb_counter_idle_advstall);
         uint32_t lrx = read(this->mmio_addrs.arb_counter_load_rxstall);
-        printf("[ARB] sh=%u tx=%u rx0=%u rx1=%u ch2~=%d bf=%u cyc=%u budg=%u last=0x%x nb=%u brxq=%zu txd=%zu irx=%u iadv=%u lrx=%u\n",
-               sh, tx, r0, r1, (int)tx - (int)r0 - (int)r1, bf, cc, cb,
+        // Words that ENTERED the rxfifo AsyncQueue vs tx (words the arbiter pulled from deq).
+        // enq>tx while the arbiter is starved => a word entered but never crossed the CDC.
+        uint32_t enq = read(this->mmio_addrs.in_enq_count);
+        printf("[ARB] sh=%u tx=%u enq=%u enq-tx=%d rx0=%u rx1=%u ch2~=%d bf=%u cyc=%u budg=%u last=0x%x nb=%u brxq=%zu txd=%zu irx=%u iadv=%u lrx=%u\n",
+               sh, tx, enq, (int)enq - (int)tx, r0, r1, (int)tx - (int)r0 - (int)r1, bf, cc, cb,
                this->last_sched_cmd, this->last_sched_nb,
                this->budget_rx_queue.size(), this->fsim_txdata.size(),
                irx, iadv, lrx);

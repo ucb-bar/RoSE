@@ -1,0 +1,8 @@
+# POST-FIX gate-nav finding: FPGA drone flies diagonal & misses gates. Yaw diverges ~0.5rad ONLY once vision engages (settle bit-exact).
+# tick  SPIKE_yaw  FPGA_yaw  diff   (spike passes 3/4; FPGA gates=0 on seed 1000)
+210    1.7092    1.7500    0.041
+250    1.6186    1.9352    0.317
+300    1.6396    2.1262    0.487
+400    1.6464    2.1781    0.532   <- plateau ~0.5rad constant
+600    1.6462    2.1639    0.518
+# leading cause: Saturn native Zvfh fp16 vision (lstm_f16) vs spike fp16 emulation. See memory rose-fpga-nav-yaw-divergence.

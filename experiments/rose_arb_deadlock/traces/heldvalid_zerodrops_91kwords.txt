@@ -1,0 +1,24 @@
+[05:24:34]   t+42s grant_iter=80 | [ARB] sh=1 tx=3 enq=3 enq-tx=0 rx0=0 rx1=3 ch2~=0 bf=1 cyc=91 budg=2032850 last=0x14 nb=4 brxq=0 txd=0 irx=0 iadv=0 lrx=0
+[05:24:56]   t+63s grant_iter=200 | [ARB] sh=83 tx=5134 enq=5134 enq-tx=0 rx0=4050 rx1=558 ch2~=526 bf=83 cyc=203 budg=4065230 last=0x41 nb=256 brxq=0 txd=0 irx=0 iadv=0 lrx=3618
+[05:25:18]   t+85s grant_iter=300 | y[ARB] sh=161 tx=8856 enq=8856 enq-tx=0 rx0=6750 rx1=1043 ch2~=1063 bf=161 cyc=313 budg=2207353 last=0x42 nb=84 brxq=0 txd=0 irx=0 iadv=0 lrx=6057
+[05:25:39]   t+107s grant_iter=400 | [ARB] sh=292 tx=14229 enq=14229 enq-tx=0 rx0=10800 rx1=1667 ch2~=1762 bf=292 cyc=419 budg=3412054 last=0x13 nb=8 brxq=0 txd=0 irx=0 iadv=0 lrx=9743
+[05:26:01]   t+128s grant_iter=520 | s[ARB] sh=385 tx=19428 enq=19428 enq-tx=0 rx0=14850 rx1=2237 ch2~=2341 bf=385 cyc=529 budg=5000000 last=0x42 nb=84 brxq=0 txd=0 irx=0 iadv=0 lrx=13374
+[05:26:22]   t+150s grant_iter=620 | [ARB] sh=501 tx=24978 enq=24988 enq-tx=10 rx0=18900 rx1=2966 ch2~=3112 bf=501 cyc=637 budg=5000000 last=0x15 nb=12 brxq=1 txd=0 irx=0 iadv=0 lrx=17044
+[05:26:43]   t+171s grant_iter=740 | 0[ARB] sh=613 tx=30264 enq=30264 enq-tx=0 rx0=22950 rx1=3563 ch2~=3751 bf=613 cyc=745 budg=2557013 last=0x42 nb=84 brxq=0 txd=0 irx=0 iadv=0 lrx=20673
+[05:27:05]   t+192s grant_iter=840 | [ARB] sh=723 tx=35461 enq=35461 enq-tx=0 rx0=27000 rx1=4094 ch2~=4367 bf=723 cyc=854 budg=1235102 last=0x11 nb=5400 brxq=0 txd=0 irx=0 iadv=0 lrx=24341
+[05:27:26]   t+214s grant_iter=960 | =[ARB] sh=837 tx=40836 enq=40836 enq-tx=0 rx0=31050 rx1=4757 ch2~=5029 bf=837 cyc=962 budg=981374 last=0x42 nb=84 brxq=0 txd=0 irx=0 iadv=0 lrx=27965
+[05:27:48]   t+235s grant_iter=1060 | [ARB] sh=931 tx=44611 enq=44611 enq-tx=0 rx0=33750 rx1=5268 ch2~=5593 bf=931 cyc=1071 budg=4691321 last=0x14 nb=4 brxq=0 txd=0 irx=0 iadv=0 lrx=30416
+[05:28:09]   t+257s grant_iter=1160 | r[ARB] sh=1065 tx=51672 enq=51672 enq-tx=0 rx0=39150 rx1=6083 ch2~=6439 bf=1065 cyc=1178 budg=4676466 last=0x42 nb=84 brxq=0 txd=0 irx=0 iadv=0 lrx=35288
+[05:28:30]   t+278s grant_iter=1280 | l[ARB] sh=1143 tx=55374 enq=55374 enq-tx=0 rx0=41850 rx1=6571 ch2~=6953 bf=1143 cyc=1288 budg=3313637 last=0x42 nb=84 brxq=0 txd=0 irx=0 iadv=0 lrx=37739
+[05:28:52]   t+299s grant_iter=1380 | [ARB] sh=1293 tx=62508 enq=62508 enq-tx=0 rx0=47250 rx1=7409 ch2~=7849 bf=1293 cyc=1394 budg=1621231 last=0x42 nb=84 brxq=0 txd=0 irx=0 iadv=0 lrx=42605
+[05:29:13]   t+321s grant_iter=1500 | -[ARB] sh=1367 tx=65946 enq=65946 enq-tx=0 rx0=49950 rx1=7765 ch2~=8231 bf=1367 cyc=1505 budg=1631508 last=0x42 nb=84 brxq=0 txd=0 irx=0 iadv=0 lrx=45038
+[05:29:35]   t+342s grant_iter=1600 | [ARB] sh=1511 tx=71625 enq=71625 enq-tx=0 rx0=54000 rx1=8533 ch2~=9092 bf=1511 cyc=1612 budg=330599 last=0x13 nb=8 brxq=0 txd=0 irx=0 iadv=0 lrx=50028
+[05:29:56]   t+364s grant_iter=1700 | 7[ARB] sh=1595 tx=76782 enq=76782 enq-tx=0 rx0=58050 rx1=9091 ch2~=9641 bf=1595 cyc=1721 budg=2262189 last=0x42 nb=84 brxq=0 txd=0 irx=0 iadv=0 lrx=53645
+[05:30:17]   t+385s grant_iter=1820 | [ARB] sh=1713 tx=82096 enq=82096 enq-tx=0 rx0=62100 rx1=9696 ch2~=10300 bf=1713 cyc=1829 budg=4136427 last=0x13 nb=8 brxq=0 txd=0 irx=0 iadv=0 lrx=57314
+[05:30:39]   t+406s grant_iter=1920 | m[ARB] sh=1819 tx=87354 enq=87354 enq-tx=0 rx0=66150 rx1=10285 ch2~=10919 bf=1819 cyc=1938 budg=5000000 last=0x42 nb=84 brxq=0 txd=0 irx=0 iadv=0 lrx=60943
+[ARB] sh=1896 tx=91053 enq=91053 enq-tx=0 rx0=68850 rx1=10770 ch2~=11433 bf=1896 cyc=2031 budg=5000000 last=0x42 nb=84 brxq=0 txd=0 irx=0 iadv=0 lrx=63382
+[ARB] sh=1896 tx=91053 enq=91053 enq-tx=0 rx0=68850 rx1=10770 ch2~=11433 bf=1896 cyc=2031 budg=5000000 last=0x42 nb=84 brxq=0 txd=0 irx=0 iadv=0 lrx=63382
+[ARB] sh=1896 tx=91053 enq=91053 enq-tx=0 rx0=68850 rx1=10770 ch2~=11433 bf=1896 cyc=2031 budg=5000000 last=0x42 nb=84 brxq=0 txd=0 irx=0 iadv=0 lrx=63382
+[ARB] sh=1896 tx=91053 enq=91053 enq-tx=0 rx0=68850 rx1=10770 ch2~=11433 bf=1896 cyc=2031 budg=5000000 last=0x42 nb=84 brxq=0 txd=0 irx=0 iadv=0 lrx=63382
+[ARB] sh=1896 tx=91053 enq=91053 enq-tx=0 rx0=68850 rx1=10770 ch2~=11433 bf=1896 cyc=2031 budg=5000000 last=0x42 nb=84 brxq=0 txd=0 irx=0 iadv=0 lrx=63382
+[ARB] sh=1896 tx=91053 enq=91053 enq-tx=0 rx0=68850 rx1=10770 ch2~=11433 bf=1896 cyc=2031 budg=5000000 last=0x42 nb=84 brxq=0 txd=0 irx=0 iadv=0 lrx=63382

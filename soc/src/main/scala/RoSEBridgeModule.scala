@@ -346,7 +346,16 @@ class RoSEBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     bind_clock_domain(rxfifo)
     bind_clock_domain(rx_budget_fifo)
     bind_clock_domain(rx_bigstep_fifo)
-    
+
+    // Diagnostic: count words that actually ENTER the rxfifo AsyncQueue (enq side, `clock`
+    // domain). Compared at a hang against arb_counter_tx_fired (words the arbiter pulls from
+    // the deq side, acg.O gated): if in_enq_count > tx_fired while the arbiter is starved
+    // (deq empty), a word entered the AsyncQueue but never surfaced across the gated-clock
+    // CDC -> confirmed rxfifo AsyncQueue data-loss (the residual word drop the held-valid
+    // enqueue handshake could not fix, since the loss is downstream of the enqueue).
+    val rxfifo_enq_count = RegInit(0.U(32.W))
+    when (rxfifo.io.enq.fire) { rxfifo_enq_count := rxfifo_enq_count + 1.U }
+
     config_async_queue.io.enq_clock := clock
     config_async_queue.io.enq_reset := reset.asBool || targetReset
     config_async_queue.io.deq_clock := acg.O
@@ -559,6 +568,8 @@ class RoSEBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     // + pulsing in_valid, and only advances to the next word once it clears -> guaranteed,
     // drop-free per-word delivery. Appended LAST so it does not shift other register offsets.
     genROReg(in_valid_held, "in_valid_pending")
+    // rxfifo AsyncQueue enqueue count (diagnostic; appended last -> no offset churn).
+    genROReg(rxfifo_enq_count, "in_enq_count")
 
     // This method invocation is required to wire up the bridge to the simulated software
     override def genHeader(base: BigInt, memoryRegions: Map[String, BigInt], sb: StringBuilder): Unit = {

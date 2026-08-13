@@ -31,13 +31,33 @@ its queues empty (`brxq=0 txd=0`). It is NOT the arbiter itself, the channel-FIF
 
 `analyze_arb.py <uartlog>` parses a captured trace and classifies the flatline.
 
-## The fix (in progress)
+## The fix — DONE & VALIDATED (2026-08-13)
 
-The robust fix is at the rxfifo enqueue: `in_valid` is a 1-cycle `Pulsify`
-(`RoSEBridgeModule.scala` ~L482); a missed pulse / AsyncQueue CDC edge drops a word.
-Replace it with a **held-valid handshake** (set on MMIO write, clear on `enq.fire`) +
-have the driver `send()` poll an enqueue-status readback before the next word — this
-guarantees no drop. Needs a bitstream rebuild (~1–1.5 hr at 30 MHz).
+The fix is at the rxfifo enqueue: `in_valid` was a 1-cycle `Pulsify`
+(`RoSEBridgeModule.scala` ~L482); a missed pulse / AsyncQueue CDC edge dropped a word.
+Replaced with a **held-valid handshake** — `in_valid_held` register SET on the MMIO write,
+CLEARED on skid `enq.fire`, so the word is held on the enq port until provably accepted
+(no missable pulse); driver `send()` polls `in_valid_pending` until clear. A diagnostic
+`in_enq_count` counter (rxfifo `enq.fire` count, genROReg'd) lets the `[ARB]` heartbeat
+print `enq` vs `tx`.
+
+**VALIDATION (bitstream `2026-08-13--11-05-05`, 30 MHz):** flew the instrumented gate-nav to
+**iter 2020 / 91,053 words with `enq==tx` the entire flight (`enq-tx=0` → ZERO drops)**,
+where every prior config hung at 45–488 iters. The one transient `enq-tx=10` at iter 620
+drained to 0 next heartbeat (normal AsyncQueue pipeline occupancy, not a drop). The stall
+bug is dead. Trace: `traces/heldvalid_zerodrops_91kwords.txt`.
+
+## POST-FIX finding: gate-nav yaw divergence (delivery is no longer the blocker)
+
+With delivery fixed, the flight runs its FORWARD-NAV phase for the first time (it always
+deadlocked at settle before). Result: the drone **flies but misses the gates** — it tracks
+diagonally instead of up the +y corridor, `gates=0` on seed 1000 where spike passes 3/4.
+Matched traj CSVs (`traces/fpga_gatenav_gn_traj.csv` vs spike
+`experiments/rose_nav_cosim/run_out/traj.csv`) show yaw is **bit-exact to spike during
+settle** and diverges to a **constant ~0.5 rad (~30°) only once vision engages (~tick 210)**
+— see `traces/postfix_yaw_divergence.txt`. Leading cause: the fused-vision fp16 tail
+(`lstm_f16`) on Saturn **native Zvfh hardware fp16** vs spike's fp16 **emulation**. This is a
+distinct, numerical issue — see memory `rose-fpga-nav-yaw-divergence.md`.
 
 Superseded attempts (kept for the record): deeper per-channel rx FIFO (8→256, wrong
 layer — the stall counters proved the arbiter wasn't the problem); DMA-RX datapath (the
@@ -53,13 +73,24 @@ works, but the existing DMA bitstreams do NOT boot the guest — the DMA RTL is 
 - `flight_arbtrace.sh` — full WarehouseThrustEnv gate-nav co-sim on the split
   (firesim1 U250 FPGA + garden Isaac) with `ROSE_ARB_TRACE` + chase-cam video.
 - `flight_validate.sh` — shorter run (past the ~frame-104 hang point) to validate a fix.
+- `flight_validate_heldvalid.sh` — the delivery-FIX validation flight (`ROSE_ARB_TRACE`,
+  reads `enq` vs `tx`); this is the run that proved zero drops over 91k words.
 - `flight_dma.sh` — same but `ROSE_DMA_RX=1` (runtime DMA datapath).
+- `gatenav_flight.sh` — the gate-nav DELIVERABLE flight on the fixed bitstream: exact spike
+  3/4-gate config (seed 1000, FREEZE, vision) + `ROSE_MAX_SIM_TIME=250` + `ROSE_TRAJ_CSV`
+  (REAL physics; grant-iters != physics under FREEZE) + chase-cam. This is what surfaced the
+  yaw divergence.
+- `make_gatenav_video.sh` — assemble the chase-cam JPEGs into an mp4.
 
 ## Traces
 
 - `traces/hang_60mhz_mmio_run2.txt` — 60 MHz MMIO bitstream, hung frame ~104 on 0x42.
 - `traces/hang_30mhz_deeperfifo.txt` — 30 MHz deeper-FIFO bitstream, hung frame ~50 on
   0x14 with all 3 stall counters frozen (the decisive "arbiter starved" evidence).
+- `traces/heldvalid_zerodrops_91kwords.txt` — the delivery-FIX validation: `enq==tx` over
+  2020 iters / 91k words (zero drops). See `traces/_heldvalid_README.txt`.
+- `traces/postfix_yaw_divergence.txt` + `traces/fpga_gatenav_gn_traj.csv` — the post-fix
+  gate-nav yaw divergence (FPGA diagonal flight vs spike straight; ~0.5 rad once vision engages).
 
 See also the memory note `rose-fpga-arbiter-deadlock.md` and the in-tree instrumentation
 in `soc/src/main/{cc/rosebridge.cc,cc/rosebridge.h,scala/RoSEBridgeModule.scala,scala/RoSEBridge.scala,scala/RoSEIO.scala,scala/RoSEBridgePort.scala,scala/RoSEAdapter.scala}`.

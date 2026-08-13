@@ -191,3 +191,24 @@ reqrsp immediately after a large DMA** (0x11→0x41(ch1)→0x42(ch2)), intermitt
 NOT host framing, NOT the sync, NOT isolated single-channel delivery. **Repro recipe:** instrumented
 flight above; next, extend `reqrsp_stress` to `dma(0x11 large) → reqrsp(ch1) → reqrsp(ch2)` to get it
 in the fast non-Isaac harness, then instrument the bridge's per-channel delivery.
+
+## 6. Delivery FIXED (2026-08-13) — held-valid handshake; and the NEW blocker: yaw divergence
+
+**The delivery bug is fixed and validated.** Root cause was narrowed to a **per-word drop at the
+MMIO→rxfifo enqueue**: `in_valid` was a 1-cycle `Pulsify` into the rxfifo AsyncQueue (gated deq clock);
+a missed pulse dropped ~1/100k words, starving the arbiter in `sLoad`. Fix (`RoSEBridgeModule.scala`):
+a **held-valid handshake** — `in_valid_held` register SET on the MMIO write, CLEARED on skid `enq.fire`;
+driver `send()` polls `in_valid_pending` until clear. Diagnostic `in_enq_count` (rxfifo enq.fire count)
+lets the `[ARB]` heartbeat print `enq` vs `tx`. **Validated on bitstream `2026-08-13--11-05-05` (30 MHz):
+flew 2020 iters / 91,053 words with `enq==tx` throughout (zero drops)** vs prior max 45–488. Details +
+tooling in `experiments/rose_arb_deadlock/` and memory `rose-fpga-arbiter-deadlock`.
+
+**With delivery fixed, forward-nav runs for the first time — and reveals a NEW, distinct blocker:**
+the drone **flies but misses the gates** (`gates=0` on seed 1000). Matched traj CSVs vs spike show yaw
+is **bit-exact during settle** and diverges to a **constant ~0.5 rad (~30°) the moment vision engages**
+(~tick 210), so the drone flies ~30° off the +y corridor (diagonal −x drift, ~0.35 m/s vs spike 1.2).
+The controller/thrusts are correct; the heading reference is biased. Leading cause: the fused-vision
+fp16 tail (`lstm_f16`) on Saturn **native Zvfh hardware fp16** vs spike's fp16 **emulation** — the
+"genuine Saturn-vs-ISS finding" §4 anticipated. **This retires the delivery hypothesis of §5** and moves
+the investigation to on-Saturn vs on-spike numerical fidelity of the vision inference. Memory:
+`rose-fpga-nav-yaw-divergence`.

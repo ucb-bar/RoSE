@@ -122,6 +122,8 @@ struct ROSEBRIDGEMODULE_struct {
     // acceptance by the skid enq; send() polls it to guarantee drop-free delivery.
     // Appended last to match the genROReg order in RoSEBridgeModule.scala.
     uint64_t in_valid_pending;
+    // Diagnostic: words that entered the rxfifo AsyncQueue enq side (see RoSEBridgeModule).
+    uint64_t in_enq_count;
 };
 
 class cosim_packet_t
