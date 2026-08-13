@@ -56,12 +56,24 @@ policy) is byte-identical to spike; the entire gap is the **camera sensor-delive
   despite ch1 holding the data. ⇒ **NOT a shared-channel framing cascade** — a specific block on the large read.
 - **Commit:** `c53dbd7`.
 
-### 5. Chunked camera — 🔄 TESTING NOW
-- **Idea:** small reqrsp reads (64-word ToF) are proven to work; the large single read blocks. The sync already
-  serves 2-D observations **row-by-row as small packets**. Reshape `cam_front` to 2-D (27 rows × 200 B) so the
-  camera arrives as 27 small framed reads the guest assembles (`ROSE_CAM_CHUNK` + `FMPC_CAM_REQRSP`).
-- **Status:** flight in progress on port 10071 (below). Watching for `[CAMDIAG] num_bytes=200`, then physics +
-  `[VDIAG]` with **>1 unique cam hash** (fresh frames) → gates.
+### 5. Chunked camera — ❌ FAILED (same block; reqrsp path is a dead end)
+- **Idea:** small reqrsp reads (64-word ToF) work; the large single read blocks. Sync serves 2-D obs row-by-row →
+  reshape `cam_front` to 27×200 B so the camera arrives as 27 small framed reads (`ROSE_CAM_CHUNK` + `FMPC_CAM_REQRSP`).
+- **Result:** the arbiter delivered all 27 chunk-packets (**`sh=35`** vs the old freeze at `sh=9`, `rx1=1543`),
+  but the guest **still blocks on the FIRST `rose_rx(header)` of the camera response** (`[CAMDIAG]` never fires,
+  physics never advances). ⇒ **the block is NOT read-size** — the guest fundamentally cannot read the camera
+  reqrsp response on ch1 after the 8 clean nav reads, whether it's 1 packet or 27.
+- **Conclusion:** the reqrsp-camera path is a dead end without waveform-level insight into why `RX1_VALID` doesn't
+  advance the camera read despite the data being in the FIFO.
+
+### 6. Pivot back to the DMA path — ⏭ THE REMAINING VIABLE ROUTE
+- **Key asymmetry:** on the **DMA** path the guest **reads the frame fine** (physics *advanced* in the frozen-camera
+  runs — the guest read `dma_base`, ran the model, sent thrusts); only the **refresh** is broken (stale frame).
+  On the **reqrsp** path the guest can't read the response at all. So the DMA path is much closer to working.
+- **Fix:** make the `RoSEDMA` deliver a fresh frame each request — reset the write counter to 0 on each arm
+  (DMA_CFG write) so every frame overwrites `dma_base` (robust to whatever the ping-pong counter does), OR
+  single-buffer (wrap at `counter_max`). Needs a targeted RTL change + a 3rd bitstream rebuild (~2 hr).
+  RoSEDMA counter timing is opaque from logs — this is the point where FireSim metasim waveforms would help.
 
 ---
 
@@ -76,11 +88,12 @@ policy) is byte-identical to spike; the entire gap is the **camera sensor-delive
 - ❌ **`counter_max` never set (DMA never wraps)** — driver DMA_CFG offset (0x14) matches the RTL
   `written_counter_max` register exactly.
 
-## Open / candidate fixes if chunked camera fails
-- **RoSEDMA refresh fix** (efficient path): make the DMA overwrite `dma_base` per frame (single-buffer /
-  counter-reset-on-arm). Needs RTL + rebuild; RoSEDMA timing wants FireSim metasim waveforms.
-- **Dedicated reqrsp channel** for the camera (parametric `DstParams` add) to remove head-of-line sharing.
-  Needs coordinated RTL + driver STATUS-bit + DT `num-reqrsp` changes + rebuild.
+## The path forward (reqrsp exhausted → DMA refresh)
+- **PRIMARY: RoSEDMA refresh fix** — the guest already reads DMA frames correctly; only the refresh is stale.
+  Reset the DMA write counter on each arm so every frame overwrites `dma_base`. Targeted RTL + 3rd rebuild (~2 hr).
+  Best confidence, since the DMA read path is proven to work.
+- Fallback: dedicated reqrsp channel (parametric `DstParams`) — but the reqrsp *read* itself blocks, so this is
+  lower-confidence than the DMA fix.
 
 ---
 
@@ -101,4 +114,4 @@ policy) is byte-identical to spike; the entire gap is the **camera sensor-delive
 ## Task tracker
 - `#114` (open): fix FPGA camera delivery → pass gates. Candidate: chunked camera (testing), else RoSEDMA refresh / dedicated channel.
 
-_Last updated: 2026-08-13, chunked-camera flight in progress on port 10071._
+_Last updated: 2026-08-13 — chunked camera FAILED (same block, reqrsp dead end); pivoting to the RoSEDMA refresh fix (needs 3rd rebuild)._
