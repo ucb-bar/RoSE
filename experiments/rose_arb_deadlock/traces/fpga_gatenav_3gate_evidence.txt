@@ -1,0 +1,54 @@
+# FPGA 3-gate nav — evidence extract (camera UNFROZEN + gate crossings)
+# Saturn+RoSE on firesim1 U250, IsaacLab on garden, seed 1000, bitstream 2026-08-13--14-28-37
+# Fix: DMA address 0x88000000 (RoSE 5f3042d). Full raw sync log not committed (1.4M).
+
+## Gate crossings
+[GATE] passed gate 1/4 at t=3.27s xy=(-8.27,+8.13)
+[GATE] passed gate 2/4 at t=7.07s xy=(-8.57,+12.15)
+[GATE] passed gate 3/4 at t=9.92s xy=(-7.95,+16.13)
+
+## Unique camera frame hashes seen by sync (unfrozen: many; frozen was 1)
+count = 126
+cam=0010b162
+cam=013121ff
+cam=02377b3f
+cam=0bfd8f5c
+cam=0c6e2c95
+cam=0c89177b
+cam=0ea18790
+cam=0ee334e3
+cam=1074ba06
+cam=1145efaa
+cam=1268a319
+cam=13224432
+cam=1565d087
+cam=174bee93
+cam=18757ebd
+cam=1a4e32cb
+cam=1b43e591
+cam=1c9e144a
+cam=20d41de0
+cam=22a8c747
+...
+
+## DMADIAG samples (curr_counter ping-pong proving DMA writes fresh frames)
+[dma-serve] cmd=0x11 'cam_front' nbytes=5400 crc32=0x4d1b99f7
+[DMADIAG] curr_counter=5400 (0x1518) status=0x9 half=1
+[dma-serve] cmd=0x11 'cam_front' nbytes=5400 crc32=0x4d1b99f7
+[DMADIAG] curr_counter=0 (0x0) status=0x1 half=0
+[dma-serve] cmd=0x11 'cam_front' nbytes=5400 crc32=0x698d2580
+[DMADIAG] curr_counter=5400 (0x1518) status=0x9 half=1
+[dma-serve] cmd=0x11 'cam_front' nbytes=5400 crc32=0x698d2580
+[DMADIAG] curr_counter=0 (0x0) status=0x1 half=0
+[dma-serve] cmd=0x11 'cam_front' nbytes=5400 crc32=0x04aa6c55
+[DMADIAG] curr_counter=5400 (0x1518) status=0x9 half=1
+[dma-serve] cmd=0x11 'cam_front' nbytes=5400 crc32=0x04aa6c55
+[DMADIAG] curr_counter=0 (0x0) status=0x1 half=0
+[dma-serve] cmd=0x11 'cam_front' nbytes=5400 crc32=0xbdb2b54e
+[DMADIAG] curr_counter=5400 (0x1518) status=0x9 half=1
+[dma-serve] cmd=0x11 'cam_front' nbytes=5400 crc32=0xbdb2b54e
+[DMADIAG] curr_counter=0 (0x0) status=0x1 half=0
+[dma-serve] cmd=0x11 'cam_front' nbytes=5400 crc32=0xf08695d9
+[DMADIAG] curr_counter=5400 (0x1518) status=0x9 half=1
+[dma-serve] cmd=0x11 'cam_front' nbytes=5400 crc32=0xf08695d9
+[DMADIAG] curr_counter=0 (0x0) status=0x1 half=0
