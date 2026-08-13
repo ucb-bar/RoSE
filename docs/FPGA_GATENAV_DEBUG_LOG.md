@@ -6,7 +6,7 @@ matching the spike reference (spike passes 3/4 gates on seed 1000), with recorde
 **Reference (spike, working):** `[GATE] passed 1/4 @3.33s, 2/4 @6.65s, 3/4 @10.14s`; drone cruises
 ~1.4 m/s at z≈2.0 m up the +y corridor (gate centres local: G1(-8.05,9) G2(-8.30,13) G3(-7.75,17) G4(-8.05,21), pass radius 0.9 m).
 
-**Status (2026-08-13):** primary stall bug FIXED; gate reproduction blocked by a *chain* of FPGA camera-delivery
+**Status (2026-08-13):** primary stall bug FIXED. Frozen-camera ROOT CAUSE FOUND — a DMA address mismatch (RTL writes 0x88000000, guest read 0x90000000). Guest-only fix applied (no rebuild), flight testing.
 bugs — 3 fixed/root-caused, currently testing a 4th fix (chunked camera). Compute backend (Saturn RVV nav
 policy) is byte-identical to spike; the entire gap is the **camera sensor-delivery path**.
 
@@ -66,14 +66,23 @@ policy) is byte-identical to spike; the entire gap is the **camera sensor-delive
 - **Conclusion:** the reqrsp-camera path is a dead end without waveform-level insight into why `RX1_VALID` doesn't
   advance the camera read despite the data being in the FIFO.
 
-### 6. Pivot back to the DMA path — ⏭ THE REMAINING VIABLE ROUTE
-- **Key asymmetry:** on the **DMA** path the guest **reads the frame fine** (physics *advanced* in the frozen-camera
-  runs — the guest read `dma_base`, ran the model, sent thrusts); only the **refresh** is broken (stale frame).
-  On the **reqrsp** path the guest can't read the response at all. So the DMA path is much closer to working.
-- **Fix:** make the `RoSEDMA` deliver a fresh frame each request — reset the write counter to 0 on each arm
-  (DMA_CFG write) so every frame overwrites `dma_base` (robust to whatever the ping-pong counter does), OR
-  single-buffer (wrap at `counter_max`). Needs a targeted RTL change + a 3rd bitstream rebuild (~2 hr).
-  RoSEDMA counter timing is opaque from logs — this is the point where FireSim metasim waveforms would help.
+### 6. Frozen-camera ROOT CAUSE FOUND — DMA address mismatch — 🔧 FIX APPLIED (guest-only, testing)
+- **Method:** guest reads the RoSEDMA `curr_counter` reg (0x18) after each frame and echoes it (**DMADIAG**, cmd 0x24) —
+  direct register reads, no bitstream change.
+- **Finding:** `curr_counter` cleanly **ping-pongs 5400 → 0 → 5400 → 0** (the DMA writes fresh frames to alternating
+  halves correctly!) while the cam stays frozen `ba24d8a5`. That's only possible if the guest reads a *different
+  address than the DMA writes*.
+- **ROOT CAUSE:** **RTL `DstParams(DMA_address = 0x88000000)`** (RoSEConfigs.scala, both configs) vs guest DT
+  **`dma-base-address = 0x90000000`**. The guest DT was moved above SRAM (0x90000000) to avoid heap corruption but the
+  **RTL was never synced** — it still writes 0x88000000. The guest read 0x90000000 (never written) → frozen; the DMA
+  wrote fresh frames to 0x88000000 the whole time. This retires the "RoSEDMA refresh is broken" theory — the DMA
+  refresh works perfectly; it was an address mismatch.
+- **Fix (guest-only, NO rebuild):** (a) DT `dma-base-address` → `0x88000000` (read where the DMA writes; safe — the DMA
+  already writes there without destabilizing the guest); (b) `rose_dma_buffer` selects the just-filled ping-pong half
+  from `curr_counter` (race-free, unlike the ISR STATUS-bit3 latch). Proper long-term fix: change the RTL DMA_address
+  to 0x90000000 + rebuild.
+- **Status:** flight in progress — watching for `[VDIAG]` with **>1 unique cam** (unfrozen) → the drone should
+  navigate → gates.
 
 ---
 
@@ -85,6 +94,7 @@ policy) is byte-identical to spike; the entire gap is the **camera sensor-delive
 - ❌ **Delivery-drop / word loss** — `enq==tx` zero drops after the held-valid fix.
 - ❌ **Shared-channel framing cascade** (camera + 6 sensors on ch1) — RRDIAG proved all nav reads are cleanly framed.
 - ❌ **Boot-time camera request misordering** — guest only checks `device_is_ready` at boot; no early 0x11.
+- ❌ **RoSEDMA refresh logic broken** — the DMADIAG counter trace proved the DMA writes fresh frames correctly (ping-pong 5400↔0); the freeze was purely the read/write address mismatch, not the refresh.
 - ❌ **`counter_max` never set (DMA never wraps)** — driver DMA_CFG offset (0x14) matches the RTL
   `written_counter_max` register exactly.
 
@@ -114,4 +124,4 @@ policy) is byte-identical to spike; the entire gap is the **camera sensor-delive
 ## Task tracker
 - `#114` (open): fix FPGA camera delivery → pass gates. Candidate: chunked camera (testing), else RoSEDMA refresh / dedicated channel.
 
-_Last updated: 2026-08-13 — chunked camera FAILED (same block, reqrsp dead end); pivoting to the RoSEDMA refresh fix (needs 3rd rebuild)._
+_Last updated: 2026-08-13 — frozen-camera ROOT CAUSE = DMA address mismatch (0x88000000 vs 0x90000000); guest-only fix applied, flight in progress._
