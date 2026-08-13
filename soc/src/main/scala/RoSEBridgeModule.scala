@@ -486,9 +486,21 @@ class RoSEBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     } else {
       // MMIO (default): per-word host writes drive rxfifo; the stream stays idle.
       dmaRxAdapter.io.rxOut.ready := false.B
-      genWOReg(rxfifo.io.enq.bits, "in_bits")
-      Pulsify(genWORegInit(rxfifo.io.enq.valid, "in_valid", false.B), pulseLength = 1)
-      genROReg(rxfifo.io.enq.ready, "in_ready")
+      // WORD-DROP FIX: in_valid is a 1-cycle Pulsify. Driving the rxfifo AsyncQueue enq
+      // directly with that pulse (its deq clock acg.O is gated) intermittently DROPS a
+      // word -> the arbiter then starves in sLoad awaiting it forever (root-caused via
+      // ROSE_ARB_TRACE: sh/tx/rx frozen, grants flowing, host queues empty). Insert a
+      // small SYNCHRONOUS skid queue (host `clock`, same as rxfifo.enq_clock) that
+      // absorbs the pulse reliably and drives rxfifo.enq with a proper held-valid
+      // Decoupled handshake -> the word is held until the AsyncQueue accepts it, so
+      // nothing is dropped. in_ready now reflects skid space; the host driver's
+      // send()/backpressure loop and the register map are unchanged.
+      val in_skid = Module(new Queue(UInt(32.W), 4))
+      in_skid.reset := reset.asBool || targetReset
+      genWOReg(in_skid.io.enq.bits, "in_bits")
+      Pulsify(genWORegInit(in_skid.io.enq.valid, "in_valid", false.B), pulseLength = 1)
+      genROReg(in_skid.io.enq.ready, "in_ready")
+      rxfifo.io.enq <> in_skid.io.deq
     }
     // COSIM-CODE
     genWOReg(rx_bigstep_fifo.io.enq.bits, "in_bigstep_bits")

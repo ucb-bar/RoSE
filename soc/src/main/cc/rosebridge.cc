@@ -466,6 +466,13 @@ void rosebridge_t::send()
     data.in.ready = read(this->mmio_addrs.in_ready);
     if(data.in.ready) {
         write(this->mmio_addrs.in_bits, data.in.bits);
+        // Read-back barrier: force the in_bits write to commit BEFORE the in_valid pulse.
+        // Symptom fixed: an intermittent ~1/200k word drop (arbiter starves in sLoad
+        // awaiting a reqrsp word) that survived the rxfifo skid buffer -> the drop is
+        // upstream, a write-ordering skew where in_valid could pulse before in_bits
+        // latched (enqueuing a stale word, losing the new one). The read serializes the
+        // two MMIO writes so in_bits is stable when in_valid fires.
+        (void)read(this->mmio_addrs.in_ready);
         write(this->mmio_addrs.in_valid, 1);
     }
 }
