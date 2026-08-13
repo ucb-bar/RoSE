@@ -6,9 +6,20 @@ matching the spike reference (spike passes 3/4 gates on seed 1000), with recorde
 **Reference (spike, working):** `[GATE] passed 1/4 @3.33s, 2/4 @6.65s, 3/4 @10.14s`; drone cruises
 ~1.4 m/s at z≈2.0 m up the +y corridor (gate centres local: G1(-8.05,9) G2(-8.30,13) G3(-7.75,17) G4(-8.05,21), pass radius 0.9 m).
 
-**Status (2026-08-13):** primary stall bug FIXED. Frozen-camera **ROOT CAUSE FOUND** — a DMA address mismatch
-(RTL writes 0x88000000, guest read 0x90000000). Guest-only fix applied (no rebuild); flight testing. Compute backend
-(Saturn RVV nav policy) is byte-identical to spike; the entire gap was the **camera sensor-delivery path**.
+**Status (2026-08-13): ✅ GOAL REACHED — 3/4 gates on FPGA, matching spike.** Primary stall bug FIXED. Frozen-camera
+**ROOT CAUSE FOUND & FIXED** — a DMA address mismatch (RTL writes 0x88000000, guest read 0x90000000). Guest-only fix
+(no rebuild). Compute backend (Saturn RVV nav policy) is byte-identical to spike; the entire gap was the **camera
+sensor-delivery path**. With the camera unfrozen the FPGA drone flies spike's trajectory and clears all 3 gates.
+
+| Gate | Spike (reference) | FPGA (Saturn+RoSE, U250) |
+|------|-------------------|--------------------------|
+| 1/4  | 3.33s             | **3.27s** @ (-8.27,+8.13) |
+| 2/4  | 6.65s             | **7.07s** @ (-8.57,+12.15) |
+| 3/4  | 10.14s            | **9.92s** @ (-7.95,+16.13) |
+
+Gate 4 missed by both (spike is 3/4). Camera confirmed unfrozen: uCam climbs continuously, frame hashes change
+each vision tick like spike (was frozen at `ba24d8a5` ×23). Fix committed: RoSE `5f3042d` → xpu-rt `0c5315b`
+(zephyr-chipyard-sw `77aaa6b`: DT dma-base 0x88000000 + DMADIAG) → zephyr-rose `b7cd18a` (curr_counter half-select).
 
 ---
 
@@ -66,7 +77,7 @@ matching the spike reference (spike passes 3/4 gates on seed 1000), with recorde
 - **Conclusion:** the reqrsp-camera path is a dead end without waveform-level insight into why `RX1_VALID` doesn't
   advance the camera read despite the data being in the FIFO.
 
-### 6. Frozen-camera ROOT CAUSE FOUND — DMA address mismatch — 🔧 FIX APPLIED (guest-only, testing)
+### 6. Frozen-camera ROOT CAUSE FOUND & FIXED — DMA address mismatch — ✅ FIXED & VALIDATED (3/4 gates)
 - **Method:** guest reads the RoSEDMA `curr_counter` reg (0x18) after each frame and echoes it (**DMADIAG**, cmd 0x24) —
   direct register reads, no bitstream change.
 - **Finding:** `curr_counter` cleanly **ping-pongs 5400 → 0 → 5400 → 0** (the DMA writes fresh frames to alternating
@@ -81,8 +92,10 @@ matching the spike reference (spike passes 3/4 gates on seed 1000), with recorde
   already writes there without destabilizing the guest); (b) `rose_dma_buffer` selects the just-filled ping-pong half
   from `curr_counter` (race-free, unlike the ISR STATUS-bit3 latch). Proper long-term fix: change the RTL DMA_address
   to 0x90000000 + rebuild.
-- **Status:** flight in progress — watching for `[VDIAG]` with **>1 unique cam** (unfrozen) → the drone should
-  navigate → gates.
+- **Validation:** camera unfrozen (uCam climbs continuously, per-tick frame hashes change like spike); the FPGA
+  drone flew spike's trajectory and passed **3/4 gates** (1@3.27s, 2@7.07s, 3@9.92s) vs spike (3.33/6.65/10.14s).
+  Gate 4 missed by both — an exact match to the spike reference. **This closes the FPGA gate-nav investigation.**
+- **Commit:** RoSE `5f3042d` → xpu-rt `0c5315b` (zephyr-chipyard-sw `77aaa6b`) → zephyr-rose `b7cd18a`.
 
 ---
 
@@ -98,12 +111,14 @@ matching the spike reference (spike passes 3/4 gates on seed 1000), with recorde
 - ❌ **`counter_max` never set (DMA never wraps)** — driver DMA_CFG offset (0x14) matches the RTL
   `written_counter_max` register exactly.
 
-## The path forward (reqrsp exhausted → DMA refresh)
-- **PRIMARY: RoSEDMA refresh fix** — the guest already reads DMA frames correctly; only the refresh is stale.
-  Reset the DMA write counter on each arm so every frame overwrites `dma_base`. Targeted RTL + 3rd rebuild (~2 hr).
-  Best confidence, since the DMA read path is proven to work.
-- Fallback: dedicated reqrsp channel (parametric `DstParams`) — but the reqrsp *read* itself blocks, so this is
-  lower-confidence than the DMA fix.
+## Resolution & remaining cleanup (the DMA path was never broken)
+- ✅ **RESOLVED by the address fix** — the reqrsp detour (#3–#5) and the "DMA refresh" theory were both chasing a
+  symptom. The DMA read path always worked; the guest was simply reading the wrong address. One-line DT change
+  (0x90000000→0x88000000) + curr_counter half-select → 3/4 gates, no bitstream rebuild.
+- **Long-term cleanup (optional, not required for the goal):** sync the RTL `DstParams(DMA_address)` in
+  RoSEConfigs.scala to 0x90000000 and rebuild so RTL and DT agree on the canonical (above-SRAM) address; then the
+  guest DT can revert to 0x90000000. Purely cosmetic — the current 0x88000000 pairing is validated and stable.
+- The reqrsp-camera diagnostics (RRDIAG/CAMDIAG, chunked path) remain in-tree behind flags as useful tooling.
 
 ---
 
@@ -122,6 +137,7 @@ matching the spike reference (spike passes 3/4 gates on seed 1000), with recorde
   to `ROSE_SYNC_PORT=10071` (data port 60002 hardcoded in `rosebridge.cc`).
 
 ## Task tracker
-- `#114` (open): fix FPGA camera delivery → pass gates. Candidate: chunked camera (testing), else RoSEDMA refresh / dedicated channel.
+- `#114` ✅ **DONE**: FPGA camera delivery fixed (DMA address mismatch) → **3/4 gates** on Saturn+RoSE, matching spike.
 
-_Last updated: 2026-08-13 — frozen-camera ROOT CAUSE = DMA address mismatch (0x88000000 vs 0x90000000); guest-only fix applied, flight in progress._
+_Last updated: 2026-08-13 — ✅ GOAL REACHED. Frozen-camera ROOT CAUSE = DMA address mismatch (0x88000000 vs 0x90000000);
+guest-only fix (RoSE 5f3042d) → drone flies spike's trajectory → **3/4 gates** (1@3.27s, 2@7.07s, 3@9.92s). Recorded video assembled._

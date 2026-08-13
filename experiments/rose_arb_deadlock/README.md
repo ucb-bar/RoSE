@@ -47,17 +47,52 @@ where every prior config hung at 45–488 iters. The one transient `enq-tx=10` a
 drained to 0 next heartbeat (normal AsyncQueue pipeline occupancy, not a drop). The stall
 bug is dead. Trace: `traces/heldvalid_zerodrops_91kwords.txt`.
 
-## POST-FIX finding: gate-nav yaw divergence (delivery is no longer the blocker)
+## POST-FIX finding: gate-nav yaw divergence → ROOT-CAUSED to a FROZEN camera (NOT fp16)
 
-With delivery fixed, the flight runs its FORWARD-NAV phase for the first time (it always
-deadlocked at settle before). Result: the drone **flies but misses the gates** — it tracks
-diagonally instead of up the +y corridor, `gates=0` on seed 1000 where spike passes 3/4.
-Matched traj CSVs (`traces/fpga_gatenav_gn_traj.csv` vs spike
-`experiments/rose_nav_cosim/run_out/traj.csv`) show yaw is **bit-exact to spike during
-settle** and diverges to a **constant ~0.5 rad (~30°) only once vision engages (~tick 210)**
-— see `traces/postfix_yaw_divergence.txt`. Leading cause: the fused-vision fp16 tail
-(`lstm_f16`) on Saturn **native Zvfh hardware fp16** vs spike's fp16 **emulation**. This is a
-distinct, numerical issue — see memory `rose-fpga-nav-yaw-divergence.md`.
+With delivery fixed, the flight ran its FORWARD-NAV phase for the first time (it always
+deadlocked at settle before). Initial result: the drone **flew but missed the gates** — it
+tracked diagonally instead of up the +y corridor, `gates=0` on seed 1000 where spike passes 3/4.
+
+The first hypothesis was a fused-vision fp16-tail numerical divergence (Saturn Zvfh HW fp16 vs
+spike fp16 emulation). **That was WRONG.** A guest→sync **VDIAG echo** (per-vision-tick FNV hash
+of the three model inputs {cam,tof,lowdim} + fp16 outputs, sent as an unknown cmd 0x21 over the
+working data channel since guest printk isn't captured on FPGA) proved the model *inputs* differ,
+not the compute: the **camera was FROZEN** on its first frame (`ba24d8a5` for all 23 ticks) while
+spike had 113 unique frames; tof+lowdim were fresh. Vision ran on a dead image → wrong steer.
+
+**ROOT CAUSE (confirmed via the DMADIAG curr_counter probe, cmd 0x24):** a DMA **address
+mismatch**. The FPGA RTL `RoSEDMA` writes camera frames to `DMA_address=0x88000000`
+(`RoSEConfigs.scala DstParams`) but the guest DT `dma-base-address` was `0x90000000` (matching
+spike `--rose-dma-base`), never synced to the RTL. The guest read `0x90000000` (never written) →
+frozen frame forever, while the DMA wrote fresh frames to `0x88000000` the whole time (proven by
+`curr_counter` cleanly ping-ponging 5400↔0). The DMA refresh was never broken; only the read
+address was wrong.
+
+**FIX (guest-only, no bitstream rebuild):** (a) DT `dma-base-address` → `0x88000000` (read where
+the DMA writes); (b) `rose_dma_buffer` selects the just-filled ping-pong half from `curr_counter`
+(race-free vs the ISR STATUS-bit3 latch). Commits: RoSE `5f3042d` → xpu-rt `0c5315b`
+(zephyr-chipyard-sw `77aaa6b`) → zephyr-rose `b7cd18a`. Long-term cleanup: sync the RTL
+`DMA_address` to `0x90000000` + rebuild so RTL/DT agree (cosmetic; current pairing is validated).
+
+## ✅ GOAL REACHED — full 3-gate navigation reproduced on FPGA with recorded video
+
+With the camera unfrozen, the FPGA drone flies **spike's trajectory** up the warehouse corridor
+and clears **3/4 gates** — an exact match to the spike reference (both miss gate 4):
+
+| Gate | Spike (reference) | FPGA (Saturn+RoSE, firesim1 U250) |
+|------|-------------------|-----------------------------------|
+| 1/4  | 3.33s | **3.27s** @ (-8.27,+8.13) |
+| 2/4  | 6.65s | **7.07s** @ (-8.57,+12.15) |
+| 3/4  | 10.14s | **9.92s** @ (-7.95,+16.13) |
+
+Camera confirmed unfrozen: `uCam` climbs continuously, per-tick frame hashes change like spike.
+The entire nav stack — camera over DMA, VL53L5CX multizone ToF + IMU/flow over reqrsp, the
+fused-vision RVV policy on **real Saturn fabric**, in lockstep with IsaacLab on garden over LAN —
+navigates autonomously gate-to-gate.
+
+**Recorded video:** `fpga_gatenav_3gate.mp4` (chase-cam, 960×540, 60s; NOT git-tracked — 6.9 MB
+binary, reproducible via `gatenav_flight.sh` + `make_gatenav_video.sh` from the deterministic
+seed-1000 flight). Gate-crossing stills committed under `stills/fpga_gate{1,2,3}.jpg`.
 
 Superseded attempts (kept for the record): deeper per-channel rx FIFO (8→256, wrong
 layer — the stall counters proved the arbiter wasn't the problem); DMA-RX datapath (the
