@@ -48,8 +48,16 @@ builds_to_run:
   # - alveo_u250_firesim-rocket-saturn-with-rose-DMA-60mhz-fast-no-nic-l2-llc4mb-ddr3
   # ARBITER-DEADLOCK FIX build: MMIO Saturn (the flight config) rebuilt at 30 MHz with
   # the deeper 256-deep per-channel rx FIFO + arbiter stall counters. Replaces the
-  # deployed 60 MHz MMIO bitstream that hit the delivery deadlock.
-  - alveo_u250_firesim-rocket-saturn-with-rose-fast-no-nic-l2-llc4mb-ddr3
+  # deployed 60 MHz MMIO bitstream that hit the delivery deadlock. DONE (flew 3/4 gates).
+  # - alveo_u250_firesim-rocket-saturn-with-rose-fast-no-nic-l2-llc4mb-ddr3
+  # POST-FLIGHT higher-frequency + apples-to-apples throughput builds (2026-08-13).
+  # Wave 1 (concurrent): the two 60 MHz Saturn+RoSE builds -- MMIO transport (the proven
+  # flight config at 2x clock) vs WithRoseDmaRx host-DMA transport, same 60 MHz clock.
+  - alveo_u250_firesim-rocket-saturn-with-rose-60mhz-fast-no-nic-l2-llc4mb-ddr3
+  - alveo_u250_firesim-rocket-saturn-with-rose-DMA-60mhz-fast-no-nic-l2-llc4mb-ddr3
+  # Wave 2 (queued -- launched separately once a RAM slot frees; garden holds ~2 U250
+  # Vivado builds): dual-core Saturn + int8 Gemmini + RoSE multi-accelerator build.
+  # - alveo_u250_firesim-dual-rocket-saturn-gemmini-with-rose-fast-no-nic-l2-llc4mb-ddr3
   # - firesim-rocket-singlecore-fp32gemmini-with-airsim-no-nic-l2-llc4mb-ddr3
   # - firesim-rocket-singlecore-fp32gemmini-with-airsim-fast-no-nic-l2-llc4mb-ddr3
 agfis_to_share:

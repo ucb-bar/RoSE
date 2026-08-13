@@ -53,6 +53,16 @@ class RoseTLRocketSaturnDMAMMIOOnlyConfig extends Config(
   new rose.WithRoseDmaRx ++
   new RoseTLRocketSaturnMMIOOnlyConfig)
 
+// Dual-core Saturn-vector + int8 Gemmini FireSim wrapper: the same MMIO-only RoSE
+// bridge stack (WithRoseBridge + MMIO-only bridges + FireSim tweaks) on top of the
+// dual-core Saturn+Gemmini base (RoseTLDualRocketSaturnGemminiConfig). Target for the
+// multi-accelerator U250 bitstream (2x Rocket, each with Saturn RVV + int8 Gemmini RoCC).
+class RoseTLDualRocketSaturnGemminiMMIOOnlyConfig extends Config(
+  new WithRoseBridge ++
+  new WithDefaultMMIOOnlyFireSimBridges ++
+  new WithFireSimConfigTweaks ++
+  new chipyard.config.RoseTLDualRocketSaturnGemminiConfig)
+
 // class RoseTLRocketStereoAccMMIOOnlyDMAConfig extends Config(
 //   new WithRoseBridge ++
 //   new WithDefaultMMIOOnlyFireSimBridges ++

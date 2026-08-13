@@ -44,6 +44,28 @@ class RoseTLRocketSaturnConfig extends Config(
   new freechips.rocketchip.rocket.WithNBigCores(1) ++         // single rocket-core + Saturn VPU
   new chipyard.config.AbstractRoseConfig)
 
+// Dual-core Saturn-vector + int8 Gemmini variant for future multi-accelerator
+// experiments. TWO Rocket big cores, each carrying BOTH a Saturn RVV vector unit
+// (V + Zfh + Zvfh, same VLEN128/DLEN64 as RoseTLRocketSaturnConfig -- runs the RVV
+// fp16 vision kernels) AND an int8 Gemmini systolic RoCC (gemmini.GemminiConfigs.
+// defaultConfig: SInt8 in / SInt32 acc / Q0.31 per-oc requant -- this is the
+// "gemmini_q31" systolic backend ModelBlaster lowers to). Accelerator mixins sit
+// to the LEFT of WithNBigCores(2) so the two created tiles pick up BuildRoCC (Gemmini)
+// + the vector-unit tile params. Same RoSE adapter dst_ports (DMA0 @ 0x88000000 +
+// two reqrsp) as the single-core configs, so the guest device-tree/bridge contract is
+// unchanged. A big design (2x Rocket + Saturn VPU + Gemmini) -- built at 30 MHz for
+// timing headroom on the U250.
+class RoseTLDualRocketSaturnGemminiConfig extends Config(
+  new rose.WithRoseAdapter(dst_ports = new DstParams_Container(Seq(
+    DstParams(port_type="DMA", DMA_address = 0x88000000L, name="DMA0"),
+    DstParams(port_type="reqrsp", name="reqrsp0"),
+    DstParams(port_type="reqrsp", name="reqrsp1"),
+  ))) ++
+  new gemmini.DefaultGemminiConfig(gemmini.GemminiConfigs.defaultConfig) ++  // int8 Gemmini RoCC (gemmini_q31)
+  new saturn.rocket.WithRocketVectorUnit(128, 64, VectorParams.refParams) ++ // Saturn RVV vector unit
+  new freechips.rocketchip.rocket.WithNBigCores(2) ++                        // dual rocket big-core
+  new chipyard.config.AbstractRoseConfig)
+
 // class RocketStereoAccRoCCConfig extends Config(
 //   new freechips.rocketchip.subsystem.WithNBigCores(1) ++
 //   new stereoacc.WithDefaultStereoAccConfig() ++

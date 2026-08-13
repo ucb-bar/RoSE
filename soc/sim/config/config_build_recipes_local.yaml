@@ -239,6 +239,45 @@ alveo_u250_firesim-rocket-saturn-with-rose-fast-no-nic-l2-llc4mb-ddr3:
     metasim_customruntimeconfig: null
     bit_builder_recipe: bit-builder-recipes/xilinx_alveo_u250.yaml
 
+# 60 MHz sibling of the MMIO Saturn+RoSE flight bitstream: SAME validated config
+# (RoseTLRocketSaturnMMIOOnlyConfig) that passed 3/4 gates at 30 MHz, now at 2x host
+# clock for the apples-to-apples throughput artifact the 30 MHz recipe comment calls
+# for (the arbiter-deadlock + frozen-camera fixes are confirmed). MMIO path is lighter
+# than the DMA gearbox, so 60 MHz timing closure should be comfortable. Distinct recipe
+# name => fresh build dir, no collision with the 30 MHz flight bitstream. Added 2026-08-13.
+alveo_u250_firesim-rocket-saturn-with-rose-60mhz-fast-no-nic-l2-llc4mb-ddr3:
+    PLATFORM: xilinx_alveo_u250
+    TARGET_PROJECT: firesim
+    DESIGN: FireSim
+    TARGET_CONFIG: RoseTLRocketSaturnMMIOOnlyConfig
+    PLATFORM_CONFIG: BaseXilinxAlveoU250Config
+    deploy_triplet: null
+    platform_config_args:
+        fpga_frequency: 60
+        build_strategy: TIMING
+    post_build_hook: null
+    metasim_customruntimeconfig: null
+    bit_builder_recipe: bit-builder-recipes/xilinx_alveo_u250.yaml
+
+# Dual-core Saturn-vector + int8 Gemmini + RoSE (multi-accelerator experiment).
+# TWO Rocket big cores, each with a Saturn RVV vector unit AND an int8 Gemmini systolic
+# RoCC (gemmini_q31: SInt8/SInt32/Q0.31 requant). Uses RoseTLDualRocketSaturnGemminiMMIOOnlyConfig.
+# Large design => 30 MHz for U250 timing headroom (2x Rocket + 2x Saturn VPU + 2x Gemmini).
+# Added 2026-08-13.
+alveo_u250_firesim-dual-rocket-saturn-gemmini-with-rose-fast-no-nic-l2-llc4mb-ddr3:
+    PLATFORM: xilinx_alveo_u250
+    TARGET_PROJECT: firesim
+    DESIGN: FireSim
+    TARGET_CONFIG: RoseTLDualRocketSaturnGemminiMMIOOnlyConfig
+    PLATFORM_CONFIG: BaseXilinxAlveoU250Config
+    deploy_triplet: null
+    platform_config_args:
+        fpga_frequency: 30
+        build_strategy: TIMING
+    post_build_hook: null
+    metasim_customruntimeconfig: null
+    bit_builder_recipe: bit-builder-recipes/xilinx_alveo_u250.yaml
+
 # DMA-datapath Saturn+RoSE variant (host->FPGA rxfifo over a 512b FireSim
 # StreamFromHostCPU). LOW-FREQUENCY (30 MHz) build for easy timing closure +
 # faster PAR; intended for later FPGA throughput-validation of the DMA path.
