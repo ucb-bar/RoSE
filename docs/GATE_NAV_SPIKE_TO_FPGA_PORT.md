@@ -212,3 +212,36 @@ fp16 tail (`lstm_f16`) on Saturn **native Zvfh hardware fp16** vs spike's fp16 *
 "genuine Saturn-vs-ISS finding" §4 anticipated. **This retires the delivery hypothesis of §5** and moves
 the investigation to on-Saturn vs on-spike numerical fidelity of the vision inference. Memory:
 `rose-fpga-nav-yaw-divergence`.
+
+## 7. ROOT CAUSE PROVEN (2026-08-13): a FROZEN CAMERA — not fp16, not delivery-drop
+
+The fp16 hypothesis of §6 was WRONG. Built a guest→sync diagnostic echo (`FMPC_VISION_DBG`: after
+`run_model_fused_full`, send an FNV-1a hash of the 3 model inputs {cam, tof, lowdim} + the raw fp16
+outputs to the sync as an unknown cmd `0x21` that it logs `[VDIAG]` — guest console printk is NOT
+captured on FPGA, and a CRC-in-printk stalls the loop, so the echo rides the working guest→sync data
+channel). Ran the **byte-identical** guest on BOTH spike and FPGA. At the first vision tick (both at
+the bit-identical spawn, proven by a matching `low` hash):
+
+| input | FPGA | spike | verdict |
+|---|---|---|---|
+| `low` (lowdim 0x42, reqrsp) | matches | matches | fresh ✓ |
+| `tof` (tof_cross 0x41, reqrsp) | matches (after tick 1) | — | fresh ✓ |
+| `cam` (cam_front 0x11, **DMA**) | **`ba24d8a5` for all 23 ticks** | 113 unique / 225 | **FROZEN** ✗ |
+
+The sync's `[dma-serve] crc32` shows the sync SERVES fresh frames (12 unique) — env + sync are correct.
+So **the FPGA camera DMA delivers a frozen (first) frame**; the vision model runs on a dead image →
+wrong `g_yr`/`g_fwd` → the wrong-way yaw and slow cruise of §6 → misses gates. Delivery-drop, guest
+build, and fp16 compute are all RULED OUT. Instrumented spike still passes 3/4 (gate1@3.33 / 2@6.65 /
+3@10.14 s), confirming the echo doesn't perturb.
+
+**Mechanism:** `RoSEDMA` (ch0) is a ping-pong double buffer (frame N → half `[0,N)`, N+1 → half
+`[N,2N)`, IRQ per half, half exposed via STATUS bit3 `DMA_BUFFER`), but the guest's
+`rose_dma_buffer` always read half 0. Fixed the guest to consume the flagged half (`rose_adapter.c`) —
+**necessary but not sufficient**: on the current delivery-fix bitstream the camera stayed frozen
+(`dma_half` never went 1), i.e. the RoSEDMA *refresh* itself needs an RTL fix. The reqrsp fallback
+(route 0x11 as reqrsp, `FMPC_CAM_REQRSP`) DEADLOCKS on the 1350-word frame (256-deep FIFO overflow).
+
+**So the sole remaining blocker to on-FPGA gate-nav is the ch0 camera-DMA refresh; both fix paths
+(RoSEDMA refresh, or a deeper FIFO for reqrsp-camera) require a bitstream rebuild.** Tooling +
+evidence: `experiments/rose_arb_deadlock/` (VDIAG echo, `traces/frozen_camera_rootcause.txt`,
+`spike_vdiag_ref.txt`). Memory: `rose-fpga-nav-yaw-divergence`.

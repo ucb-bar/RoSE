@@ -525,6 +525,15 @@ class Synchronizer(DummySynchronizer):
             self.logger.count_reset()
             return
 
+        # Guest vision-I/O diagnostic echo (cmd 0x21, FMPC_VISION_DBG): 5 words =
+        # [cam_hash, tof_hash, low_hash, out0_fp16bits, out1_fp16bits]. Logged so we can
+        # compare the FPGA guest's model inputs+output against the spike guest's.
+        if packet.cmd == 0x21:
+            d = packet.data.view('uint32') if hasattr(packet.data, 'view') else packet.data
+            print(f"[VDIAG] cam={int(d[0]):08x} tof={int(d[1]):08x} low={int(d[2]):08x} "
+                  f"out0={int(d[3])&0xffff:04x} out1={int(d[4])&0xffff:04x}", flush=True)
+            return
+
         packet_config = self.packet_bindings.get(packet.cmd)
         if not packet_config:
             print(f"Unknown packet cmd: {packet.cmd}")

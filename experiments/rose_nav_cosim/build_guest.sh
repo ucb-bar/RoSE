@@ -42,7 +42,8 @@ west build -p always -b spike_riscv64 --build-dir "$BUILD_DIR" \
   -DEXTRA_CONF_FILE="$HERE/rvv_nav.conf" \
   -DCTRL_ITERS="$CTRL_ITERS" -DSETTLE_ITERS="$SETTLE_ITERS" \
   "-DSTART_Z=$START_Z" "-DTARGET_Z=$TARGET_Z" "-DFUSED_VISION_DIV=$FUSED_VISION_DIV" \
-  "-DSTART_YAW=$START_YAW" "-DYAW_CMD_GAIN=$YAW_CMD_GAIN"
+  "-DSTART_YAW=$START_YAW" "-DYAW_CMD_GAIN=$YAW_CMD_GAIN" \
+  ${FMPC_VISION_DBG:+-DFMPC_VISION_DBG=$FMPC_VISION_DBG}
 
 echo "[build_guest] march flags:"
 grep -hoE "\-march=[a-z0-9_]+" "$BUILD_DIR/build.ninja" | sort -u

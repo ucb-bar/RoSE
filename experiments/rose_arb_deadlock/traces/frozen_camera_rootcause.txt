@@ -1,0 +1,10 @@
+# FROZEN-CAMERA root cause (2026-08-13): FPGA gate-nav misses gates because the camera DMA delivers a frozen frame.
+# guest->sync VDIAG echo (FMPC_VISION_DBG), first vision tick, spike vs FPGA (both bit-identical spawn, low MATCHES):
+#   field      FPGA        SPIKE       verdict
+#   low(0x42)  d64f72c5    d64f72c5    MATCH  (reqrsp lowdim fresh)
+#   tof(0x41)  matches after tick1                MATCH  (reqrsp tof fresh)
+#   cam(0x11)  ba24d8a5 x23 (FROZEN)  113 unique/225  FROZEN on FPGA <-- root cause
+# sync [dma-serve] crc32: 12 unique on FPGA => sync SERVES fresh; the guest receives stale.
+# => vision runs on a dead image -> wrong g_yr/g_fwd -> wrong-way yaw -> misses gates.
+# DMA path: RoSEDMA ping-pong; guest read half0 always (rose_adapter fix applied, insufficient - RTL refresh bug).
+# reqrsp path: deadlocks on the 1350-word frame (256 FIFO overflow). Both need a bitstream rebuild.
