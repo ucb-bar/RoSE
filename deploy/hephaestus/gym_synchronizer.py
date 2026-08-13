@@ -528,6 +528,13 @@ class Synchronizer(DummySynchronizer):
         # Guest vision-I/O diagnostic echo (cmd 0x21, FMPC_VISION_DBG): 5 words =
         # [cam_hash, tof_hash, low_hash, out0_fp16bits, out1_fp16bits]. Logged so we can
         # compare the FPGA guest's model inputs+output against the spike guest's.
+        if packet.cmd == 0x22:
+            d = packet.data
+            hdr = int(d[0]) if len(d) > 0 else -1
+            nb = int(d[1]) if len(d) > 1 else -1
+            print(f"[CAMDIAG] header=0x{hdr:x} num_bytes={nb} (expect header=0x11 num_bytes=5400)", flush=True)
+            return
+
         if packet.cmd == 0x21:
             d = packet.data.view('uint32') if hasattr(packet.data, 'view') else packet.data
             print(f"[VDIAG] cam={int(d[0]):08x} tof={int(d[1]):08x} low={int(d[2]):08x} "
