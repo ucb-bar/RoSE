@@ -27,7 +27,16 @@ class RoseAdapterMMIOChiselModule(params: RoseAdapterParams) extends Module
   io.tx.deq <> txfifo.io.deq
 
   for (i <- 0 until params.dst_ports.seq.count(_.port_type != "DMA")) {
-    val rx_buffer_fifo = Module(new Queue(UInt(params.width.W), 8))
+    // Per-channel reqrsp rx FIFO. Was depth 8 — SHALLOWER than a single reqrsp payload
+    // (tof_cross 0x41 is 64 words + 2 header). When the arbiter delivered a payload
+    // larger than 8 into this FIFO, it had to backpressure mid-packet (stall in sLoad
+    // until the guest drained), and any hiccup in the guest's drain (e.g. the vision vs
+    // ctrl thread interleave) could wedge the in-order arbiter — head-of-lining EVERY
+    // later channel's response (guest WFI-hangs on a served+delivered reqrsp; see the
+    // arbiter-counter trace: sh/tx/rx frozen while grants flow, host queues empty).
+    // Deepen to 256 so a whole reqrsp payload (+ several queued small ones) lands in one
+    // shot and the arbiter never stalls mid-delivery on guest drain rate.
+    val rx_buffer_fifo = Module(new Queue(UInt(params.width.W), 256))
     rx_buffer_fifo.io.enq <> io.rx.enq(i)
     rx_buffer_fifo.io.deq <> io.rx.deq(i)
   }

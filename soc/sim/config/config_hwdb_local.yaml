@@ -38,6 +38,24 @@ alveo_u250_firesim-rocket-singlecore-with-rose-fast-no-nic-l2-llc4mb-ddr3:
     custom_runtime_config: null
 # Saturn RVV vector-core (V + Zfh + Zvfh, VLEN=128) + RoSE bridge. RoseTLRocketSaturnMMIOOnlyConfig.
 alveo_u250_firesim-rocket-saturn-with-rose-fast-no-nic-l2-llc4mb-ddr3:
-    bitstream_tar: file:///scratch/dima/rose-infra/RoSE/soc/sim/chipyard/sims/firesim/deploy/results-build/2026-08-10--19-31-57-alveo_u250_firesim-rocket-saturn-with-rose-fast-no-nic-l2-llc4mb-ddr3/cl_xilinx_alveo_u250-firesim-FireSim-RoseTLRocketSaturnMMIOOnlyConfig-BaseXilinxAlveoU250Config/firesim.tar.gz
+    # ARBITER-DEADLOCK FIX bitstream (30 MHz, deeper 256-deep rx FIFO + stall counters),
+    # built 2026-08-12. Replaces the 2026-08-10 60 MHz build that hit the delivery deadlock.
+    bitstream_tar: file:///scratch/dima/rose-infra/RoSE/soc/sim/chipyard/sims/firesim/deploy/results-build/2026-08-13--02-18-34-alveo_u250_firesim-rocket-saturn-with-rose-fast-no-nic-l2-llc4mb-ddr3/cl_xilinx_alveo_u250-firesim-FireSim-RoseTLRocketSaturnMMIOOnlyConfig-BaseXilinxAlveoU250Config/firesim.tar.gz
+    deploy_quintuplet_override: null
+    custom_runtime_config: null
+# Saturn + RoSE with the host->FPGA DMA datapath (ROSE_DMA_RX) turned on
+# deterministically (RoseTLRocketSaturnDMAMMIOOnlyConfig / rose.WithRoseDmaRx).
+# LOW-FREQ 30 MHz build for later FPGA DMA throughput-validation. Built by Dima
+# 2026-08-12; RTL DMA datapath verified in generated .sv (deadRx/rxOut present);
+# timing MET at 30 MHz (WNS +0.060 ns).
+alveo_u250_firesim-rocket-saturn-with-rose-DMA-fast-no-nic-l2-llc4mb-ddr3:
+    bitstream_tar: file:///scratch/dima/rose-infra/RoSE/soc/sim/chipyard/sims/firesim/deploy/results-build/2026-08-12--00-40-55-alveo_u250_firesim-rocket-saturn-with-rose-DMA-fast-no-nic-l2-llc4mb-ddr3/cl_xilinx_alveo_u250-firesim-FireSim-RoseTLRocketSaturnDMAMMIOOnlyConfig-BaseXilinxAlveoU250Config/firesim.tar.gz
+    deploy_quintuplet_override: null
+    custom_runtime_config: null
+# 60 MHz sibling of the DMA Saturn build (2x faster flight-to-gates than the 30 MHz).
+# Used to test whether the DMA-RX 512b-beat datapath avoids the per-word MMIO word-drop
+# that deadlocks the arbiter (arbiter starved in sLoad awaiting a lost reqrsp word).
+alveo_u250_firesim-rocket-saturn-with-rose-DMA-60mhz-fast-no-nic-l2-llc4mb-ddr3:
+    bitstream_tar: file:///scratch/dima/rose-infra/RoSE/soc/sim/chipyard/sims/firesim/deploy/results-build/2026-08-12--04-48-15-alveo_u250_firesim-rocket-saturn-with-rose-DMA-60mhz-fast-no-nic-l2-llc4mb-ddr3/cl_xilinx_alveo_u250-firesim-FireSim-RoseTLRocketSaturnDMAMMIOOnlyConfig-BaseXilinxAlveoU250Config/firesim.tar.gz
     deploy_quintuplet_override: null
     custom_runtime_config: null

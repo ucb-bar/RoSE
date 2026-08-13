@@ -38,7 +38,18 @@ builds_to_run:
   # - alveo_u250_firesim-boom-gemmini-singlecore-with-rose-fast-no-nic-l2-llc4mb-ddr3
   # - f1_firesim-rocket-singlecore-with-rose-stereoacc-fast-no-nic-l2-llc4mb-ddr3
   # - alveo-u250_firesim-rocket-singlecore-with-rose-stereoacc-fast-no-nic-l2-llc4mb-ddr3
-  - alveo_u250_firesim-rocket-singlecore-with-rose-fast-no-nic-l2-llc4mb-ddr3
+  # - alveo_u250_firesim-rocket-singlecore-with-rose-fast-no-nic-l2-llc4mb-ddr3
+  # - alveo_u250_firesim-rocket-saturn-with-rose-fast-no-nic-l2-llc4mb-ddr3
+  # DMA-datapath Saturn+RoSE (DMA turned on deterministically by the config's
+  # rose.WithRoseDmaRx fragment -- no env var needed). 30 MHz build DONE (met
+  # timing, WNS +0.060 ns); now building the 60 MHz sibling for apples-to-apples
+  # throughput comparison against the 60 MHz MMIO Saturn bitstream:
+  # - alveo_u250_firesim-rocket-saturn-with-rose-DMA-fast-no-nic-l2-llc4mb-ddr3
+  # - alveo_u250_firesim-rocket-saturn-with-rose-DMA-60mhz-fast-no-nic-l2-llc4mb-ddr3
+  # ARBITER-DEADLOCK FIX build: MMIO Saturn (the flight config) rebuilt at 30 MHz with
+  # the deeper 256-deep per-channel rx FIFO + arbiter stall counters. Replaces the
+  # deployed 60 MHz MMIO bitstream that hit the delivery deadlock.
+  - alveo_u250_firesim-rocket-saturn-with-rose-fast-no-nic-l2-llc4mb-ddr3
   # - firesim-rocket-singlecore-fp32gemmini-with-airsim-no-nic-l2-llc4mb-ddr3
   # - firesim-rocket-singlecore-fp32gemmini-with-airsim-fast-no-nic-l2-llc4mb-ddr3
 agfis_to_share:

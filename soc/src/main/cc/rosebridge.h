@@ -113,6 +113,11 @@ struct ROSEBRIDGEMODULE_struct {
     uint64_t arb_counter_tx_fired;
     uint64_t arb_counter_rx_0_fired;
     uint64_t arb_counter_rx_1_fired;
+    // Arbiter-stall diagnostics (must match the genROReg order in RoSEBridgeModule.scala
+    // and the auto-generated FireSim-generated.const.h ROSEBRIDGEMODULE_struct offsets).
+    uint64_t arb_counter_idle_rxstall;
+    uint64_t arb_counter_idle_advstall;
+    uint64_t arb_counter_load_rxstall;
 };
 
 class cosim_packet_t
@@ -243,6 +248,21 @@ class rosebridge_t final: public streaming_bridge_driver_t{
       int stream_from_cpu_depth;
       std::vector<uint8_t> dma_pending;
       size_t dma_pending_off;
+
+      // Arbiter-delivery trace (ROSE_ARB_TRACE): pinpoints WHERE a reqrsp response
+      // dies during a gate-nav flight hang. Reads the in-bitstream genROReg arbiter
+      // counters (no bitstream rebuild). last_sched_* records the most recently
+      // scheduled reqrsp response so the heartbeat can correlate a counter flatline
+      // with the exact cmd/payload that stuck the arbiter (e.g. 0x42 lowdim ch2).
+      uint32_t last_sched_cmd = 0;
+      uint32_t last_sched_nb = 0;
+      int arb_trace = -1;         // -1 = unread; 0 = off; N = heartbeat every N ticks
+      uint64_t arb_hb = 0;
+
+      // Host->FPGA rxfifo datapath, selected at runtime from ROSE_DMA_RX (was a
+      // compile-time #ifdef). true = 512b DMA stream; false = per-word MMIO. MUST
+      // match the bitstream's RTL (a WithRoseDmaRx bitstream needs dma_rx=true).
+      bool dma_rx = false;
 };
 
 #endif // __ROSEBRIDGE_H

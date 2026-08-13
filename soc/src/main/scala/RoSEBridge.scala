@@ -122,12 +122,30 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module{
   when(io.rx(1).fire) {
     counter_rx_1_fired := counter_rx_1_fired + 1.U
   }
-  
+
+  // Arbiter-stall diagnostics (see RoSEBridgeModule.scala): discriminate the delivery
+  // deadlock cause -- (b) channel-FIFO-full (rx.ready) vs (a) budget/bigstep/valid gate.
+  val counter_idle_rxstall = RegInit(0.U(32.W))
+  when (state === sIdle && io.tx.valid && !io.rx(arb_table.io.value).ready) {
+    counter_idle_rxstall := counter_idle_rxstall + 1.U
+  }
+  val counter_idle_advstall = RegInit(0.U(32.W))
+  when (state === sIdle && io.tx.valid && io.rx(arb_table.io.value).ready && !io.tx.ready) {
+    counter_idle_advstall := counter_idle_advstall + 1.U
+  }
+  val counter_load_rxstall = RegInit(0.U(32.W))
+  when ((state === sHeader || state === sLoad) && io.tx.valid && !io.rx(latched_idx).ready) {
+    counter_load_rxstall := counter_load_rxstall + 1.U
+  }
+
   io.debug.counter_state_sheader := counter_state_sheader
   io.debug.counter_budget_fired := counter_budget_fired
   io.debug.counter_tx_fired := counter_tx_fired
   io.debug.counter_rx_0_fired := counter_rx_0_fired
   io.debug.counter_rx_1_fired := counter_rx_1_fired
+  io.debug.counter_idle_rxstall := counter_idle_rxstall
+  io.debug.counter_idle_advstall := counter_idle_advstall
+  io.debug.counter_load_rxstall := counter_load_rxstall
 }
 
 class BandWidthWriter(params: RoseAdapterParams) extends Module{
@@ -432,7 +450,12 @@ class RoseBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     }
     
     // --- Host->FPGA bulk DMA datapath (Phase 1) ------------------------------
+    // Deterministic param (set by rose.WithRoseDmaRx) OR the ROSE_DMA_RX env
+    // fallback (local metasim only). See the goldengateimplementations copy in
+    // RoSEBridgeModule.scala for the rationale. (This firesim.bridges copy is
+    // legacy and not on the FireSim build path, kept mirrored for consistency.)
     val roseDmaRx: Boolean =
+      params.dmaRx ||
       sys.env.get("ROSE_DMA_RX").exists(v => v == "1" || v.equalsIgnoreCase("true"))
 
     val dmaRxAdapter = Module(new RoseStreamToRxAdapter)

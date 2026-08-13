@@ -165,3 +165,29 @@ correct). `net_read_full` fixed the host-side framing (one layer); the remaining
 **Next target:** `soc/src/main/cc/rosebridge.cc` reqrsp response path — how a served sensor value
 is returned to the guest over MMIO, and why `0x14` intermittently isn't delivered after ~60 iters
 of correct delivery. Artifact of the correct pre-stall hover: `scratchpad/.../fpga_settle_chase.mp4`.
+
+### 5a. Root-cause narrowing (2026-08-12, instrumented flight)
+
+Ruled out, each with evidence, by escalating tests:
+- **Host framing** — `deploy/hephaestus/tests/test_socket_thread_stress.py` green; `net_read_full` clean.
+- **The metasim** — its DMA path is broken/unvalidated in Verilator (`RoseTL*MMIOOnlyConfig` hangs
+  on the *first* DMA); a dead end for this bug. (`experiments/rose_bridge_stress` documents this.)
+- **Isolated DMA+reqrsp delivery, any payload size** — the `reqrsp_stress` guest on the FPGA passes
+  **300 iters** of small *and* 5400-byte (camera-sized) DMA+reqrsp (MMIO datapath). So the bridge's
+  isolated delivery is fine.
+- **Sync-side serve** — an instrumented flight (`ROSE_SERVE_DEBUG=1` in `gym_synchronizer.py` logs
+  each reqrsp serve + txqueue depth) shows **`txq 0->0` for every reqrsp** — the sync serves and
+  drains each response; the send path never backs up.
+
+**What the instrumented flight caught at the stall:** the guest's last uart line is `Pushing cmd 42`
+(requesting `lowdim`, ch2) with **no subsequent nav telemetry** — so it is WFI on the **0x42
+*response***, not computing. The sync served+sent 0x42 (`txq 0->0`), but it **never reached the guest**.
+The per-iter sequence at the freeze is **large DMA `0x11` → ch1 reqrsp `0x41` → ch2 reqrsp `0x42`**;
+the `reqrsp_stress` that PASSED went DMA→ch2 directly. So the remaining trigger is a **channel-crossing
+reqrsp immediately after a large DMA** (0x11→0x41(ch1)→0x42(ch2)), intermittent (~5-6 vision ticks).
+
+**So the bug is the bridge/RTL reqrsp *delivery to the guest*** (rosebridge.cc `fsim_txdata`→MMIO
+`rxfifo`→arbiter→channel demux, or the RTL arbiter/rxfifo state after a large DMA + channel switch) —
+NOT host framing, NOT the sync, NOT isolated single-channel delivery. **Repro recipe:** instrumented
+flight above; next, extend `reqrsp_stress` to `dma(0x11 large) → reqrsp(ch1) → reqrsp(ch2)` to get it
+in the fast non-Isaac harness, then instrument the bridge's per-channel delivery.

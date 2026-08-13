@@ -56,7 +56,16 @@ case class RoseAdapterParams(
   // This is the width of the queues
   width: Int,
   // Sequence of Destination ports
-  dst_ports: DstParams_Container) extends HasSerializationHints{
+  dst_ports: DstParams_Container,
+  // When true, the host-side (GoldenGate) RoSE bridge feeds rxfifo from the 512b
+  // StreamFromHostCPU DMA adapter (RoseStreamToRxAdapter) instead of the per-word
+  // MMIO in_bits path. This is the DETERMINISTIC selector for the DMA datapath:
+  // it rides in the bridge's serialized constructor arg (RoseKey), so it reaches
+  // the GoldenGate elaboration regardless of shell environment (unlike the
+  // ROSE_DMA_RX env var, which does NOT survive FireSim's SSH build dispatch).
+  // Set via the rose.WithRoseDmaRx config fragment. Register-map offsets are
+  // byte-identical whether this is true or false. Defaults false (MMIO).
+  dmaRx: Boolean = false) extends HasSerializationHints{
   require(dst_ports.seq.size < 30)
   def typeHints: Seq[Class[_]] = Seq(dst_ports.getClass()) ++ dst_ports.seq.flatMap(_.typeHints)
   def genidxmap: Seq[Int] = {
@@ -107,6 +116,11 @@ class RoseAdapterArbiterIO(params: RoseAdapterParams) extends Bundle {
       val counter_tx_fired = Output(UInt(32.W))
       val counter_rx_0_fired = Output(UInt(32.W))
       val counter_rx_1_fired = Output(UInt(32.W))
+      // Arbiter-stall diagnostics (see RoSEIO.scala): idle_rxstall/idle_advstall/load_rxstall
+      // discriminate (b) channel-FIFO-full vs (a) budget/bigstep/valid gate at the deadlock.
+      val counter_idle_rxstall = Output(UInt(32.W))
+      val counter_idle_advstall = Output(UInt(32.W))
+      val counter_load_rxstall = Output(UInt(32.W))
     }
 }
 

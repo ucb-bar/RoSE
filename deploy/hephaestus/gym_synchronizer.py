@@ -532,7 +532,14 @@ class Synchronizer(DummySynchronizer):
         
         # Retrieve observation related to the packet name
         if packet_config['type'] == 'reqrsp':
+            _pre_txq = len(target_thread.txqueue)
             self.retrieve_obs_push_packet(cmd, target_thread, packet_config)
+            if os.environ.get('ROSE_SERVE_DEBUG'):
+                # Serve-side trace: after serving a reqrsp, whether the response was queued
+                # (txq grew) and how deep the send queue is. A growing/stuck txq_depth means
+                # the SEND path (socket->bridge) is backed up; a small one means the response
+                # left the sync and any stall is downstream (bridge/RTL delivery to the guest).
+                print(f"[SERVE] reqrsp cmd=0x{cmd:x} txq {_pre_txq}->{len(target_thread.txqueue)}", flush=True)
 
         # Large frames over the DMA channel (camera): single contiguous payload -> ch0 DMA.
         if packet_config['type'] == 'dma':

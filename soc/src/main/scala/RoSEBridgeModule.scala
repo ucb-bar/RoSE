@@ -128,12 +128,33 @@ class RoseAdapterArbiter(params: RoseAdapterParams) extends Module{
   when(io.rx(1).fire) {
     counter_rx_1_fired := counter_rx_1_fired + 1.U
   }
-  
+
+  // Arbiter-stall diagnostics: when the arbiter stops delivering a served response
+  // (grants flow, host clean, sh/tx/rx frozen), these pin WHERE it wedges so the next
+  // flight discriminates the deadlock cause with no rebuild. In sIdle, io.tx.ready =
+  // io.rx(value).ready && can_advance; so with a packet waiting (io.tx.valid) and the
+  // dest channel ready, !io.tx.ready isolates the can_advance (budget/bigstep/valid) gate.
+  val counter_idle_rxstall = RegInit(0.U(32.W))
+  when (state === sIdle && io.tx.valid && !io.rx(arb_table.io.value).ready) {
+    counter_idle_rxstall := counter_idle_rxstall + 1.U
+  }
+  val counter_idle_advstall = RegInit(0.U(32.W))
+  when (state === sIdle && io.tx.valid && io.rx(arb_table.io.value).ready && !io.tx.ready) {
+    counter_idle_advstall := counter_idle_advstall + 1.U
+  }
+  val counter_load_rxstall = RegInit(0.U(32.W))
+  when ((state === sHeader || state === sLoad) && io.tx.valid && !io.rx(latched_idx).ready) {
+    counter_load_rxstall := counter_load_rxstall + 1.U
+  }
+
   io.debug.counter_state_sheader := counter_state_sheader
   io.debug.counter_budget_fired := counter_budget_fired
   io.debug.counter_tx_fired := counter_tx_fired
   io.debug.counter_rx_0_fired := counter_rx_0_fired
   io.debug.counter_rx_1_fired := counter_rx_1_fired
+  io.debug.counter_idle_rxstall := counter_idle_rxstall
+  io.debug.counter_idle_advstall := counter_idle_advstall
+  io.debug.counter_load_rxstall := counter_load_rxstall
 }
 
 class BandWidthWriter(params: RoseAdapterParams) extends Module{
@@ -412,7 +433,14 @@ class RoSEBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     // Everything else (grant token, cycle_step/budget, rx_budget_fifo,
     // rx_bigstep_fifo, bww/routing config, and the FPGA->host txfifo) stays
     // on MMIO exactly as before.
+    // DMA datapath selector. Prefer the DETERMINISTIC param (key.roseparams.dmaRx,
+    // carried in the bridge's serialized constructor arg, set by rose.WithRoseDmaRx)
+    // because it reaches this GoldenGate elaboration regardless of shell env --
+    // FireSim dispatches the build over SSH, so an exported ROSE_DMA_RX does NOT
+    // propagate here. The env var is kept as an OR fallback for the local metasim
+    // flow (build_metasim_dma.sh), which elaborates in-process where env survives.
     val roseDmaRx: Boolean =
+      params.dmaRx ||
       sys.env.get("ROSE_DMA_RX").exists(v => v == "1" || v.equalsIgnoreCase("true"))
 
     val dmaRxAdapter = Module(new RoseStreamToRxAdapter)
@@ -498,7 +526,10 @@ class RoSEBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     genROReg(rosearb.io.debug.counter_tx_fired, "arb_counter_tx_fired")
     genROReg(rosearb.io.debug.counter_rx_0_fired, "arb_counter_rx_0_fired")
     genROReg(rosearb.io.debug.counter_rx_1_fired, "arb_counter_rx_1_fired")
-    
+    genROReg(rosearb.io.debug.counter_idle_rxstall, "arb_counter_idle_rxstall")
+    genROReg(rosearb.io.debug.counter_idle_advstall, "arb_counter_idle_advstall")
+    genROReg(rosearb.io.debug.counter_load_rxstall, "arb_counter_load_rxstall")
+
     // This method invocation is required to wire up the bridge to the simulated software
     override def genHeader(base: BigInt, memoryRegions: Map[String, BigInt], sb: StringBuilder): Unit = {
       // Always construct the driver as a streaming bridge (StreamEngine& + the

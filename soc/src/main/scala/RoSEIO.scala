@@ -42,6 +42,13 @@ class RoseAdapterArbiterIO(params: RoseAdapterParams) extends Bundle {
       val counter_tx_fired = Output(UInt(32.W))
       val counter_rx_0_fired = Output(UInt(32.W))
       val counter_rx_1_fired = Output(UInt(32.W))
+      // Arbiter-stall diagnostics (pin the delivery-deadlock cause without a rebuild):
+      //   idle_rxstall  = sIdle, pkt waiting, dest channel FIFO full        -> (b) rx.ready at sIdle
+      //   idle_advstall = sIdle, pkt waiting, dest ready but !tx.ready       -> (a) budget/bigstep/valid gate
+      //   load_rxstall  = sHeader/sLoad, mid-payload, dest channel FIFO full -> (b) rx.ready during delivery
+      val counter_idle_rxstall = Output(UInt(32.W))
+      val counter_idle_advstall = Output(UInt(32.W))
+      val counter_load_rxstall = Output(UInt(32.W))
     }
 }
 

@@ -229,6 +229,56 @@ alveo_u250_firesim-rocket-saturn-with-rose-fast-no-nic-l2-llc4mb-ddr3:
     PLATFORM_CONFIG: BaseXilinxAlveoU250Config
     deploy_triplet: null
     platform_config_args:
+        # Lowered 60 -> 30 MHz for faster/safer timing closure while iterating the
+        # arbiter-deadlock fix (deeper 256-deep per-channel rx FIFO + stall counters).
+        # Validation only needs to fly past the ~frame-104 hang; restore to 60 for the
+        # apples-to-apples throughput artifact once the fix is confirmed.
+        fpga_frequency: 30
+        build_strategy: TIMING
+    post_build_hook: null
+    metasim_customruntimeconfig: null
+    bit_builder_recipe: bit-builder-recipes/xilinx_alveo_u250.yaml
+
+# DMA-datapath Saturn+RoSE variant (host->FPGA rxfifo over a 512b FireSim
+# StreamFromHostCPU). LOW-FREQUENCY (30 MHz) build for easy timing closure +
+# faster PAR; intended for later FPGA throughput-validation of the DMA path.
+# Uses the distinct RoseTLRocketSaturnDMAMMIOOnlyConfig, which turns the DMA
+# datapath ON DETERMINISTICALLY via the rose.WithRoseDmaRx config fragment (a
+# param carried in the bridge's serialized constructor arg) -- no env var needed,
+# and it survives FireSim's SSH build dispatch (an exported ROSE_DMA_RX does not).
+# The distinct config also gives a fresh build dir (no collision with the 60 MHz
+# MMIO Saturn build). Added by Dima 2026-08-11.
+alveo_u250_firesim-rocket-saturn-with-rose-DMA-fast-no-nic-l2-llc4mb-ddr3:
+    PLATFORM: xilinx_alveo_u250
+    TARGET_PROJECT: firesim
+    DESIGN: FireSim
+    TARGET_CONFIG: RoseTLRocketSaturnDMAMMIOOnlyConfig
+    PLATFORM_CONFIG: BaseXilinxAlveoU250Config
+    deploy_triplet: null
+    platform_config_args:
+        fpga_frequency: 30
+        build_strategy: TIMING
+    post_build_hook: null
+    metasim_customruntimeconfig: null
+    bit_builder_recipe: bit-builder-recipes/xilinx_alveo_u250.yaml
+
+# 60 MHz sibling of the DMA build above: SAME deterministic DMA config
+# (RoseTLRocketSaturnDMAMMIOOnlyConfig / rose.WithRoseDmaRx), only the Vivado host
+# clock constraint differs (60 MHz, matching the MMIO Saturn recipe). This exists
+# so the DMA path can be throughput-compared apples-to-apples against the 60 MHz
+# MMIO Saturn bitstream (same host clock). NOTE: the DMA datapath adds a 512b
+# stream + the RoseStreamToRxAdapter width gearbox, so 60 MHz timing closure may
+# be HARDER than the 30 MHz DMA build (which met with only WNS +0.060 ns). The tar
+# is timestamped per-run so it does not collide with the 30 MHz DMA build despite
+# sharing a deploy quintuplet. Added by Dima 2026-08-12.
+alveo_u250_firesim-rocket-saturn-with-rose-DMA-60mhz-fast-no-nic-l2-llc4mb-ddr3:
+    PLATFORM: xilinx_alveo_u250
+    TARGET_PROJECT: firesim
+    DESIGN: FireSim
+    TARGET_CONFIG: RoseTLRocketSaturnDMAMMIOOnlyConfig
+    PLATFORM_CONFIG: BaseXilinxAlveoU250Config
+    deploy_triplet: null
+    platform_config_args:
         fpga_frequency: 60
         build_strategy: TIMING
     post_build_hook: null

@@ -23,6 +23,17 @@ class WithRoseAdapter(address: BigInt = 0x2000, width: Int = 32, dst_ports: DstP
   case RoseAdapterKey => Some(RoseAdapterParams(address, width, dst_ports))
 })
 
+// Turns ON the host->FPGA bulk DMA datapath (ROSE_DMA_RX) deterministically, by
+// flipping the dmaRx flag on whatever RoseAdapterParams the base config already
+// set. Because dmaRx lives in RoseAdapterParams -- the bridge's serialized
+// constructor arg -- this reaches the GoldenGate host-side bridge elaboration
+// independent of the shell environment (the ROSE_DMA_RX env var does NOT survive
+// FireSim's SSH-dispatched build). Compose it to the LEFT of a base RoSE config,
+// e.g. `new WithRoseDmaRx ++ new RoseTLRocketSaturnMMIOOnlyConfig`.
+class WithRoseDmaRx extends Config((site, here, up) => {
+  case RoseAdapterKey => up(RoseAdapterKey).map(_.copy(dmaRx = true))
+})
+
 // case class DstParams_Container (seq: Seq[DstParams])
 
 // case class DstParams (

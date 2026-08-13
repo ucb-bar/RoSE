@@ -39,6 +39,20 @@ class RoseTLRocketSaturnMMIOOnlyConfig extends Config(
   new WithFireSimConfigTweaks ++
   new chipyard.config.RoseTLRocketSaturnConfig)
 
+// DMA-datapath variant of RoseTLRocketSaturnMMIOOnlyConfig: identical Saturn+RoSE
+// target, but with the host->FPGA bulk DMA datapath turned ON deterministically.
+// rose.WithRoseDmaRx sets dmaRx=true on the RoSE adapter params, which ride in the
+// bridge's serialized constructor arg and so reach the GoldenGate host-side bridge
+// elaboration WITHOUT depending on the shell environment (an exported ROSE_DMA_RX
+// does NOT survive FireSim's SSH build dispatch -- that is why this uses a param,
+// not the env var). The distinct class NAME also gives FireSim its own deploy
+// triplet / build dir, so a DMA bitstream never collides with (or reuses stale
+// collateral from) the MMIO Saturn build. Register-map offsets are byte-identical
+// between the DMA and MMIO modes.
+class RoseTLRocketSaturnDMAMMIOOnlyConfig extends Config(
+  new rose.WithRoseDmaRx ++
+  new RoseTLRocketSaturnMMIOOnlyConfig)
+
 // class RoseTLRocketStereoAccMMIOOnlyDMAConfig extends Config(
 //   new WithRoseBridge ++
 //   new WithDefaultMMIOOnlyFireSimBridges ++

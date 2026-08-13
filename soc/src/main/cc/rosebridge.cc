@@ -230,12 +230,18 @@ rosebridge_t::rosebridge_t(simif_t &sim, StreamEngine &stream, const ROSEBRIDGEM
     this->stream_from_cpu_idx = stream_from_cpu_idx;
     this->stream_from_cpu_depth = stream_from_cpu_depth;
     this->dma_pending_off = 0;
-#ifdef ROSE_DMA_RX
-    printf("[ROSE DRIVER] host->FPGA rxfifo datapath: DMA stream (idx=%d depth=%d)\n",
-           stream_from_cpu_idx, stream_from_cpu_depth);
-#else
-    printf("[ROSE DRIVER] host->FPGA rxfifo datapath: per-word MMIO\n");
-#endif
+    // Host->FPGA rxfifo datapath selected at RUNTIME (was a compile-time #ifdef ROSE_DMA_RX,
+    // which infrasetup's driver rebuild could not set per-config). ROSE_DMA_RX=1 (forwarded
+    // via runtime_config.py, like ROSE_SYNC_HOST) selects the 512b DMA-stream path; else
+    // per-word MMIO. MUST match the bitstream's RTL (WithRoseDmaRx routes MMIO in_bits to a
+    // dead sink, so a DMA bitstream REQUIRES ROSE_DMA_RX=1). The DMA push() path always
+    // compiles (genConstructor emits hasStreams=true, so the stream idx/depth always exist).
+    { char *d = getenv("ROSE_DMA_RX"); this->dma_rx = (d && (d[0]=='1' || d[0]=='t' || d[0]=='T')); }
+    if (this->dma_rx)
+        printf("[ROSE DRIVER] host->FPGA rxfifo datapath: DMA stream (idx=%d depth=%d)\n",
+               stream_from_cpu_idx, stream_from_cpu_depth);
+    else
+        printf("[ROSE DRIVER] host->FPGA rxfifo datapath: per-word MMIO\n");
     this->loggingfd = 0; // unused
     this->connect_synchronizer();
 
@@ -584,6 +590,11 @@ void rosebridge_t::schedule_firesim_data() {
         this->fsim_txbudget.push_back(this->budget_rx_queue.front()->budget);
         // printf("[ROSE DRIVER]: Pushed budget 0x%x\n", this->budget_rx_queue.front()->budget);
         this->fsim_txdata.push_back(this->budget_rx_queue.front()->cmd);
+        // Record the last reqrsp response scheduled into the FPGA-bound word stream
+        // so the ROSE_ARB_TRACE heartbeat can name the cmd/payload sitting at the
+        // arbiter when a counter flatlines (the packet that stuck delivery).
+        this->last_sched_cmd = this->budget_rx_queue.front()->cmd;
+        this->last_sched_nb  = this->budget_rx_queue.front()->num_bytes;
         // printf("[ROSE DRIVER]: Pushed cmd 0x%x\n", this->budget_rx_queue.front()->cmd);
         this->fsim_txdata.push_back(this->budget_rx_queue.front()->num_bytes);
         // printf("[ROSE DRIVER]: Pushed num_bytes 0x%x\n", this->budget_rx_queue.front()->num_bytes);
@@ -655,6 +666,44 @@ void rosebridge_t::tick()
     if(count>1000) {
         count = 0;
     }
+
+    // ---- ROSE_ARB_TRACE: arbiter-delivery heartbeat -------------------------
+    // Reads the in-bitstream genROReg arbiter counters (no rebuild) every N ticks
+    // to localize a gate-nav flight hang to a specific delivery stage:
+    //   sh   = arb_counter_state_sheader (packet HEADERS the arbiter processed;
+    //          FLATLINES while grants keep flowing => arbiter stuck mid-packet in
+    //          sHeader/sLoad => framing stall on last_cmd)
+    //   tx   = arb_counter_tx_fired      (total words fired through the arbiter)
+    //   rx0/rx1 = words delivered to ch0/ch1; ch2 has no counter, so ch2~=tx-rx0-rx1
+    //   bf   = budget fires; cyc/budg = cycle_count / cycle_budget (token state)
+    //   brxq/txd = host queue depths (grow => host not draining to FPGA)
+    if (this->arb_trace < 0) {
+        char *e = getenv("ROSE_ARB_TRACE");
+        this->arb_trace = (e && *e) ? atoi(e) : 0;
+        if (this->arb_trace) printf("[ARB] trace ON: heartbeat every %d ticks\n", this->arb_trace);
+    }
+    if (this->arb_trace && (++this->arb_hb % (uint64_t)this->arb_trace) == 0) {
+        uint32_t sh  = read(this->mmio_addrs.arb_counter_state_sheader);
+        uint32_t tx  = read(this->mmio_addrs.arb_counter_tx_fired);
+        uint32_t r0  = read(this->mmio_addrs.arb_counter_rx_0_fired);
+        uint32_t r1  = read(this->mmio_addrs.arb_counter_rx_1_fired);
+        uint32_t bf  = read(this->mmio_addrs.arb_counter_budget_fired);
+        uint32_t cc  = read(this->mmio_addrs.cycle_count);
+        uint32_t cb  = read(this->mmio_addrs.cycle_budget);
+        // Stall diagnostics (new counters in the fixed bitstream): if the arbiter wedges,
+        // exactly one of these climbs -> irx=(b) channel FIFO full at sIdle, iadv=(a)
+        // budget/bigstep/valid gate, lrx=(b) channel FIFO full mid-payload delivery.
+        uint32_t irx = read(this->mmio_addrs.arb_counter_idle_rxstall);
+        uint32_t iadv= read(this->mmio_addrs.arb_counter_idle_advstall);
+        uint32_t lrx = read(this->mmio_addrs.arb_counter_load_rxstall);
+        printf("[ARB] sh=%u tx=%u rx0=%u rx1=%u ch2~=%d bf=%u cyc=%u budg=%u last=0x%x nb=%u brxq=%zu txd=%zu irx=%u iadv=%u lrx=%u\n",
+               sh, tx, r0, r1, (int)tx - (int)r0 - (int)r1, bf, cc, cb,
+               this->last_sched_cmd, this->last_sched_nb,
+               this->budget_rx_queue.size(), this->fsim_txdata.size(),
+               irx, iadv, lrx);
+        fflush(stdout);
+    }
+    // -------------------------------------------------------------------------
     
     // printf("[RoSE Bridge]: Processing tick\n");
     if(this->checking_stall){
@@ -730,7 +779,7 @@ void rosebridge_t::tick()
         }
         // printf("[ROSE DRIVER]: I tried");
     }
-#ifdef ROSE_DMA_RX
+    if (this->dma_rx) {
     // DMA datapath: deliver the SAME 32b word sequence the arbiter expects
     // (cmd, num_bytes, payload...) into rxfifo, but over the 512b host-managed
     // stream instead of per-word MMIO. Pack words into 512b beats with in-band
@@ -778,7 +827,7 @@ void rosebridge_t::tick()
                                    remaining, 0);
         this->dma_pending_off += pushed;
     }
-#else
+    } else {
     while (this->fsim_txdata.size() > 0) {
         m.lock();
         data.in.bits = this->fsim_txdata.front();
@@ -796,7 +845,7 @@ void rosebridge_t::tick()
             break;
         }
     }
-#endif
+    }
 }
 
 
