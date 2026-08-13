@@ -6,9 +6,9 @@ matching the spike reference (spike passes 3/4 gates on seed 1000), with recorde
 **Reference (spike, working):** `[GATE] passed 1/4 @3.33s, 2/4 @6.65s, 3/4 @10.14s`; drone cruises
 ~1.4 m/s at z≈2.0 m up the +y corridor (gate centres local: G1(-8.05,9) G2(-8.30,13) G3(-7.75,17) G4(-8.05,21), pass radius 0.9 m).
 
-**Status (2026-08-13):** primary stall bug FIXED. Frozen-camera ROOT CAUSE FOUND — a DMA address mismatch (RTL writes 0x88000000, guest read 0x90000000). Guest-only fix applied (no rebuild), flight testing.
-bugs — 3 fixed/root-caused, currently testing a 4th fix (chunked camera). Compute backend (Saturn RVV nav
-policy) is byte-identical to spike; the entire gap is the **camera sensor-delivery path**.
+**Status (2026-08-13):** primary stall bug FIXED. Frozen-camera **ROOT CAUSE FOUND** — a DMA address mismatch
+(RTL writes 0x88000000, guest read 0x90000000). Guest-only fix applied (no rebuild); flight testing. Compute backend
+(Saturn RVV nav policy) is byte-identical to spike; the entire gap was the **camera sensor-delivery path**.
 
 ---
 
