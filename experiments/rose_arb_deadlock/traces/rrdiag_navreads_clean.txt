@@ -1,0 +1,11 @@
+[RRDIAG] ch1 header=0x14 num_bytes=4
+[RRDIAG] ch2 header=0x12 num_bytes=12
+[RRDIAG] ch2 header=0x15 num_bytes=12
+[RRDIAG] ch1 header=0x13 num_bytes=8
+[RRDIAG] ch1 header=0x30 num_bytes=256
+[RRDIAG] ch1 header=0x32 num_bytes=256
+[RRDIAG] ch2 header=0x31 num_bytes=256
+[RRDIAG] ch2 header=0x33 num_bytes=256
+# RRDIAG (per reqrsp read: ch,header,num_bytes) proves the 8 nav reads are CLEAN (correct framing).
+# So the reqrsp-camera stall is NOT a shared-channel cascade. Camera IS delivered to ch1 (rx1=1491=139nav+1352cam)
+# but the guest blocks on the camera's first rose_rx(header) despite ch1 holding the data. A specific large-read/HW-timing issue.
