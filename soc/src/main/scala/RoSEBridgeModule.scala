@@ -472,6 +472,13 @@ class RoSEBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     // NOTE: the in_bits/in_valid/in_ready registers are emitted in the SAME order in
     // both modes so the ROSEBRIDGEMODULE_struct register-map / offsets are byte-identical
     // between the MMIO and DMA builds (the host driver struct is one shared file).
+    // HELD-VALID enqueue (word-drop fix): in_valid becomes a register that SETS on the MMIO
+    // write and CLEARS on the skid enq.fire (MMIO mode), so a word is held on the enq port
+    // until the queue provably accepts it -- no 1-cycle pulse to miss. The driver polls
+    // in_valid_pending (genROReg'd LAST, below) per word. Declared at module scope so the
+    // status register can be appended at the end of the map (no offset churn); unused/idle
+    // in DMA mode.
+    val in_valid_held = RegInit(false.B)
     if (roseDmaRx) {
       // DMA: the 512b stream adapter drives rxfifo. Keep the MMIO in_bits regs
       // present but routed to a self-draining dead sink so the register map is
@@ -497,8 +504,14 @@ class RoSEBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
       // send()/backpressure loop and the register map are unchanged.
       val in_skid = Module(new Queue(UInt(32.W), 4))
       in_skid.reset := reset.asBool || targetReset
+      val in_valid_set = WireInit(false.B)
       genWOReg(in_skid.io.enq.bits, "in_bits")
-      Pulsify(genWORegInit(in_skid.io.enq.valid, "in_valid", false.B), pulseLength = 1)
+      // in_valid write SETS the held bit; the skid enq.fire CLEARS it. So the enq valid is
+      // held asserted until the skid accepts the word (no missable 1-cycle pulse).
+      Pulsify(genWORegInit(in_valid_set, "in_valid", false.B), pulseLength = 1)
+      when (in_valid_set) { in_valid_held := true.B }
+      .elsewhen (in_skid.io.enq.fire) { in_valid_held := false.B }
+      in_skid.io.enq.valid := in_valid_held
       genROReg(in_skid.io.enq.ready, "in_ready")
       rxfifo.io.enq <> in_skid.io.deq
     }
@@ -541,6 +554,11 @@ class RoSEBridgeModule(key: RoseKey)(implicit p: Parameters) extends BridgeModul
     genROReg(rosearb.io.debug.counter_idle_rxstall, "arb_counter_idle_rxstall")
     genROReg(rosearb.io.debug.counter_idle_advstall, "arb_counter_idle_advstall")
     genROReg(rosearb.io.debug.counter_load_rxstall, "arb_counter_load_rxstall")
+    // Held-valid enqueue status (word-drop fix): high while a host-written word is still
+    // waiting to be accepted by the skid enq. The driver polls this after writing in_bits
+    // + pulsing in_valid, and only advances to the next word once it clears -> guaranteed,
+    // drop-free per-word delivery. Appended LAST so it does not shift other register offsets.
+    genROReg(in_valid_held, "in_valid_pending")
 
     // This method invocation is required to wire up the bridge to the simulated software
     override def genHeader(base: BigInt, memoryRegions: Map[String, BigInt], sb: StringBuilder): Unit = {

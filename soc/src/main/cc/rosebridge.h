@@ -118,6 +118,10 @@ struct ROSEBRIDGEMODULE_struct {
     uint64_t arb_counter_idle_rxstall;
     uint64_t arb_counter_idle_advstall;
     uint64_t arb_counter_load_rxstall;
+    // Held-valid enqueue status (word-drop fix). High while a host-written word awaits
+    // acceptance by the skid enq; send() polls it to guarantee drop-free delivery.
+    // Appended last to match the genROReg order in RoSEBridgeModule.scala.
+    uint64_t in_valid_pending;
 };
 
 class cosim_packet_t

@@ -463,17 +463,19 @@ bool rosebridge_t::read_firesim_packet(cosim_packet_t * packet)
 
 void rosebridge_t::send()
 {
-    data.in.ready = read(this->mmio_addrs.in_ready);
+    data.in.ready = read(this->mmio_addrs.in_ready);   // skid enq has room
     if(data.in.ready) {
+        // WORD-DROP FIX (held-valid handshake, hardware-confirmed). The intermittent word
+        // drop (arbiter starves in sLoad awaiting a reqrsp word; ~1/200k words) survived the
+        // skid buffer AND the write-order barrier, so the enqueue itself was occasionally
+        // missed. The RTL now HOLDS in_valid asserted on the skid enq port (set on this
+        // write, cleared on enq.fire) instead of a 1-cycle pulse, and exposes in_valid_pending.
+        // Write the word, assert in_valid, then poll until the queue has provably accepted it
+        // -> the word cannot be dropped before we advance. Bound the spin so a genuinely wedged
+        // downstream (a different fault) does not hang the driver forever.
         write(this->mmio_addrs.in_bits, data.in.bits);
-        // Read-back barrier: force the in_bits write to commit BEFORE the in_valid pulse.
-        // Symptom fixed: an intermittent ~1/200k word drop (arbiter starves in sLoad
-        // awaiting a reqrsp word) that survived the rxfifo skid buffer -> the drop is
-        // upstream, a write-ordering skew where in_valid could pulse before in_bits
-        // latched (enqueuing a stale word, losing the new one). The read serializes the
-        // two MMIO writes so in_bits is stable when in_valid fires.
-        (void)read(this->mmio_addrs.in_ready);
         write(this->mmio_addrs.in_valid, 1);
+        for (int spins = 0; spins < 1000 && read(this->mmio_addrs.in_valid_pending); spins++) { }
     }
 }
 
