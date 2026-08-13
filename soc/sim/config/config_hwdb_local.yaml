@@ -40,7 +40,7 @@ alveo_u250_firesim-rocket-singlecore-with-rose-fast-no-nic-l2-llc4mb-ddr3:
 alveo_u250_firesim-rocket-saturn-with-rose-fast-no-nic-l2-llc4mb-ddr3:
     # ARBITER-DEADLOCK FIX bitstream (30 MHz, deeper 256-deep rx FIFO + stall counters),
     # built 2026-08-12. Replaces the 2026-08-10 60 MHz build that hit the delivery deadlock.
-    bitstream_tar: file:///scratch/dima/rose-infra/RoSE/soc/sim/chipyard/sims/firesim/deploy/results-build/2026-08-13--11-05-05-alveo_u250_firesim-rocket-saturn-with-rose-fast-no-nic-l2-llc4mb-ddr3/cl_xilinx_alveo_u250-firesim-FireSim-RoseTLRocketSaturnMMIOOnlyConfig-BaseXilinxAlveoU250Config/firesim.tar.gz
+    bitstream_tar: file:///scratch/dima/rose-infra/RoSE/soc/sim/chipyard/sims/firesim/deploy/results-build/2026-08-13--14-28-37-alveo_u250_firesim-rocket-saturn-with-rose-fast-no-nic-l2-llc4mb-ddr3/cl_xilinx_alveo_u250-firesim-FireSim-RoseTLRocketSaturnMMIOOnlyConfig-BaseXilinxAlveoU250Config/firesim.tar.gz
     deploy_quintuplet_override: null
     custom_runtime_config: null
 # Saturn + RoSE with the host->FPGA DMA datapath (ROSE_DMA_RX) turned on

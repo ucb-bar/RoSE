@@ -36,7 +36,12 @@ class RoseAdapterMMIOChiselModule(params: RoseAdapterParams) extends Module
     // arbiter-counter trace: sh/tx/rx frozen while grants flow, host queues empty).
     // Deepen to 256 so a whole reqrsp payload (+ several queued small ones) lands in one
     // shot and the arbiter never stalls mid-delivery on guest drain rate.
-    val rx_buffer_fifo = Module(new Queue(UInt(params.width.W), 256))
+    // 2026-08-13: bumped 256 -> 2048 so the FPV camera (cam_front 0x11, 5400 bytes = 1350
+    // words) can be delivered over the REQRSP path (the proven, delivery-fixed path) without
+    // the arbiter stalling mid-frame — the ch0 camera DMA delivers a FROZEN frame on FPGA
+    // (RoSEDMA refresh bug; see memory rose-fpga-nav-yaw-divergence), so route 0x11 as reqrsp
+    // and let this FIFO hold the whole frame. A 256-deep FIFO deadlocked at ~493/1350 words.
+    val rx_buffer_fifo = Module(new Queue(UInt(params.width.W), 2048))
     rx_buffer_fifo.io.enq <> io.rx.enq(i)
     rx_buffer_fifo.io.deq <> io.rx.deq(i)
   }
