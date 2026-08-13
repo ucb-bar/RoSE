@@ -90,9 +90,13 @@ The entire nav stack — camera over DMA, VL53L5CX multizone ToF + IMU/flow over
 fused-vision RVV policy on **real Saturn fabric**, in lockstep with IsaacLab on garden over LAN —
 navigates autonomously gate-to-gate.
 
-**Recorded video:** `fpga_gatenav_3gate.mp4` (chase-cam, 960×540, 60s; NOT git-tracked — 6.9 MB
-binary, reproducible via `gatenav_flight.sh` + `make_gatenav_video.sh` from the deterministic
-seed-1000 flight). Gate-crossing stills committed under `stills/fpga_gate{1,2,3}.jpg`.
+**Recorded video:** `docs/media/fpga_gatenav_3gate.mp4` — chase cam + the drone **FPV camera**
+inset (the actual policy vision input), 960×540, 63 s. Gate-crossing stills committed under
+`stills/fpga_gate{1,2,3}.jpg`. A chase-only variant is reproducible via `make_gatenav_video.sh`.
+
+**Full experimental setup** (every host, config, env var, command): `docs/FPGA_GATENAV_REPRODUCE.md`.
+**Sim-throughput characterization** (~85 % FPGA duty, ~15 % co-sim seam): `docs/FPGA_GATENAV_THROUGHPUT.md`
++ `analyze_throughput.py` (over `traces/fpga_gatenav_3gate_heartbeat.log`).
 
 Superseded attempts (kept for the record): deeper per-channel rx FIFO (8→256, wrong
 layer — the stall counters proved the arbiter wasn't the problem); DMA-RX datapath (the
