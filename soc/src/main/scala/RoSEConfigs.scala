@@ -44,6 +44,20 @@ class RoseTLRocketSaturnConfig extends Config(
   new freechips.rocketchip.rocket.WithNBigCores(1) ++         // single rocket-core + Saturn VPU
   new chipyard.config.AbstractRoseConfig)
 
+// Saturn+RoSE with TACIT instruction-trace: adds the TACIT encoder + a raw-byte trace
+// sink whose egress is streamed off-FPGA by the ported firechip TacitBridge (see
+// RoseTLRocketSaturnTacitMMIOOnlyConfig). Lets a live co-sim capture a SoC instruction
+// trace over a FireSim StreamToHostCPU bridge (host-side driver = tacit.cc), instead of
+// the DMA-to-DRAM sink whose host-side readback FireSim has no clean flag for.
+// NOTE fragment order: CDE applies right-to-left (base first), so WithTacitEncoder — which
+// sets tile traceParams = Some(...) + enableTraceCoreIngress — must sit to the RIGHT of
+// WithTraceSinkRawByte (which does traceParams.get.copy(buildSinks...)). Mirrors the
+// sink-above-encoder order in tacit.TacitRocketConfig.
+class RoseTLRocketSaturnTacitConfig extends Config(
+  new tacit.WithTraceSinkRawByte(0) ++        // raw-byte egress sink (1-lane, our encoder width)
+  new chipyard.WithTacitEncoder ++            // TACIT L-Trace encoder MMIO on the tile (sets traceParams)
+  new RoseTLRocketSaturnConfig)
+
 // Dual-core Saturn-vector + int8 Gemmini variant for future multi-accelerator
 // experiments. TWO Rocket big cores, each carrying BOTH a Saturn RVV vector unit
 // (V + Zfh + Zvfh, same VLEN128/DLEN64 as RoseTLRocketSaturnConfig -- runs the RVV

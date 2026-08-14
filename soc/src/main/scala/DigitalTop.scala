@@ -38,6 +38,7 @@ class DigitalTop(implicit p: Parameters) extends ChipyardSystem
   with rerocc.CanHaveReRoCCTiles // Support tiles that instantiate rerocc-attached accelerators
   with testchipip.ctc.CanHavePeripheryCTC // Support optional CTC link
   with rose.CanHavePeripheryRoseAdapter // RoSE: enables optionally adding the RoSE co-sim adapter
+  with tacit.CanHaveTraceSinkRawByte // TACIT: optionally punch out per-tile raw-byte trace-sink egress
 {
   override lazy val module = new DigitalTopModule(this)
 }

@@ -53,6 +53,21 @@ class RoseTLRocketSaturnDMAMMIOOnlyConfig extends Config(
   new rose.WithRoseDmaRx ++
   new RoseTLRocketSaturnMMIOOnlyConfig)
 
+// Saturn+RoSE + TACIT instruction-trace streaming bridge. BOTH the RoSE co-sim bridge
+// AND the ported TACIT bridge are present: WithTacitBridge (HarnessBinder, streams the
+// raw-byte trace off-FPGA via StreamToHostCPU -> host tacit.cc) pairs with the
+// WithTraceSinkRawBytePunchthrough IOBinder (punches each tile's tacit_byte egress out to
+// the harness) on top of the RoSE MMIO-only bridge stack. Ported from
+// riscv-tacit/chipyard@fix-issue-unit (bridge) + tacit@648943d (sink), adapted to our
+// 1-lane (single-byte) tacit encoder.
+class RoseTLRocketSaturnTacitMMIOOnlyConfig extends Config(
+  new WithTacitBridge ++
+  new chipyard.iobinders.WithTraceSinkRawBytePunchthrough ++
+  new WithRoseBridge ++
+  new WithDefaultMMIOOnlyFireSimBridges ++
+  new WithFireSimConfigTweaks ++
+  new chipyard.config.RoseTLRocketSaturnTacitConfig)
+
 // Dual-core Saturn-vector + int8 Gemmini FireSim wrapper: the same MMIO-only RoSE
 // bridge stack (WithRoseBridge + MMIO-only bridges + FireSim tweaks) on top of the
 // dual-core Saturn+Gemmini base (RoseTLDualRocketSaturnGemminiConfig). Target for the

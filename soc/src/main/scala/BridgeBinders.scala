@@ -147,6 +147,14 @@ class WithTracerVBridge extends HarnessBinder({
   }
 })
 
+// TACIT: stream each tile's raw-byte trace-sink egress off-FPGA to the host driver
+// (ported from riscv-tacit/chipyard@fix-issue-unit; pairs with the RoSE bridge).
+class WithTacitBridge extends HarnessBinder({
+  case (th: FireSim, port: TraceSinkRawBytePort, chipId: Int) => {
+    TacitBridge(th.harnessBinderClock, port.io, th.harnessBinderReset.asBool)
+  }
+})
+
 class WithCospikeBridge extends HarnessBinder({
   case (th: FireSim, port: TracePort, chipId: Int) => {
     port.io.traces.zipWithIndex.map(t => CospikeBridge(t._1, t._2, port.cosimCfg))

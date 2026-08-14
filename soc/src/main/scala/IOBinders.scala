@@ -45,6 +45,8 @@ import chipyard.example.{CanHavePeripheryGCD}
 // types live in firechip.bridgeinterfaces (chisel6 bridge-stub split).
 import rose.{CanHavePeripheryRoseAdapter, RoseAdapterKey}
 import firechip.bridgeinterfaces.{RosePortIO, RoseAdapterParams}
+// TACIT: raw-byte trace-sink punchthrough (ported from riscv-tacit/chipyard@fix-issue-unit)
+import tacit.{CanHaveTraceSinkRawByte, TraceSinkRawByteBundle}
 
 import scala.reflect.{ClassTag}
 
@@ -645,5 +647,18 @@ class WithRoseIOPunchthrough extends OverrideIOBinder({
       RoseAdapterPort(() => port, params(RoseAdapterKey).get)
     }).toSeq
     (ports, Nil)
+  }
+})
+
+// TACIT: punch each tile's raw-byte trace-sink egress out to the harness as a
+// TraceSinkRawBytePort (consumed by firechip.chip.WithTacitBridge).
+class WithTraceSinkRawBytePunchthrough extends OverrideIOBinder({
+  (system: CanHaveTraceSinkRawByte) => {
+    val tacit_byte_ports = system.tacit_bytes.zipWithIndex.map { case (s, i) =>
+      val tacit_byte = IO(new TraceSinkRawByteBundle).suggestName(s"tacit_byte_${i}")
+      tacit_byte <> s
+      TraceSinkRawBytePort(() => tacit_byte)
+    }
+    (tacit_byte_ports, Nil)
   }
 })

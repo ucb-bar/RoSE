@@ -21,6 +21,8 @@ import freechips.rocketchip.tilelink.{TLBundle}
 import org.chipsalliance.diplomacy.nodes.{HeterogeneousBag}
 // RoSE: shared bridge port/param types live in firechip.bridgeinterfaces (chisel6 bridge-stub split)
 import firechip.bridgeinterfaces.{RosePortIO, CompleteDataflowConfig, RoseAdapterParams}
+// TACIT: raw-byte trace-sink egress bundle (ported from riscv-tacit/chipyard@fix-issue-unit)
+import tacit.TraceSinkRawByteBundle
 
 trait Port[T <: Data] {
   val getIO: () => T
@@ -41,6 +43,10 @@ case class GPIOPinsPort    (val getIO: () => GPIOPortIO, val gpioId: Int)
 
 case class I2CPort         (val getIO: () => sifive.blocks.devices.i2c.I2CPort)
     extends Port[sifive.blocks.devices.i2c.I2CPort]
+
+// TACIT raw-byte trace-sink egress port (ported from riscv-tacit/chipyard@fix-issue-unit)
+case class TraceSinkRawBytePort(val getIO: () => TraceSinkRawByteBundle)
+    extends Port[TraceSinkRawByteBundle]
 
 case class UARTPort        (val getIO: () => UARTPortIO, val uartNo: Int, val freqMHz: Int)
     extends Port[UARTPortIO]

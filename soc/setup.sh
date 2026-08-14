@@ -12,6 +12,7 @@ FSIM_CC_DIR=${ROSE_DIR}/soc/src/main/cc
 # git submodule update --init --recursive ${ROSE_DIR}/soc/sw/onnxruntime-riscv
 cd ${ROSE_DIR}
 mkdir -p ${CHIPYARD_DIR}/generators/firechip/bridgestubs/src/main/scala/rose
+mkdir -p ${CHIPYARD_DIR}/generators/firechip/bridgestubs/src/main/scala/tacit
 
 # Create an array of source files
 sources=(
@@ -30,9 +31,17 @@ sources=(
     "${SCALA_DIR}/RoSEGeneratorConfig.scala"
     "${SCALA_DIR}/RoSEDMA.scala" 
     "${SCALA_DIR}/Dataflow.scala"
+    #tacit trace bridge scala files (ported from riscv-tacit/chipyard@fix-issue-unit)
+    "${SCALA_DIR}/TraceRawByte.scala"
+    "${SCALA_DIR}/TacitBridge.scala"
+    "${SCALA_DIR}/TacitModule.scala"
+    "${SCALA_DIR}/TacitBridgeGG.scala"
     #C++ files (RoSE bridge driver; legacy filename was airsim.{cc,h})
     "${FSIM_CC_DIR}/rosebridge.cc"
     "${FSIM_CC_DIR}/rosebridge.h"
+    #tacit trace bridge host driver
+    "${FSIM_CC_DIR}/tacit.cc"
+    "${FSIM_CC_DIR}/tacit.h"
     #simulation configs
     "${ROSE_DIR}/soc/sim/config/config_runtime_local.yaml"
     "${ROSE_DIR}/soc/sim/config/config_build_recipes_local.yaml"
@@ -70,10 +79,18 @@ destinations=(
     "${CHIPYARD_DIR}/generators/rose/src/main/scala/RoSEGeneratorConfig.scala" #****
     "${CHIPYARD_DIR}/generators/rose/src/main/scala/RoSEDMA.scala" #****
     "${CHIPYARD_DIR}/generators/rose/src/main/scala/Dataflow.scala" #****
+    #tacit trace bridge scala destinations
+    "${CHIPYARD_DIR}/generators/firechip/bridgeinterfaces/src/main/scala/TraceRawByte.scala"
+    "${CHIPYARD_DIR}/generators/firechip/bridgestubs/src/main/scala/tacit/TacitBridge.scala"
+    "${CHIPYARD_DIR}/generators/firechip/bridgestubs/src/main/scala/tacit/TacitModule.scala"
+    "${CHIPYARD_DIR}/generators/firechip/goldengateimplementations/src/main/scala/TacitBridge.scala"
     #C++ destinations
     # chipyard-as-top: bridge C++ drivers live under firechip/bridgestubs, not firesim-lib
     "${CHIPYARD_DIR}/generators/firechip/bridgestubs/src/main/cc/bridges/rosebridge.cc"
     "${CHIPYARD_DIR}/generators/firechip/bridgestubs/src/main/cc/bridges/rosebridge.h"
+    #tacit trace bridge host driver destinations
+    "${CHIPYARD_DIR}/generators/firechip/bridgestubs/src/main/cc/bridges/tacit.cc"
+    "${CHIPYARD_DIR}/generators/firechip/bridgestubs/src/main/cc/bridges/tacit.h"
     #simulation configs destinations
     "${FIRESIM_DIR}/deploy/config_runtime.yaml"
     "${FIRESIM_DIR}/deploy/config_build_recipes.yaml"
