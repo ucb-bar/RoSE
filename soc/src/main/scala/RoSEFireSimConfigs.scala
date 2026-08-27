@@ -78,6 +78,25 @@ class RoseTLDualRocketSaturnGemminiMMIOOnlyConfig extends Config(
   new WithFireSimConfigTweaks ++
   new chipyard.config.RoseTLDualRocketSaturnGemminiConfig)
 
+// Q0.31 FireSim wrappers: same MMIO-only RoSE bridge stack as above, over the Q0.31
+// integer-mvout-requantize Gemmini bases.  These are the targets to build when you want
+// Gemmini results that are bit-comparable against ModelBlaster's scalar Q0.31 golden
+// (the fp32-acc_scale wrapper above loses ~7 LSBs on mvout).  Bridge/DT contract is
+// identical to the fp32 variant, so guest software needs no change beyond selecting a
+// Q31 gemmini_params.h.
+class RoseTLDualRocketSaturnGemminiQ31MMIOOnlyConfig extends Config(
+  new WithRoseBridge ++
+  new WithDefaultMMIOOnlyFireSimBridges ++
+  new WithFireSimConfigTweaks ++
+  new chipyard.config.RoseTLDualRocketSaturnGemminiQ31Config)
+
+// WS-only Q0.31 variant -- smaller PE footprint, same numerics.
+class RoseTLDualRocketSaturnGemminiQ31WsMMIOOnlyConfig extends Config(
+  new WithRoseBridge ++
+  new WithDefaultMMIOOnlyFireSimBridges ++
+  new WithFireSimConfigTweaks ++
+  new chipyard.config.RoseTLDualRocketSaturnGemminiQ31WsConfig)
+
 // class RoseTLRocketStereoAccMMIOOnlyDMAConfig extends Config(
 //   new WithRoseBridge ++
 //   new WithDefaultMMIOOnlyFireSimBridges ++

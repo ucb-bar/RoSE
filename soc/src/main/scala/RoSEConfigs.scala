@@ -62,8 +62,11 @@ class RoseTLRocketSaturnTacitConfig extends Config(
 // experiments. TWO Rocket big cores, each carrying BOTH a Saturn RVV vector unit
 // (V + Zfh + Zvfh, same VLEN128/DLEN64 as RoseTLRocketSaturnConfig -- runs the RVV
 // fp16 vision kernels) AND an int8 Gemmini systolic RoCC (gemmini.GemminiConfigs.
-// defaultConfig: SInt8 in / SInt32 acc / Q0.31 per-oc requant -- this is the
-// "gemmini_q31" systolic backend ModelBlaster lowers to). Accelerator mixins sit
+// defaultConfig: SInt8 in / SInt32 acc / **f32** acc_scale on mvout).  NOTE: despite
+// what this comment used to claim, defaultConfig is GemminiArrayConfig[SInt, Float,
+// Float] -- it is NOT the Q0.31 integer requantize, so it is NOT what ModelBlaster's
+// "gemmini_q31" backend targets.  Use RoseTLDualRocketSaturnGemminiQ31Config for that.
+// Accelerator mixins sit
 // to the LEFT of WithNBigCores(2) so the two created tiles pick up BuildRoCC (Gemmini)
 // + the vector-unit tile params. Same RoSE adapter dst_ports (DMA0 @ 0x88000000 +
 // two reqrsp) as the single-core configs, so the guest device-tree/bridge contract is
@@ -75,9 +78,60 @@ class RoseTLDualRocketSaturnGemminiConfig extends Config(
     DstParams(port_type="reqrsp", name="reqrsp0"),
     DstParams(port_type="reqrsp", name="reqrsp1"),
   ))) ++
-  new gemmini.DefaultGemminiConfig(gemmini.GemminiConfigs.defaultConfig) ++  // int8 Gemmini RoCC (gemmini_q31)
+  new gemmini.DefaultGemminiConfig(gemmini.GemminiConfigs.defaultConfig) ++  // int8 Gemmini RoCC, f32 acc_scale (NOT gemmini_q31)
   new saturn.rocket.WithRocketVectorUnit(128, 64, VectorParams.refParams) ++ // Saturn RVV vector unit
   new freechips.rocketchip.rocket.WithNBigCores(2) ++                        // dual rocket big-core
+  new chipyard.config.AbstractRoseConfig)
+
+// ---------------------------------------------------------------------------
+// Q0.31 (integer mvout requantize) Gemmini variants.
+//
+// Identical to RoseTLDualRocketSaturnGemminiConfig in every respect EXCEPT the
+// Gemmini acc_scale type.  gemmini.GemminiQ31Configs.q31Config is
+// GemminiArrayConfig[SInt, Float, SInt] -- V (acc_scale) is SInt(32.W), so mvout
+// requantizes with the bit-exact integer `(acc * mult + 2^30) >> 31` (+ int8
+// saturate) instead of the f32 multiply, which loses ~7 LSBs to rounding.  mvin
+// scale stays f32 (bit-exactness only matters at mvout).
+//
+// This matches the per-tensor-symmetric int8 requantize used by TFLite /
+// muRISCV-NN, so Gemmini results are bit-comparable against the scalar golden --
+// it is the config ModelBlaster's "gemmini_q31" backend actually targets.
+//
+// gemmini.Q31GemminiConfig has the same body as gemmini.DefaultGemminiConfig
+// (it only appends BuildRoCC), so this is a pure drop-in mixin swap: bus widths,
+// tile params, and the RoSE adapter dst_ports contract are all unchanged, and the
+// guest device-tree/bridge contract is identical to the fp32 build.
+//
+// Source: soc/src/main/scala/GemminiQ31Configs.scala, a verbatim copy of
+// CobbledSteel/gemmini@xpurt:src/main/scala/gemmini/Q31Configs.scala, symlinked
+// into generators/gemmini/src/main/scala/gemmini/Q31Configs.scala.
+// ---------------------------------------------------------------------------
+class RoseTLDualRocketSaturnGemminiQ31Config extends Config(
+  new rose.WithRoseAdapter(dst_ports = new DstParams_Container(Seq(
+    DstParams(port_type="DMA", DMA_address = 0x88000000L, name="DMA0"),
+    DstParams(port_type="reqrsp", name="reqrsp0"),
+    DstParams(port_type="reqrsp", name="reqrsp1"),
+  ))) ++
+  new gemmini.Q31GemminiConfig(gemmini.GemminiQ31Configs.q31Config) ++       // int8 Gemmini RoCC, Q0.31 mvout requant
+  new saturn.rocket.WithRocketVectorUnit(128, 64, VectorParams.refParams) ++ // Saturn RVV vector unit
+  new freechips.rocketchip.rocket.WithNBigCores(2) ++                        // dual rocket big-core
+  new chipyard.config.AbstractRoseConfig)
+
+// Weight-stationary-only Q0.31 variant.  Dropping Dataflow.BOTH removes the OS/WS
+// dataflow mux and half the c1/c2 register usage inside every PE; ModelBlaster only
+// emits WS matmuls on the int8 systolic path, so this is functionally equivalent for
+// our workloads and buys back LUTs -- useful headroom on the already-large
+// 2x Rocket + 2x Saturn VPU + 2x Gemmini U250 build.  Still a 16x16 mesh, so the
+// existing DIM 16 gemmini_params headers apply.
+class RoseTLDualRocketSaturnGemminiQ31WsConfig extends Config(
+  new rose.WithRoseAdapter(dst_ports = new DstParams_Container(Seq(
+    DstParams(port_type="DMA", DMA_address = 0x88000000L, name="DMA0"),
+    DstParams(port_type="reqrsp", name="reqrsp0"),
+    DstParams(port_type="reqrsp", name="reqrsp1"),
+  ))) ++
+  new gemmini.Q31WsGemminiConfig ++                                          // Q0.31 + WS-only dataflow
+  new saturn.rocket.WithRocketVectorUnit(128, 64, VectorParams.refParams) ++
+  new freechips.rocketchip.rocket.WithNBigCores(2) ++
   new chipyard.config.AbstractRoseConfig)
 
 // class RocketStereoAccRoCCConfig extends Config(

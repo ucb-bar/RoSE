@@ -261,14 +261,66 @@ alveo_u250_firesim-rocket-saturn-with-rose-60mhz-fast-no-nic-l2-llc4mb-ddr3:
 
 # Dual-core Saturn-vector + int8 Gemmini + RoSE (multi-accelerator experiment).
 # TWO Rocket big cores, each with a Saturn RVV vector unit AND an int8 Gemmini systolic
-# RoCC (gemmini_q31: SInt8/SInt32/Q0.31 requant). Uses RoseTLDualRocketSaturnGemminiMMIOOnlyConfig.
+# RoCC. NOTE: this recipe uses gemmini's stock defaultConfig, which is
+# GemminiArrayConfig[SInt, Float, Float] -- i.e. **f32 acc_scale on mvout**, NOT the
+# Q0.31 integer requantize. It is therefore NOT the "gemmini_q31" backend target;
+# see the -q31 recipes below for that. Uses RoseTLDualRocketSaturnGemminiMMIOOnlyConfig.
 # Large design => 30 MHz for U250 timing headroom (2x Rocket + 2x Saturn VPU + 2x Gemmini).
-# Added 2026-08-13.
+# Added 2026-08-13. Comment corrected 2026-08-27.
 alveo_u250_firesim-dual-rocket-saturn-gemmini-with-rose-fast-no-nic-l2-llc4mb-ddr3:
     PLATFORM: xilinx_alveo_u250
     TARGET_PROJECT: firesim
     DESIGN: FireSim
     TARGET_CONFIG: RoseTLDualRocketSaturnGemminiMMIOOnlyConfig
+    PLATFORM_CONFIG: BaseXilinxAlveoU250Config
+    deploy_triplet: null
+    platform_config_args:
+        fpga_frequency: 30
+
+# Q0.31 variant of the above: identical design except Gemmini's acc_scale is SInt(32.W),
+# so mvout requantizes with the bit-exact integer `(acc * mult + 2^30) >> 31` instead of
+# the f32 multiply. This IS the config ModelBlaster's "gemmini_q31" backend targets, and
+# the one to build when you want Gemmini output bit-comparable to the scalar Q0.31 golden.
+# Guest bridge/DT contract is unchanged from the fp32 build; guest software only needs a
+# Q31 gemmini_params.h. Ported from CobbledSteel/gemmini@xpurt. Added 2026-08-27.
+alveo_u250_firesim-dual-rocket-saturn-gemmini-q31-with-rose-fast-no-nic-l2-llc4mb-ddr3:
+    PLATFORM: xilinx_alveo_u250
+    TARGET_PROJECT: firesim
+    DESIGN: FireSim
+    TARGET_CONFIG: RoseTLDualRocketSaturnGemminiQ31MMIOOnlyConfig
+    PLATFORM_CONFIG: BaseXilinxAlveoU250Config
+    deploy_triplet: null
+    platform_config_args:
+        fpga_frequency: 30
+
+# Q0.31 + weight-stationary-only. Same numerics as the -q31 recipe, but drops the OS/WS
+# dataflow mux in every PE (ModelBlaster only emits WS matmuls on the int8 systolic path),
+# recovering LUTs on this already-large 2x Rocket + 2x Saturn + 2x Gemmini design.
+# Try this one first if the -q31 build misses timing at 30 MHz. Added 2026-08-27.
+alveo_u250_firesim-dual-rocket-saturn-gemmini-q31ws-with-rose-fast-no-nic-l2-llc4mb-ddr3:
+    PLATFORM: xilinx_alveo_u250
+    TARGET_PROJECT: firesim
+    DESIGN: FireSim
+    TARGET_CONFIG: RoseTLDualRocketSaturnGemminiQ31WsMMIOOnlyConfig
+    PLATFORM_CONFIG: BaseXilinxAlveoU250Config
+    deploy_triplet: null
+    platform_config_args:
+        fpga_frequency: 30
+        build_strategy: TIMING
+    post_build_hook: null
+    metasim_customruntimeconfig: null
+    bit_builder_recipe: bit-builder-recipes/xilinx_alveo_u250.yaml
+
+# Saturn+RoSE + TACIT instruction-trace streaming bridge (ported from riscv-tacit/chipyard).
+# Both the RoSE co-sim bridge AND the TACIT bridge (StreamToHostCPU -> host tacit.cc) are
+# present. 30 MHz for a safe first build of the new config. Needs tacit@rose-tacit-bridge +
+# rocket-chip@rose-tacit-encoder checked out (setup.sh symlinks the firechip/soc sources).
+# Added 2026-08-14.
+alveo_u250_firesim-rocket-saturn-tacit-with-rose-fast-no-nic-l2-llc4mb-ddr3:
+    PLATFORM: xilinx_alveo_u250
+    TARGET_PROJECT: firesim
+    DESIGN: FireSim
+    TARGET_CONFIG: RoseTLRocketSaturnTacitMMIOOnlyConfig
     PLATFORM_CONFIG: BaseXilinxAlveoU250Config
     deploy_triplet: null
     platform_config_args:

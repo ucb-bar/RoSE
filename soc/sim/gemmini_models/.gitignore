@@ -1,0 +1,3 @@
+# Built spike models are regenerable: soc/sim/build_libgemmini.sh --base <cfg> [--mesh N]
+# The header + meta.txt are kept as provenance for what each model was built from.
+*.so
