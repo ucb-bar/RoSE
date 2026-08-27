@@ -206,3 +206,79 @@ class RoseTLDualRocketSaturnGemminiQ31WsMMIOOnlyConfig extends Config(
 //   new WithDefaultMemModel ++
 //   new WithFireSimConfigTweaks ++
 //   new chipyard.config.RoseTLBOOMGemminiConfig) 
+
+// ===========================================================================
+// F2 build matrix FireSim wrappers: {dual,quad} x {small,large} x {RoSE,no-RoSE}
+//
+// All eight enable TACIT instruction tracing over the FireSim streaming bridge:
+// WithTraceSinkRawBytePunchthrough exposes one TraceSinkRawBytePort per tile
+// (system.tacit_bytes.zipWithIndex in IOBinders.scala), and WithTacitBridge binds
+// a TacitBridge to each -- so a quad-core build streams four trace channels.
+//
+// WithDefaultMMIOOnlyFireSimBridges (rather than WithDefaultFireSimBridges) drops
+// the NIC and TracerV bridges while keeping TSI/DMI/UART/BlockDev/FASED. TracerV
+// is exactly what TACIT replaces, and we have no NIC in these targets. The stock
+// f1 RoSE recipe already builds an MMIOOnly config on AWS, so this composes on F2.
+// ===========================================================================
+
+// ---- RoSE variants --------------------------------------------------------
+class RoseTLDualSmallTacitMMIOOnlyConfig extends Config(
+  new WithTacitBridge ++
+  new chipyard.iobinders.WithTraceSinkRawBytePunchthrough ++
+  new WithRoseBridge ++
+  new WithDefaultMMIOOnlyFireSimBridges ++
+  new WithFireSimConfigTweaks ++
+  new chipyard.config.RoseTLDualSmallTacitConfig)
+
+class RoseTLQuadSmallTacitMMIOOnlyConfig extends Config(
+  new WithTacitBridge ++
+  new chipyard.iobinders.WithTraceSinkRawBytePunchthrough ++
+  new WithRoseBridge ++
+  new WithDefaultMMIOOnlyFireSimBridges ++
+  new WithFireSimConfigTweaks ++
+  new chipyard.config.RoseTLQuadSmallTacitConfig)
+
+class RoseTLDualLargeTacitMMIOOnlyConfig extends Config(
+  new WithTacitBridge ++
+  new chipyard.iobinders.WithTraceSinkRawBytePunchthrough ++
+  new WithRoseBridge ++
+  new WithDefaultMMIOOnlyFireSimBridges ++
+  new WithFireSimConfigTweaks ++
+  new chipyard.config.RoseTLDualLargeTacitConfig)
+
+class RoseTLQuadLargeTacitMMIOOnlyConfig extends Config(
+  new WithTacitBridge ++
+  new chipyard.iobinders.WithTraceSinkRawBytePunchthrough ++
+  new WithRoseBridge ++
+  new WithDefaultMMIOOnlyFireSimBridges ++
+  new WithFireSimConfigTweaks ++
+  new chipyard.config.RoseTLQuadLargeTacitConfig)
+
+// ---- no-RoSE variants (no WithRoseBridge) ---------------------------------
+class SatGemDualSmallTacitMMIOOnlyConfig extends Config(
+  new WithTacitBridge ++
+  new chipyard.iobinders.WithTraceSinkRawBytePunchthrough ++
+  new WithDefaultMMIOOnlyFireSimBridges ++
+  new WithFireSimConfigTweaks ++
+  new chipyard.config.SatGemDualSmallTacitConfig)
+
+class SatGemQuadSmallTacitMMIOOnlyConfig extends Config(
+  new WithTacitBridge ++
+  new chipyard.iobinders.WithTraceSinkRawBytePunchthrough ++
+  new WithDefaultMMIOOnlyFireSimBridges ++
+  new WithFireSimConfigTweaks ++
+  new chipyard.config.SatGemQuadSmallTacitConfig)
+
+class SatGemDualLargeTacitMMIOOnlyConfig extends Config(
+  new WithTacitBridge ++
+  new chipyard.iobinders.WithTraceSinkRawBytePunchthrough ++
+  new WithDefaultMMIOOnlyFireSimBridges ++
+  new WithFireSimConfigTweaks ++
+  new chipyard.config.SatGemDualLargeTacitConfig)
+
+class SatGemQuadLargeTacitMMIOOnlyConfig extends Config(
+  new WithTacitBridge ++
+  new chipyard.iobinders.WithTraceSinkRawBytePunchthrough ++
+  new WithDefaultMMIOOnlyFireSimBridges ++
+  new WithFireSimConfigTweaks ++
+  new chipyard.config.SatGemQuadLargeTacitConfig)

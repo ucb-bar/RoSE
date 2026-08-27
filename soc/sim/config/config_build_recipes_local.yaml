@@ -417,3 +417,247 @@ alveo_u250_firesim-rocket-singlecore-no-rose-fast-no-nic-l2-llc4mb-ddr3:
     post_build_hook: null
     metasim_customruntimeconfig: null
     bit_builder_recipe: bit-builder-recipes/xilinx_alveo_u250.yaml
+
+################################################################################
+# AWS F2 (VU47P) build matrix -- added 2026-08-27
+#
+# 8 configs x 2 frequencies = 16 bitstreams.
+#   cores:  dual (2) | quad (4)   -- quad is the target; dual is the fallback if
+#                                    the quad designs do not fit / close timing.
+#   size:   small = Saturn VLEN256/DLEN128 + Q0.31 Gemmini 16x16 (WS), sbus 128b
+#           large = Saturn VLEN512/DLEN256 + Q0.31 Gemmini 32x32 (WS, acc 128KB), sbus 256b
+#   rose:   with RoSE adapter (DMA0 @ 0x88000000 + 2 reqrsp -- the IO contract
+#           docs/FPGA_GATENAV_REPRODUCE.md needs) | without, to isolate RoSE cost.
+# All eight carry TACIT instruction tracing over the FireSim streaming bridge
+# (one TacitBridge per tile).
+#
+# Frequencies: 20 MHz builds are the "get something working sooner" pass; 60 MHz
+# is the faster-experimentation pass that will take longer and may miss timing on
+# the larger designs. Both are launched together.
+#
+# build_strategy TIMING throughout -- we care about closing 60 MHz on the big ones.
+################################################################################
+
+f2_dual_small_rose_tacit_q31_20mhz:
+    PLATFORM: f2
+    TARGET_PROJECT: firesim
+    DESIGN: FireSim
+    TARGET_CONFIG: RoseTLDualSmallTacitMMIOOnlyConfig
+    PLATFORM_CONFIG: BaseF2Config
+    deploy_quintuplet: null
+    platform_config_args:
+        fpga_frequency: 20
+        build_strategy: TIMING
+    post_build_hook: null
+    metasim_customruntimeconfig: null
+    bit_builder_recipe: bit-builder-recipes/f2.yaml
+
+f2_dual_small_norose_tacit_q31_20mhz:
+    PLATFORM: f2
+    TARGET_PROJECT: firesim
+    DESIGN: FireSim
+    TARGET_CONFIG: SatGemDualSmallTacitMMIOOnlyConfig
+    PLATFORM_CONFIG: BaseF2Config
+    deploy_quintuplet: null
+    platform_config_args:
+        fpga_frequency: 20
+        build_strategy: TIMING
+    post_build_hook: null
+    metasim_customruntimeconfig: null
+    bit_builder_recipe: bit-builder-recipes/f2.yaml
+
+f2_dual_large_rose_tacit_q31_20mhz:
+    PLATFORM: f2
+    TARGET_PROJECT: firesim
+    DESIGN: FireSim
+    TARGET_CONFIG: RoseTLDualLargeTacitMMIOOnlyConfig
+    PLATFORM_CONFIG: BaseF2Config
+    deploy_quintuplet: null
+    platform_config_args:
+        fpga_frequency: 20
+        build_strategy: TIMING
+    post_build_hook: null
+    metasim_customruntimeconfig: null
+    bit_builder_recipe: bit-builder-recipes/f2.yaml
+
+f2_dual_large_norose_tacit_q31_20mhz:
+    PLATFORM: f2
+    TARGET_PROJECT: firesim
+    DESIGN: FireSim
+    TARGET_CONFIG: SatGemDualLargeTacitMMIOOnlyConfig
+    PLATFORM_CONFIG: BaseF2Config
+    deploy_quintuplet: null
+    platform_config_args:
+        fpga_frequency: 20
+        build_strategy: TIMING
+    post_build_hook: null
+    metasim_customruntimeconfig: null
+    bit_builder_recipe: bit-builder-recipes/f2.yaml
+
+f2_quad_small_rose_tacit_q31_20mhz:
+    PLATFORM: f2
+    TARGET_PROJECT: firesim
+    DESIGN: FireSim
+    TARGET_CONFIG: RoseTLQuadSmallTacitMMIOOnlyConfig
+    PLATFORM_CONFIG: BaseF2Config
+    deploy_quintuplet: null
+    platform_config_args:
+        fpga_frequency: 20
+        build_strategy: TIMING
+    post_build_hook: null
+    metasim_customruntimeconfig: null
+    bit_builder_recipe: bit-builder-recipes/f2.yaml
+
+f2_quad_small_norose_tacit_q31_20mhz:
+    PLATFORM: f2
+    TARGET_PROJECT: firesim
+    DESIGN: FireSim
+    TARGET_CONFIG: SatGemQuadSmallTacitMMIOOnlyConfig
+    PLATFORM_CONFIG: BaseF2Config
+    deploy_quintuplet: null
+    platform_config_args:
+        fpga_frequency: 20
+        build_strategy: TIMING
+    post_build_hook: null
+    metasim_customruntimeconfig: null
+    bit_builder_recipe: bit-builder-recipes/f2.yaml
+
+f2_quad_large_rose_tacit_q31_20mhz:
+    PLATFORM: f2
+    TARGET_PROJECT: firesim
+    DESIGN: FireSim
+    TARGET_CONFIG: RoseTLQuadLargeTacitMMIOOnlyConfig
+    PLATFORM_CONFIG: BaseF2Config
+    deploy_quintuplet: null
+    platform_config_args:
+        fpga_frequency: 20
+        build_strategy: TIMING
+    post_build_hook: null
+    metasim_customruntimeconfig: null
+    bit_builder_recipe: bit-builder-recipes/f2.yaml
+
+f2_quad_large_norose_tacit_q31_20mhz:
+    PLATFORM: f2
+    TARGET_PROJECT: firesim
+    DESIGN: FireSim
+    TARGET_CONFIG: SatGemQuadLargeTacitMMIOOnlyConfig
+    PLATFORM_CONFIG: BaseF2Config
+    deploy_quintuplet: null
+    platform_config_args:
+        fpga_frequency: 20
+        build_strategy: TIMING
+    post_build_hook: null
+    metasim_customruntimeconfig: null
+    bit_builder_recipe: bit-builder-recipes/f2.yaml
+
+f2_dual_small_rose_tacit_q31_60mhz:
+    PLATFORM: f2
+    TARGET_PROJECT: firesim
+    DESIGN: FireSim
+    TARGET_CONFIG: RoseTLDualSmallTacitMMIOOnlyConfig
+    PLATFORM_CONFIG: BaseF2Config
+    deploy_quintuplet: null
+    platform_config_args:
+        fpga_frequency: 60
+        build_strategy: TIMING
+    post_build_hook: null
+    metasim_customruntimeconfig: null
+    bit_builder_recipe: bit-builder-recipes/f2.yaml
+
+f2_dual_small_norose_tacit_q31_60mhz:
+    PLATFORM: f2
+    TARGET_PROJECT: firesim
+    DESIGN: FireSim
+    TARGET_CONFIG: SatGemDualSmallTacitMMIOOnlyConfig
+    PLATFORM_CONFIG: BaseF2Config
+    deploy_quintuplet: null
+    platform_config_args:
+        fpga_frequency: 60
+        build_strategy: TIMING
+    post_build_hook: null
+    metasim_customruntimeconfig: null
+    bit_builder_recipe: bit-builder-recipes/f2.yaml
+
+f2_dual_large_rose_tacit_q31_60mhz:
+    PLATFORM: f2
+    TARGET_PROJECT: firesim
+    DESIGN: FireSim
+    TARGET_CONFIG: RoseTLDualLargeTacitMMIOOnlyConfig
+    PLATFORM_CONFIG: BaseF2Config
+    deploy_quintuplet: null
+    platform_config_args:
+        fpga_frequency: 60
+        build_strategy: TIMING
+    post_build_hook: null
+    metasim_customruntimeconfig: null
+    bit_builder_recipe: bit-builder-recipes/f2.yaml
+
+f2_dual_large_norose_tacit_q31_60mhz:
+    PLATFORM: f2
+    TARGET_PROJECT: firesim
+    DESIGN: FireSim
+    TARGET_CONFIG: SatGemDualLargeTacitMMIOOnlyConfig
+    PLATFORM_CONFIG: BaseF2Config
+    deploy_quintuplet: null
+    platform_config_args:
+        fpga_frequency: 60
+        build_strategy: TIMING
+    post_build_hook: null
+    metasim_customruntimeconfig: null
+    bit_builder_recipe: bit-builder-recipes/f2.yaml
+
+f2_quad_small_rose_tacit_q31_60mhz:
+    PLATFORM: f2
+    TARGET_PROJECT: firesim
+    DESIGN: FireSim
+    TARGET_CONFIG: RoseTLQuadSmallTacitMMIOOnlyConfig
+    PLATFORM_CONFIG: BaseF2Config
+    deploy_quintuplet: null
+    platform_config_args:
+        fpga_frequency: 60
+        build_strategy: TIMING
+    post_build_hook: null
+    metasim_customruntimeconfig: null
+    bit_builder_recipe: bit-builder-recipes/f2.yaml
+
+f2_quad_small_norose_tacit_q31_60mhz:
+    PLATFORM: f2
+    TARGET_PROJECT: firesim
+    DESIGN: FireSim
+    TARGET_CONFIG: SatGemQuadSmallTacitMMIOOnlyConfig
+    PLATFORM_CONFIG: BaseF2Config
+    deploy_quintuplet: null
+    platform_config_args:
+        fpga_frequency: 60
+        build_strategy: TIMING
+    post_build_hook: null
+    metasim_customruntimeconfig: null
+    bit_builder_recipe: bit-builder-recipes/f2.yaml
+
+f2_quad_large_rose_tacit_q31_60mhz:
+    PLATFORM: f2
+    TARGET_PROJECT: firesim
+    DESIGN: FireSim
+    TARGET_CONFIG: RoseTLQuadLargeTacitMMIOOnlyConfig
+    PLATFORM_CONFIG: BaseF2Config
+    deploy_quintuplet: null
+    platform_config_args:
+        fpga_frequency: 60
+        build_strategy: TIMING
+    post_build_hook: null
+    metasim_customruntimeconfig: null
+    bit_builder_recipe: bit-builder-recipes/f2.yaml
+
+f2_quad_large_norose_tacit_q31_60mhz:
+    PLATFORM: f2
+    TARGET_PROJECT: firesim
+    DESIGN: FireSim
+    TARGET_CONFIG: SatGemQuadLargeTacitMMIOOnlyConfig
+    PLATFORM_CONFIG: BaseF2Config
+    deploy_quintuplet: null
+    platform_config_args:
+        fpga_frequency: 60
+        build_strategy: TIMING
+    post_build_hook: null
+    metasim_customruntimeconfig: null
+    bit_builder_recipe: bit-builder-recipes/f2.yaml

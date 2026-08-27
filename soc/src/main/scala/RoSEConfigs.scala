@@ -274,3 +274,125 @@ class RoseTLDualRocketSaturnGemminiQ31WsConfig extends Config(
 //   new boom.common.WithNLargeBooms(1) ++   
 //   new chipyard.config.AbstractRoseConfig)
 
+// ===========================================================================
+// F2 build matrix: {dual,quad} cores x {small,large} accelerators x {RoSE,no-RoSE}
+// All eight carry TACIT instruction tracing over the FireSim streaming bridge.
+//
+// "small" per core:  Saturn RVV VLEN=256 / DLEN=128 (refParams) + Q0.31 Gemmini 16x16 (WS)
+// "large" per core:  Saturn RVV VLEN=512 / DLEN=256 (refParams) + Q0.31 Gemmini 32x32 (WS, acc=128KB)
+//
+// Gemmini is the Q0.31 integer-mvout-requantize flavour throughout (see
+// GemminiQ31Configs.scala) -- these are the ModelBlaster "gemmini_q31" targets.
+// At 32x32 we use the *Acc* variant: at acc_capacity=64KB the accumulator banks
+// collapse to 256x8 tiles which Vivado demotes from BRAM to LUTRAM; bumping to
+// 128KB restores BRAM-friendly 512x8 splits (~128 extra RAMB18 to recover ~10K LUTs).
+//
+// dma_buswidth tracks the mesh (128b @16x16, 256b @32x32) so a mesh column drains
+// in one cycle, hence the matching WithSystemBusWidth.
+//
+// FRAGMENT ORDER (CDE applies right-to-left, base first):
+//   - WithTraceSinkRawByte must sit LEFT of WithTacitEncoder: the encoder sets
+//     traceParams = Some(...), the sink does traceParams.get.copy(buildSinks...).
+//   - Accelerator mixins (Gemmini RoCC, Saturn VPU) sit LEFT of WithNBigCores so
+//     every created tile picks up BuildRoCC + the vector tile params.
+//
+// The RoSE variants carry the adapter dst_ports contract the gate-nav flow needs
+// (docs/FPGA_GATENAV_REPRODUCE.md): camera over DMA ch0 at 0x88000000 plus two
+// reqrsp channels. That DMA address MUST equal the guest DT `dma-base-address`.
+// The no-RoSE variants are the same SoC minus the adapter/IO punchthrough, for
+// isolating RoSE's area/timing cost.
+// ===========================================================================
+
+// ---- RoSE variants --------------------------------------------------------
+class RoseTLDualSmallTacitConfig extends Config(
+  new rose.WithRoseAdapter(dst_ports = new DstParams_Container(Seq(
+    DstParams(port_type="DMA", DMA_address = 0x88000000L, name="DMA0"),
+    DstParams(port_type="reqrsp", name="reqrsp0"),
+    DstParams(port_type="reqrsp", name="reqrsp1"),
+  ))) ++
+  new tacit.WithTraceSinkRawByte(0) ++
+  new chipyard.WithTacitEncoder ++
+  new gemmini.Q31WsGemminiConfig ++
+  new saturn.rocket.WithRocketVectorUnit(256, 128, VectorParams.refParams) ++
+  new freechips.rocketchip.rocket.WithNBigCores(2) ++
+  new chipyard.config.WithSystemBusWidth(128) ++
+  new chipyard.config.AbstractRoseConfig)
+
+class RoseTLQuadSmallTacitConfig extends Config(
+  new rose.WithRoseAdapter(dst_ports = new DstParams_Container(Seq(
+    DstParams(port_type="DMA", DMA_address = 0x88000000L, name="DMA0"),
+    DstParams(port_type="reqrsp", name="reqrsp0"),
+    DstParams(port_type="reqrsp", name="reqrsp1"),
+  ))) ++
+  new tacit.WithTraceSinkRawByte(0) ++
+  new chipyard.WithTacitEncoder ++
+  new gemmini.Q31WsGemminiConfig ++
+  new saturn.rocket.WithRocketVectorUnit(256, 128, VectorParams.refParams) ++
+  new freechips.rocketchip.rocket.WithNBigCores(4) ++
+  new chipyard.config.WithSystemBusWidth(128) ++
+  new chipyard.config.AbstractRoseConfig)
+
+class RoseTLDualLargeTacitConfig extends Config(
+  new rose.WithRoseAdapter(dst_ports = new DstParams_Container(Seq(
+    DstParams(port_type="DMA", DMA_address = 0x88000000L, name="DMA0"),
+    DstParams(port_type="reqrsp", name="reqrsp0"),
+    DstParams(port_type="reqrsp", name="reqrsp1"),
+  ))) ++
+  new tacit.WithTraceSinkRawByte(0) ++
+  new chipyard.WithTacitEncoder ++
+  new gemmini.Q31Ws32x32AccGemminiConfig ++
+  new saturn.rocket.WithRocketVectorUnit(512, 256, VectorParams.refParams) ++
+  new freechips.rocketchip.rocket.WithNBigCores(2) ++
+  new chipyard.config.WithSystemBusWidth(256) ++
+  new chipyard.config.AbstractRoseConfig)
+
+class RoseTLQuadLargeTacitConfig extends Config(
+  new rose.WithRoseAdapter(dst_ports = new DstParams_Container(Seq(
+    DstParams(port_type="DMA", DMA_address = 0x88000000L, name="DMA0"),
+    DstParams(port_type="reqrsp", name="reqrsp0"),
+    DstParams(port_type="reqrsp", name="reqrsp1"),
+  ))) ++
+  new tacit.WithTraceSinkRawByte(0) ++
+  new chipyard.WithTacitEncoder ++
+  new gemmini.Q31Ws32x32AccGemminiConfig ++
+  new saturn.rocket.WithRocketVectorUnit(512, 256, VectorParams.refParams) ++
+  new freechips.rocketchip.rocket.WithNBigCores(4) ++
+  new chipyard.config.WithSystemBusWidth(256) ++
+  new chipyard.config.AbstractRoseConfig)
+
+// ---- no-RoSE variants (same SoC, no adapter / no RoSE IO punchthrough) -----
+class SatGemDualSmallTacitConfig extends Config(
+  new tacit.WithTraceSinkRawByte(0) ++
+  new chipyard.WithTacitEncoder ++
+  new gemmini.Q31WsGemminiConfig ++
+  new saturn.rocket.WithRocketVectorUnit(256, 128, VectorParams.refParams) ++
+  new freechips.rocketchip.rocket.WithNBigCores(2) ++
+  new chipyard.config.WithSystemBusWidth(128) ++
+  new chipyard.config.AbstractConfig)
+
+class SatGemQuadSmallTacitConfig extends Config(
+  new tacit.WithTraceSinkRawByte(0) ++
+  new chipyard.WithTacitEncoder ++
+  new gemmini.Q31WsGemminiConfig ++
+  new saturn.rocket.WithRocketVectorUnit(256, 128, VectorParams.refParams) ++
+  new freechips.rocketchip.rocket.WithNBigCores(4) ++
+  new chipyard.config.WithSystemBusWidth(128) ++
+  new chipyard.config.AbstractConfig)
+
+class SatGemDualLargeTacitConfig extends Config(
+  new tacit.WithTraceSinkRawByte(0) ++
+  new chipyard.WithTacitEncoder ++
+  new gemmini.Q31Ws32x32AccGemminiConfig ++
+  new saturn.rocket.WithRocketVectorUnit(512, 256, VectorParams.refParams) ++
+  new freechips.rocketchip.rocket.WithNBigCores(2) ++
+  new chipyard.config.WithSystemBusWidth(256) ++
+  new chipyard.config.AbstractConfig)
+
+class SatGemQuadLargeTacitConfig extends Config(
+  new tacit.WithTraceSinkRawByte(0) ++
+  new chipyard.WithTacitEncoder ++
+  new gemmini.Q31Ws32x32AccGemminiConfig ++
+  new saturn.rocket.WithRocketVectorUnit(512, 256, VectorParams.refParams) ++
+  new freechips.rocketchip.rocket.WithNBigCores(4) ++
+  new chipyard.config.WithSystemBusWidth(256) ++
+  new chipyard.config.AbstractConfig)
