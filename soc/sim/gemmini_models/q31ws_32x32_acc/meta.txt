@@ -1,0 +1,13 @@
+name:        q31ws_32x32_acc
+base:        q31ws
+overrides:   mesh=32 sp=<base> acc=128 dma=256 dataflow=<base>
+built:       2026-08-27T13:18:16-07:00
+chipyard:    0acc1e1d
+libgemmini:  d3c2bb1
+--- header key defines ---
+#define DIM 32
+typedef int8_t elem_t;
+typedef int32_t acc_t;
+typedef int32_t scale_acc_t;
+typedef int32_t acc_scale_t;
+#define ACC_SCALE_IDENTITY ((acc_scale_t)1 << 30)
