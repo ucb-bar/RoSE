@@ -93,8 +93,14 @@ already referenced there.)
 
 ## 4. Generate + extract a trace on the FPGA
 
-- **Runtime config**: `soc/sim/chipyard/sims/firesim/deploy/config_runtime_local_tacit.yaml`
-- **Workload**: `.../deploy/workloads/rose-tacit.json`
+- **Runtime config**: generate with `soc/scripts/gen_firesim_run_config.sh` (it is not committed —
+  it holds environment-specific paths). For a local TACIT capture:
+  ```bash
+  soc/scripts/gen_firesim_run_config.sh --workload rose-tacit --name local_tacit \
+      --outputs "uartlog tacit0.out" --run-host localhost \
+      --hw-config alveo_u250_firesim-rocket-saturn-tacit-with-rose-fast-no-nic-l2-llc4mb-ddr3
+  # -> config_runtime_local_tacit.yaml + workloads/rose-tacit.json  (note tacit0.out in outputs)
+  ```
 - **Capture script**: `tools/tacit-decoder/scripts-rose/run_tacit_capture.sh`
 
 The TACIT guest is a standalone program (it does not need the Isaac co-sim to drive it), so the

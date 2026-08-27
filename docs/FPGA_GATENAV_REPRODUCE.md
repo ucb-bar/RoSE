@@ -56,26 +56,31 @@ guest emits).
 
 ## 3. Config files (exact)
 
-### 3a. `soc/sim/chipyard/sims/firesim/deploy/config_runtime_firesim1.yaml`
-Key fields (full file in-tree):
-```yaml
-run_farm:
-  recipe_arg_overrides:
-    default_simulation_dir: /scratch/vnikiforov/rose-fsim-run/
-    default_fpga_db:        /scratch/vnikiforov/rose-fsim/fpga_target.json
-    run_farm_hosts_to_use:
-      - "vnikiforov@firesim1.millennium.berkeley.edu": one_fpga_spec
-metasimulation:
-  metasimulation_enabled: false                 # real FPGA, not metasim
-target_config:
-  topology: no_net_config
-  no_net_num_nodes: 1
-  default_hw_config: alveo_u250_firesim-rocket-saturn-with-rose-fast-no-nic-l2-llc4mb-ddr3
-  plusarg_passthrough: "+partitioned=1"
-workload:
-  workload_name: rose-nav.json                  # -> zephyr.elf guest
-  terminate_on_completion: no
+### 3a. `config_runtime_firesim1.yaml` — **generate it, don't hand-edit**
+
+The FireSim run config bakes in machine/user-specific paths (`default_simulation_dir`,
+`default_fpga_db`), the run-farm host, and (via the hwdb) an absolute `bitstream_tar` path — so it
+is **not committed** to the chipyard submodule. Generate your own with the tracked helper
+`soc/scripts/gen_firesim_run_config.sh`, which fills every path from your environment:
+
+```bash
+# remote firesim1 U250 (edit user@host + your fpga_db / sim dir):
+soc/scripts/gen_firesim_run_config.sh --workload rose-nav --name firesim1 \
+    --run-host "youruser@firesim1.millennium.berkeley.edu" \
+    --fpga-db  /scratch/youruser/rose-fsim/fpga_target.json \
+    --sim-dir  /scratch/youruser/rose-fsim-run/ \
+    --hw-config alveo_u250_firesim-rocket-saturn-with-rose-fast-no-nic-l2-llc4mb-ddr3
+
+# ...or the local U250 instead:
+soc/scripts/gen_firesim_run_config.sh --workload rose-nav --name local \
+    --hw-config alveo_u250_firesim-rocket-saturn-with-rose-fast-no-nic-l2-llc4mb-ddr3
 ```
+
+This writes `soc/sim/chipyard/sims/firesim/deploy/config_runtime_<name>.yaml` + `workloads/rose-nav.json`
+(the workload boots `zephyr.elf`). Everything else in the config is fixed boilerplate
+(`metasimulation_enabled: false`, `topology: no_net_config`, `plusarg_passthrough: "+partitioned=1"`).
+The `--hw-config` key must exist in `soc/sim/config/config_hwdb_local.yaml` and point at your built
+`firesim.tar.gz` (the bitstream is a build artifact, not in git — build it or reuse a prior tar).
 
 ### 3b. `deploy/config/config_gym_WarehouseThrustEnv-v0.yaml` — the sensor/actuator contract
 `gym_timestep: 0.005` (5 ms physics); 1 `env.step` per received thrust (`action_latch`).
