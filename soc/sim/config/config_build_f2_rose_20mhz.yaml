@@ -1,0 +1,29 @@
+# AWS F2 build batch -- 20 MHz (8 builds).
+# Split from the full 16 deliberately: firesim buildbitstream elaborates EVERY
+# build in builds_to_run serially on the manager (deploy/firesim: 'forced to build
+# locally' loop) BEFORE requesting any build host. Batching by frequency lets the
+# 20 MHz Vivado runs start without waiting on the other batch's elaborations.
+build_farm:
+  base_recipe: build-farm-recipes/aws_ec2.yaml
+  recipe_arg_overrides:
+    build_farm_tag: rosef220
+builds_to_run:
+    - f2_dual_large_norose_tacit_q31_20mhz
+    - f2_dual_large_rose_tacit_q31_20mhz
+    - f2_dual_small_norose_tacit_q31_20mhz
+    - f2_dual_small_rose_tacit_q31_20mhz
+    - f2_quad_large_norose_tacit_q31_20mhz
+    - f2_quad_large_rose_tacit_q31_20mhz
+    - f2_quad_small_norose_tacit_q31_20mhz
+    - f2_quad_small_rose_tacit_q31_20mhz
+agfis_to_share:
+    - f2_dual_large_norose_tacit_q31_20mhz
+    - f2_dual_large_rose_tacit_q31_20mhz
+    - f2_dual_small_norose_tacit_q31_20mhz
+    - f2_dual_small_rose_tacit_q31_20mhz
+    - f2_quad_large_norose_tacit_q31_20mhz
+    - f2_quad_large_rose_tacit_q31_20mhz
+    - f2_quad_small_norose_tacit_q31_20mhz
+    - f2_quad_small_rose_tacit_q31_20mhz
+share_with_accounts:
+    self: 025690631703
