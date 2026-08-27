@@ -56,7 +56,7 @@ S=<scratch>; ROSE=/scratch/dima/rose-infra/RoSE
 west build -p always -b spike_riscv64 --build-dir $S/build_fused_nav \
   $ROSE/soc/sw/xpu-rt/zephyr-chipyard-sw/samples/rose_fused_nav -- \
   -DZEPHYR_EXTRA_MODULES=<zephyr-rose> -DMODEL_DIR=$S/cfg_bp_f16lowdim/gen \
-  -DMB_POOL_INC=$ROSE/soc/sw/xpu-rt/ModelBlaster/runtime/modelblaster_pool -DCTRL_ITERS=300
+  -DMB_POOL_INC=$ROSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/runtime/modelblaster_pool -DCTRL_ITERS=300
 # 2) Launch the lockstep co-sim (2 procs: Isaac sync + spike bridge). Camera=1 for video.
 export ROSE_MAX_SIM_TIME=90            # see "grant-budget cutoff" below — REQUIRED
 bash $S/run_wh_flight.sh gate 0 3000 1 1

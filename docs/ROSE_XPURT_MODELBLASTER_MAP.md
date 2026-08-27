@@ -9,8 +9,10 @@ outputs down to lower-level control policies.*
 > out** in this working tree. `modelblaster/` was extracted to
 > `github.com/ucb-bar/ModelBlaster` at commit `0ac2c4ee9e9` ("modelblaster: extract to
 > ucb-bar/ModelBlaster, instantiate as submodule"); the `merlin/` and QNN runtimes are
-> likewise submodules. To read/modify that source: `git submodule update --init
-> soc/sw/xpu-rt/ModelBlaster`, or read the pre-extraction tree with
+> likewise submodules. ModelBlaster now lives nested inside `zephyr-chipyard-sw`
+> (matching the standalone xpu-rt flow): `git submodule update --init --recursive
+> soc/sw/xpu-rt/zephyr-chipyard-sw` (→ `soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster`),
+> or read the pre-extraction tree with
 > `git show 0ac2c4ee9e9^:modelblaster/<path>`. File references below to `modelblaster/…`
 > are at `0ac2c4ee9e9^`; `samples/executorch/…` references are on branch `origin/dev`.
 
