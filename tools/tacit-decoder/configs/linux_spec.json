@@ -1,0 +1,28 @@
+{
+  "encoded_trace": "/scratch/iansseijelly/FIRESIM_RUN_TMP/sim_slot_1/tacit0.out",
+  "application_binary_asid_tuples": [
+    ["../spec2017/speckle/build/overlay/intspeed/test/641.leela_s/leela_s_base.riscv-64", "115"],
+    ["../spec2017/speckle/build/overlay/intspeed/test/641.leela_s/trace-submit", "113"],
+    ["../spec2017/speckle/build/overlay/intspeed/test/641.leela_s/trace-submit", "114"]
+  ],
+  "sbi_binary": "../firemarshal/images/firechip/spec17-intspeed-test-641.leela_s/spec17-intspeed-test-641.leela_s-bin",
+  "kernel_binary": "../firemarshal/images/firechip/spec17-intspeed-test-641.leela_s/spec17-intspeed-test-641.leela_s-bin-dwarf",
+  "kernel_jump_label_patch_log": "/scratch/iansseijelly/tacit-chipyard/sims/firesim/deploy/results-workload/2025-11-03--23-01-18-trace-hello/trace-hello-run-chores/jump_label_patch_map.txt",
+  "driver_binary_entry_tuples": [
+    ["../firemarshal/boards/firechip/drivers/tacit-driver/tacit.o", "0xffffffff0169d000"],
+    ["../firemarshal/boards/firechip/drivers/iceblk-driver/iceblk.o", "0xffffffff016ac000"]
+  ],
+  "header_only": false,
+  "to_stats": false,
+  "to_txt": false,
+  "to_stack_txt": false,
+  "to_atomics": false,
+  "to_afdo": false,
+  "gcno": "",
+  "to_gcda": false,
+  "to_speedscope": false,
+  "to_perfetto": false,
+  "to_foc": false,
+  "to_vbb": false,
+  "to_path_profile": true 
+}

@@ -1,0 +1,26 @@
+{
+  "encoded_trace": "/scratch/iansseijelly/FIRESIM_RUN_TMP/sim_slot_0/tacit0.out",
+  "application_binary_asid_tuples": [
+    ["../spec2017/speckle/build/overlay/intspeed/test/625.x264_s/x264_s_base.riscv-64", "117"]
+  ],
+  "sbi_binary": "../firemarshal/images/firechip/spec17-intspeed-test-625.x264_s/spec17-intspeed-test-625.x264_s-bin",
+  "kernel_binary": "../firemarshal/images/firechip/spec17-intspeed-test-625.x264_s/spec17-intspeed-test-625.x264_s-bin-dwarf",
+  "kernel_jump_label_patch_log": "/scratch/iansseijelly/tacit-chipyard/sims/firesim/deploy/results-workload/2025-11-15--01-13-55-spec17-intspeed-test-605/spec17-intspeed-test-605-run-chores/jump_label_patch_map.txt",
+  "driver_binary_entry_tuples": [
+    ["../firemarshal/boards/firechip/drivers/tacit-driver/tacit.o", "0xffffffff0169d000"],
+    ["../firemarshal/boards/firechip/drivers/iceblk-driver/iceblk.o", "0xffffffff016ac000"]
+  ],
+  "header_only": false,
+  "to_stats": false,
+  "to_txt": false,
+  "to_stack_txt": false,
+  "to_atomics": false,
+  "to_afdo": false,
+  "gcno": "",
+  "to_gcda": false,
+  "to_speedscope": false,
+  "to_perfetto": false,
+  "to_foc": false,
+  "to_vbb": true,
+  "to_path_profile": false 
+}

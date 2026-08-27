@@ -1,0 +1,20 @@
+{
+  "encoded_trace": "/scratch/iansseijelly/FIRESIM_RUN_TMP/sim_slot_0/tacit0.out",
+  "application_binary_asid_tuples": [],
+  "sbi_binary": "../firemarshal/example-workloads/bare-hello/trace-hello.elf",
+  "kernel_binary": "",
+  "kernel_jump_label_patch_log": "",
+  "driver_binary_entry_tuples": [],
+  "header_only": false,
+  "to_stats": false,
+  "to_txt": true,
+  "to_stack_txt": false,
+  "to_atomics": false,
+  "to_afdo": false,
+  "gcno": "",
+  "to_gcda": false,
+  "to_speedscope": false,
+  "to_perfetto": false,
+  "to_foc": false,
+  "to_vbb": false
+}

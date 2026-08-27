@@ -1,0 +1,20 @@
+{
+  "encoded_trace": "../../sims/vcs/trace_monitor_rockettile_0.encoded.trace",
+  "application_binary_asid_tuples": [],
+  "sbi_binary": "../baremetal-ide/build/examples/embench/wikisort.elf",
+  "kernel_binary": "",
+  "kernel_jump_label_patch_log": "",
+  "driver_binary_entry_tuples": [],
+  "header_only": false,
+  "to_stats": false,
+  "to_txt": false,
+  "to_stack_txt": false,
+  "to_atomics": false,
+  "to_afdo": false,
+  "gcno": "",
+  "to_gcda": false,
+  "to_speedscope": false,
+  "to_perfetto": false,
+  "to_foc": false,
+  "to_vbb": false
+}

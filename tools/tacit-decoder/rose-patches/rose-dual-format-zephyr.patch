@@ -1,0 +1,420 @@
+diff --git a/src/common/insn_index.rs b/src/common/insn_index.rs
+index 2ea0e10..d7c6d55 100644
+--- a/src/common/insn_index.rs
++++ b/src/common/insn_index.rs
+@@ -51,13 +51,28 @@ pub fn build_instruction_index(cfg: DecoderStaticCfg) -> Result<InstructionIndex
+         panic!("Unsupported architecture: {:?}", m_elf_arch);
+     };
+     let dasm = Disassembler::new(xlen);
+-    let m_text_section = m_elf
+-        .section_by_name(".text")
+-        .ok_or_else(|| anyhow::anyhow!("No .text section found"))?;
+-    let m_text_data = m_text_section.data()?;
+-    let m_entry_point = m_elf.entry();
++    // Machine-space ELF may be a unikernel (e.g. Zephyr) whose executable code is spread across
++    // several sections (`text`, `reset`, `exceptions`, `rom_start`, ISR tables, ...) and whose
++    // section is named `text` (no dot) rather than `.text`. Disassemble EVERY executable section
++    // keyed by its own vaddr -- exactly like the user-space path below -- so section-name and
++    // entry!=text base offsets can't drop or misalign the boot/trap/ISR code the unwinder needs.
+     let mut m_insn_map = FxHashMap::default();
+-    m_insn_map.extend(dasm.disassemble_all(&m_text_data, m_entry_point));
++    for section in m_elf.sections() {
++        if let object::SectionFlags::Elf { sh_flags } = section.flags() {
++            if sh_flags & (SHF_EXECINSTR as u64) != 0 {
++                let addr = section.address();
++                let data = section.data()?;
++                let sec_map = dasm.disassemble_all(&data, addr);
++                debug!(
++                    "[insn_index] machine section `{}` @ {:#x}: {} insns",
++                    section.name().unwrap_or("<unnamed>"),
++                    addr,
++                    sec_map.len()
++                );
++                m_insn_map.extend(sec_map);
++            }
++        }
++    }
+     if m_insn_map.is_empty() {
+         return Err(anyhow::anyhow!(
+             "No executable instructions found in SBI ELF"
+diff --git a/src/frontend/decoder.rs b/src/frontend/decoder.rs
+index 38d0dec..4613ce8 100644
+--- a/src/frontend/decoder.rs
++++ b/src/frontend/decoder.rs
+@@ -186,7 +186,10 @@ pub fn decode_trace(
+ 
+     let trace_reader = BufReader::with_capacity(1 << 20, trace_file);
+     let mut packet_reader = PacketReader::new(trace_reader);
+-    let (first_packet, first_runtime_cfg) = read_first_packet(&mut packet_reader.stream)?;
++    let (first_packet, first_runtime_cfg, trace_format) =
++        read_first_packet(&mut packet_reader.stream)?;
++    // Feed the auto-detected format back so subsequent read_packet calls parse the right layout.
++    packet_reader.set_format(trace_format);
+     const PROGRESS_UPDATE_STEP: u64 = 1 << 20; // throttle progress updates to ~1 MiB increments
+     let mut last_progress_update = 0u64;
+ 
+@@ -253,7 +256,15 @@ pub fn decode_trace(
+         } else if packet.f_header == FHeader::FTrap {
+             // step until the trap's from_address (previous insn)
+             // only step if we are in a known ctx
+-            let trapping_pc = refund_addr(packet.from_address);
++            // The trap "from" (trapping instruction) address is encoded differently per format:
++            //   - Hw/RTL: emitted as a full ABSOLUTE address (consume raw; refund_addr would
++            //     double it -- matches `main` which steps to `packet.trap_address` directly).
++            //   - Spike : emitted >>1-compressed like branch/jump targets (needs refund_addr).
++            // The trap TARGET stays xor-compressed below in both formats.
++            let trapping_pc = match trace_format {
++                crate::frontend::packet::TraceFormat::Hw => packet.from_address,
++                crate::frontend::packet::TraceFormat::Spike => refund_addr(packet.from_address),
++            };
+             if !(u_unknown_ctx && prv == Prv::PrvUser) {
+                 let new_pc =
+                     step_bb_until(pc.get_addr(), curr_insn_map, trapping_pc, &mut bus, &mut insn_count);
+diff --git a/src/frontend/packet.rs b/src/frontend/packet.rs
+index d3f91dd..1e54ee2 100644
+--- a/src/frontend/packet.rs
++++ b/src/frontend/packet.rs
+@@ -11,6 +11,22 @@ use crate::frontend::runtime_cfg::*;
+ use crate::frontend::sync_type::*;
+ use crate::frontend::trap_type::*;
+ 
++/// Which encoder produced the trace. TACIT packets differ between the two:
++///  - `Spike`  : the software (Spike) TACIT model. Sync/Trap packets carry a `sync_type`
++///               marker (SyncStart in the first packet), a `prv` byte, a `target_ctx` varint,
++///               and (in the first packet) a `runtime_cfg` byte. The trap "from" address is
++///               emitted >>1-compressed (needs `refund_addr`). This is the upstream `dev` format.
++///  - `Hw`     : the RTL `TacitEncoder` on the FireSim FPGA (and `main`-branch-compatible). Sync
++///               packets are minimal `[hdr][(brmode)][target][ts]` with NO sync_type/prv/ctx bytes;
++///               the trap "from" address is emitted ABSOLUTE (must NOT be refunded).
++/// The two are told apart by the `sync_type` field of the first (sync-start) byte:
++/// Spike emits SyncStart (0b001 -> byte 0x36), the RTL encoder emits SyncNone (0b000 -> byte 0x16).
++#[derive(Debug, Copy, Clone, PartialEq, Eq)]
++pub enum TraceFormat {
++    Spike,
++    Hw,
++}
++
+ #[derive(Debug, Copy, Clone, PartialEq, Eq)]
+ pub enum SubFunc3 {
+     None,
+@@ -65,13 +81,19 @@ const VAR_VAL_MASK: u8 = 0b0111_1111;
+ 
+ pub struct PacketReader {
+     pub stream: BufReader<File>,
++    pub format: TraceFormat,
+     pub compressed_packet_count: u64,
+     pub full_packet_count: u64,
+ }
+ 
+ impl PacketReader {
+     pub fn new(stream: BufReader<File>) -> Self {
+-        Self { stream, compressed_packet_count: 0, full_packet_count: 0 }
++        // Provisional; the real format is detected in read_first_packet and set via set_format().
++        Self { stream, format: TraceFormat::Hw, compressed_packet_count: 0, full_packet_count: 0 }
++    }
++
++    pub fn set_format(&mut self, format: TraceFormat) {
++        self.format = format;
+     }
+ 
+     pub fn read_packet(&mut self, packet: &mut Packet) -> Result<(u64)> {
+@@ -110,26 +132,43 @@ impl PacketReader {
+                         packet.c_header = CHeader::CNa;
+                     }
+                     FHeader::FSync => {
+-                        let sync_type =
+-                            SyncType::from((first_byte & SYNC_TYPE_MASK) >> SYNC_TYPE_OFFSET);
+-                        assert!(
+-                            sync_type != SyncType::SyncStart,
+-                            "SyncStart should not be observed other than in read_first_packet"
+-                        );
+-                        packet.func3 = SubFunc3::SyncType(sync_type);
+-                        let (from_prv, target_prv) = read_prv(&mut self.stream)?;
+-                        assert!(from_prv == Prv::PrvUser, "from_prv should be PrvUser");
+-                        packet.from_prv = from_prv;
+-                        packet.target_prv = target_prv;
+-                        let (target_ctx, count) = read_varint(&mut self.stream)?;
+-                        packet.target_ctx = target_ctx;
+-                        bytes_read += count;
+-                        let (target_address, count) = read_varint(&mut self.stream)?;
+-                        packet.target_address = target_address;
+-                        bytes_read += count;
+-                        let (timestamp, count) = read_varint(&mut self.stream)?;
+-                        packet.timestamp = timestamp;
+-                        bytes_read += count;
++                        match self.format {
++                            TraceFormat::Hw => {
++                                // HW/RTL format: [header][branch-mode varint (unused)][target][timestamp].
++                                // No sync_type/prv/ctx (the Spike-era fields our RTL encoder omits).
++                                let (_br_mode, count) = read_varint(&mut self.stream)?;
++                                bytes_read += count;
++                                let (target_address, count) = read_varint(&mut self.stream)?;
++                                packet.target_address = target_address;
++                                bytes_read += count;
++                                let (timestamp, count) = read_varint(&mut self.stream)?;
++                                packet.timestamp = timestamp;
++                                bytes_read += count;
++                            }
++                            TraceFormat::Spike => {
++                                let sync_type =
++                                    SyncType::from((first_byte & SYNC_TYPE_MASK) >> SYNC_TYPE_OFFSET);
++                                assert!(
++                                    sync_type != SyncType::SyncStart,
++                                    "SyncStart should not be observed other than in read_first_packet"
++                                );
++                                packet.func3 = SubFunc3::SyncType(sync_type);
++                                let (from_prv, target_prv) = read_prv(&mut self.stream)?;
++                                assert!(from_prv == Prv::PrvUser, "from_prv should be PrvUser");
++                                packet.from_prv = from_prv;
++                                packet.target_prv = target_prv;
++                                bytes_read += 1;
++                                let (target_ctx, count) = read_varint(&mut self.stream)?;
++                                packet.target_ctx = target_ctx;
++                                bytes_read += count;
++                                let (target_address, count) = read_varint(&mut self.stream)?;
++                                packet.target_address = target_address;
++                                bytes_read += count;
++                                let (timestamp, count) = read_varint(&mut self.stream)?;
++                                packet.timestamp = timestamp;
++                                bytes_read += count;
++                            }
++                        }
+                         packet.f_header = f_header;
+                         packet.c_header = CHeader::CNa;
+                     }
+@@ -137,24 +176,41 @@ impl PacketReader {
+                         let trap_type =
+                             TrapType::from((first_byte & TRAP_TYPE_MASK) >> TRAP_TYPE_OFFSET);
+                         packet.func3 = SubFunc3::TrapType(trap_type);
+-                        let (from_prv, target_prv) = read_prv(&mut self.stream)?;
+-                        packet.from_prv = from_prv;
+-                        bytes_read += 1;
+-                        packet.target_prv = target_prv;
+-                        if trap_type == TrapType::TReturn && target_prv == Prv::PrvUser {
+-                            let (target_ctx, count) = read_varint(&mut self.stream)?;
+-                            packet.target_ctx = target_ctx;
+-                            bytes_read += count;
++                        match self.format {
++                            TraceFormat::Hw => {
++                                // HW/RTL format: [header][from/trap address][target][timestamp].
++                                // No prv byte, no conditional ctx. `from_address` is ABSOLUTE.
++                                let (from_address, count) = read_varint(&mut self.stream)?;
++                                packet.from_address = from_address;
++                                bytes_read += count;
++                                let (target_address, count) = read_varint(&mut self.stream)?;
++                                packet.target_address = target_address;
++                                bytes_read += count;
++                                let (timestamp, count) = read_varint(&mut self.stream)?;
++                                packet.timestamp = timestamp;
++                                bytes_read += count;
++                            }
++                            TraceFormat::Spike => {
++                                let (from_prv, target_prv) = read_prv(&mut self.stream)?;
++                                packet.from_prv = from_prv;
++                                bytes_read += 1;
++                                packet.target_prv = target_prv;
++                                if trap_type == TrapType::TReturn && target_prv == Prv::PrvUser {
++                                    let (target_ctx, count) = read_varint(&mut self.stream)?;
++                                    packet.target_ctx = target_ctx;
++                                    bytes_read += count;
++                                }
++                                let (from_address, count) = read_varint(&mut self.stream)?;
++                                packet.from_address = from_address;
++                                bytes_read += count;
++                                let (target_address, count) = read_varint(&mut self.stream)?;
++                                packet.target_address = target_address;
++                                bytes_read += count;
++                                let (timestamp, count) = read_varint(&mut self.stream)?;
++                                packet.timestamp = timestamp;
++                                bytes_read += count;
++                            }
+                         }
+-                        let (from_address, count) = read_varint(&mut self.stream)?;
+-                        packet.from_address = from_address;
+-                        bytes_read += count;
+-                        let (target_address, count) = read_varint(&mut self.stream)?;
+-                        packet.target_address = target_address;
+-                        bytes_read += count;
+-                        let (timestamp, count) = read_varint(&mut self.stream)?;
+-                        packet.timestamp = timestamp;
+-                        bytes_read += count;
+                         packet.f_header = f_header;
+                         packet.c_header = CHeader::CNa;
+                     }
+@@ -166,10 +222,8 @@ impl PacketReader {
+         }
+         Ok(bytes_read)
+     }
+-    
+ }
+ 
+-
+ fn read_varint(stream: &mut BufReader<File>) -> Result<(u64, u64)> {
+     let mut scratch = [0u8; 10];
+     let mut count = 0usize;
+@@ -202,77 +256,84 @@ fn read_prv(stream: &mut BufReader<File>) -> Result<(Prv, Prv)> {
+     Ok((from_prv, target_prv))
+ }
+ 
+-// returns the number of bytes read
+-
+-
+-pub fn read_first_packet(stream: &mut BufReader<File>) -> Result<(Packet, DecoderRuntimeCfg)> {
++/// Read the first (sync-start) packet AND auto-detect the trace format from its `sync_type`
++/// field: Spike emits SyncStart, the RTL/HW encoder emits SyncNone. Returns the decoded packet,
++/// the runtime config (branch-predictor mode etc.), and the detected `TraceFormat`. The caller
++/// must feed the format back into the PacketReader via `set_format` before reading further packets.
++pub fn read_first_packet(
++    stream: &mut BufReader<File>,
++) -> Result<(Packet, DecoderRuntimeCfg, TraceFormat)> {
+     let mut packet = Packet::new();
+     let first_byte = read_u8(stream)?;
+     trace!("first_byte: {:08b}", first_byte);
+     let mut bytes_read = 1;
+-    
++
+     let c_header = CHeader::from(first_byte & C_HEADER_MASK);
+     if c_header != CHeader::CNa {
+-        return Err(anyhow::anyhow!(
+-            "first packet must be CNa, got {:?}",
+-            c_header
+-        ));
++        return Err(anyhow::anyhow!("first packet must be CNa, got {:?}", c_header));
+     }
+ 
+     let f_header = FHeader::from((first_byte & F_HEADER_MASK) >> FHEADER_OFFSET);
+     if f_header != FHeader::FSync {
+-        return Err(anyhow::anyhow!(
+-            "first packet must be FSync, got {:?}",
+-            f_header
+-        ));
++        return Err(anyhow::anyhow!("first packet must be FSync, got {:?}", f_header));
+     }
+ 
+     let sync_type = SyncType::from((first_byte & SYNC_TYPE_MASK) >> SYNC_TYPE_OFFSET);
+-    if sync_type != SyncType::SyncStart {
+-        return Err(anyhow::anyhow!(
+-            "first packet must be SYNC_START, got {:?}",
+-            sync_type
+-        ));
+-    }
+-
+     packet.is_compressed = false;
+     packet.c_header = c_header;
+     packet.f_header = f_header;
+-    packet.func3 = SubFunc3::SyncType(sync_type);
+-    assert!(
+-        packet.func3 == SubFunc3::SyncType(SyncType::SyncStart),
+-        "func3 should be SyncStart"
+-    );
+-
+-    let (from_prv, target_prv) = read_prv(stream)?;
+-    packet.from_prv = from_prv;
+-    assert!(
+-        from_prv == Prv::PrvUser,
+-        "from_prv should be PrvUser, got {:?}",
+-        from_prv
+-    );
+-    bytes_read += 1;
+-    trace!("target_prv: {:?}", target_prv);
+-    packet.target_prv = target_prv;
+-    let (target_ctx, count) = read_varint(stream)?;
+-    packet.target_ctx = target_ctx;
+-    bytes_read += count;
+-    let runtime_cfg_raw = read_u8(stream)?;
+-    let br_mode = BrMode::from((runtime_cfg_raw & BP_MODE_MASK) as u64);
+-    let bp_entries = ((runtime_cfg_raw & BP_ENTRY_MASK) >> BP_ENTRY_OFFSET) as u64 * BP_BASE_VALUE;
+ 
+-    let (target_address, count) = read_varint(stream)?;
+-    packet.target_address = target_address;
+-    bytes_read += count;
+-    let (timestamp, count) = read_varint(stream)?;
+-    packet.timestamp = timestamp;
+-    bytes_read += count;
+-
+-    Ok((
+-        packet,
+-        DecoderRuntimeCfg {
+-            br_mode,
+-            bp_entries,
+-        },
+-    ))
++    match sync_type {
++        SyncType::SyncStart => {
++            // ---- Spike (software) format ----
++            packet.func3 = SubFunc3::SyncType(sync_type);
++            let (from_prv, target_prv) = read_prv(stream)?;
++            packet.from_prv = from_prv;
++            assert!(
++                from_prv == Prv::PrvUser,
++                "from_prv should be PrvUser, got {:?}",
++                from_prv
++            );
++            bytes_read += 1;
++            packet.target_prv = target_prv;
++            let (target_ctx, count) = read_varint(stream)?;
++            packet.target_ctx = target_ctx;
++            bytes_read += count;
++            let runtime_cfg_raw = read_u8(stream)?;
++            bytes_read += 1;
++            let br_mode = BrMode::from((runtime_cfg_raw & BP_MODE_MASK) as u64);
++            let bp_entries =
++                ((runtime_cfg_raw & BP_ENTRY_MASK) >> BP_ENTRY_OFFSET) as u64 * BP_BASE_VALUE;
++            let (target_address, count) = read_varint(stream)?;
++            packet.target_address = target_address;
++            bytes_read += count;
++            let (timestamp, count) = read_varint(stream)?;
++            packet.timestamp = timestamp;
++            bytes_read += count;
++            let _ = bytes_read;
++            Ok((packet, DecoderRuntimeCfg { br_mode, bp_entries }, TraceFormat::Spike))
++        }
++        SyncType::SyncNone => {
++            // ---- HW / RTL TacitEncoder format (main-branch-compatible) ----
++            // Minimal sync-start [header][target varint][timestamp varint]: no sync_type marker,
++            // no prv byte, no target_ctx, no runtime_cfg byte. Default branch mode to target mode
++            // (our guest never sets a branch-predictor mode); matches the `main` decoder.
++            let (target_address, count) = read_varint(stream)?;
++            packet.target_address = target_address;
++            bytes_read += count;
++            let (timestamp, count) = read_varint(stream)?;
++            packet.timestamp = timestamp;
++            bytes_read += count;
++            let _ = bytes_read;
++            Ok((
++                packet,
++                DecoderRuntimeCfg { br_mode: BrMode::from(0), bp_entries: 1024 },
++                TraceFormat::Hw,
++            ))
++        }
++        other => Err(anyhow::anyhow!(
++            "first packet sync_type must be SyncStart (Spike) or SyncNone (HW), got {:?}",
++            other
++        )),
++    }
+ }
+diff --git a/src/main.rs b/src/main.rs
+index f9aa195..a6ce038 100644
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -244,15 +244,17 @@ fn main() -> Result<()> {
+         serde_json::to_writer_pretty(&mut f, &static_cfg)?;
+     }
+ 
+-    let (first_packet, runtime_cfg) = {
++    let (first_packet, runtime_cfg, trace_format) = {
+         let trace_file = File::open(static_cfg.encoded_trace.clone())?;
+         let mut trace_reader = BufReader::new(trace_file);
+-        let (first_packet, runtime_cfg) = frontend::packet::read_first_packet(&mut trace_reader)?;
++        let (first_packet, runtime_cfg, trace_format) =
++            frontend::packet::read_first_packet(&mut trace_reader)?;
+         drop(trace_reader);
+-        (first_packet, runtime_cfg)
++        (first_packet, runtime_cfg, trace_format)
+     };
+ 
+     if static_cfg.header_only {
++        println!("Detected trace format: {:?}", trace_format);
+         println!("Printing header configuration: {:?}", runtime_cfg);
+         println!("Printing first packet: {:?}", first_packet);
+         println!(
