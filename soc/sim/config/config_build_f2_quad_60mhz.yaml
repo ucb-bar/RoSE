@@ -1,0 +1,23 @@
+# Split duals from quads deliberately. firesim buildbitstream elaborates EVERY entry
+# serially and only THEN calls request_build_hosts(), so one failed elaboration (the
+# quads are the memory risk on a 15GB manager) aborts the run before any build host
+# launches -- taking already-elaborated designs down with it. The duals are the
+# fallback for not fitting the quads, so they must not be gated behind quad success.
+# Splitting also gets dual Vivado started ~2h earlier, since their elaboration is
+# already cached in generated-src and replace-rtl becomes a no-op.
+build_farm:
+  base_recipe: build-farm-recipes/aws_ec2.yaml
+  recipe_arg_overrides:
+    build_farm_tag: rosequad60
+builds_to_run:
+    - f2_quad_large_norose_tacit_q31_60mhz
+    - f2_quad_large_rose_tacit_q31_60mhz
+    - f2_quad_small_norose_tacit_q31_60mhz
+    - f2_quad_small_rose_tacit_q31_60mhz
+agfis_to_share:
+    - f2_quad_large_norose_tacit_q31_60mhz
+    - f2_quad_large_rose_tacit_q31_60mhz
+    - f2_quad_small_norose_tacit_q31_60mhz
+    - f2_quad_small_rose_tacit_q31_60mhz
+share_with_accounts:
+    self: 025690631703
