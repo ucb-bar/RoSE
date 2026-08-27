@@ -1,0 +1,41 @@
+# AWS F2 build launch config -- 16 bitstreams (8 configs x {20,60} MHz).
+# Generated 2026-08-27. Build farm = AWS EC2 (z1d.2xlarge per build, ondemand).
+# 16 x 8 vCPU = 128 vCPUs against a 496 Standard-instance quota -- fits.
+build_farm:
+  base_recipe: build-farm-recipes/aws_ec2.yaml
+builds_to_run:
+    - f2_dual_large_norose_tacit_q31_20mhz
+    - f2_dual_large_rose_tacit_q31_20mhz
+    - f2_dual_small_norose_tacit_q31_20mhz
+    - f2_dual_small_rose_tacit_q31_20mhz
+    - f2_quad_large_norose_tacit_q31_20mhz
+    - f2_quad_large_rose_tacit_q31_20mhz
+    - f2_quad_small_norose_tacit_q31_20mhz
+    - f2_quad_small_rose_tacit_q31_20mhz
+    - f2_dual_large_norose_tacit_q31_60mhz
+    - f2_dual_large_rose_tacit_q31_60mhz
+    - f2_dual_small_norose_tacit_q31_60mhz
+    - f2_dual_small_rose_tacit_q31_60mhz
+    - f2_quad_large_norose_tacit_q31_60mhz
+    - f2_quad_large_rose_tacit_q31_60mhz
+    - f2_quad_small_norose_tacit_q31_60mhz
+    - f2_quad_small_rose_tacit_q31_60mhz
+agfis_to_share:
+    - f2_dual_large_norose_tacit_q31_20mhz
+    - f2_dual_large_rose_tacit_q31_20mhz
+    - f2_dual_small_norose_tacit_q31_20mhz
+    - f2_dual_small_rose_tacit_q31_20mhz
+    - f2_quad_large_norose_tacit_q31_20mhz
+    - f2_quad_large_rose_tacit_q31_20mhz
+    - f2_quad_small_norose_tacit_q31_20mhz
+    - f2_quad_small_rose_tacit_q31_20mhz
+    - f2_dual_large_norose_tacit_q31_60mhz
+    - f2_dual_large_rose_tacit_q31_60mhz
+    - f2_dual_small_norose_tacit_q31_60mhz
+    - f2_dual_small_rose_tacit_q31_60mhz
+    - f2_quad_large_norose_tacit_q31_60mhz
+    - f2_quad_large_rose_tacit_q31_60mhz
+    - f2_quad_small_norose_tacit_q31_60mhz
+    - f2_quad_small_rose_tacit_q31_60mhz
+share_with_accounts:
+    self: 025690631703
