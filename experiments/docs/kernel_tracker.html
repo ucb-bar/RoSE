@@ -809,6 +809,35 @@
     because extract is <em>skipped</em> when cached IR is present — a fused cache would have been a silent trap. It is
     not: regenerating from the clean cache with no flags yields zero fused calls.</p>
 
+    
+    <h2 style="margin-top:34px">iGEMM: the FPGA reversed the simulator <span class="note">spike said 1.58× faster · hardware said 1.75× slower</span></h2>
+    <p class="lede">An XNNPACK-style implicit-GEMM conv with an indirection buffer (<code>rvv_igemm</code>) was built to
+    attack the low speed-of-light on convolution. In spike it looked like a decisive win — <strong>1.58× faster, taking
+    62 of 63 conv layers</strong>. On real hardware it is <strong>1.75× slower in aggregate</strong>. Both versions are
+    bit-exact (<code>max_abs_err&nbsp;0</code>, n=75,600), both provenance-checked through
+    <code>kernel_picks.json</code>, so this is a genuine performance reversal and not a measurement artifact.</p>
+    <div class="scroll"><table><thead><tr><th>Kernel shape</th><th style="text-align:right">Layers</th><th>iGEMM on FPGA</th><th>Why</th></tr></thead><tbody>
+      <tr><td class="op">3×3 conv</td><td class="num">39 / 63</td><td><span class="res bad">wins only 2/39 · loses 6–9× on small-channel bottlenecks</span></td><td class="note">up to 9 scattered pointer-gathers per tap</td></tr>
+      <tr><td class="op">1×1 conv</td><td class="num">24 / 63</td><td><span class="res win">wins 2–3× on the big early layers</span></td><td class="note">no spatial gather — overhead amortization shows through</td></tr>
+    </tbody></table></div>
+    <p class="lede" style="margin-top:4px">The 3×3 losses dominate, so the structural hypothesis is falsified for the
+    common case and the tiled-direct default stays. What survives is narrower and still real: a
+    <strong>shape-conditional 1×1 path</strong>, where the indirection buffer costs nothing because there is no spatial
+    gather to do.</p>
+    <p class="lede"><b>The methodological result is the bigger one.</b> This is the <em>second</em> independent case of
+    the same failure — after the <code>conv2d_f16</code> strided <code>vlse16</code> weight loads. Spike is not merely
+    imprecise about memory; it is <strong>systematically blind to gather and stride latency</strong>, and will keep
+    endorsing gather-heavy algorithms that lose on hardware. Treat any spike-only speedup for an algorithm that changes
+    its memory access pattern as unproven until an FPGA lane confirms it.</p>
+    <p class="note"><b>Naming hazard found while checking the baseline.</b>
+    <code>kernels/rvv/rvv_conv2d_s8_rvv_vsmul_vnclip.c</code> no longer implements vsmul_vnclip. That algorithm was
+    retired — on FPGA it miscomputes (<code>max_abs_err&nbsp;3</code>, or a Store/AMO fault when tiled) via the 32-bit
+    index wrap for BSS buffers above <code>0x80000000</code>, while spike calls it bit-exact. The file deliberately
+    carries the <code>rvv_oc_blocked</code>-derived tiled port instead, because the retired name sorts first in
+    <code>spec.algorithms</code> and would otherwise keep handing every model the broken kernel. Documented in the
+    header, but the name still lies; the header's own "collapse the two names" cleanup is outstanding. The comparison
+    above is unaffected — it ran against that port, which is the true production kernel.</p>
+
     <h2>Experiment log <span class="note">every run, including the ones that failed</span></h2>
     <p class="lede">Kept so a dead end is only walked once. Three wins, but also a failed hypothesis, a self-inflicted regression from changing two variables at once, and a reverted approach — those are the entries worth reading.</p>
     <div class="scroll"><table class="exp">
