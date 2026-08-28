@@ -818,35 +818,43 @@
     not: regenerating from the clean cache with no flags yields zero fused calls.</p>
 
     
-    <h2 style="margin-top:34px">iGEMM: the FPGA reversed the simulator <span class="note">spike said 1.58× faster · hardware said 1.75× slower</span></h2>
-    <p class="lede">An XNNPACK-style implicit-GEMM conv with an indirection buffer (<code>rvv_igemm</code>) was built to
-    attack the low speed-of-light on convolution. In spike it looked like a decisive win — <strong>1.58× faster, taking
-    62 of 63 conv layers</strong>. On real hardware it is <strong>1.75× slower in aggregate</strong>. Both versions are
-    bit-exact (<code>max_abs_err&nbsp;0</code>, n=75,600), both provenance-checked through
-    <code>kernel_picks.json</code>, so this is a genuine performance reversal and not a measurement artifact.</p>
-    <div class="scroll"><table><thead><tr><th>Kernel shape</th><th style="text-align:right">Layers</th><th>iGEMM on FPGA</th><th>Why</th></tr></thead><tbody>
-      <tr><td class="op">3×3 conv</td><td class="num">39 / 63</td><td><span class="res bad">wins only 2/39 · loses 6–9× on small-channel bottlenecks</span></td><td class="note">up to 9 scattered pointer-gathers per tap</td></tr>
-      <tr><td class="op">1×1 conv</td><td class="num">24 / 63</td><td><span class="res win">wins 2–3× on the big early layers</span></td><td class="note">no spatial gather — overhead amortization shows through</td></tr>
+    <h2 style="margin-top:34px">iGEMM <span class="note">retracted and re-measured — it is a 1.55× win, not a 1.75× loss</span></h2>
+    <p class="lede"><strong>This section previously reported the opposite conclusion, and it was wrong.</strong> An
+    XNNPACK-style implicit-GEMM conv (<code>rvv_igemm</code>) was reported here as 1.75× <em>slower</em> than
+    tiled-direct on hardware, contradicting spike's 1.58× win — and that contradiction was used to argue spike is
+    systematically blind to gather latency. The control run behind that verdict was not an RVV build.</p>
+    <div class="scroll"><table><thead><tr><th>Claim as published</th><th>After re-measurement</th></tr></thead><tbody>
+      <tr><td class="note">iGEMM is 1.75× slower on FPGA</td><td><span class="res win">iGEMM is 1.55× FASTER (100,031,882 vs 155,388,816)</span></td></tr>
+      <tr><td class="note">Spike mispredicted by 2.8×</td><td><span class="res win">Spike was right: 1.58× predicted, 1.55× measured</span></td></tr>
+      <tr><td class="note">iGEMM loses on 3×3, wins on 1×1</td><td><span class="res win">iGEMM wins 37/39 non-1×1 layers</span></td></tr>
+      <tr><td class="note">The boundary is kernel spatial size</td><td><span class="res warn">The boundary is tiny input-channel count</span></td></tr>
     </tbody></table></div>
-    <p class="lede" style="margin-top:4px">The 3×3 losses dominate, so the structural hypothesis is falsified for the
-    common case and the tiled-direct default stays. What survives is narrower and still real: a
-    <strong>shape-conditional 1×1 path</strong>, where the indirection buffer costs nothing because there is no spatial
-    gather to do.</p>
-    <p class="lede"><b>The methodological result is the bigger one.</b> This is the <em>second</em> independent case of
-    the same failure — after the <code>conv2d_f16</code> strided <code>vlse16</code> weight loads. Spike is not merely
-    imprecise about memory; it is <strong>systematically blind to gather and stride latency</strong>, and will keep
-    endorsing gather-heavy algorithms that lose on hardware. Treat any spike-only speedup for an algorithm that changes
-    its memory access pattern as unproven until an FPGA lane confirms it.</p>
-    <p class="note"><b>Naming hazard found while checking the baseline.</b>
-    <code>kernels/rvv/rvv_conv2d_s8_rvv_vsmul_vnclip.c</code> no longer implements vsmul_vnclip. That algorithm was
-    retired — on FPGA it miscomputes (<code>max_abs_err&nbsp;3</code>, or a Store/AMO fault when tiled) via the 32-bit
-    index wrap for BSS buffers above <code>0x80000000</code>, while spike calls it bit-exact. The file deliberately
-    carries the <code>rvv_oc_blocked</code>-derived tiled port instead, because the retired name sorts first in
-    <code>spec.algorithms</code> and would otherwise keep handing every model the broken kernel. Documented in the
-    header, but the name still lies; the header's own "collapse the two names" cleanup is outstanding. The comparison
-    above is unaffected — it ran against that port, which is the true production kernel.</p>
-
-    
+    <p class="lede" style="margin-top:4px"><b>How the bad control was caught.</b> The log used as the "tiled-direct
+    baseline" carries 57 <code>batchnorm2d_s8</code> instances (pre-BN-fold IR) and a scalar <code>silu_s8</code> at 232M
+    cycles, so it is not the current curated RVV configuration. The decisive test is physical: 19 of its 63 conv layers
+    run at or below <strong>0.125 cycles/MAC — the RVV int8 theoretical peak</strong> — with the best at 0.058, i.e.
+    <strong>217% of the RVV roof</strong>. No RVV kernel can beat its own vector unit's peak, so that run was systolic
+    (Gemmini), not RVV. Measured against a real RVV control, iGEMM wins.</p>
+    <p class="lede">The true shape boundary is <strong>tiny IC</strong>, not 3×3: iGEMM loses on exactly two layers,
+    <code>l0.conv</code> (IC=3, 0.59×) and <code>l1.conv</code> (IC=16, 0.98×). That is consistent with the kernel's
+    structure — per output-pixel strip it builds <code>MB_CONV_TILE×taps</code> = 36 indirection entries to amortize
+    over <code>taps×IC×MB_CONV_TILE</code> inner MACs. At IC=3 the bookkeeping is a third of the inner work; at IC=128
+    it is under 1%.</p>
+    <h2 style="margin-top:34px">A 2.05× pointwise win, held back by a hardware-only numeric divergence</h2>
+    <p class="lede">A shape-conditional dispatch (<code>KH==1&nbsp;&amp;&amp;&nbsp;KW==1</code> &rarr; iGEMM, else
+    tiled-direct, both bodies <code>static noinline</code>) gives <strong>2.0553× across all 24 pointwise layers, every
+    one of them faster</strong> (1.52×–2.32×), for 1.1389× whole-model. The non-1×1 path is cycle-identical by
+    construction: 1236 instructions across 97 basic blocks, byte-identical at the same ELF address in every arm.</p>
+    <p class="lede">It ships <strong>disabled</strong> (<code>-DMB_IGEMM_1X1=1</code> to enable) because on hardware it
+    returns <code>max_abs_err&nbsp;5</code>, deterministically, while spike returns 0 for the same binaries. The obvious
+    explanation was ruled out rather than assumed: a control build links the iGEMM body in and keeps it reachable — so
+    <code>.text</code>, <code>.rodata</code>, BSS and every model buffer address match the enabled build exactly — but a
+    <code>volatile</code> gate stops the dispatch firing, and it returns err&nbsp;0 at baseline cycles. <em>Executing the
+    iGEMM body is what diverges, not the binary moving.</em> A 27-shape in-binary unit test covering every
+    stride/padding/remainder/batch combination is bit-identical on spike, so it is not a logic bug. One lead: GCC clones
+    the kernel and schedules bias loads as <code>vsetvli e8,m1</code> + <code>vle32.v</code> — EEW 32 under SEW 8, legal
+    and spike-correct. Suppressing the clone moved the error 6&rarr;5, so it is contributory at most. This is an open
+    hardware-vs-simulator discrepancy in Saturn, not a kernel defect.</p>
     <h2 style="margin-top:34px">Vectorizing the Gemmini scalar loops <span class="note">1.493× on conv2d_s8, FPGA-measured, exact</span></h2>
     <p class="lede">The cost decomposition said the exact Gemmini path was dominated by CPU-scalar data movement, not by
     the accelerator. Acting on that: two RVV restructurings on the fused <code>gemmini_q31_rvv</code> target, both pure
