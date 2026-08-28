@@ -1,0 +1,103 @@
+############################################################
+### 12:44:46  TARGET=rvv  models: dronet yolov8_nano fused_full mlp_generic
+############################################################
+=== profile_matrix: tag=e2e_rvv target=rvv quant=int8 hw=f2_dual_small_norose_tacit_q31_60mhz
+=== models: dronet yolov8_nano fused_full mlp_generic
+=== curated: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels
+--- building dronet (target=rvv) ...
+    ok: 1225480 bytes
+--- building yolov8_nano (target=rvv) ...
+    ok: 4406280 bytes
+--- building fused_full (target=rvv) ...
+    ok: 3867680 bytes
+--- building mlp_generic (target=rvv) ...
+    ok: 781016 bytes
+--- submitted mlp_generic -> job 197
+--- submitted dronet -> job 198
+--- submitted fused_full -> job 199
+--- submitted yolov8_nano -> job 200
+=== waiting for 4 jobs ...
+--- mlp_generic: [2026-08-28 19:50:48] job 197 finished: DONE rc=0 lane=f2-00
+    ok: 9796 cycles
+--- dronet: [2026-08-28 19:51:49] job 198 finished: DONE rc=0 lane=f2-01
+    ok: 7516058 cycles
+--- fused_full: [2026-08-28 19:52:54] job 199 finished: DONE rc=0 lane=f2-02
+    ok: 165164353 cycles
+--- yolov8_nano: [2026-08-28 19:55:22] job 200 finished: DONE rc=0 lane=f2-00
+    ok: 165247007 cycles
+
+=== OPERATOR x MODEL (cycles) ===
+  op                             dronet      fused_full     mlp_generic     yolov8_nano
+  add_s8                         21,274               -               -         124,404
+  batchnorm2d_s8                 45,647               -               -               -
+  cast_i8_to_f16                      -          48,245               -               -
+  cat2_c1_s8                          -               -               -         349,128
+  cat3_c1_f16                         -             440               -               -
+  cat3_c1_s8                          -               -               -         293,995
+  cat4_c1_s8                          -               -               -         163,337
+  conv2d_s8                   7,225,097     163,023,800               -     155,388,816
+  linear_f16                          -         831,121               -               -
+  linear_s8                       4,696               -           9,796               -
+  lstm_f16                            -       1,260,747               -               -
+  maxpool2d_s8                  218,024               -               -       3,677,903
+  relu_s8                           407               -               -               -
+  sigmoid_s8                        913               -               -               -
+  silu_s8                             -               -               -       4,817,982
+  upsample_nearest_s8                 -               -               -         431,442
+  -------------------------------------------------------------------------------------
+  TOTAL                       7,516,058     165,164,353           9,796     165,247,007
+
+=== wrote /scratch/dima/rose-infra/RoSE/experiments/matrix/e2e_rvv/matrix.csv
+### 12:55:36  TARGET=rvv complete
+############################################################
+### 12:55:36  TARGET=gemmini_q31  models: dronet yolov8_nano fused_full mlp_generic
+############################################################
+=== profile_matrix: tag=e2e_gemmini_q31 target=gemmini_q31 quant=int8 hw=f2_dual_small_norose_tacit_q31_60mhz
+=== models: dronet yolov8_nano fused_full mlp_generic
+=== curated: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels
+--- building dronet (target=gemmini_q31) ...
+    ok: 1265256 bytes
+--- building yolov8_nano (target=gemmini_q31) ...
+    ok: 4446496 bytes
+--- building fused_full (target=gemmini_q31) ...
+    ok: 3901800 bytes
+--- building mlp_generic (target=gemmini_q31) ...
+    ok: 811304 bytes
+--- submitted mlp_generic -> job 201
+--- submitted dronet -> job 202
+--- submitted fused_full -> job 203
+--- submitted yolov8_nano -> job 204
+=== waiting for 4 jobs ...
+--- mlp_generic: [2026-08-28 19:59:37] job 201 finished: DONE rc=0 lane=f2-00
+    ok: 8730 cycles
+--- dronet: [2026-08-28 20:00:37] job 202 finished: DONE rc=0 lane=f2-01
+    ok: 14147329 cycles
+--- fused_full: [2026-08-28 20:01:52] job 203 finished: DONE rc=0 lane=f2-02
+    ok: 295276993 cycles
+--- yolov8_nano: [2026-08-28 20:04:03] job 204 finished: DONE rc=0 lane=f2-00
+    ok: 315521575 cycles
+
+=== OPERATOR x MODEL (cycles) ===
+  op                             dronet      fused_full     mlp_generic     yolov8_nano
+  add_s8                        414,455               -               -       2,390,598
+  batchnorm2d_s8              2,644,083               -               -               -
+  cast_i8_to_f16                      -         165,939               -               -
+  cat2_c1_s8                          -               -               -       2,337,120
+  cat3_c1_f16                         -           2,745               -               -
+  cat3_c1_s8                          -               -               -       1,885,828
+  cat4_c1_s8                          -               -               -         987,074
+  conv2d_s8                   9,757,075       4,560,876               -      70,127,460
+  linear_f16                          -      87,360,860               -               -
+  linear_s8                      19,828               -           8,730               -
+  lstm_f16                            -     203,186,573               -               -
+  maxpool2d_s8                1,286,523               -               -       3,603,697
+  relu_s8                        24,710               -               -               -
+  sigmoid_s8                        655               -               -               -
+  silu_s8                             -               -               -     232,231,667
+  upsample_nearest_s8                 -               -               -       1,958,131
+  -------------------------------------------------------------------------------------
+  TOTAL                      14,147,329     295,276,993           8,730     315,521,575
+
+=== wrote /scratch/dima/rose-infra/RoSE/experiments/matrix/e2e_gemmini_q31/matrix.csv
+### 13:04:22  TARGET=gemmini_q31 complete
+### ALL DONE 13:04:22
