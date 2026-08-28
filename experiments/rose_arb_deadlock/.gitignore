@@ -1,3 +1,6 @@
 # heavy chase-cam render (reproducible via make_gatenav_video.sh)
 fpga_gatenav_3gate.mp4
 *.mp4
+# raw encoded TACIT trace (69MB, regenerable via tacit_run.sh + the decoder)
+traces/firesim_tacit0.out
+*.out

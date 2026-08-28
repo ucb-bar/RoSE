@@ -1,0 +1,79 @@
+diff --git a/src/common/insn_index.rs b/src/common/insn_index.rs
+index 2ea0e10..d7c6d55 100644
+--- a/src/common/insn_index.rs
++++ b/src/common/insn_index.rs
+@@ -51,13 +51,28 @@ pub fn build_instruction_index(cfg: DecoderStaticCfg) -> Result<InstructionIndex
+         panic!("Unsupported architecture: {:?}", m_elf_arch);
+     };
+     let dasm = Disassembler::new(xlen);
+-    let m_text_section = m_elf
+-        .section_by_name(".text")
+-        .ok_or_else(|| anyhow::anyhow!("No .text section found"))?;
+-    let m_text_data = m_text_section.data()?;
+-    let m_entry_point = m_elf.entry();
++    // Machine-space ELF may be a unikernel (e.g. Zephyr) whose executable code is spread across
++    // several sections (`text`, `reset`, `exceptions`, `rom_start`, ISR tables, ...) and whose
++    // section is named `text` (no dot) rather than `.text`. Disassemble EVERY executable section
++    // keyed by its own vaddr -- exactly like the user-space path below -- so section-name and
++    // entry!=text base offsets can't drop or misalign the boot/trap/ISR code the unwinder needs.
+     let mut m_insn_map = FxHashMap::default();
+-    m_insn_map.extend(dasm.disassemble_all(&m_text_data, m_entry_point));
++    for section in m_elf.sections() {
++        if let object::SectionFlags::Elf { sh_flags } = section.flags() {
++            if sh_flags & (SHF_EXECINSTR as u64) != 0 {
++                let addr = section.address();
++                let data = section.data()?;
++                let sec_map = dasm.disassemble_all(&data, addr);
++                debug!(
++                    "[insn_index] machine section `{}` @ {:#x}: {} insns",
++                    section.name().unwrap_or("<unnamed>"),
++                    addr,
++                    sec_map.len()
++                );
++                m_insn_map.extend(sec_map);
++            }
++        }
++    }
+     if m_insn_map.is_empty() {
+         return Err(anyhow::anyhow!(
+             "No executable instructions found in SBI ELF"
+diff --git a/src/frontend/decoder.rs b/src/frontend/decoder.rs
+index 38d0dec..4422ab4 100644
+--- a/src/frontend/decoder.rs
++++ b/src/frontend/decoder.rs
+@@ -106,7 +106,21 @@ fn step_bb(pc: u64, insn_map: &FxHashMap<u64, Insn>, bus: &mut Bus<Entry>, br_mo
+     let mut num_instructions = 0;
+     loop {
+         trace!("stepping bb pc: {:x}", pc);
+-        let insn = insn_map.get(&pc).unwrap();
++        let insn = match insn_map.get(&pc) {
++            Some(i) => i,
++            None => {
++                eprintln!(
++                    "[MISS] pc={:#x} initial_pc={:#x} num_insns_in_bb={} total_insns={}",
++                    pc, initial_pc, num_instructions, *insn_count
++                );
++                for d in [-4i64, -2, 2, 4] {
++                    let p = (pc as i64 + d) as u64;
++                    eprintln!("   neighbor {:#x} present={}", p, insn_map.contains_key(&p));
++                }
++                eprintln!("   map_size={}", insn_map.len());
++                std::process::exit(42);
++            }
++        };
+         // bus.broadcast(Entry::instruction(insn, pc));
+         num_instructions += 1;
+         if stop_on_ij {
+@@ -253,7 +267,11 @@ pub fn decode_trace(
+         } else if packet.f_header == FHeader::FTrap {
+             // step until the trap's from_address (previous insn)
+             // only step if we are in a known ctx
+-            let trapping_pc = refund_addr(packet.from_address);
++            // HW-ENCODER format: the trap "from" (trapping instruction) address is emitted as a
++            // full ABSOLUTE address, not the >>1-compressed form used for branch/jump targets.
++            // So consume it raw -- refund_addr() here would double it (matches `main` which steps
++            // to `packet.trap_address` directly). The trap TARGET stays xor-compressed below.
++            let trapping_pc = packet.from_address;
+             if !(u_unknown_ctx && prv == Prv::PrvUser) {
+                 let new_pc =
+                     step_bb_until(pc.get_addr(), curr_insn_map, trapping_pc, &mut bus, &mut insn_count);

@@ -1,0 +1,9 @@
+model,op,instances,cycles,pct_of_model
+yolov8_nano,silu_s8,57,232231667,73.60
+yolov8_nano,conv2d_s8,63,70127460,22.23
+yolov8_nano,maxpool2d_s8,3,3603697,1.14
+yolov8_nano,add_s8,6,2390598,0.76
+yolov8_nano,cat2_c1_s8,7,2337120,0.74
+yolov8_nano,upsample_nearest_s8,2,1958131,0.62
+yolov8_nano,cat3_c1_s8,6,1885828,0.60
+yolov8_nano,cat4_c1_s8,3,987074,0.31

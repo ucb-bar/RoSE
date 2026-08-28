@@ -781,6 +781,34 @@
 
   <!-- ============ EXPERIMENTS ============ -->
   <section>
+    
+    <h2 style="margin-top:34px">Extended operator fusion <span class="note">numerically free, and a large performance loss — shipped default-off</span></h2>
+    <p class="lede">Two new fusions were added behind an opt-in <code>--enable-fusion</code> /
+    <code>MB_ENABLE_FUSION=1</code> flag, on top of the always-on ReLU-absorption and BN-folding passes:
+    <code>conv2d&rarr;silu</code> and <code>conv2d&rarr;maxpool2d</code>. Both are exact — <code>max_abs_err&nbsp;0</code>
+    on hardware. Both are also <strong>much slower</strong>, and the reason is worth keeping.</p>
+    <div class="scroll"><table><thead><tr><th>Fusion</th><th>Model</th><th style="text-align:right">Flag OFF</th><th style="text-align:right">Flag ON</th><th>Result</th><th style="text-align:right">Err</th></tr></thead><tbody>
+      <tr><td class="op">conv + maxpool</td><td class="m">dronet · gemmini_q31</td><td class="num">14,147,329</td><td class="num">110,818,876</td><td><span class="res bad">7.84× SLOWER</span></td><td class="num">0</td></tr>
+      <tr><td class="op">conv + SiLU</td><td class="m">yolov8n · gemmini_q31</td><td class="num">315,521,575</td><td class="num">12,819,955,173</td><td><span class="res bad">40.6× SLOWER</span></td><td class="num">0</td></tr>
+    </tbody></table></div>
+    <p class="lede" style="margin-top:4px">Identical cause in both cases: <strong>neither fused op has a curated kernel
+    on any backend.</strong> Fusing therefore throws away the curated <code>conv2d_s8</code> and
+    <code>maxpool2d_s8</code> the unfused graph was already using, and lands on the scalar
+    <code>reference_impl</code>. Fusion here is a <em>prerequisite</em> for a win, not a win — it only pays once a
+    curated fused kernel exists. That kernel is the actual next step.</p>
+    <p class="lede">Why the pre-existing passes never fired on yolov8n: the scan recognized only <code>nn.ReLU</code> as
+    the fusable activation, and yolov8n's block is <code>Conv2d&rarr;BN&rarr;SiLU</code>. BN folding already collapses
+    the BN, leaving <code>Conv2d&rarr;SiLU</code>, which a ReLU-only detector never matches —
+    <code>conv2d_relu_fuse=0</code> against <code>bn_conv_fuse=57</code>. Conv+BN needs nothing further; folding BN into
+    the <em>following</em> conv across a ReLU is not numerically valid.</p>
+    <p class="note"><b>Default-path safety, verified independently.</b> <code>enable_fusion</code> defaults False;
+    <code>_FUSION_SAFE_TARGETS</code> is limited to the Gemmini targets and fails <em>closed</em> on an unknown or
+    unspecified target, so <code>rvv</code> — which holds the best-validated configs — can never pick up an uncurated
+    fused op. <code>_run_lib.sh</code> always passes <code>--fusion-target</code> but never
+    <code>--enable-fusion</code>. The cached <code>graph.json</code> both models build from is clean, which matters
+    because extract is <em>skipped</em> when cached IR is present — a fused cache would have been a silent trap. It is
+    not: regenerating from the clean cache with no flags yields zero fused calls.</p>
+
     <h2>Experiment log <span class="note">every run, including the ones that failed</span></h2>
     <p class="lede">Kept so a dead end is only walked once. Three wins, but also a failed hypothesis, a self-inflicted regression from changing two variables at once, and a reverted approach — those are the entries worth reading.</p>
     <div class="scroll"><table class="exp">

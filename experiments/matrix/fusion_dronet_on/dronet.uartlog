@@ -1,0 +1,67 @@
+Script started on 2026-08-28 17:45:18+00:00 [COMMAND="stty intr ^] && sudo LD_LIBRARY_PATH=/scratch/vnikiforov/rose-fsim/lib ./FireSim-f2 +permissive   +macaddr0=00:12:6D:00:00:02 +niclog0=niclog0  +trace-select=1 +trace-start=0 +trace-end=-1 +trace-output-format=0 +dwarf-file-name=fq-job-1800-pm_fusion_dronet_on_dronet.elf-dwarf +autocounter-readrate=0 +autocounter-filename-base=AUTOCOUNTERFILE  +print-start=0 +print-end=-1 +linklatency0=6405 +netbw0=200 +shmemportname0=default +partitioned=1 +slotid=0 +permissive-off +prog0=fq-job-1800-pm_fusion_dronet_on_dronet.elf   && stty intr ^c" TERM="screen" TTY="/dev/pts/6" COLUMNS="80" LINES="24"]
+AFI ID for Slot  0: agfi-024f2d6a1c6890cb4
+AFI PCI  Vendor ID: 0x1d0f, Device ID 0xf002
+Attached to BAR0 (OCL)
+Attached to BAR4 (PCIS)
+widget_registry_t::add_widget(StreamEngine)
+cpu2fpga: 0, fpga2cpu: 2
+UART0 is here (stdin/stdout).
+command line for program 0. argc=19:
++permissive +macaddr0=00:12:6D:00:00:02 +niclog0=niclog0 +trace-select=1 +trace-start=0 +trace-end=-1 +trace-output-format=0 +dwarf-file-name=fq-job-1800-pm_fusion_dronet_on_dronet.elf-dwarf +autocounter-readrate=0 +autocounter-filename-base=AUTOCOUNTERFILE +print-start=0 +print-end=-1 +linklatency0=6405 +netbw0=200 +shmemportname0=default +partitioned=1 +slotid=0 +permissive-off fq-job-1800-pm_fusion_dronet_on_dronet.elf 
+entered simulation flow execution
+finished waiting
+FireSim fingerprint: 0x46697265
+Commencing simulation.
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+*** Booting Zephyr OS build c93d5bdb6078 ***
+modelblaster harness: model=dronet in=37632 out=2
+=== MODELBLASTER_VERIFY === max_abs_err=0 max_rel_err=0 n=2
+=== MODELBLASTER_OUTPUT_BEGIN ===
+-56
+127
+=== MODELBLASTER_OUTPUT_END ===
+=== MODELBLASTER_PROFILE_BEGIN ===
+dispatch_id,name,op,shape,cycles
+0,conv_modules.0,conv2d_pool_s8,N=1;IC=3;IH=112;IW=112;OC=32;OH=56;OW=56;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1;pool_KH=3;pool_KW=3;pool_SH=2;pool_SW=2;pool_PH=0;pool_PW=0;pool_DH=1;pool_DW=1,104368813
+1,bn_modules.0,batchnorm2d_s8,N=1;C=32;H=27;W=27,1904883
+2,conv_modules.1,conv2d_s8,N=1;IC=32;IH=27;IW=27;OC=32;OH=14;OW=14;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,690563
+3,conv_modules.2,conv2d_s8,N=1;IC=32;IH=14;IW=14;OC=32;OH=14;OW=14;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,521796
+4,conv_modules.3,conv2d_s8,N=1;IC=32;IH=27;IW=27;OC=32;OH=14;OW=14;KH=1;KW=1;SH=2;SW=2;PH=0;PW=0,489023
+5,add,add_s8,n=6272,504881
+6,bn_modules.2,batchnorm2d_s8,N=1;C=32;H=14;W=14,521201
+7,conv_modules.4,conv2d_s8,N=1;IC=32;IH=14;IW=14;OC=64;OH=7;OW=7;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,242032
+8,conv_modules.5,conv2d_s8,N=1;IC=64;IH=7;IW=7;OC=64;OH=7;OW=7;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,242069
+9,conv_modules.6,conv2d_s8,N=1;IC=32;IH=14;IW=14;OC=64;OH=7;OW=7;KH=1;KW=1;SH=2;SW=2;PH=0;PW=0,186304
+10,add_1,add_s8,n=3136,253996
+11,bn_modules.4,batchnorm2d_s8,N=1;C=64;H=7;W=7,265492
+12,conv_modules.7,conv2d_s8,N=1;IC=64;IH=7;IW=7;OC=128;OH=4;OW=4;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,143993
+13,conv_modules.8,conv2d_s8,N=1;IC=128;IH=4;IW=4;OC=128;OH=4;OW=4;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,162471
+14,conv_modules.9,conv2d_s8,N=1;IC=64;IH=7;IW=7;OC=128;OH=4;OW=4;KH=1;KW=1;SH=2;SW=2;PH=0;PW=0,110873
+15,add_2,add_s8,n=2048,165312
+16,relu_modules.6,relu_s8,n=2048,24712
+17,linear1,linear_s8,M=1;K=2048;N=1,10192
+18,linear2,linear_s8,M=1;K=2048;N=1,9351
+19,sigmoid1,sigmoid_s8,n=1,919
+=== MODELBLASTER_PROFILE_END ===
+=== MODELBLASTER_WALL_CYCLES === 110823
+
+Simulation complete.
+*** PASSED *** after 1220901887 cycles
+
+Emulation Performance Summary
+------------------------------
+Wallclock Time Elapsed: 20.6 s
+Host Frequency: 60.000 MHz
+Target Cycles Emulated: 1220901887
+Effective Target Frequency: 59.345 MHz
+FMR: 1.01
+Note: The latter three figures are based on the fastest target clock.
+
+Script done on 2026-08-28 17:45:40+00:00 [COMMAND_EXIT_CODE="0"]

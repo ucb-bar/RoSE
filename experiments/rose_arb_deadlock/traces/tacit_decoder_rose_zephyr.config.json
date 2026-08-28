@@ -1,0 +1,20 @@
+{
+  "encoded_trace": "/tmp/claude-1172/-scratch-dima-rose-infra-RoSE/d4827fc8-b516-4227-b71d-79192ba241cd/scratchpad/tacit0.out",
+  "application_binary_asid_tuples": [ ["/tmp/claude-1172/-scratch-dima-rose-infra-RoSE/d4827fc8-b516-4227-b71d-79192ba241cd/scratchpad/tacit_guest_build/zephyr/zephyr.elf", "0"] ],
+  "sbi_binary": "/tmp/claude-1172/-scratch-dima-rose-infra-RoSE/d4827fc8-b516-4227-b71d-79192ba241cd/scratchpad/tacit_guest_build/zephyr/zephyr.elf",
+  "kernel_binary": "",
+  "kernel_jump_label_patch_log": "",
+  "driver_binary_entry_tuples": [],
+  "header_only": false,
+  "to_stats": false,
+  "to_txt": false,
+  "to_stack_txt": false,
+  "to_atomics": false,
+  "to_afdo": false,
+  "gcno": "",
+  "to_gcda": false,
+  "to_speedscope": false,
+  "to_perfetto": true,
+  "to_vbb": false,
+  "to_path_profile": false
+}

@@ -1,0 +1,16 @@
+# DMA-path stall — ARB-traced re-run evidence (2026-08-14)
+# 60MHz WithRoseDmaRx Saturn+RoSE, ROSE_DMA_RX=1 ROSE_ARB_TRACE=2000. Two runs hung on last=0x42
+# at DIFFERENT physics (run1 4.25s, run2 0.8s) => PROBABILISTIC, not a fixed point.
+
+## Frozen [ARB] state at the hang (physics stuck):
+[ARB] sh=613 tx=30264 enq=30264 enq-tx=0 rx0=22950 rx1=3563 ch2~=3751 bf=613 cyc=17975 budg=2655128 last=0x42 nb=84 brxq=0 txd=0 irx=0 iadv=0 lrx=190554
+
+## Reading:
+#  enq-tx=0      -> NO per-word rxfifo-enqueue drop (NOT the MMIO held-valid bug)
+#  tx/rx frozen, budg oscillating -> arbiter STARVED in sLoad while sync keeps granting
+#  brxq=0 txd=0  -> host driver queues empty: host believes it delivered everything
+#  last=0x42, lrx(load_rxstall)=190554 -> arbiter waiting for a lowdim(0x42) word never in rxfifo
+#  => a word was lost UPSTREAM of the rxfifo (host->FPGA DMA path), not at the MMIO enqueue.
+#  Driver beat-packing (rosebridge.cc ~813) + gearbox FSM (RoSEBridgeModule RoseStreamToRxAdapter)
+#  both inspect CLEAN. Leading hypothesis: MMIO budget/bigstep control tokens vs DMA data get
+#  mis-paired (control still MMIO, data over DMA) -> arbiter can_advance/rx pairing slips.

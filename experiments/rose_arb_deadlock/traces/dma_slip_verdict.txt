@@ -1,0 +1,21 @@
+# DMA-path stall — SLIP-vs-LOSS VERDICT (instrumented re-fly, local U250, 2026-08-26)
+# Instrumented 60MHz DMA Saturn+RoSE bitstream (dma_beats_in/dma_words_out RTL +
+# dma_words_framed/bytes_pushed driver). Local FPGA (firesim1 was network-down).
+# Flew 2/4 gates (gate1 ~3.3s, gate2 ~7s) then hung at physics 9.45s (vs firesim1
+# split-host runs: 0.8s / 4.25s). Same last=0x42 stall signature.
+
+## [ARB] at the confirmed hang (physics frozen 9.45s, 3+ identical heartbeats):
+tx=339756 enq=339756 dma_framed=339756 dma_wout=339756  framed-enq=0
+last=0x42 lrx(load_rxstall)=2130072  brxq=0 txd=0  cyc frozen  budg oscillating
+
+## VERDICT: PAIRING SLIP, not a DMA-datapath word loss.
+#  framed-enq=0  => every word the driver FRAMED reached the rxfifo (dma_framed==enq)
+#                   AND was transmitted by the arbiter (tx==enq). The DMA datapath
+#                   (driver beat-packing -> stream -> RoseStreamToRxAdapter gearbox ->
+#                   rxfifo) is LOSSLESS. NOT the MMIO-style word drop.
+#  The arbiter starves in sLoad on a 0x42 (lowdim) word the driver NEVER FRAMED
+#  (brxq=0 txd=0 = driver queues empty). => the driver stopped producing the next
+#  lowdim response. Root: the DMA build keeps budget/bigstep control tokens on MMIO
+#  while data rides DMA; the two datapaths desync (a race), so the next 0x42 is never
+#  scheduled/framed. TIMING-SENSITIVE: hung at 9.45s local vs 0.8-4.25s over the LAN.
+#  FIX TARGET: the MMIO-control <-> DMA-data pairing (not the gearbox/datapath).

@@ -1,0 +1,409 @@
+# TACIT instruction trace FROM FIRESIM FPGA (demonstration, 2026-08-26)
+# Saturn+RoSE+TACIT bitstream on garden local U250. Guest: samples/tacit hello-world+FOC
+# (CONFIG_STARTUP_TACIT, encoder->RawByte sink id0->ported TacitBridge->host tacit.cc).
+# GENERATION: FPGA run (guest printed 'Hello World! spike_riscv64/rocketchip_virt_riscv64').
+# EXTRACTION: tacit.cc wrote tacit0.out = 72 MB encoded trace, streamed off-FPGA by the bridge.
+# PARSING: ltrace-decoder (MAIN branch d3d778f -- matches the HW encoder; misc_decoders is
+#          spike-patched + mis-parses HW) -> 216,560,195 lines / 5.9 GB decoded control flow.
+# First decoded instructions (boot @ reset vector 0x80000200, disasm + ELF-resolved):
+
+[timestamp: 346] Start
+0x80000202: beq x10, x5, 6
+[timestamp: 346] TakenBranch
+0x80000208: c.lui x5, 8192
+0x8000020a: csrrs x0, x5, CSR#768
+0x8000020e: addi x5, x0, 512
+0x80000212: csrrs x0, x5, CSR#768
+0x80000216: csrrw x0, x0, CSR#3
+0x8000021a: auipc x2, 32768
+0x8000021e: addi x2, x2, 150
+0x80000222: c.lui x5, 4096
+0x80000224: addiw x5, x5, -2048
+0x80000228: c.add x2, x2, x5
+0x8000022a: jal x1, 1550
+[timestamp: 375] InferrableJump
+0x80000838: c.addi x2, x2, 48
+0x8000083a: c.sdsp x1, 8
+0x8000083c: jal x1, -524
+[timestamp: 486] InferrableJump
+0x80000630: addi x10, x3, -1768
+0x80000634: addi x12, x3, -1352
+0x80000638: c.sub x2, x4, x2
+0x8000063a: c.li x11, 0
+0x8000063c: c.j -16
+[timestamp: 548] InferrableJump
+0x8000062c: jal x0, 10722
+[timestamp: 549] InferrableJump
+0x8000300e: c.mv x6, x10
+0x80003010: c.beqz x4, 12
+[timestamp: 609] NonTakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 630] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 638] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 646] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 654] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 662] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 670] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 674] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 682] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 686] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 690] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 694] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 698] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 702] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 706] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 710] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 714] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 718] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 722] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 726] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 730] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 734] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 738] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 742] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 746] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 750] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 754] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 758] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 762] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 766] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 770] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 774] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 778] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 782] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 786] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 790] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 794] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 798] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 802] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 806] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 810] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 814] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 818] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 822] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 826] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 830] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 834] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 838] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 842] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 898] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 902] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 906] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 910] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 914] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 918] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 922] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 926] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 930] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 934] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 938] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 942] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 946] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 950] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 954] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 958] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 962] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 966] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 970] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 974] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 978] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 982] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 986] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 990] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 994] TakenBranch
+0x80003012: sb x6, x11, 0
+0x80003016: c.addi x12, x12, 63
+0x80003018: c.addi x6, x6, 1
+0x8000301a: c.bnez x4, -8
+[timestamp: 998] TakenBranch

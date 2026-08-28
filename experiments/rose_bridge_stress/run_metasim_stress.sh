@@ -14,9 +14,17 @@ if [ -f "$MK" ] && ! grep -q 'Wno-SYNCASYNCNET' "$MK"; then
 fi
 cd /scratch/dima/rose-infra/RoSE/soc/sim/chipyard
 source env.sh
-export ROSE_DMA_RX=1
 cd sims/firesim && source sourceme-manager.sh --skip-ssh-setup && cd sim
-export CXXFLAGS="${CXXFLAGS:+$CXXFLAGS }-DROSE_DMA_RX"
+# Datapath: DEFAULT = per-word MMIO (matches the RoseTL*SaturnMMIOOnlyConfig flight driver,
+# which prints "host->FPGA rxfifo datapath: per-word MMIO"). ROSE_STRESS_DMA=1 => the
+# ROSE_DMA_RX 512b-stream path instead (needs a DMA-capable RTL config to be meaningful).
+if [ "${ROSE_STRESS_DMA:-0}" = 1 ]; then
+  export ROSE_DMA_RX=1
+  export CXXFLAGS="${CXXFLAGS:+$CXXFLAGS }-DROSE_DMA_RX"
+  echo "[run_metasim_stress] datapath = DMA-RX (512b stream)"
+else
+  echo "[run_metasim_stress] datapath = per-word MMIO (flight-matching)"
+fi
 timeout 2700 make run-verilator TARGET_PROJECT=firesim DESIGN=FireSim \
   PLATFORM=xilinx_alveo_u250 TARGET_CONFIG=RoseTLRocketMMIOOnlyConfig PLATFORM_CONFIG=BaseXilinxAlveoU250Config \
   TARGET_PROJECT_MAKEFRAG=/scratch/dima/rose-infra/RoSE/soc/sim/chipyard/generators/firechip/chip/src/main/makefrag/firesim \
