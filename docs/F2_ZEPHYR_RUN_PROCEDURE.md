@@ -128,7 +128,7 @@ cp ~/zephyr-hello.elf $D/workloads/zephyr-hello/zephyr.elf
 cat > $D/workloads/zephyr-hello.json <<'JSON'
 {
   "benchmark_name": "zephyr-hello",
-  "common_bootbinary": "zephyr-hello/zephyr.elf",
+  "common_bootbinary": "zephyr.elf",
   "common_rootfs": null,
   "common_simulation_outputs": ["uartlog"],
   "no_post_run_hook": true
@@ -137,7 +137,12 @@ JSON
 ```
 
 `common_rootfs: null` is correct for bare metal — Zephyr is the whole image, there is no
-Linux rootfs. `common_bootbinary` is relative to `deploy/workloads/`.
+Linux rootfs.
+
+**`common_bootbinary` is relative to `deploy/workloads/<workload_name>/`, not to
+`deploy/workloads/`.** So with `benchmark_name: zephyr-hello` and the ELF at
+`workloads/zephyr-hello/zephyr.elf`, the correct value is just `"zephyr.elf"`. Prefixing
+it with the workload name double-nests the path and breaks infrasetup — see gotcha 10.
 
 ---
 
