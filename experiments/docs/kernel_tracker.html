@@ -838,6 +838,41 @@
     header, but the name still lies; the header's own "collapse the two names" cleanup is outstanding. The comparison
     above is unaffected — it ran against that port, which is the true production kernel.</p>
 
+    
+    <h2 style="margin-top:34px">Vectorizing the Gemmini scalar loops <span class="note">1.493× on conv2d_s8, FPGA-measured, exact</span></h2>
+    <p class="lede">The cost decomposition said the exact Gemmini path was dominated by CPU-scalar data movement, not by
+    the accelerator. Acting on that: two RVV restructurings on the fused <code>gemmini_q31_rvv</code> target, both pure
+    data movement, both leaving numerics untouched. <strong>conv2d_s8 aggregate 4,703,561 &rarr; 3,150,508 = 1.493×</strong>
+    against the original kernel for that same backend; whole model 1.399×. <code>max_abs_err&nbsp;0</code> in both arms,
+    FPGA jobs 184/185 with 186/187 for the phase split.</p>
+    <div class="scroll"><table><thead><tr><th>Phase</th><th style="text-align:right">Before</th><th style="text-align:right">After</th><th style="text-align:right">Speedup</th><th>Status</th></tr></thead><tbody>
+      <tr><td class="op">im2col gather</td><td class="num">2,039,505</td><td class="num">1,090,432</td><td class="num sol-hi">1.87×</td><td class="note">contiguous on both sides — one vector copy per <code>kw</code> run</td></tr>
+      <tr><td class="op">NCHW&rarr;NHWC transpose</td><td class="num">997,760</td><td class="num">419,838</td><td class="num sol-hi">2.38×</td><td class="note">walk the longer axis, stride the shorter</td></tr>
+      <tr><td class="op">requantize</td><td class="num">1,325,917</td><td class="num">1,345,898</td><td class="num">—</td><td class="note">already vectorized on this target; untouched</td></tr>
+      <tr><td class="op">Gemmini GEMM + drain</td><td class="num">330,538</td><td class="num">327,435</td><td class="num">—</td><td class="note">untouched</td></tr>
+    </tbody></table></div>
+    <p class="note">No new flag: same op and algorithm, so <code>kernel_picks.json</code> is byte-identical before and
+    after. Verified zero vector intrinsics remain in <code>kernels/gemmini_q31/</code> and <code>kernels/gemmini/</code>,
+    preserving the pure-target rule.</p>
+
+    <h2 style="margin-top:34px">Extended fusion disabled everywhere <span class="note">the allowlist's own assumption, falsified on every entry</span></h2>
+    <p class="lede">The fusion allowlist let extended fusion fire on the Gemmini targets before any curated fused kernel
+    existed, on a stated assumption: <em>"on Gemmini the trade is directionally the intended one"</em>, since the
+    accumulator drains straight into activation+pool hardware. Hardware disagrees with every entry it contained.</p>
+    <div class="scroll"><table><thead><tr><th>Fused op</th><th>Target</th><th style="text-align:right">Unfused</th><th style="text-align:right">Fused</th><th>Result</th></tr></thead><tbody>
+      <tr><td class="op">conv2d_pool_s8</td><td class="m">gemmini_q31</td><td class="num">14,147,329</td><td class="num">110,818,876</td><td><span class="res bad">7.84× slower</span></td></tr>
+      <tr><td class="op">conv2d_silu_s8</td><td class="m">gemmini_q31</td><td class="num">315,521,575</td><td class="num">12,819,955,173</td><td><span class="res bad">40.6× slower</span></td></tr>
+      <tr><td class="op">conv2d_pool_s8</td><td class="m">gemmini_q31_rvv</td><td class="num">2,478,782</td><td class="num">105,675,367</td><td><span class="res bad">42.6× slower</span></td></tr>
+    </tbody></table></div>
+    <p class="lede" style="margin-top:4px">All three are numerically exact, so these are pure performance losses. Two
+    structural causes, both confirmed against the registry: <code>conv2d_silu_s8</code>'s only algorithm is
+    <code>direct</code> — the scalar reference — so it has <em>no curated kernel on any backend</em>; and
+    <code>conv2d_pool_s8</code>'s <code>gemmini_tiled_conv_pool</code> is affinity-tagged
+    <code>('gemmini','gemmini_q31')</code> but <strong>not</strong> <code>gemmini_q31_rvv</code>, so on that target it
+    also falls back to scalar — 97% of the model in a single op.
+    <code>_FUSION_SAFE_TARGETS</code> is now <strong>empty</strong>: the flag and machinery stay, fusion fires nowhere,
+    and a target is re-added only alongside an FPGA measurement showing the fused path actually wins.</p>
+
     <h2>Experiment log <span class="note">every run, including the ones that failed</span></h2>
     <p class="lede">Kept so a dead end is only walked once. Three wins, but also a failed hypothesis, a self-inflicted regression from changing two variables at once, and a reverted approach — those are the entries worth reading.</p>
     <div class="scroll"><table class="exp">
