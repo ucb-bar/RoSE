@@ -1,0 +1,8 @@
+model,op,instances,cycles,pct_of_model
+dronet,conv2d_s8,10,9928834,54.22
+dronet,maxpool2d_s8,1,5285574,28.86
+dronet,batchnorm2d_s8,3,2641531,14.43
+dronet,add_s8,3,412866,2.25
+dronet,relu_s8,1,22520,0.12
+dronet,linear_s8,2,19627,0.11
+dronet,sigmoid_s8,1,752,0.00

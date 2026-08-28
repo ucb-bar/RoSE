@@ -1,0 +1,2 @@
+submitting 1 job(s), 2-way parallel: ['dronet_v7']
+OK   dronet_v7 -> /scratch/dima/rose-infra/RoSE/experiments/kopt/logs/dronet_v7.uartlog  === MODELBLASTER_VERIFY === max_abs_err=0 max_rel_err=0 n=2

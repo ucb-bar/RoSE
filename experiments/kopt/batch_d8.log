@@ -1,0 +1,4 @@
+retry dronet_v8 (1): fq: empty uartlog for dronet_v8 (/scratch/dima/rose-infra/RoSE/experiments/kopt/elfs/dronet_v8.elf)
+OK   dronet_v8 (try 2) === MODELBLASTER_VERIFY === max_abs_err=0 max_rel_err=0 n=2
+retry dronet_v7ctl2 (1): fq: empty uartlog for dronet_v7ctl2 (/scratch/dima/rose-infra/RoSE/experiments/kopt/elfs/dronet_v7.elf)
+OK   dronet_v7ctl2 (try 2) === MODELBLASTER_VERIFY === max_abs_err=0 max_rel_err=0 n=2

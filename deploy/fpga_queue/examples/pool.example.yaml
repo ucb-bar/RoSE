@@ -1,0 +1,112 @@
+# fq pool config for the AWS F2 pool in account 025690631703 / us-east-1.
+#
+# The eight f2.6xlarge run hosts are PERSISTENT and operator-owned. They all
+# carry the same EC2 tag (fsimcluster=rosef2run), which is exactly why this
+# pool uses `mode: hosts` (FireSim's externally_provisioned run farm):
+#
+#   * ExternallyProvisioned binds hosts by explicit IP, never by tag, so the
+#     eight shared-tag instances split into eight independent lanes;
+#   * its launch/terminate paths are no-ops, so nothing fq does can destroy
+#     an instance or run up a bill.
+#
+# One host per lane is REQUIRED, not a style choice: `firesim kill` runs a
+# host-wide `pkill FireSim-f2`, and `infrasetup` reflashes every slot on the
+# host. Two jobs on one host would destroy each other.
+
+state_dir: /var/lib/fq
+socket_path: /var/lib/fq/fq.sock
+
+backend: firesim
+backend_options:
+  # How to enter a chipyard tree's manager env. conda must be on PATH before
+  # env.sh is sourced, and env.sh must be sourced WITHOUT a pipe.
+  conda_path: /home/ubuntu/miniconda3/bin:/home/ubuntu/miniconda3/condabin
+  default_platform: EC2InstanceDeployManager
+  simulation_dir: /home/ubuntu
+  fpga_db: /opt/firesim-db.json
+  fpgas_per_host: 1
+  # Run-farm hosts need ~/firesim.pem, NOT the manager's default key.
+  run_host_key: ~/firesim.pem
+  run_host_user: ubuntu
+  # infrasetup re-elaborates and rebuilds the driver for an unseen config.
+  # Budget tens of minutes; this only bounds a hang.
+  infrasetup_timeout_s: 7200
+
+admins: [ubuntu]
+
+defaults:
+  priority: 5
+  timeout_s: 3600          # backstop only; see `completion` in the job spec
+  max_timeout_s: 86400
+
+scheduling:
+  # A starving job that cannot fit reserves its lanes after this long, so
+  # wide jobs are not starved by a stream of 1-FPGA jobs.
+  reserve_after_s: 900
+  # 0 = uncapped. Set to e.g. 4 to stop one user taking the whole pool.
+  max_fpgas_per_user: 0
+  max_queued_per_user: 200
+  poll_interval_s: 5
+
+# Occupancy probing. "instance is running" tells you nothing about whether the
+# FPGA is free: a bare-metal guest that never exits leaves FireSim-f2 attached
+# to the FPGA forever. We probe for the live simulator process instead.
+probe:
+  enabled: true
+  interval_s: 60
+  driver: FireSim-f2
+  key: ~/firesim.pem
+  user: ubuntu
+  connect_timeout: 10
+
+# What to do about a simulation running on a lane that no fq job owns.
+#   manual (default) - report it, refuse to schedule there, wait for
+#                      `fq reclaim <lane>`. Killing someone's hand-started
+#                      run is destructive and irreversible.
+#   auto             - reclaim after grace_s of continuous foreign occupancy.
+#   never            - never reclaim.
+reclaim:
+  policy: manual
+  grace_s: 1800
+
+lanes:
+  - name: f2-00
+    mode: hosts
+    hosts: ["192.168.0.8"]
+    capacity: 1
+    trees: [/home/ubuntu/chipyard-rose]
+  - name: f2-01
+    mode: hosts
+    hosts: ["192.168.0.31"]
+    capacity: 1
+    trees: [/home/ubuntu/chipyard-rose]
+  - name: f2-02
+    mode: hosts
+    hosts: ["192.168.0.91"]
+    capacity: 1
+    trees: [/home/ubuntu/chipyard-rose]
+  - name: f2-03
+    mode: hosts
+    hosts: ["192.168.0.97"]
+    capacity: 1
+    trees: [/home/ubuntu/chipyard-rose]
+  - name: f2-04
+    mode: hosts
+    hosts: ["192.168.0.134"]
+    capacity: 1
+    trees: [/home/ubuntu/chipyard-rose]
+  - name: f2-05
+    mode: hosts
+    hosts: ["192.168.0.169"]
+    capacity: 1
+    trees: [/home/ubuntu/chipyard-rose]
+  - name: f2-06
+    mode: hosts
+    hosts: ["192.168.0.172"]
+    capacity: 1
+    trees: [/home/ubuntu/chipyard-rose]
+  - name: f2-07
+    mode: hosts
+    hosts: ["192.168.0.175"]
+    capacity: 1
+    trees: [/home/ubuntu/chipyard-rose]

@@ -1,0 +1,144 @@
+[1/5] extract_graph (quant=int8) -> /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/generated
+MODELBLASTER_STAGE_BEGIN:extract
+  (skipped — IR present at /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/generated; set FORCE_EXTRACT=1 to re-run)
+MODELBLASTER_STAGE_END:extract:0.001
+[2/5] generate_skeleton (backend=rvv) -> /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/generated/rvv
+MODELBLASTER_STAGE_BEGIN:generate_skeleton
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/generated/rvv/weights.h
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/generated/rvv/weights.c
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/generated/rvv/model.h
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/generated/rvv/model.c
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/generated/rvv/buffers.c
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/generated/rvv/test_io.h
+MODELBLASTER_STAGE_END:generate_skeleton:0.812
+[3/5] generate_kernels (backend=reference target=rvv quant=int8 optimize=0) -> /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/generated/rvv
+MODELBLASTER_STAGE_BEGIN:generate_kernels
+backend=reference  target=rvv  ops=['add_s8', 'batchnorm2d_s8', 'cat2_c1_s8', 'cat3_c1_s8', 'cat4_c1_s8', 'conv2d_s8', 'maxpool2d_s8', 'silu_s8', 'upsample_nearest_s8']
+  [curated] pre-seeded verify baseline with 9 curated kernel(s): ['add_s8', 'batchnorm2d_s8', 'cat2_c1_s8', 'cat3_c1_s8', 'cat4_c1_s8', 'conv2d_s8', 'maxpool2d_s8', 'silu_s8', 'upsample_nearest_s8']
+  [add_s8/direct] reference + curated swap from /tmp/claude-1172/-scratch-dima-rose-infra-RoSE/380445be-ecd7-4b3a-9531-bd33760b300b/scratchpad/901_silu_vrgather/rvv/rvv_add_s8_direct.c
+  [add_s8/direct] verify curated at 7 shape(s) vs reference_impl
+  [add_s8/direct] curated verify PASS — spike-harness ok (max_abs_err=0 max_rel_err=0, cycles={'conv2d_s8': 226379328, 'batchnorm2d_s8': 646584, 'silu_s8': 1765454, 'add_s8': 54822, 'cat3_c1_s8': 135936, 'cat4_c1_s8': 59265, 'maxpool2d_s8': 2401758, 'upsample_nearest_s8': 428544, 'cat2_c1_s8': 192188})
+  [batchnorm2d_s8/direct] reference + curated swap from /tmp/claude-1172/-scratch-dima-rose-infra-RoSE/380445be-ecd7-4b3a-9531-bd33760b300b/scratchpad/901_silu_vrgather/rvv/rvv_batchnorm2d_s8_direct.c
+  [batchnorm2d_s8/direct] verify curated at 16 shape(s) vs reference_impl
+  [batchnorm2d_s8/direct] curated verify PASS — spike-harness ok (max_abs_err=0 max_rel_err=0, cycles={'conv2d_s8': 226379328, 'batchnorm2d_s8': 646584, 'silu_s8': 1770703, 'add_s8': 54822, 'cat3_c1_s8': 135936, 'cat4_c1_s8': 59265, 'maxpool2d_s8': 2401758, 'upsample_nearest_s8': 428544, 'cat2_c1_s8': 192188})
+  [cat2_c1_s8/direct] reference + curated swap from /tmp/claude-1172/-scratch-dima-rose-infra-RoSE/380445be-ecd7-4b3a-9531-bd33760b300b/scratchpad/901_silu_vrgather/rvv/rvv_cat2_c1_s8_direct.c
+  [cat2_c1_s8/direct] verify curated at 9 shape(s) vs reference_impl
+  [cat2_c1_s8/direct] curated verify PASS — spike-harness ok (max_abs_err=0 max_rel_err=0, cycles={'conv2d_s8': 226379328, 'batchnorm2d_s8': 646584, 'silu_s8': 1765454, 'add_s8': 54822, 'cat3_c1_s8': 135936, 'cat4_c1_s8': 59265, 'maxpool2d_s8': 2401758, 'upsample_nearest_s8': 428544, 'cat2_c1_s8': 192188})
+  [cat3_c1_s8/direct] reference + curated swap from /tmp/claude-1172/-scratch-dima-rose-infra-RoSE/380445be-ecd7-4b3a-9531-bd33760b300b/scratchpad/901_silu_vrgather/rvv/rvv_cat3_c1_s8_direct.c
+  [cat3_c1_s8/direct] verify curated at 6 shape(s) vs reference_impl
+  [cat3_c1_s8/direct] curated verify PASS — spike-harness ok (max_abs_err=0 max_rel_err=0, cycles={'conv2d_s8': 226379328, 'batchnorm2d_s8': 646584, 'silu_s8': 1765454, 'add_s8': 54822, 'cat3_c1_s8': 135936, 'cat4_c1_s8': 59265, 'maxpool2d_s8': 2401758, 'upsample_nearest_s8': 428544, 'cat2_c1_s8': 192188})
+  [cat4_c1_s8/direct] reference + curated swap from /tmp/claude-1172/-scratch-dima-rose-infra-RoSE/380445be-ecd7-4b3a-9531-bd33760b300b/scratchpad/901_silu_vrgather/rvv/rvv_cat4_c1_s8_direct.c
+  [cat4_c1_s8/direct] verify curated at 5 shape(s) vs reference_impl
+  [cat4_c1_s8/direct] curated verify FAIL — spike-harness build/run failed:
+west build failed (rc=1):
+  cmd: west build -b spike_riscv64 harness --build-dir /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/build/rvv -- -DMODEL_DIR=/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/generated/rvv -DMODELBLASTER_BACKEND=rvv -DMODELBLASTER_KERNEL_CFLAGS=-march=rv64gcv;-mabi=lp64d;-DMODELBLASTER_RVV_IHWOC_WEIGHTS=1
+  stdout (tail):
+IR=/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/generated/rvv  backend=rvv
+-- modelblaster harness kernel cflags=-march=rv64gcv;-mabi=lp64d;-DMODELBLASTER_RVV_IHWOC_WEIGHTS=1
+-- Configuring done (3.7s)
+-- Generating done (0.0s)
+-- Build files have been written to: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/build/rvv
+-- west build: building application
+[1/109] Generating misc/generated/syscalls.json, misc/generated/struct_tags.json
+[2/10] Generating linker_zephyr_pre0.cmd
+[3/10] Building C object CMakeFiles/app.dir/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/generated/rvv/kernels.c.obj
+[4/10] Building C object CMakeFiles/app.dir/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/generated/rvv/model.c.obj
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/generated/rvv/model.c:59:13: warning: 'parallel_conv2d_s8_fn' defined but not used [-Wunused-function]
+   59 | static void parallel_conv2d_s8_fn(void *ctx_, size_t i) {
+      |             ^~~~~~~~~~~~~~~~~~~~~
+[5/10] Linking C static library app/libapp.a
+[6/10] Linking C executable zephyr/zephyr_pre0.elf
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/bin/../lib/gcc/riscv64-zephyr-elf/14.3.0/../../../../riscv64-zephyr-elf/bin/ld.bfd: warning: orphan section `.vectors.__start' from `zephyr/libzephyr.a(vector.S.obj)' being placed in section `.vectors.__start'
+[7/10] Generating linker.cmd
+[8/10] Generating isr_tables.c, isr_tables_vt.ld, isr_tables_swi.ld
+FAILED: zephyr/isr_tables.c zephyr/isr_tables_vt.ld zephyr/isr_tables_swi.ld /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/build/rvv/zephyr/isr_tables.c /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/build/rvv/zephyr/isr_tables_vt.ld /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/build/rvv/zephyr/isr_tables_swi.ld 
+cd /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/build/rvv/zephyr && /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools/miniforge3/envs/zephyr/bin/python3.12 /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/scripts/build/gen_isr_tables.py --output-source isr_tables.c --linker-output-files isr_tables_vt.ld isr_tables_swi.ld --kernel /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/build/rvv/zephyr/zephyr_pre0.elf --intlist-section .intList --intlist-section intList --sw-isr-table
+gen_isr_tables.py: error: Cannot find the intlist section!
+
+ninja: build stopped: subcommand failed.
+
+  stderr (tail):
+Loading Zephyr default modules (Zephyr base (cached)).
+node '/uart' compatible 'ucb,htif' has unknown vendor prefix 'ucb'
+FATAL ERROR: command exited with status 1: /usr/bin/cmake --build /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/build/rvv
+; falling back to reference_impl
+  [conv2d_s8/rvv_vsmul_vnclip] reference + curated swap from /tmp/claude-1172/-scratch-dima-rose-infra-RoSE/380445be-ecd7-4b3a-9531-bd33760b300b/scratchpad/901_silu_vrgather/rvv/rvv_conv2d_s8_rvv_vsmul_vnclip.c
+  [conv2d_s8/rvv_vsmul_vnclip] verify curated at 45 shape(s) vs reference_impl
+  [conv2d_s8/rvv_vsmul_vnclip] curated verify PASS — spike-harness ok (max_abs_err=0 max_rel_err=0, cycles={'conv2d_s8': 226379328, 'batchnorm2d_s8': 646584, 'silu_s8': 1770703, 'add_s8': 54822, 'cat3_c1_s8': 135936, 'cat4_c1_s8': 59265, 'maxpool2d_s8': 2401758, 'upsample_nearest_s8': 428544, 'cat2_c1_s8': 192188})
+  [maxpool2d_s8/direct] reference + curated swap from /tmp/claude-1172/-scratch-dima-rose-infra-RoSE/380445be-ecd7-4b3a-9531-bd33760b300b/scratchpad/901_silu_vrgather/rvv/rvv_maxpool2d_s8_direct.c
+  [maxpool2d_s8/direct] verify curated at 5 shape(s) vs reference_impl
+  [maxpool2d_s8/direct] curated verify PASS — spike-harness ok (max_abs_err=0 max_rel_err=0, cycles={'conv2d_s8': 226380139, 'batchnorm2d_s8': 646584, 'silu_s8': 1765454, 'add_s8': 54822, 'cat3_c1_s8': 135936, 'cat4_c1_s8': 4979921, 'maxpool2d_s8': 2401758, 'upsample_nearest_s8': 428544, 'cat2_c1_s8': 192188})
+  [silu_s8/direct] reference + curated swap from /tmp/claude-1172/-scratch-dima-rose-infra-RoSE/380445be-ecd7-4b3a-9531-bd33760b300b/scratchpad/901_silu_vrgather/rvv/rvv_silu_s8_direct.c
+  [silu_s8/direct] verify curated at 13 shape(s) vs reference_impl
+  [silu_s8/direct] curated verify PASS — spike-harness ok (max_abs_err=0 max_rel_err=0, cycles={'conv2d_s8': 226380139, 'batchnorm2d_s8': 646584, 'silu_s8': 1765454, 'add_s8': 54822, 'cat3_c1_s8': 135936, 'cat4_c1_s8': 4979921, 'maxpool2d_s8': 2401758, 'upsample_nearest_s8': 428544, 'cat2_c1_s8': 192188})
+  [upsample_nearest_s8/direct] reference + curated swap from /tmp/claude-1172/-scratch-dima-rose-infra-RoSE/380445be-ecd7-4b3a-9531-bd33760b300b/scratchpad/901_silu_vrgather/rvv/rvv_upsample_nearest_s8_direct.c
+  [upsample_nearest_s8/direct] verify curated at 4 shape(s) vs reference_impl
+  [upsample_nearest_s8/direct] curated verify PASS — spike-harness ok (max_abs_err=0 max_rel_err=0, cycles={'conv2d_s8': 226380139, 'batchnorm2d_s8': 646584, 'silu_s8': 1765454, 'add_s8': 54822, 'cat3_c1_s8': 135936, 'cat4_c1_s8': 4979921, 'maxpool2d_s8': 2401758, 'upsample_nearest_s8': 428544, 'cat2_c1_s8': 192188})
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/generated/rvv/kernels.h
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/generated/rvv/kernels.c  (source=reference target=rvv)
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/generated/rvv/kernel_picks.json
+MODELBLASTER_STAGE_END:generate_kernels:108.004
+[4/5] west build (board=chipyard_riscv64/rocketchip_virt_riscv64) -> /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/build/rvv_firesim
+MODELBLASTER_STAGE_BEGIN:build
+-- west build: generating a build system
+Loading Zephyr default modules (Zephyr base).
+-- Application: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/harness
+-- CMake version: 3.28.3
+-- Found Python3: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools/miniforge3/envs/zephyr/bin/python3.12 (found suitable version "3.12.13", minimum required is "3.10") found components: Interpreter 
+-- Cache files will be written to: /home/dima/.cache/zephyr
+-- Zephyr version: 4.2.99 (/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr)
+-- Found west (found suitable version "1.5.0", minimum required is "0.14.0")
+-- Board: chipyard_riscv64, qualifiers: rocketchip_virt_riscv64
+-- Found host-tools: zephyr 1.0.0 (/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1)
+-- Found toolchain: zephyr 1.0.0 (/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1)
+-- Found Dtc: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/hosttools/sysroots/x86_64-pokysdk-linux/usr/bin/dtc (found suitable version "1.7.0", minimum required is "1.4.6") 
+-- Found BOARD.dts: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/boards/chipyard/riscv64/chipyard_riscv64.dts
+-- Found devicetree overlay: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/harness/boards/chipyard_riscv64.overlay
+node '/uart' compatible 'ucb,htif' has unknown vendor prefix 'ucb'
+-- Generated zephyr.dts: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/build/rvv_firesim/zephyr/zephyr.dts
+-- Generated pickled edt: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/build/rvv_firesim/zephyr/edt.pickle
+-- Generated devicetree_generated.h: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/build/rvv_firesim/zephyr/include/generated/zephyr/devicetree_generated.h
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/build/rvv_firesim/zephyr/zephyr.dts:213.25-216.4: Warning (unit_address_format): /memory@08000000: unit name should not have leading 0s
+
+warning: Deprecated symbol SCHED_DUMB is enabled.
+
+Parsing /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/harness/Kconfig
+Loaded configuration '/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/build/rvv_firesim/zephyr/.config'
+No change to configuration in '/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/build/rvv_firesim/zephyr/.config'
+No change to Kconfig header in '/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/build/rvv_firesim/zephyr/include/generated/zephyr/autoconf.h'
+-- RISCV_V_KERNEL_ONLY=y: global -march=rv64imafdc_zicsr_zifencei (V stripped); per-file -march=rv64imafdcv_zicsr_zifencei
+-- Found GnuLd: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/bin/ld.bfd (found version "2.43.1") 
+-- The C compiler identification is GNU 14.3.0
+-- The CXX compiler identification is GNU 14.3.0
+-- The ASM compiler identification is GNU
+-- Found assembler: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/bin/riscv64-zephyr-elf-gcc
+-- Using ccache: /usr/bin/ccache
+-- Found gen_kobject_list: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/scripts/build/gen_kobject_list.py
+-- modelblaster harness MODEL_DIR=/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/generated/rvv  backend=rvv
+-- modelblaster harness kernel cflags=-march=rv64gcv;-mabi=lp64d;-DMODELBLASTER_RVV_IHWOC_WEIGHTS=1
+-- Configuring done (4.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/build/rvv_firesim
+-- west build: building application
+[1/121] Generating misc/generated/syscalls.json, misc/generated/struct_tags.json
+[2/11] Generating linker_zephyr_pre0.cmd
+[3/11] Building C object CMakeFiles/app.dir/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/generated/rvv/model.c.obj
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/generated/rvv/model.c:59:13: warning: 'parallel_conv2d_s8_fn' defined but not used [-Wunused-function]
+   59 | static void parallel_conv2d_s8_fn(void *ctx_, size_t i) {
+      |             ^~~~~~~~~~~~~~~~~~~~~
+[4/11] Building C object CMakeFiles/app.dir/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/generated/rvv/weights.c.obj
+[5/11] Linking C static library app/libapp.a
+[6/11] Linking C executable zephyr/zephyr_pre0.elf
+[7/11] Generating linker.cmd
+[8/11] Generating isr_tables.c, isr_tables_vt.ld, isr_tables_swi.ld
+[9/11] Building C object zephyr/CMakeFiles/zephyr_final.dir/misc/empty_file.c.obj
+[10/11] Building C object zephyr/CMakeFiles/zephyr_final.dir/isr_tables.c.obj
+[11/11] Linking C executable zephyr/zephyr.elf
+Memory region         Used Size  Region Size  %age Used
+             RAM:     7332104 B       256 MB      2.73%
+        IDT_LIST:           0 B         4 KB      0.00%
+Generating files from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/build/rvv_firesim/zephyr/zephyr.elf for board: chipyard_riscv64
+MODELBLASTER_STAGE_END:build:8.411
+[4/5] STOP_AFTER=build -> stopping before the run stage
+ELF: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/build/rvv_firesim/zephyr/zephyr.elf
+-rwxrwxr-x 1 dima dima 4528704 Aug 28 01:03 /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano/int8/build/rvv_firesim/zephyr/zephyr.elf

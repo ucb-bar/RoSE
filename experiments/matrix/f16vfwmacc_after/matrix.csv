@@ -1,0 +1,6 @@
+model,op,instances,cycles,pct_of_model
+fused_full,conv2d_f16,6,4929652,63.94
+fused_full,lstm_f16,3,1267508,16.44
+fused_full,linear_f16,3,845430,10.96
+fused_full,relu_f16,6,667142,8.65
+fused_full,cat3_c1_f16,1,556,0.01

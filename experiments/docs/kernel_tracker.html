@@ -1,0 +1,789 @@
+<title>ModelBlaster Kernel Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+  :root{
+    --ground:#F7F8FA; --surface:#FFFFFF; --surface-2:#F0F3F7;
+    --line:#DCE2EA; --line-soft:#E9EDF3;
+    --text:#141A22; --muted:#5B6879; --faint:#8593A5;
+    --accent:#A96A28; --accent-soft:#F2E3D2;
+    --good:#33795A; --good-soft:#DDEDE5;
+    --warn:#96790F; --warn-soft:#F4EBCF;
+    --bad:#9C4238; --bad-soft:#F5DFDC;
+    --bar-track:#E7EBF1;
+    --shadow:0 1px 2px rgba(20,26,34,.06), 0 6px 20px rgba(20,26,34,.05);
+    --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    --sans:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,sans-serif;
+    --cond:"IBM Plex Sans Condensed","IBM Plex Sans",system-ui,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --ground:#0F141C; --surface:#18202B; --surface-2:#1E2836;
+      --line:#26303E; --line-soft:#212B38;
+      --text:#E4E9F0; --muted:#93A1B4; --faint:#6B7A8D;
+      --accent:#C0803A; --accent-soft:#33261A;
+      --good:#4A9370; --good-soft:#16281F;
+      --warn:#C9A227; --warn-soft:#2B2513;
+      --bad:#B4544A; --bad-soft:#2E1917;
+      --bar-track:#222C39;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.28);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0F141C; --surface:#18202B; --surface-2:#1E2836;
+    --line:#26303E; --line-soft:#212B38;
+    --text:#E4E9F0; --muted:#93A1B4; --faint:#6B7A8D;
+    --accent:#C0803A; --accent-soft:#33261A;
+    --good:#4A9370; --good-soft:#16281F;
+    --warn:#C9A227; --warn-soft:#2B2513;
+    --bad:#B4544A; --bad-soft:#2E1917;
+    --bar-track:#222C39;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.28);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--ground); color:var(--text);
+    font-family:var(--sans); font-size:15px; line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1120px; margin:0 auto; padding:40px 24px 80px; display:flex; flex-direction:column; gap:36px}
+
+  /* ---------- header ---------- */
+  header{display:flex; flex-direction:column; gap:14px; padding-bottom:26px; border-bottom:2px solid var(--line)}
+  .eyebrow{
+    font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--accent); font-weight:500;
+  }
+  h1{
+    font-family:var(--cond); font-weight:700; font-size:clamp(30px,4.4vw,44px);
+    line-height:1.06; margin:0; letter-spacing:-.015em; text-wrap:balance;
+  }
+  .sub{color:var(--muted); max-width:66ch; margin:0}
+  .stamp{
+    display:flex; flex-wrap:wrap; gap:8px 18px; font-family:var(--mono);
+    font-size:12px; color:var(--faint); margin-top:2px;
+  }
+  .stamp b{color:var(--muted); font-weight:500}
+
+  /* ---------- callout ---------- */
+  .callout{
+    border-left:3px solid var(--accent); background:var(--accent-soft);
+    padding:14px 18px; border-radius:0 6px 6px 0;
+  }
+  .callout p{margin:0; font-size:14px}
+  .callout strong{font-weight:600}
+
+  /* ---------- sections ---------- */
+  section{display:flex; flex-direction:column; gap:16px}
+  h2{
+    font-family:var(--cond); font-weight:600; font-size:21px; margin:0;
+    letter-spacing:-.005em; display:flex; align-items:baseline; gap:12px;
+  }
+  h2 .note{font-family:var(--mono); font-size:11px; color:var(--faint); font-weight:400; letter-spacing:.04em}
+  .lede{margin:0; color:var(--muted); max-width:70ch; font-size:14px}
+
+  /* ---------- coverage matrix ---------- */
+  .matrix{display:grid; grid-template-columns:repeat(auto-fit,minmax(232px,1fr)); gap:14px}
+  .cell{
+    background:var(--surface); border:1px solid var(--line); border-radius:8px;
+    padding:16px 16px 14px; display:flex; flex-direction:column; gap:11px; box-shadow:var(--shadow);
+  }
+  .cell-top{display:flex; align-items:flex-start; justify-content:space-between; gap:10px}
+  .cell-model{font-family:var(--cond); font-weight:600; font-size:16px; line-height:1.2}
+  .cell-backend{font-family:var(--mono); font-size:11px; color:var(--faint); letter-spacing:.03em; margin-top:2px}
+  .ratio{font-family:var(--mono); font-size:22px; font-weight:600; font-variant-numeric:tabular-nums; line-height:1}
+  .ratio small{font-size:12px; color:var(--faint); font-weight:400}
+  .meter{height:5px; background:var(--bar-track); border-radius:3px; overflow:hidden; display:flex}
+  .meter i{display:block; height:100%}
+  .meter i.c{background:var(--good)}
+  .meter i.r{background:var(--bad); opacity:.55}
+  .cell-foot{display:flex; align-items:center; justify-content:space-between; gap:8px; font-family:var(--mono); font-size:11.5px}
+  .err{color:var(--muted); font-variant-numeric:tabular-nums}
+
+  .pill{
+    display:inline-flex; align-items:center; gap:5px; padding:2px 8px; border-radius:20px;
+    font-family:var(--mono); font-size:10.5px; letter-spacing:.04em; font-weight:500; white-space:nowrap;
+  }
+  .pill.pass{background:var(--good-soft); color:var(--good)}
+  .pill.drift{background:var(--warn-soft); color:var(--warn)}
+  .pill.blocked{background:var(--bad-soft); color:var(--bad)}
+  .pill.pending{background:var(--surface-2); color:var(--faint)}
+
+  /* ---------- tables ---------- */
+  .scroll{overflow-x:auto; border:1px solid var(--line); border-radius:8px; background:var(--surface); box-shadow:var(--shadow)}
+  table{border-collapse:collapse; width:100%; min-width:660px; font-size:13.5px}
+  th{
+    text-align:left; font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--faint); font-weight:500; padding:11px 14px; border-bottom:1px solid var(--line); background:var(--surface-2);
+    position:sticky; top:0;
+  }
+  td{padding:9px 14px; border-bottom:1px solid var(--line-soft); vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  td.op{font-family:var(--mono); font-size:12.5px}
+  td.num{font-family:var(--mono); font-variant-numeric:tabular-nums; text-align:right; white-space:nowrap}
+  td.shape{font-family:var(--mono); font-size:11px; color:var(--faint); white-space:nowrap}
+  .barcell{width:170px; min-width:120px}
+  .bar{height:7px; background:var(--bar-track); border-radius:4px; overflow:hidden}
+  .bar span{display:block; height:100%; background:var(--accent); border-radius:4px}
+  .bar span.dim{background:var(--muted); opacity:.45}
+  .pct{font-family:var(--mono); font-size:11.5px; color:var(--muted); font-variant-numeric:tabular-nums; text-align:right; width:56px}
+  tr.hot td.op{color:var(--accent); font-weight:500}
+
+  td.sol{font-family:var(--mono); font-variant-numeric:tabular-nums; text-align:right; white-space:nowrap; font-weight:500}
+  .sol-hi{color:var(--good)} .sol-mid{color:var(--warn)} .sol-lo{color:var(--bad)}
+  td.k{width:1%; white-space:nowrap}
+  .kchip{display:inline-block; padding:1px 7px; border-radius:4px; font-family:var(--mono); font-size:10px; letter-spacing:.03em}
+  .kchip.cur{background:var(--good-soft); color:var(--good)}
+  .kchip.ref{background:var(--bad-soft); color:var(--bad)}
+  .totrow td{border-top:2px solid var(--line); font-weight:600; background:var(--surface-2)}
+
+  /* ---------- experiment log ---------- */
+  .exp{border-collapse:collapse; width:100%; min-width:820px; font-size:13px}
+  .exp th{background:var(--surface-2)}
+  .exp td{padding:9px 12px; vertical-align:top; border-bottom:1px solid var(--line-soft)}
+  .exp td.n{font-family:var(--mono); color:var(--faint); width:1%}
+  .exp td.m{font-family:var(--mono); font-size:11.5px; white-space:nowrap}
+  .exp td.note{color:var(--muted); font-size:12.5px; line-height:1.45; max-width:44ch}
+  .res{display:inline-block; padding:1px 7px; border-radius:4px; font-family:var(--mono); font-size:10px; letter-spacing:.03em; white-space:nowrap}
+  .res.win{background:var(--good-soft); color:var(--good)}
+  .res.neutral{background:var(--surface-2); color:var(--faint)}
+  .res.bad{background:var(--bad-soft); color:var(--bad)}
+  .res.warn{background:var(--warn-soft); color:var(--warn)}
+
+  /* ---------- spec grid ---------- */
+  .specs{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:14px}
+  .spec{background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:15px 16px; display:flex; flex-direction:column; gap:5px}
+  .spec dt{font-family:var(--mono); font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--faint)}
+  .spec dd{margin:0; font-family:var(--mono); font-size:19px; font-weight:600; font-variant-numeric:tabular-nums; line-height:1.15}
+  .spec p{margin:2px 0 0; font-size:12.5px; color:var(--muted); line-height:1.45}
+
+  /* ---------- queue / status list ---------- */
+  .queue{display:flex; flex-direction:column; gap:0; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--surface)}
+  .qrow{display:flex; align-items:center; gap:14px; padding:12px 16px; border-bottom:1px solid var(--line-soft)}
+  .qrow:last-child{border-bottom:none}
+  .qrow .what{flex:1; min-width:0}
+  .qrow .what b{font-family:var(--cond); font-weight:600; font-size:14.5px; display:block}
+  .qrow .what span{font-size:12.5px; color:var(--muted)}
+  .stripe{width:3px; align-self:stretch; border-radius:2px; flex:none}
+  .stripe.done{background:var(--good)} .stripe.now{background:var(--accent)}
+  .stripe.next{background:var(--muted); opacity:.4} .stripe.block{background:var(--bad)}
+
+  footer{border-top:1px solid var(--line); padding-top:20px; color:var(--faint); font-size:12.5px; font-family:var(--mono)}
+  a{color:var(--accent)}
+  :focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:3px}
+  @media (prefers-reduced-motion:no-preference){ .bar span,.meter i{transition:width .4s ease} }
+
+  /* ---- overall progress ---- */
+  .prog{display:flex;flex-direction:column;gap:0}
+  .prog-row{display:grid;grid-template-columns:minmax(140px,1.1fr) minmax(200px,2.4fr) auto;
+            gap:18px;align-items:center;padding:14px 0;border-top:1px solid var(--line-soft)}
+  .prog-row:first-child{border-top:0}
+  .prog-name{font-weight:650;letter-spacing:-.01em}
+  .prog-name small{display:block;font-weight:400;color:var(--faint);font-size:11.5px;
+                   letter-spacing:.04em;text-transform:uppercase;margin-top:2px}
+  .prog-track{position:relative;height:26px;background:var(--bar-track);border-radius:4px;overflow:hidden}
+  .prog-fill{position:absolute;inset:0 auto 0 0;background:var(--accent);border-radius:4px 0 0 4px}
+  .prog-fill.lo{background:var(--good)}
+  .prog-nums{display:flex;justify-content:space-between;margin-top:5px;
+             font-variant-numeric:tabular-nums;font-size:11.5px;color:var(--muted)}
+  .prog-x{font-variant-numeric:tabular-nums;font-weight:700;font-size:19px;text-align:right;
+          min-width:74px;letter-spacing:-.02em}
+  .prog-x small{display:block;font-size:11px;font-weight:400;color:var(--faint);letter-spacing:.03em}
+
+  /* ---- trajectory chart ---- */
+  .chart{width:100%;height:auto;display:block}
+  .chart .grid{stroke:var(--line-soft);stroke-width:1}
+  .chart .ylab{fill:var(--faint);font-family:var(--mono);font-size:10.5px;text-anchor:end}
+  .chart .xlab{fill:var(--faint);font-family:var(--mono);font-size:10.5px;text-anchor:middle}
+  .chart .axis{fill:var(--muted);font-family:var(--sans);font-size:12px;text-anchor:middle}
+  .chart .series{font-family:var(--mono);font-size:11px;font-weight:500}
+  .chartwrap{background:var(--surface);border:1px solid var(--line);border-radius:8px;
+             padding:14px 16px;box-shadow:var(--shadow);overflow-x:auto}
+</style>
+
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">RoSE · ModelBlaster · AWS F2</div>
+    <h1>ModelBlaster Kernel Tracker</h1>
+    <p class="sub">Per-operator kernel coverage, correctness, and cycle cost for each model across the RVV and Q0.31 Gemmini backends. Tracks the path from <em>mapped</em> → <em>correct</em> → <em>fast</em>.</p>
+    <div class="stamp">
+      <span><b>Updated</b> 2026-08-29 09:25 UTC</span>
+      <span><b>Bitstream</b> f2_dual_small_norose_tacit_q31_20mhz + 60mhz (2.99× faster, cycle-identical)</span>
+      <span><b>AGFI</b> agfi-0e4a0267313845a9d</span>
+      <span><b>Quant</b> int8 (+ fp16 LSTM tail)</span>
+    </div>
+  </header>
+
+  <div class="callout">
+    <p><strong>Scored against their own original curated kernels, dronet is 2.36× faster on RVV, yolov8_nano 1.93×, and fused_full 1.54× — and the convolution defect that qualified those numbers is now root-caused and fixed.</strong> All cycles are measured on F2 with curated kernels. <code>SoL%</code> is <em>(ops/cycle) ÷ peak</em> — clock-independent, and fp16 ops are scored against half the int8 roof since DLEN&nbsp;128 fits 8 fp16 lanes but 16 int8 lanes.</p>
+  </div>
+
+
+  <!-- ============ OVERALL PROGRESS ============ -->
+  <section>
+    <h2>Overall progress <span class="note">original curated kernels → current best, same backend, hardware-measured</span></h2>
+    <div class="prog">
+      <div class="prog-row">
+        <div class="prog-name">fused_full<small>pure fp16 · conv2d_f16</small></div>
+        <div>
+          <div class="prog-track"><div class="prog-fill lo" style="width:30%"></div></div>
+          <div class="prog-nums"><span>60,371,259 start</span><span>oc_blocked, L1D blocking, pixel tiling, vfwmacc</span><span>7,710,288 now</span></div>
+        </div>
+        <div class="prog-x">7.83×<small>on-backend</small></div>
+      </div>
+      <div class="prog-row">
+        <div class="prog-name">dronet<small>rvv · int8</small></div>
+        <div>
+          <div class="prog-track"><div class="prog-fill lo" style="width:42%"></div></div>
+          <div class="prog-nums"><span>17,813,964 start</span><span>conv tiling, maxpool, batchnorm, add, BN folding</span><span>7,496,398 now</span></div>
+        </div>
+        <div class="prog-x">2.38×<small>on-backend</small></div>
+      </div>
+      <div class="prog-row">
+        <div class="prog-name">yolov8_nano<small>rvv · int8</small></div>
+        <div>
+          <div class="prog-track"><div class="prog-fill lo" style="width:50%"></div></div>
+          <div class="prog-nums"><span>333,175,953 start</span><span>conv tiling, vrgather silu, BN folding (57/57)</span><span>165,326,342 now</span></div>
+        </div>
+        <div class="prog-x">2.02×<small>on-backend</small></div>
+      </div>
+      <div class="prog-row">
+        <div class="prog-name">fused_full<small>int8 hybrid · int8 conv + fp16 tail</small></div>
+        <div>
+          <div class="prog-track"><div class="prog-fill" style="width:65%"></div></div>
+          <div class="prog-nums"><span>7,587,275 start</span><span>conv tiling + N/gate blocking + cast kernel · <em>re-measure pending</em></span><span>4,922,762 now</span></div>
+        </div>
+        <div class="prog-x">1.54×<small>on-backend</small></div>
+      </div>
+      <div class="prog-row">
+        <div class="prog-name">dronet<small>gemmini q0.31 · pure</small></div>
+        <div>
+          <div class="prog-track"><div class="prog-fill" style="width:87%"></div></div>
+          <div class="prog-nums"><span>20,933,650 start</span><span>exact requantize, transpose removal, BN folding</span><span>18,311,704 now</span></div>
+        </div>
+        <div class="prog-x">1.14×<small>on-backend</small></div>
+      </div>
+      <div class="prog-row">
+        <div class="prog-name">mlp_generic<small>rvv · control</small></div>
+        <div>
+          <div class="prog-track"><div class="prog-fill" style="width:99%"></div></div>
+          <div class="prog-nums"><span>9,881 start</span><span>untouched — K=16..32 shape floor</span><span>9,796 now</span></div>
+        </div>
+        <div class="prog-x">1.01×<small>on-backend</small></div>
+      </div>
+    </div>
+    <p class="lede" style="margin-top:16px"><strong>Every baseline here is the model's original <em>working curated</em>
+    code on the same backend</strong> — accelerated against accelerated, RVV against RVV, Gemmini against Gemmini. That
+    is the honest way to score kernel work, and it is a much smaller number than comparing against scalar reference.
+    For contrast, the curated-versus-scalar figures are dronet 70.5×, fused_full 33.6× and mlp_generic 3.0×; almost all
+    of that gap is the one-time win from enabling curated kernels at all, which had been silently disabled by an unset
+    <code>GLOBAL_CURATED_DIR</code>. It is a real effect but a different and far less interesting claim.</p>
+    <p class="lede"><strong>Two rows carry caveats.</strong> The Gemmini row is scored against a <em>corrected</em>
+    baseline: the figures this page previously showed (8,603,884 → 7,563,328) were measured before that backend was
+    driven to <code>max_abs_err=0</code>, so they compared two incorrect configurations. Both endpoints here are
+    err&nbsp;=&nbsp;0. And the int8-hybrid <code>fused_full</code> row is the best verified measurement, but several
+    changes have landed since it was taken and it has not been re-measured on the current tree — treat it as a floor
+    rather than a current reading.</p>
+    <p class="lede"><strong>Measurement confidence.</strong> Run-to-run variance is exactly zero — byte-identical ELFs
+    reproduce bit-identically, confirmed on a 204-dispatch model across every per-dispatch count. Whole-model totals
+    across <em>rebuilds</em> vary about 3%, and per-operator counts up to 9–10% even for operators left untouched, so any
+    delta under roughly 10% needs the untouched-operator control before it counts. mlp_generic is deliberately listed at
+    1.01×: its operators sit at a shape floor where K=16–32 never fills DLEN&nbsp;128, and no kernel work was attempted.</p>
+  </section>
+
+  <!-- ============ TRAJECTORY ============ -->
+  <section>
+    <h2>How it got here <span class="note">cycles at each optimisation milestone · log scale</span></h2>
+    <div class="chartwrap"><svg viewBox="0 0 980 470" class="chart" role="img" aria-label="Cycle counts falling across optimisation milestones for six model and backend tracks"><line x1="76" y1="395.8" x2="742" y2="395.8" class="grid"/><text x="67" y="399.8" class="ylab">10,000</text><line x1="76" y1="359.3" x2="742" y2="359.3" class="grid"/><text x="67" y="363.3" class="ylab">30,000</text><line x1="76" y1="319.3" x2="742" y2="319.3" class="grid"/><text x="67" y="323.3" class="ylab">100,000</text><line x1="76" y1="282.9" x2="742" y2="282.9" class="grid"/><text x="67" y="286.9" class="ylab">300,000</text><line x1="76" y1="242.9" x2="742" y2="242.9" class="grid"/><text x="67" y="246.9" class="ylab">1M</text><line x1="76" y1="206.4" x2="742" y2="206.4" class="grid"/><text x="67" y="210.4" class="ylab">3M</text><line x1="76" y1="166.4" x2="742" y2="166.4" class="grid"/><text x="67" y="170.4" class="ylab">10M</text><line x1="76" y1="130.0" x2="742" y2="130.0" class="grid"/><text x="67" y="134.0" class="ylab">30M</text><line x1="76" y1="90.0" x2="742" y2="90.0" class="grid"/><text x="67" y="94.0" class="ylab">100M</text><line x1="76" y1="53.5" x2="742" y2="53.5" class="grid"/><text x="67" y="57.5" class="ylab">300M</text><text x="76.0" y="428" class="xlab">1</text><text x="187.0" y="428" class="xlab">2</text><text x="298.0" y="428" class="xlab">3</text><text x="409.0" y="428" class="xlab">4</text><text x="520.0" y="428" class="xlab">5</text><text x="631.0" y="428" class="xlab">6</text><text x="742.0" y="428" class="xlab">7</text><text x="409" y="452" class="axis">optimisation milestone (causal order, not wall-clock)</text><path d="M76.0,34.7 L187.0,147.3 L298.0,156.2 L409.0,173.5 L520.0,175.8 L631.0,175.8 L742.0,176.0" fill="none" stroke="#A96A28" stroke-width="2.1" stroke-linejoin="round"/><circle cx="76.0" cy="34.7" r="3.6" fill="#A96A28"><title>dronet / rvv · step 1: 528,824,155 cycles — scalar reference (curated OFF)</title></circle><circle cx="187.0" cy="147.3" r="3.6" fill="#A96A28"><title>dronet / rvv · step 2: 17,813,964 cycles — curated kernels enabled</title></circle><circle cx="298.0" cy="156.2" r="3.6" fill="#A96A28"><title>dronet / rvv · step 3: 13,615,722 cycles — batchnorm false-negative fixed</title></circle><circle cx="409.0" cy="173.5" r="3.6" fill="#A96A28"><title>dronet / rvv · step 4: 8,074,357 cycles — conv pixel tiling</title></circle><circle cx="520.0" cy="175.8" r="3.6" fill="#A96A28"><title>dronet / rvv · step 5: 7,548,146 cycles — maxpool vnsrl deinterleave</title></circle><circle cx="631.0" cy="175.8" r="3.6" fill="#A96A28"><title>dronet / rvv · step 6: 7,536,452 cycles — conv index-wrap fix + vsse8</title></circle><circle cx="742.0" cy="176.0" r="3.6" fill="#A96A28"><title>dronet / rvv · step 7: 7,496,398 cycles — BN folding</title></circle><text x="751.0" y="180.0" class="series" fill="#A96A28">dronet / rvv · 7,496,398</text><path d="M76.0,42.3 L187.0,50.0 L298.0,53.0 L409.0,54.1 L520.0,69.4 L631.0,71.1 L742.0,73.3" fill="none" stroke="#33795A" stroke-width="2.1" stroke-linejoin="round"/><circle cx="76.0" cy="42.3" r="3.6" fill="#33795A"><title>yolov8_nano / rvv · step 1: 420,385,790 cycles — as-found (4/9 curated)</title></circle><circle cx="187.0" cy="50.0" r="3.6" fill="#33795A"><title>yolov8_nano / rvv · step 2: 333,175,953 cycles — 8/9 curated</title></circle><circle cx="298.0" cy="53.0" r="3.6" fill="#33795A"><title>yolov8_nano / rvv · step 3: 304,808,537 cycles — conv oc_blocked</title></circle><circle cx="409.0" cy="54.1" r="3.6" fill="#33795A"><title>yolov8_nano / rvv · step 4: 294,768,838 cycles — vrgather silu</title></circle><circle cx="520.0" cy="69.4" r="3.6" fill="#33795A"><title>yolov8_nano / rvv · step 5: 185,870,392 cycles — conv index-wrap fix</title></circle><circle cx="631.0" cy="71.1" r="3.6" fill="#33795A"><title>yolov8_nano / rvv · step 6: 176,706,813 cycles — conv V9 + vsse8</title></circle><circle cx="742.0" cy="73.3" r="3.6" fill="#33795A"><title>yolov8_nano / rvv · step 7: 165,326,342 cycles — BN folding</title></circle><text x="751.0" y="77.3" class="series" fill="#33795A">yolov8_nano / rvv · 165,326,342</text><path d="M76.0,73.3 L187.0,175.6 L298.0,187.9 L409.0,188.9 L520.0,190.0" fill="none" stroke="#2F5D74" stroke-width="2.1" stroke-linejoin="round"/><circle cx="76.0" cy="73.3" r="3.6" fill="#2F5D74"><title>fused_full / int8-hybrid · step 1: 165,431,489 cycles — mostly reference</title></circle><circle cx="187.0" cy="175.6" r="3.6" fill="#2F5D74"><title>fused_full / int8-hybrid · step 2: 7,587,275 cycles — curated conv enabled</title></circle><circle cx="298.0" cy="187.9" r="3.6" fill="#2F5D74"><title>fused_full / int8-hybrid · step 3: 5,239,545 cycles — conv pixel tiling</title></circle><circle cx="409.0" cy="188.9" r="3.6" fill="#2F5D74"><title>fused_full / int8-hybrid · step 4: 5,084,531 cycles — linear/lstm/cast kernels</title></circle><circle cx="520.0" cy="190.0" r="3.6" fill="#2F5D74"><title>fused_full / int8-hybrid · step 5: 4,922,762 cycles — N + gate blocking</title></circle><text x="529.0" y="194.0" class="series" fill="#2F5D74">fused_full / int8-hybrid · 4,922,762</text><path d="M76.0,78.8 L187.0,106.8 L298.0,147.1" fill="none" stroke="#7A4E86" stroke-width="2.1" stroke-linejoin="round"/><circle cx="76.0" cy="78.8" r="3.6" fill="#7A4E86"><title>fused_full / pure-fp16 · step 1: 139,971,584 cycles — weights transposed (broken)</title></circle><circle cx="187.0" cy="106.8" r="3.6" fill="#7A4E86"><title>fused_full / pure-fp16 · step 2: 60,371,259 cycles — weight-layout fixed</title></circle><circle cx="298.0" cy="147.1" r="3.6" fill="#7A4E86"><title>fused_full / pure-fp16 · step 3: 17,931,497 cycles — conv oc_blocked + L1D blocking</title></circle><text x="307.0" y="151.1" class="series" fill="#7A4E86">fused_full / pure-fp16 · 17,931,497</text><path d="M76.0,141.9 L187.0,144.8 L298.0,146.4" fill="none" stroke="#9C4238" stroke-width="2.1" stroke-linejoin="round"/><circle cx="76.0" cy="141.9" r="3.6" fill="#9C4238"><title>dronet / gemmini q0.31 · step 1: 20,933,650 cycles — driven to err=0</title></circle><circle cx="187.0" cy="144.8" r="3.6" fill="#9C4238"><title>dronet / gemmini q0.31 · step 2: 19,213,428 cycles — output transpose removed</title></circle><circle cx="298.0" cy="146.4" r="3.6" fill="#9C4238"><title>dronet / gemmini q0.31 · step 3: 18,311,704 cycles — BN folding</title></circle><text x="307.0" y="150.4" class="series" fill="#9C4238">dronet / gemmini q0.31 · 18,311,704</text><path d="M76.0,360.1 L187.0,396.2 L298.0,396.4" fill="none" stroke="#8593A5" stroke-width="2.1" stroke-linejoin="round"/><circle cx="76.0" cy="360.1" r="3.6" fill="#8593A5"><title>mlp_generic / rvv · step 1: 29,271 cycles — scalar reference</title></circle><circle cx="187.0" cy="396.2" r="3.6" fill="#8593A5"><title>mlp_generic / rvv · step 2: 9,881 cycles — curated enabled</title></circle><circle cx="298.0" cy="396.4" r="3.6" fill="#8593A5"><title>mlp_generic / rvv · step 3: 9,796 cycles — BN folding (control)</title></circle><text x="307.0" y="400.4" class="series" fill="#8593A5">mlp_generic / rvv · 9,796</text></svg></div>
+    <p class="lede"><strong>Read the x-axis as causal order, not elapsed time.</strong> The experiment log holds 109
+    measurements with cycle counts, but its timestamps are written by the agents themselves and do not reflect
+    wall-clock sequence — dronet's earliest timestamped entry reads 8.4M, while its true starting point of 17.8M was
+    measured before it. So each track is ordered by verified milestone instead, and every point is a hardware
+    measurement that can be cited in <code>experiments/kernel_opt_log.jsonl</code>. Hover any point for the change that
+    produced it.</p>
+    <p class="lede"><strong>The shape of each line says more than its endpoint.</strong> dronet's and fused_full's first
+    drop is almost entirely the one-time win from enabling curated kernels at all — they had been silently disabled by
+    an unset <code>GLOBAL_CURATED_DIR</code>, which is why those tracks fall two orders of magnitude in a single step and
+    then flatten. Genuine kernel work is the shallow tail after that. yolov8_nano has no such cliff because it started
+    partly curated, so its line is the most honest picture of what optimisation alone buys. And
+    <code>fused_full / pure-fp16</code> starts <em>above</em> where it should because its first measurement was taken
+    while a weight-layout bug had transposed its convolution weights; the first drop there is a bug fix, not an
+    optimisation.</p>
+    <p class="lede">The two flattest lines are the informative ones. <code>mlp_generic</code> is a deliberate control —
+    K=16–32 never fills DLEN&nbsp;128, so it sits at a shape floor and no work was attempted. And
+    <code>dronet / gemmini</code> is flat because its baseline is already <em>correct</em>: earlier, much larger Gemmini
+    gains were measured against configurations that were quietly wrong, and once the backend was driven to
+    <code>max_abs_err=0</code> most of that headroom turned out to be error rather than speed.</p>
+  </section>
+
+  <!-- ============ COVERAGE ============ -->
+  <section>
+    <h2>Kernel coverage <span class="note">curated ÷ total ops · verified on spike</span></h2>
+    <p class="lede">Curated kernels are only selected when <code>GLOBAL_CURATED_DIR</code> is exported — it is unset by default and fails silently, which is why every op previously resolved to <code>source=reference</code>.</p>
+
+    <div class="matrix">
+      <div class="cell">
+        <div class="cell-top">
+          <div><div class="cell-model">mlp_generic</div><div class="cell-backend">rvv</div></div>
+          <div class="ratio">3<small>/3</small></div>
+        </div>
+        <div class="meter"><i class="c" style="width:100%"></i></div>
+        <div class="cell-foot"><span class="err">max_abs_err 0</span><span class="pill pass">bit-exact</span></div>
+      </div>
+      <div class="cell">
+        <div class="cell-top">
+          <div><div class="cell-model">dronet</div><div class="cell-backend">rvv</div></div>
+          <div class="ratio">20<small>/24</small></div>
+        </div>
+        <div class="meter"><i class="c" style="width:83%"></i><i class="r" style="width:17%"></i></div>
+        <div class="cell-foot"><span class="err">max_abs_err 0</span><span class="pill pass">bit-exact</span></div>
+      </div>
+      <div class="cell">
+        <div class="cell-top">
+          <div><div class="cell-model">fused_full</div><div class="cell-backend">rvv_f16</div></div>
+          <div class="ratio">13<small>/16</small></div>
+        </div>
+        <div class="meter"><i class="c" style="width:81%"></i><i class="r" style="width:19%"></i></div>
+        <div class="cell-foot"><span class="err">21.8× · err 4.9e-4</span><span class="pill pass">within tol</span></div>
+      </div>
+      <div class="cell">
+        <div class="cell-top">
+          <div><div class="cell-model">mlp_generic</div><div class="cell-backend">gemmini_q31</div></div>
+          <div class="ratio">1<small>/1</small></div>
+        </div>
+        <div class="meter"><i class="c" style="width:100%"></i></div>
+        <div class="cell-foot"><span class="err">max_abs_err 0</span><span class="pill pass">bit-exact</span></div>
+      </div>
+      <div class="cell">
+        <div class="cell-top">
+          <div><div class="cell-model">dronet</div><div class="cell-backend">gemmini_q31</div></div>
+          <div class="ratio">5<small>/7</small></div>
+        </div>
+        <div class="meter"><i class="c" style="width:71%"></i><i class="r" style="width:29%"></i></div>
+        <div class="cell-foot"><span class="err">max_abs_err 5</span><span class="pill drift">drift ≤ atol 8</span></div>
+      </div>
+      <div class="cell">
+        <div class="cell-top">
+          <div><div class="cell-model">yolov8_nano</div><div class="cell-backend">rvv</div></div>
+          <div class="ratio">—</div>
+        </div>
+        <div class="meter"><i class="r" style="width:100%"></i></div>
+        <div class="cell-foot"><span class="err">graph extract running</span><span class="pill pending">building</span></div>
+      </div>
+</div>
+  </section>
+
+  <!-- ============ DRONET ============ -->
+  <section>
+    <h2>dronet <span class="note">7,548,146 cycles · 24 ops · curated RVV · 70.1× off baseline · max_abs_err 0</span></h2>
+    <p class="lede">Convolutions now run the curated <code>rvv_vsmul_vnclip</code> kernel at 3.6–4.0% of the DLEN-128 roof. That acceleration inverted the priorities: <strong>batchnorm, add and sigmoid are still reference kernels and now account for 26.3% of runtime</strong> — under the scalar baseline the same ops were ~1%. <code>bn_modules.0</code> alone is the second most expensive op in the model at 0.04% of peak.</p>
+    <div class="scroll"><table><thead><tr><th>Operator</th><th>Op</th><th>Shape</th><th>Kernel</th><th style="text-align:right">Cycles</th><th>Share</th><th style="text-align:right">%</th><th style="text-align:right">Ops</th><th style="text-align:right">SoL%</th></tr></thead><tbody><tr class="hot"><td class="op">conv_modules.0</td><td class="op">conv2d_s8</td><td class="shape">3×112×112 → 32, K3 S2</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">3,470,318</td><td class="barcell"><div class="bar"><span style="width:100%"></span></div></td><td class="pct">19.5</td><td class="num">5,419,008</td><td class="sol sol-hi">2.44</td></tr><tr class="hot"><td class="op">bn_modules.0</td><td class="op">batchnorm2d_s8</td><td class="shape">32×27×27</td><td class="k"><span class="kchip ref">reference</span></td><td class="num">1,961,300</td><td class="barcell"><div class="bar"><span style="width:57%"></span></div></td><td class="pct">11.0</td><td class="num">46,656</td><td class="sol sol-lo">0.04</td></tr><tr class="hot"><td class="op">conv_modules.8</td><td class="op">conv2d_s8</td><td class="shape">128×4×4 → 128, K3 S1</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">1,865,938</td><td class="barcell"><div class="bar"><span style="width:54%"></span></div></td><td class="pct">10.5</td><td class="num">4,718,592</td><td class="sol sol-hi">3.95</td></tr><tr class="hot"><td class="op">conv_modules.1</td><td class="op">conv2d_s8</td><td class="shape">32×27×27 → 32, K3 S2</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">1,547,230</td><td class="barcell"><div class="bar"><span style="width:45%"></span></div></td><td class="pct">8.7</td><td class="num">3,612,672</td><td class="sol sol-hi">3.65</td></tr><tr class="hot"><td class="op">conv_modules.2</td><td class="op">conv2d_s8</td><td class="shape">32×14×14 → 32, K3 S1</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">1,540,488</td><td class="barcell"><div class="bar"><span style="width:44%"></span></div></td><td class="pct">8.6</td><td class="num">3,612,672</td><td class="sol sol-hi">3.66</td></tr><tr class="hot"><td class="op">conv_modules.5</td><td class="op">conv2d_s8</td><td class="shape">64×7×7 → 64, K3 S1</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">1,476,953</td><td class="barcell"><div class="bar"><span style="width:43%"></span></div></td><td class="pct">8.3</td><td class="num">3,612,672</td><td class="sol sol-hi">3.82</td></tr><tr class="hot"><td class="op">conv_modules.7</td><td class="op">conv2d_s8</td><td class="shape">64×7×7 → 128, K3 S2</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">945,879</td><td class="barcell"><div class="bar"><span style="width:27%"></span></div></td><td class="pct">5.3</td><td class="num">2,359,296</td><td class="sol sol-hi">3.90</td></tr><tr class="hot"><td class="op">conv_modules.4</td><td class="op">conv2d_s8</td><td class="shape">32×14×14 → 64, K3 S2</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">768,132</td><td class="barcell"><div class="bar"><span style="width:22%"></span></div></td><td class="pct">4.3</td><td class="num">1,806,336</td><td class="sol sol-hi">3.67</td></tr><tr class="hot"><td class="op">maxpool1</td><td class="op">maxpool2d_s8</td><td class="shape">32×56×56 → 27×27</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">754,378</td><td class="barcell"><div class="bar"><span style="width:22%"></span></div></td><td class="pct">4.2</td><td class="num">209,952</td><td class="sol sol-mid">0.43</td></tr><tr><td class="op">bn_modules.2</td><td class="op">batchnorm2d_s8</td><td class="shape">32×14×14</td><td class="k"><span class="kchip ref">reference</span></td><td class="num">538,249</td><td class="barcell"><div class="bar"><span class="dim" style="width:16%"></span></div></td><td class="pct">3.0</td><td class="num">12,544</td><td class="sol sol-lo">0.04</td></tr><tr><td class="op">bn_modules.1</td><td class="op">batchnorm2d_s8</td><td class="shape">32×14×14</td><td class="k"><span class="kchip ref">reference</span></td><td class="num">536,411</td><td class="barcell"><div class="bar"><span class="dim" style="width:15%"></span></div></td><td class="pct">3.0</td><td class="num">12,544</td><td class="sol sol-lo">0.04</td></tr><tr><td class="op">add</td><td class="op">add_s8</td><td class="shape">n=6272</td><td class="k"><span class="kchip ref">reference</span></td><td class="num">505,810</td><td class="barcell"><div class="bar"><span class="dim" style="width:15%"></span></div></td><td class="pct">2.8</td><td class="num">6,272</td><td class="sol sol-lo">0.02</td></tr><tr><td class="op">conv_modules.3</td><td class="op">conv2d_s8</td><td class="shape">32×27×27 → 32, K1 S2</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">365,277</td><td class="barcell"><div class="bar"><span class="dim" style="width:11%"></span></div></td><td class="pct">2.1</td><td class="num">401,408</td><td class="sol sol-mid">1.72</td></tr><tr><td class="op">bn_modules.4</td><td class="op">batchnorm2d_s8</td><td class="shape">64×7×7</td><td class="k"><span class="kchip ref">reference</span></td><td class="num">271,362</td><td class="barcell"><div class="bar"><span class="dim" style="width:8%"></span></div></td><td class="pct">1.5</td><td class="num">6,272</td><td class="sol sol-lo">0.04</td></tr><tr><td class="op">bn_modules.3</td><td class="op">batchnorm2d_s8</td><td class="shape">64×7×7</td><td class="k"><span class="kchip ref">reference</span></td><td class="num">270,541</td><td class="barcell"><div class="bar"><span class="dim" style="width:8%"></span></div></td><td class="pct">1.5</td><td class="num">6,272</td><td class="sol sol-lo">0.04</td></tr><tr><td class="op">add_1</td><td class="op">add_s8</td><td class="shape">n=3136</td><td class="k"><span class="kchip ref">reference</span></td><td class="num">252,625</td><td class="barcell"><div class="bar"><span class="dim" style="width:7%"></span></div></td><td class="pct">1.4</td><td class="num">3,136</td><td class="sol sol-lo">0.02</td></tr><tr><td class="op">conv_modules.9</td><td class="op">conv2d_s8</td><td class="shape">64×7×7 → 128, K1 S2</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">207,609</td><td class="barcell"><div class="bar"><span class="dim" style="width:6%"></span></div></td><td class="pct">1.2</td><td class="num">262,144</td><td class="sol sol-mid">1.97</td></tr><tr><td class="op">bn_modules.5</td><td class="op">batchnorm2d_s8</td><td class="shape">128×4×4</td><td class="k"><span class="kchip ref">reference</span></td><td class="num">183,761</td><td class="barcell"><div class="bar"><span class="dim" style="width:5%"></span></div></td><td class="pct">1.0</td><td class="num">4,096</td><td class="sol sol-lo">0.03</td></tr><tr><td class="op">conv_modules.6</td><td class="op">conv2d_s8</td><td class="shape">32×14×14 → 64, K1 S2</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">180,892</td><td class="barcell"><div class="bar"><span class="dim" style="width:5%"></span></div></td><td class="pct">1.0</td><td class="num">200,704</td><td class="sol sol-mid">1.73</td></tr><tr><td class="op">add_2</td><td class="op">add_s8</td><td class="shape">n=2048</td><td class="k"><span class="kchip ref">reference</span></td><td class="num">164,845</td><td class="barcell"><div class="bar"><span class="dim" style="width:5%"></span></div></td><td class="pct">0.9</td><td class="num">2,048</td><td class="sol sol-lo">0.02</td></tr><tr><td class="op">linear1</td><td class="op">linear_s8</td><td class="shape">K=2048 → N=1</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">2,643</td><td class="barcell"><div class="bar"><span class="dim" style="width:0%"></span></div></td><td class="pct">0.0</td><td class="num">4,096</td><td class="sol sol-hi">2.42</td></tr><tr><td class="op">linear2</td><td class="op">linear_s8</td><td class="shape">K=2048 → N=1</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">2,055</td><td class="barcell"><div class="bar"><span class="dim" style="width:0%"></span></div></td><td class="pct">0.0</td><td class="num">4,096</td><td class="sol sol-hi">3.11</td></tr><tr><td class="op">sigmoid1</td><td class="op">sigmoid_s8</td><td class="shape">n=1</td><td class="k"><span class="kchip ref">reference</span></td><td class="num">806</td><td class="barcell"><div class="bar"><span class="dim" style="width:0%"></span></div></td><td class="pct">0.0</td><td class="num">5</td><td class="sol sol-lo">0.01</td></tr><tr><td class="op">relu_modules.6</td><td class="op">relu_s8</td><td class="shape">n=2048</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">462</td><td class="barcell"><div class="bar"><span class="dim" style="width:0%"></span></div></td><td class="pct">0.0</td><td class="num">2,048</td><td class="sol sol-hi">6.93</td></tr><tr class="totrow"><td class="op">total</td><td colspan="3"></td><td class="num">17,813,964</td><td></td><td class="pct">100</td><td></td><td class="sol"></td></tr></tbody></table></div>
+  </section>
+
+  <!-- ============ MLP ============ -->
+  <section>
+    <h2>mlp_generic <span class="note">9,881 cycles · 3 ops · curated RVV · 3.0× faster than scalar · max_abs_err 0</span></h2>
+    <p class="lede">Fully curated, but SoL stays under 1% — at K=16–32 the vector unit never fills, so per-call overhead dominates. Small dense layers are the wrong shape for DLEN 128; this is a floor, not a defect.</p>
+    <div class="scroll"><table><thead><tr><th>Operator</th><th>Op</th><th>Shape</th><th>Kernel</th><th style="text-align:right">Cycles</th><th>Share</th><th style="text-align:right">%</th><th style="text-align:right">Ops</th><th style="text-align:right">SoL%</th></tr></thead><tbody><tr class="hot"><td class="op">fc2</td><td class="op">linear_s8</td><td class="shape">K=32 → N=32</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">4,620</td><td class="barcell"><div class="bar"><span style="width:100%"></span></div></td><td class="pct">46.8</td><td class="num">2,048</td><td class="sol sol-mid">0.69</td></tr><tr class="hot"><td class="op">fc1</td><td class="op">linear_s8</td><td class="shape">K=16 → N=32</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">3,933</td><td class="barcell"><div class="bar"><span style="width:85%"></span></div></td><td class="pct">39.8</td><td class="num">1,024</td><td class="sol sol-mid">0.41</td></tr><tr><td class="op">fc3</td><td class="op">linear_s8</td><td class="shape">K=32 → N=10</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">1,328</td><td class="barcell"><div class="bar"><span class="dim" style="width:29%"></span></div></td><td class="pct">13.4</td><td class="num">640</td><td class="sol sol-mid">0.75</td></tr><tr class="totrow"><td class="op">total</td><td colspan="3"></td><td class="num">9,881</td><td></td><td class="pct">100</td><td></td><td class="sol"></td></tr></tbody></table></div>
+  </section>
+
+  <!-- ============ FUSED ============ -->
+  <section>
+    <h2>fused_full <span class="note">5,084,531 cycles · 16 ops · curated rvv_f16 · 32.5× off baseline · max_abs_err 1.8e-4</span></h2>
+    <p class="lede">Was 165,431,489 cycles. The curated RVV conv kernels declared <code>target_affinity=("rvv",)</code>, so on the <code>rvv_f16</code> target they were filtered out and conv fell back to scalar. <code>rvv_f16</code> is a strict superset of <code>rvv</code> and these kernels are pure-integer, so the exclusion was simply wrong. Widening the affinity and supplying the proven <code>rvv_vsmul_vnclip</code> kernel under the f16 target recovered 21.8×.</p>
+    <p class="lede"><strong>Next target: <code>vision_cnn.0</code></strong> — 15.6% of runtime at just 1.42% SoL, the worst ratio on the board. With <code>IC=1</code> and <code>K5</code> the reduction depth is only 25 and <code>OC=16</code> fills exactly one vector, so an OC-vectorized kernel has nothing to block over. First-layer shapes need a different algorithm. The fp16 tail is comparatively healthy — <code>vision_fc</code> at 5.60% is the best utilisation measured anywhere.</p>
+    <div class="scroll"><table><thead><tr><th>Operator</th><th>Op</th><th>Shape</th><th>Kernel</th><th style="text-align:right">Cycles</th><th>Share</th><th style="text-align:right">%</th><th style="text-align:right">Ops</th><th style="text-align:right">SoL%</th></tr></thead><tbody><tr class="hot"><td class="op">vision_cnn.4</td><td class="op">conv2d_s8</td><td class="shape">32×15×23 → 64, K3 S2</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">1,502,217</td><td class="barcell"><div class="bar"><span style="width:100%"></span></div></td><td class="pct">19.8</td><td class="num">3,538,944</td><td class="sol sol-hi">3.68</td></tr><tr class="hot"><td class="op">vision_cnn.2</td><td class="op">conv2d_s8</td><td class="shape">16×30×45 → 32, K3 S2</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">1,469,050</td><td class="barcell"><div class="bar"><span style="width:98%"></span></div></td><td class="pct">19.4</td><td class="num">3,179,520</td><td class="sol sol-hi">3.38</td></tr><tr class="hot"><td class="op">vision_cnn.0</td><td class="op">conv2d_s8</td><td class="shape">1×60×90 → 16, K5 S2</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">1,185,680</td><td class="barcell"><div class="bar"><span style="width:79%"></span></div></td><td class="pct">15.6</td><td class="num">1,080,000</td><td class="sol sol-lo">1.42</td></tr><tr class="hot"><td class="op">vision_fc</td><td class="op">linear_f16</td><td class="shape">K=1536 → N=512</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">877,943</td><td class="barcell"><div class="bar"><span style="width:58%"></span></div></td><td class="pct">11.6</td><td class="num">1,572,864</td><td class="sol sol-hi">5.60</td></tr><tr class="hot"><td class="op">vision_cnn.6</td><td class="op">conv2d_s8</td><td class="shape">64×8×12 → 64, K3 S2</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">728,445</td><td class="barcell"><div class="bar"><span style="width:48%"></span></div></td><td class="pct">9.6</td><td class="num">1,769,472</td><td class="sol sol-hi">3.80</td></tr><tr><td class="op">lstm_l0</td><td class="op">lstm_f16</td><td class="shape">in=597, H=128</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">627,069</td><td class="barcell"><div class="bar"><span class="dim" style="width:42%"></span></div></td><td class="pct">8.3</td><td class="num">742,400</td><td class="sol sol-hi">3.70</td></tr><tr><td class="op">lstm_l2</td><td class="op">lstm_f16</td><td class="shape">in=128, H=128</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">364,625</td><td class="barcell"><div class="bar"><span class="dim" style="width:24%"></span></div></td><td class="pct">4.8</td><td class="num">262,144</td><td class="sol sol-mid">2.25</td></tr><tr><td class="op">lstm_l1</td><td class="op">lstm_f16</td><td class="shape">in=128, H=128</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">364,537</td><td class="barcell"><div class="bar"><span class="dim" style="width:24%"></span></div></td><td class="pct">4.8</td><td class="num">262,144</td><td class="sol sol-mid">2.25</td></tr><tr><td class="op">depth_conv.2</td><td class="op">conv2d_s8</td><td class="shape">16×8×8 → 16, K3 S1</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">257,629</td><td class="barcell"><div class="bar"><span class="dim" style="width:17%"></span></div></td><td class="pct">3.4</td><td class="num">294,912</td><td class="sol sol-mid">1.79</td></tr><tr><td class="op">depth_fc</td><td class="op">linear_f16</td><td class="shape">K=1024 → N=64</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">82,670</td><td class="barcell"><div class="bar"><span class="dim" style="width:6%"></span></div></td><td class="pct">1.1</td><td class="num">131,072</td><td class="sol sol-hi">4.95</td></tr><tr><td class="op">depth_conv.0</td><td class="op">conv2d_s8</td><td class="shape">4×8×8 → 16, K3 S1</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">78,110</td><td class="barcell"><div class="bar"><span class="dim" style="width:5%"></span></div></td><td class="pct">1.0</td><td class="num">73,728</td><td class="sol sol-lo">1.47</td></tr><tr><td class="op">flatten__cast_f16</td><td class="op">cast_i8_to_f16</td><td class="shape">n=1536</td><td class="k"><span class="kchip ref">reference</span></td><td class="num">28,382</td><td class="barcell"><div class="bar"><span class="dim" style="width:2%"></span></div></td><td class="pct">0.4</td><td class="num">—</td><td class="sol sol-lo">n/a</td></tr><tr><td class="op">flatten_1__cast_f16</td><td class="op">cast_i8_to_f16</td><td class="shape">n=1024</td><td class="k"><span class="kchip ref">reference</span></td><td class="num">19,385</td><td class="barcell"><div class="bar"><span class="dim" style="width:1%"></span></div></td><td class="pct">0.3</td><td class="num">—</td><td class="sol sol-lo">n/a</td></tr><tr><td class="op">head</td><td class="op">linear_f16</td><td class="shape">K=128 → N=2</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">623</td><td class="barcell"><div class="bar"><span class="dim" style="width:0%"></span></div></td><td class="pct">0.0</td><td class="num">512</td><td class="sol sol-mid">2.57</td></tr><tr><td class="op">cat</td><td class="op">cat3_c1_f16</td><td class="shape">512|64|21 → 597</td><td class="k"><span class="kchip ref">reference</span></td><td class="num">463</td><td class="barcell"><div class="bar"><span class="dim" style="width:0%"></span></div></td><td class="pct">0.0</td><td class="num">—</td><td class="sol sol-lo">n/a</td></tr><tr><td class="op">lowdim__cast_f16</td><td class="op">cast_i8_to_f16</td><td class="shape">n=21</td><td class="k"><span class="kchip ref">reference</span></td><td class="num">447</td><td class="barcell"><div class="bar"><span class="dim" style="width:0%"></span></div></td><td class="pct">0.0</td><td class="num">—</td><td class="sol sol-lo">n/a</td></tr><tr class="totrow"><td class="op">total</td><td colspan="3"></td><td class="num">7,587,275</td><td></td><td class="pct">100</td><td></td><td class="sol"></td></tr></tbody></table></div>
+  </section>
+
+  <!-- ============ SOL ============ -->
+  <!-- ============ YOLOV8N ============ -->
+  <section>
+    <h2>yolov8_nano <span class="note">176,706,813 cycles · 204 dispatches · curated RVV · 1.89× off baseline · max_abs_err 0 · defect FIXED</span></h2>
+    <p class="lede">The heaviest model, and the clearest structural finding. <code>conv2d_s8</code> is 92.3% of runtime at
+    3.04% of speed-of-light, running <strong>0.97 MAC/cycle on a 32-lane unit</strong> — and MAC/cycle is <em>flat in
+    output channels</em> (1.06 at OC=32, 0.84 at OC=256). That flatness rules out vector-width binding: the kernel is
+    bound by per-reduction-index overhead — a scalar load and broadcast, a weight-vector load, address math and a branch
+    for every single <code>vwmacc</code>. K=1 convolutions are worst at 0.61 MAC/cyc and alone account for 28.2% of
+    runtime. The indicated fix is pixel tiling / register blocking rather than any further micro-tuning.</p>
+    <div class="scroll"><table><thead><tr><th>Operator</th><th>Op</th><th>Instances</th><th>Kernel</th><th style="text-align:right">Cycles</th><th>Share</th><th style="text-align:right">%</th><th style="text-align:right">cyc/elem</th><th style="text-align:right">SoL%</th></tr></thead><tbody><tr class="hot"><td class="op">conv2d_s8</td><td class="op">conv2d_s8</td><td class="shape">63 instances</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">281,268,657</td><td class="barcell"><div class="bar"><span style="width:100.0%"></span></div></td><td class="pct">92.3</td><td class="num">—</td><td class="sol sol-mid">3.04</td></tr><tr class="hot"><td class="op">silu_s8</td><td class="op">silu_s8</td><td class="shape">57 instances</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">4,813,488</td><td class="barcell"><div class="bar"><span style="width:5.3%"></span></div></td><td class="pct">1.6</td><td class="num">5.54</td><td class="sol sol-mid">1.41</td></tr><tr><td class="op">maxpool2d_s8</td><td class="op">maxpool2d_s8</td><td class="shape">3 instances</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">3,674,932</td><td class="barcell"><div class="bar"><span class="dim" style="width:1.3%"></span></div></td><td class="pct">1.2</td><td class="num">382.8</td><td class="sol sol-lo">0.10</td></tr><tr><td class="op">add_s8</td><td class="op">add_s8</td><td class="shape">6 instances</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">1,935,917</td><td class="barcell"><div class="bar"><span class="dim" style="width:0.7%"></span></div></td><td class="pct">0.6</td><td class="num">28.8</td><td class="sol sol-lo">0.05</td></tr><tr><td class="op">batchnorm2d_s8</td><td class="op">batchnorm2d_s8</td><td class="shape">57 instances</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">1,787,838</td><td class="barcell"><div class="bar"><span class="dim" style="width:0.6%"></span></div></td><td class="pct">0.6</td><td class="num">2.1</td><td class="sol sol-mid">1.52</td></tr><tr><td class="op">upsample + cat2/3/4</td><td class="op">mixed</td><td class="shape">18 instances</td><td class="k"><span class="kchip cur">curated</span></td><td class="num">1,243,266</td><td class="barcell"><div class="bar"><span class="dim" style="width:0.4%"></span></div></td><td class="pct">0.4</td><td class="num">1.6–5.7</td><td class="sol">n/a</td></tr><tr class="totrow"><td class="op">total</td><td colspan="3"></td><td class="num">294,768,838</td><td></td><td class="pct">100</td><td></td><td class="sol"></td></tr></tbody></table></div>
+    <p class="lede" style="margin-top:4px"><strong>Banked: a 3.10× silu win, and a correctness scare that resolved cleanly.</strong> Replacing the memory-indexed <code>vluxei8</code> gather with a register-internal <code>vrgather.vv</code> permute — the whole 256-entry int8 LUT fits exactly one <code>e8m8</code> group at VLEN&nbsp;256, so no memory traffic remains — took <code>silu_s8</code> from 14,894,337 to <strong>4,813,488 cycles</strong> (17.16 → 5.54 cyc/elem, SoL 0.46% → 1.41%). It initially reported <code>max_abs_err=12</code> and was held back rather than claimed; the deciding run returned <code>err=0</code>, showing the error was the pre-existing layout-dependent OOB the base configuration already carried at <code>err=11</code>, not a fault in the new kernel. The shippable configuration is both the fastest and the clean one. The combination was predicted at 294,722,005 before measurement and came in 0.016% off.</p>
+    <p class="lede" style="margin-top:4px"><strong>How it got here, and one open correctness defect.</strong> The
+    as-found ELF measured 420,385,790 with only 4 of 9 ops curated; reaching 9/9 gave 325,471,025, and switching conv to
+    <code>rvv_oc_blocked</code> gave the current 304,808,537 — that variant wins 59 of 63 conv instances with all four
+    losses under 0.9%, and it had never been evaluated on any model because <code>vsmul_vnclip</code> sorts ahead of it
+    and wins first-accepted. The 21% that was silently sitting at reference was <em>compile</em> poisoning: one
+    non-compiling kernel fails the whole harness build, and every op sorting alphabetically before it is quietly
+    downgraded. Still open: the 9/9 <code>vsmul_vnclip</code> configuration reproduces <code>max_abs_err=11</code>
+    exactly, and it vanishes if either conv or silu is swapped — a layout-dependent out-of-bounds access that spike does
+    not catch. It is excluded from the shipped configuration but not yet root-caused.</p>
+  </section>
+
+  <!-- ============ GEMMINI ============ -->
+  <section>
+    <h2>Gemmini + Saturn (fused) <span class="note">dronet · 16×16 mesh · NOT pure Gemmini — see below · max_abs_err 6</span></h2>
+    <p class="lede">Gemmini takes dronet to <strong>7,563,328 cycles, 2.36× faster than the RVV path</strong> — but the
+    interesting result is where it <em>loses</em>. It wins convolution decisively (5.7×, and on every one of the
+    individual conv instances by 1.5×–22×) and residual-add by 2.3×, while losing maxpool by 1.7×, linear by 4.3× and
+    ReLU by 22×. Per-conv speed-of-light ranges from 0.33% on a 1×1 stride-2 up to 10.69% on the IC64 7×7 K3 — the
+    highest SoL figure anywhere in this project.</p>
+    <div class="scroll"><table><thead><tr><th>Operator</th><th style="text-align:right">RVV cycles</th><th style="text-align:right">Gemmini cycles</th><th>Verdict</th></tr></thead><tbody><tr><td class="op">conv2d_s8</td><td class="num">12,368,716</td><td class="num">2,162,320</td><td class="sol sol-hi">Gemmini 5.7×</td></tr><tr><td class="op">batchnorm2d_s8</td><td class="num">3,761,624</td><td class="num">68,005</td><td class="sol sol-lo">53.7× after +V</td></tr><tr><td class="op">maxpool2d_s8</td><td class="num">754,378</td><td class="num">753,984</td><td class="sol sol-mid">now matches RVV</td></tr><tr><td class="op">add_s8</td><td class="num">923,280</td><td class="num">420,605</td><td class="sol sol-hi">Gemmini 2.3×</td></tr><tr><td class="op">linear_s8</td><td class="num">4,698</td><td class="num">4,755</td><td class="sol sol-mid">now matches RVV</td></tr><tr><td class="op">relu_s8</td><td class="num">462</td><td class="num">543</td><td class="sol sol-mid">19.2× after +V</td></tr><tr class="totrow"><td class="op">total</td><td class="num">17,813,964</td><td class="num">3,411,130</td><td class="sol sol-hi">Gemmini 5.22× vs old RVV</td></tr></tbody></table></div>
+    <p class="lede" style="margin-top:4px"><strong>The backend is no longer Gemmini-bound, and the cause is a build
+    default rather than the hardware.</strong> batchnorm (48%) and maxpool (17%) now make up 65% of what remains, with
+    convolution down to 29%. <code>GEMMINI.kernel_cflags</code> is <code>-march=rv64imafdc</code> — no <code>v</code> —
+    and <code>GEMMINI_Q31</code> inherits it, so every operator without a Gemmini kernel falls back to <em>scalar</em>
+    rather than to RVV. That is why batchnorm costs 82.7 cycles/element here while the existing RVV kernel does the same
+    work in 67,555 cycles total. The bitstream carries Saturn and Gemmini together and the RVV runs use V on it happily,
+    so this is a stale software default; enabling <code>v</code> and reusing the proven RVV kernels as the fallback
+    projects to roughly 3.9M cycles, or 4.6× over RVV. That work is in progress.</p>
+    <p class="lede"><strong>The instruction-count story was wrong, and hardware said so.</strong> A static
+    disassembly showing three working RoCC instructions against thousands of scalar glue instructions suggested the
+    per-tile ceremony — <code>CONFIG</code>/<code>FLUSH</code>/<code>LOOP_WS_CONFIG</code> reissue — and the scalar index
+    arithmetic were where Gemmini's cycles went. Two hardware experiments refuted it. Batching CPU tiles to 320 rows per
+    call, which removes roughly 95% of that reissue for the largest layer, improved that layer by <em>0.31%</em> and made
+    smaller layers up to <strong>7.91% worse</strong> (zero-padded mesh rows outweighing the saved ceremony), for a net
+    0.33% regression. Replacing per-row div/mod index decomposition with incremental tracking regressed 2.0% on spike.
+    Both point the same way: the cost is in the im2col gather/copy and the GEMM/DMA transfer — <em>genuine vectorisable
+    work</em>, not ceremony. That is an argument for the fused target rather than for anything further in the pure
+    kernel, and it also retires the idea of separately chasing the ten <code>FLUSH</code>es.</p>
+    <p class="lede"><strong>What did pay off: deleting a whole tensor pass.</strong> The kernel requantized into an NHWC
+    scratch buffer and then ran a <em>separate</em> full-tensor transpose to NCHW — a pass with no reuse to amortise,
+    unlike the input transpose, which is legitimately re-read <code>KH×KW</code> times per pixel during im2col and was
+    deliberately left alone. Folding the NCHW address computation into the requantize loop and writing straight into the
+    caller's output took dronet from 20,933,650 to <strong>19,213,428 cycles (−8.22%)</strong> and convolution itself
+    <strong>−14.73%</strong>, with all ten conv layers moving the same direction, controls within −0.05% to +0.28%,
+    <code>max_abs_err=0</code> preserved, and about 512&nbsp;KB less static RAM per call.</p>
+    <p class="lede"><strong>Fixed: <code>add_s8</code> on Gemmini was wrong on yolov8n, and the validation gap
+    was the same one as before.</strong> Isolation-tested alone it measures <code>max_abs_err=43</code>. It had been
+    validated only against dronet — where <em>every</em> add fails the kernel's <code>[0.5,2.0]</code> hardware gate and
+    falls back to scalar, so the real hardware path was never exercised at all. yolov8n's adds land inside the gate and
+    reach <code>tiled_resadd_auto</code> for the first time, which uses <code>ACC_SCALE_IDENTITY</code> — the
+    construction already proven non-exact. A kernel passing on a model that never runs its hot path is precisely the
+    failure mode that let maxpool's stride-1 case and convolution's index wrap survive. It is now fixed. No exact Gemmini construction exists — every
+    resadd entry point hardcodes <code>full_C=false</code>, so the raw-accumulator trick that made concatenation exact
+    is unavailable, and a degenerate-matmul reformulation fails too because the accumulator's scale hook is a hardwired
+    no-op and the routed operand is int8-quantized on the way in. That was <em>proved</em> before settling: the hardware
+    branch and its scale gate were removed outright, and the kernel now always takes its exact int64 path.
+    <code>err 43 → 0</code>, isolation-tested on yolov8n and confirmed on hardware across all six real shapes.</p>
+    <p class="lede"><strong>A naming collision made two different builds look like one, and I read a first
+    measurement as a regression.</strong> <code>fused_full</code> exists in two structurally different forms that shared
+    a backend name: an <em>int8 hybrid</em> (int8 <code>conv2d_s8</code> encoder with an fp16 tail) and a <em>pure
+    fp16</em> build that lowers the same layers to <code>conv2d_f16</code> and never touches int8. Every banked figure on
+    this page — 165,431,489 through 4,956,577 — is the hybrid, provable from the op lists: each names
+    <code>conv2d_s8</code> and <code>cast_i8_to_f16</code>, ops that cannot exist in a pure fp16 graph, and a checked-in
+    log sums bit-for-bit to one of them. The pure-fp16 build's first-ever hardware run measured 139,971,584, which I
+    reported as a 28× regression against the hybrid's number. It was not a regression: there had never been a working
+    pure-fp16 baseline to regress from, and the comparison was apples-to-oranges from the moment I made it. After a
+    weight-layout fix that build now stands at <strong>60,371,259 cycles</strong> — its <em>first valid baseline</em>.
+    The remaining gap to the hybrid is the structural cost of all-fp16 convolution against int8-accelerated convolution,
+    not a missing optimisation. The banked chain stands unretracted; the rows here now say which build they describe.</p>
+    <p class="lede"><strong>And the pure-fp16 build just got 3.37× faster, by unblocking an algorithm nobody had
+    ever been able to run.</strong> <code>conv2d_f16</code>'s <code>oc_blocked</code> candidate had sat unevaluated
+    behind two obstacles. The anti-cheat check demanded literal <code>oc_outer</code>/<code>TILE_OC</code> identifiers
+    because a genuine oc-blocked algorithm should carry an L1D cache-blocking <em>outer</em> loop, and the kernel had
+    only a vector-width inner one — so the check was satisfied by <em>implementing the missing loop</em>, using the same
+    L1D-budget formula as its proven int8 sibling, rather than by weakening the check. Underneath that sat a real
+    numeric bug: output channels 0–4 came out bit-exact and 5–15 came out exactly zero, with the accumulator correct in
+    all sixteen lanes but the narrowing store dropping tail lanes, and the failure moving under unrelated edits — the
+    signature of marginal codegen. The cause was three separate re-derivations of an identically-valued
+    <code>vsetvl</code> per inner iteration, one of them discarded outright with a compiler warning, left over from
+    pre-auto-<code>vsetvli</code> practice. Removing them fixed it. Result on hardware:
+    <strong>60,371,259 → 17,931,497 cycles</strong>, convolution itself 3.69× and down from 92.6% to 84.5% of runtime,
+    accuracy unchanged, and the algorithm now selected naturally rather than forced.</p>
+    <p class="lede"><strong>The fp16 numbers on this page had never been produced by the tool at all.</strong>
+    Every fp16 <code>OP_FORMULAS</code> registration — including <code>linear_f16</code> and <code>lstm_f16</code>, which
+    predate this campaign — sat <em>after</em> <code>if __name__ == "__main__": main()</code>. Under the documented
+    <code>python -m</code> invocation <code>main()</code> runs and returns before the interpreter ever reaches those
+    lines, so fp16 operators were silently never scored by any CLI run, ever. That is why the fp16 row read 1.0% at 13%
+    cycle coverage: not one missing formula, but a whole class of them registered past the point of execution. With the
+    formulas moved above the guard and <code>conv2d_f16</code> added, coverage reached <strong>99.99%</strong> and
+    blended fp16 utilisation <strong>8.8%</strong> from the tooling fix alone, before any kernel changed.
+    <code>linear_f16</code> and <code>lstm_f16</code> turned out to be scored correctly against the <em>bandwidth</em>
+    roof already, at 4.7–12.7% — the honest framing for operators at arithmetic intensity ≈1.</p>
+    <p class="lede"><strong>And the operator is now 3.08× faster with bit-identical output.</strong> Pixel register
+    tiling — the technique that won on int8 convolution — amortises the per-tap strided <code>vlse16</code> weight load
+    across up to four output pixels for 2.83×, and replacing <code>vfwcvt</code>+<code>vfmacc</code> with a single
+    <code>vfwmacc.vf</code> widening MAC removed one vector operation per tap for a further 1.087×.
+    <code>conv2d_f16</code> went 15,154,377 → <strong>4,929,652 cycles</strong>, the whole pure-fp16 model
+    17,931,497 → <strong>7,710,288</strong>. Error was <em>bit-identical</em> across all three hardware runs, so both
+    changes are numerically inert rather than merely within tolerance. The operator now sits at <strong>25.2% of its
+    widened ceiling</strong>, up from 8.2%. Doubling that ceiling by accumulating in fp16 was evaluated and rejected
+    with a reason: the kernel spec requires an fp32 accumulator to avoid cancellation across reductions of up to 576
+    terms. What remains is the strided weight load itself at roughly one element per cycle — both wins cut the overhead
+    <em>around</em> it, not its serialised rate.</p>
+    <p class="lede"><strong>Where that leaves the fp16 convolution.</strong> It sits at about 8.2% of its roof — and
+    the roof is the <em>widened</em> 8 ops/cycle rather than the narrow 16, because the kernel converts fp16→fp32 with
+    <code>vfwcvt</code> and then issues a same-width <code>vfmacc</code>, instead of a true narrow-accumulate
+    <code>vfwmacc</code>. So the 3.7× closed the broken-vectorisation gap, not the overhead gap. What remains is
+    per-tap fixed cost: a strided <code>vlse16</code> weight load plus a <code>vsetvli</code> on every
+    <code>(ic,kh,kw)</code> tap, contending for the core's single 16 B/cycle load port.</p>
+    <p class="lede"><strong>It had already caught the next person — twice, in opposite directions.</strong> The
+    fused Gemmini+Saturn target's stubborn <code>err=26</code> turned out to be the same mechanism inverted.
+    <code>gemmini_q31_rvv</code> is a backend name split off the same day this campaign began, and CONV2D_S8's Gemmini
+    algorithms still list only <code>("gemmini", "gemmini_q31")</code> — the new string was never added. So the layout
+    lookup returns nothing and weights ship as raw OIHW, while <code>-DMODELBLASTER_GEMMINI_HWIO_WEIGHTS=1</code> is
+    inherited unconditionally and makes every kernel on that target — the curated one <em>and</em> the shared reference
+    implementation's own branch — read that blob as HWIO-packed. The proof is visible in the artifacts:
+    <code>gemmini_q31</code>'s <code>weights.c</code> carries <em>&ldquo;OIHW → HWIO (gemmini packed)&rdquo;</em>
+    annotations and the fused target's carries none.</p>
+    <p class="lede"><strong>This retires three failed investigations at once.</strong> It explains why the error was
+    invariant to algorithm choice (packing happens before kernel selection), why it was identical on spike and hardware
+    (baked-in data, not timing), why it survived an all-reference build, and above all why its <em>value drifted</em> —
+    1, 3, 11, 23, 26, 40. Reading an OIHW blob as HWIO is deterministic garbage whose magnitude depends on which kernel
+    implementation happens to walk the misaligned bytes, so unrelated edits elsewhere in the tree kept shifting the
+    number without ever being the defect. Every hypothesis that treated the drift as evidence about kernels — including
+    two of mine — was chasing an artifact. Adding the missing backend string gives <code>max_abs_err=0</code> and an
+    exact golden match under both an all-reference build and the full curated set. Two lines, verified, and deliberately
+    <em>not</em> landed yet: another agent is editing that file right now, and landing concurrently is precisely the
+    hazard that produced today's worst confusion.</p>
+    <p class="lede"><strong>The trip-wire is in, and it has been made to fire.</strong> A layout-agreement check now
+    runs before weights are packed and refuses the build when conv-family operators disagree, naming both operators and
+    both layouts instead of silently transposing. It was validated by re-introducing the known-bad edit and confirming a
+    hard failure, then reverting — a guard that has never been tripped is not known to work. Sweeping every backend name
+    in the tree produced no false positives.</p>
+    <p class="lede"><strong>The underlying trap is worth naming, because it will catch the next person.</strong>
+    <code>_conv_weight_layout_for_backend()</code> derives <em>one</em> weight layout for an entire backend by consulting
+    only <code>conv2d_s8</code>'s algorithm list, and that layout is then applied to every 4D weight tensor on the
+    backend. Adding an algorithm to a shared <code>target_affinity</code> list can therefore silently transpose an
+    unrelated operator's weights — and because the verify step rebuilds the whole model against one corrupted weight
+    file, the damage appears as a uniform numeric error across kernels nobody touched. Two scoped fixes are written up:
+    a trip-wire that refuses to pack when conv-family specs disagree on layout, or threading the op name through so the
+    layout is derived per-operator rather than per-backend.</p>
+    <p class="lede"><strong>A measurement-validity problem sits underneath several numbers on this page.</strong>
+    Chasing an unrelated regression turned up that the <em>pure-reference</em> baselines are themselves divergent, and
+    differently so per target: the plain <code>rvv</code> target's all-reference build measures <code>err=92</code>
+    against the golden — the same 92 logged on day one against the reference convolution — the fused
+    <code>gemmini_q31_rvv</code> target measures <code>err=26</code>, and only the <code>scalar</code> target is clean at
+    <code>err=0</code>. Since kernels are scored as &ldquo;error versus reference&rdquo;, on those targets we have been
+    measuring against a reference that itself diverges. That does not invalidate the comparisons — a curated kernel
+    matching its reference is still a meaningful statement, and the campaign's <code>err=0</code> results were verified
+    against the golden — but it does mean a non-zero error on those targets cannot be attributed to the kernel under
+    test without first establishing where the reference stands. The fused target additionally carries an independent
+    live defect: <code>err=26</code> reproduces on spike and hardware even with every operator at reference, unmoved by
+    any convolution choice. It was split off the same day and its own comment notes it was never separately
+    regression-tested.</p>
+    <p class="lede"><strong>Landed: concatenation on Gemmini, exact and hardware-confirmed.</strong> Gemmini's
+    <em>mvin</em>-time <code>MVIN_SCALE</code> is a real fp32 multiply with round-to-nearest-even and int8 clamp — which
+    is exactly the per-tensor requantize the reference performs. Driving it through a degenerate
+    <code>tiled_matmul_auto(weight=1, full_C=true)</code> drains the <em>raw</em> accumulator and bypasses the
+    non-exact mvout scale unit entirely. <code>cat2/3/4</code> came in at <code>err=0</code> on both spike and FPGA,
+    roughly 7.6× each. The constraint that makes this a narrow trick rather than a general one: <em>only</em>
+    <code>tiled_matmul_auto</code> exposes <code>full_C</code> — resadd, conv and depthwise-conv do not, which is
+    exactly why the same manoeuvre is unavailable to them. It is labelled <code>numeric_drift</code> rather than
+    <code>bit_exact</code> on a measured ~2.3e-6 tie-breaking mismatch rate, despite measuring 0 on this model.</p>
+    <p class="lede"><strong>The correction held, and it turns a capability question into a product decision.</strong>
+    Reading <code>scale_and_sat</code> confirms ReLU is a post-round clamp (exact, adds no rounding), and
+    <code>tiled_conv</code>'s pooling quantizes each position then maxes — identical to the reference's round-then-pool,
+    since rounding is monotonic and commutes with max. So the earlier <code>err=17</code> really was an unnecessary
+    standalone pass. But fusing them onto a real convolution means using <code>tiled_conv</code> rather than
+    <code>im2col_full_C</code>, and <code>tiled_conv</code> still carries the two-stage-versus-one-stage Q0.31 mismatch:
+    <strong>1.86M cycles at err=6, against 11.6M exact</strong>. The genuine choice is therefore <em>fused, ~6× faster,
+    with drift</em> versus <em>exact and slow</em> — not whether the accelerator can do it.</p>
+    <p class="lede"><strong>And batchnorm is structurally different from the others.</strong> Its bias must be added
+    <em>after</em> the multiply, while Gemmini's accumulator only supports bias <em>before</em> the single mvout scale.
+    Reconciling them needs <code>bias_int = round(bias/mult)</code> — a second independent rounding, the same
+    double-rounding failure already fatal for convolution, relocated to the bias. That holds regardless of fusion. The
+    fix is upstream instead: folding BN into the preceding convolution's weights in float <em>before</em> quantization
+    is standard practice and removes the operator outright — 57 calls in yolov8n, 6 in dronet — at zero runtime cost,
+    and it benefits every backend rather than just this one.</p>
+    <p class="lede"><strong>Correction: Gemmini does these operations natively — the earlier evidence points at
+    misuse, not a hardware limit.</strong> This page previously implied the accelerator's datapath might be unable to
+    perform activation, pooling or data movement exactly. That reading was too pessimistic. Gemmini has ReLU as a
+    configurable field in its execute-config applied natively on the mvout path, max pooling built into
+    <code>tiled_conv</code> via <code>pool_size</code>/<code>pool_stride</code>/<code>pool_padding</code>, and
+    first-class residual-add operations. The <code>err=17</code> measurements came from invoking those paths as
+    <em>standalone</em> operations, which forces an extra round-trip through the accumulator scale unit purely to move
+    data — and <code>ACC_SCALE_IDENTITY</code> not being a true identity is a property of the <em>scale</em> path,
+    which says nothing about whether the activation or pooling logic is exact.</p>
+    <p class="lede"><strong>Which reframes the question worth asking.</strong> Not &ldquo;can Gemmini do relu and
+    maxpool as separate operators&rdquo; but <em>&ldquo;can convolution, batchnorm, relu and pooling be issued as one
+    <code>tiled_conv</code> call?&rdquo;</em> The accelerator is designed for exactly that: activation and pooling are
+    meant to happen on the output as it drains, not as separate tensor passes. If it holds, it removes those operators
+    from the scalar fallback entirely, eliminates the intermediate round-trips between them, and avoids the extra pass
+    through the scale unit that is the suspected source of the drift — attacking the correctness problem and the
+    performance problem with one change. dronet uses ReLU, so this applies directly to the model where scalar operators
+    now cost more than convolution itself. (yolov8n uses SiLU, which is why an existing ReLU-keyed fusion pass fires
+    zero times there — and why fusion has never been exercised on this project.)</p>
+    <p class="lede"><strong>And the largest remaining lever is not convolution at all.</strong> The purely scalar
+    reference operators — maxpool, six batchnorms, relu, sigmoid — sum to ~8.9M of the 19.2M remaining cycles. That is
+    <em>more than the entire convolution budget</em>, and it is a missing-kernel problem rather than a glue problem.</p>
+    <p class="lede"><strong>Reversal: with both paths correct, RVV beats Gemmini by 2.8×.</strong> Driving
+    <code>gemmini_q31</code> to <code>max_abs_err=0</code> — confirmed on spike and hardware — lands dronet at
+    <strong>20,933,650 cycles</strong> against RVV's 7,548,146. The earlier &ldquo;Gemmini is 2.36× faster&rdquo; compared an
+    <em>incorrect</em> Gemmini (err=5/6) against an <em>unoptimised</em> RVV; neither side of that comparison survives.
+    Two defects produced the error. <code>gemmini_tiled_conv_pool</code> and <code>gemmini_resadd_relu</code> both declare
+    <code>bit_exact</code> and are not — isolation-tested alone, each measures <code>err=17</code>, because Gemmini's
+    <code>ACC_SCALE_IDENTITY</code> passthrough still traverses the same fixed-point round-and-saturate unit convolution
+    uses, so even lossless data movement picks up ~1 LSB per element. And convolution's Q0.31 drift is structural: the
+    golden performs <em>two-stage</em> rounding while the mvout unit has only one round-shift-by-31, so
+    <code>tiled_conv</code> pre-folds both scales into one — not fixable within that datapath. Correctness required
+    routing around the fast-but-wrong paths, which is where the 2.8× went. That is the honest cost of correctness on
+    this accelerator, and it is a more useful number than the one it replaces.</p>
+    <p class="lede"><strong>Correction: this row is a fused Gemmini+Saturn target, not Gemmini.</strong>
+    Enabling the vector march on <code>GEMMINI_Q31</code> and copying RVV kernels in for the operators Gemmini does not
+    cover produced a hybrid that was still named <code>gemmini_q31</code>. Every &ldquo;Gemmini vs RVV&rdquo; figure built on it
+    &mdash; the 5.22&times;, the 3,411,130 cycles, the 155&times; &mdash; is really <em>Gemmini+Saturn vs Saturn</em>. Those are
+    valid results for a fused target and say nothing about Gemmini on its own. A gemmini-only kernel set should contain
+    pure Gemmini code; vector instructions belong there only if the target is explicitly fused. The targets are being
+    split: <code>gemmini_q31</code> reverts to pure Gemmini plus scalar fallback, and the wins move to a separate fused
+    target. The pure target stays measurable on purpose &mdash; its ~254M-cycle non-conv cost is a real finding about
+    Gemmini's coverage gap, not something to paper over.</p>
+    <p class="lede"><strong>What the generated code actually does.</strong> Disassembling the pure-Gemmini dronet ELF:
+    the whole binary contains <strong>42 Gemmini RoCC instructions, of which only three do work</strong> &mdash; one
+    <code>LOOP_CONV_WS</code> and two <code>LOOP_WS</code> &mdash; alongside 18 loop-config, 13 <code>CONFIG</code> and 10
+    <code>FLUSH</code>. There are <em>zero</em> <code>MVIN</code>/<code>MVOUT</code>/<code>PRELOAD</code>/<code>COMPUTE</code>
+    ops: we drive the accelerator at its coarsest granularity, handing it an entire convolution as a single hardware-loop
+    instruction and letting its internal state machine own all tiling, scratchpad and accumulator management. The cost of
+    that abstraction is that dataflow and tiling are not ours to choose &mdash; which is why <code>im2col_full_C</code> and
+    <code>tiled_conv</code> differ by 4.35&times;, and why <code>gemmini_tiled_conv_pool</code>'s non-bit-exactness cannot be
+    fixed from kernel-level code. Meanwhile <code>kernel_conv2d_s8</code> is ~608 instructions of which 4 are RoCC and 0
+    are vector; the remainder is NCHW&harr;NHWC transposition, 32&times;32 packing and a requantize pass <em>on the scalar
+    core</em>. Three accelerator instructions, thousands of scalar glue instructions &mdash; that asymmetry, not mesh
+    utilisation, is where the Gemmini path's time goes.</p>
+    <p class="lede"><strong>Resolved: enabling the vector march turned the scalar fallback off, and it was worth
+    2.2× on its own.</strong> Changing <code>GEMMINI_Q31.kernel_cflags</code> from <code>-march=rv64imafdc</code> to
+    <code>-march=rv64imafdcv</code>, adding the V Kconfig stanza, and reusing the existing RVV kernels for the operators
+    Gemmini does not cover took dronet from 7,563,328 to <strong>3,411,130 cycles</strong>. The per-operator effect is
+    exactly what the projection predicted: batchnorm 3,654,874 → 68,005 (53.7×, within 0.7% of the standalone RVV
+    figure), ReLU 10,414 → 543 (19.2×), maxpool 1,291,829 → 753,984 and linear 20,068 → 4,755 (both now matching RVV to
+    within 1.2%). Convolution and add were unchanged-source controls and stayed put. <strong>Read the multiplier
+    carefully:</strong> 5.22× is against the 17,813,964 RVV baseline current when the work started; against the RVV
+    path's own improved 8,074,357 it is <strong>2.37×</strong>. Correctness moved 5 → 6, and bisection has now attributed that precisely: <strong>none of it comes from the new RVV kernels.</strong> Reverting batchnorm alone left the error at 6, refuting the rounding-tie hypothesis; reverting maxpool alone to Gemmini's own kernel made it <em>worse</em>, at 10. That is decisive — <code>gemmini_tiled_conv_pool</code> carries independent numeric drift of its own (it declares <code>BIT_EXACT</code> and is not), and where the whole-model error lands is a matter of how that drift and conv2d_s8's documented ~1-LSB-per-layer Q0.31 fold happen to partially cancel against whichever downstream implementations are in the mix. Maxpool and ReLU are exact reduction and threshold operations and structurally cannot introduce drift; the RVV linear kernel reimplements the identical Q0.31 formula. So the error is a reshuffling of two pre-existing, already-tolerated sources well inside <code>atol_override=128</code> — not a regression. Reaching 0 means fixing the Q0.31 fold and <code>gemmini_tiled_conv_pool</code> themselves, which is what still separates this fastest path from a shippable one.</p>
+    <p class="lede"><strong>Quantified: the scalar fallback costs more than the Gemmini convolution saves.</strong>
+    Measuring the scalar-versus-vector ratio of the non-convolution operators directly on hardware gives batchnorm 39.9×,
+    cat2 46.1×, cat3 39.6×, cat4 41.2× and add 2.8× — a subtotal of 111,115,288 against 4,529,957 cycles, or 24.5×. Adding
+    an estimated ~143M for scalar silu's 868,000 <code>expf</code> calls, gemmini_q31's non-convolution work projects to
+    roughly <strong>254M cycles versus ~9.3M vectorized: about 245M wasted per inference</strong>. That is more than the
+    entire best RVV run on yolov8n (304.8M). The conclusion is unambiguous — <em>gemmini_q31 cannot beat RVV on
+    yolov8n however fast its convolution is</em>, until the elementwise operators get a vector march. The reported fix is
+    one line in <code>backends.py</code> (<code>rv64imafdc</code> → <code>rv64gcv</code>) plus the RVV Kconfig overlay.</p>
+    <p class="lede"><strong>Two documented bit-exactness claims turned out to be false.</strong>
+    <code>gemmini_im2col_full_C</code> is documented bit-exact but on hardware is 4.35× slower than
+    <code>tiled_conv</code> <em>and</em> less accurate (end-to-end error 11 versus 5); spike agrees, so it is not an FPGA
+    artifact. <code>gemmini_tiled_conv_pool</code> declares <code>accuracy_class=BIT_EXACT</code> but was host-verified
+    against a naive reference and is not. The current Gemmini configuration carries <code>max_abs_err=5</code>, which is
+    not yet reduced to zero.</p>
+  </section>
+
+  <section>
+    <h2>Speed-of-light roofs <span class="note">scripts/roofline_analysis.py · per hart</span></h2>
+    <p class="lede"><strong>The bug class is now closed, not just the instance.</strong> An audit across every
+    algorithm family found that convolution's <em>third</em> sibling, <code>pc_direct</code>, already carried the
+    <code>size_t</code> hoisting too — so <code>vsmul_vnclip</code> was the only member of three missing a fix the other
+    two had. That sharpens the diagnosis: this was never an unknown technique, it was a known fix applied to two files
+    out of three. Four further kernels in the <code>linear_s8</code> family still indexed with pure int arithmetic;
+    exposure there was genuinely low (maximum offset <code>N*K</code> = 2,048 against convolution's millions, and both
+    models using them measure err=0 on hardware) but it is the same class, so all four were hoisted as insurance. The
+    audit now reports zero family gaps and zero int-only-indexing files. One parser detail was load-bearing: filenames
+    must be split on registered op names longest-first, since a naive right-split turns
+    <code>conv2d_s8_pc_direct</code> into <code>op=conv2d_s8_pc</code> and would have reported &ldquo;no gaps&rdquo;
+    while hiding the very family that caused this.</p>
+    <p class="lede"><strong>Root cause found: 32-bit index arithmetic wrap — and the fix was already in a sibling
+    file.</strong> <code>rvv_conv2d_s8_vsmul_vnclip</code> indexed with all-int arithmetic while
+    <code>oc_blocked</code> used <code>(size_t)</code> casts. BSS buffers live above <code>0x80000000</code>, so their
+    low 32 bits are <em>negative</em> as an int32 and the index wraps. That one fact explains every observation that had
+    resisted explanation: why the symptom migrated between <code>err=1</code>, <code>err=3</code> and a Store/AMO fault
+    as the binary shifted; why spike never saw it; why dronet and fused_full passed while yolov8n failed (smaller
+    footprints, buffers below the boundary); and why static review found no bounds violation — the indexing is correct,
+    the arithmetic overflows before it indexes. Two earlier theories are retired by this: the <code>vta</code>/<code>vma</code>
+    tail-lane divergence, and the reading of <code>mtval=6400</code> as a null base pointer (that value matching a buffer
+    size was coincidence). The fix was documented in <code>oc_blocked</code>'s own comment and its sibling never received
+    it, which makes this a curation failure rather than a kernel-authoring one. Porting it lifted yolov8n's convolution
+    from 291,764,785 to <strong>164,725,311 cycles (1.771×) at err=0</strong>, took convolution from 23.4% to
+    <strong>43.9% of the achievable ceiling</strong>. The <code>vsse8</code> store win, deliberately handed back to change one variable at a time, was then restored: the corrected kernel now matches the fast-but-broken one to <strong>0.17%</strong> on dronet, confirming the store form was never implicated. And it settles the
+    one-kernel-per-op question: per-shape dispatch was never needed.</p>
+    <p class="lede"><strong>A shared kernel had verification gaps that no single model could reveal.</strong>
+    <code>maxpool2d_s8</code> was rewritten to replace a <code>vlse8</code> stride-2 gather with a contiguous
+    <code>vle16</code> plus <code>vnsrl</code> split — one 16-bit load serves two taps, so a K=3 window costs two
+    contiguous loads instead of three gathers, taking the load from 3.56 to <strong>1.04 cycles/element</strong> and the
+    op from 748,163 to <strong>217,609 cycles (3.44×)</strong>. But yolov8n's three maxpools are SW=1/K=5/P=2 while
+    <em>every</em> existing verify shape was SW=2/PW=0 — so the stride-1 and padded-boundary paths of a shared kernel
+    were exercised by no model's build, and the rewrite would have shipped into yolov8n on dronet-only evidence. The SPPF
+    shape has been added and the op now verifies at five shapes with the ELF md5 unchanged, proving codegen was
+    unaffected. This is the one-kernel-per-op hazard crossing <em>agent</em> boundaries, which is worse than the
+    within-model form because no single agent's testing covers it. An audit of <code>extra_shapes</code> across the other
+    shared operators is now the priority ahead of further kernel work.</p>
+    <p class="lede"><strong>The fp16 roof is wrong too, and in the other direction.</strong> Tracing the RTL
+    (<code>SatGemDualSmallTacitConfig</code> → <code>WithRocketVectorUnit(vLen=256, dLen=128)</code>),
+    <code>nTandemFMA = dLenB/8 = 2</code> segments per cycle each holding 4 fp16 lanes, giving a narrow
+    pure-fp16-accumulate peak of <strong>8 MAC/cycle (16 flop/cycle)</strong> — not the 32 ops/cycle previously assumed.
+    Widening through <code>vfwmacc</code> to an fp32 accumulator halves that to 4 MAC/cycle. So the fp16 utilisation
+    figures reported as 5–11% are really 10–22% of the correct roof. Bandwidth is the tighter constraint: there is
+    exactly <em>one</em> <code>LoadSequencer</code> for the whole core at <code>vMemDataBits = 128b = 16 B/cycle</code>,
+    and the original kernels issued two independent <code>vle16</code> streams per K-chunk contending for that single
+    port, capping them near 4 MAC/cycle. With <code>fmaPipeDepth = 4</code> and one loop-carried accumulator per output,
+    the pipeline could not be hidden either. Measured utilisation of 4.8–11.3% sits well below <em>both</em> roofs, so
+    this family is <strong>not</strong> roofed out — the headroom is real. Note the roofline script itself applies a
+    single dtype-blind 64 ops/cycle constant to every operator, which is wrong by 4–8× for int8 and fp16 alike; every
+    SoL figure on this page inherits that error until it is fixed.</p>
+    <p class="lede"><strong>Acting on it:</strong> blocking <code>linear_f16</code> by 4 in N and <code>lstm_f16</code> by
+    4 in the gate loop — hoisting the redundant input reload out of the inner loop, with B=4 chosen to match both the
+    LSTM's natural gate count and <code>fmaPipeDepth</code> — took fused_full from 5,090,722 to <strong>4,922,762
+    cycles</strong> at unchanged error. Per-instance: <code>vision_fc</code> −12.4% and <code>lstm_l0</code> −7.2 to
+    −7.8% with clean controls (≤0.94%); <code>depth_fc</code> −11.7 to −12.7% but with its own control swinging +11%, so
+    moderate confidence only; <code>lstm_l1/l2</code> showed no established effect and are not claimed.</p>
+    <p class="lede"><strong>Correction: the roof these percentages were measured against was wrong, by 8×.</strong>
+    The SoL column below scored int8 MAC work against 64 ops/cycle. That figure is unreachable on this build. The backend
+    compiles <code>-march=rv64gcv</code> with no Zvqdotq extension, so <code>vwmacc</code> is the only int8 MAC path
+    available and it writes 32 bits per MAC — which at DLEN&nbsp;128 caps throughput at <strong>4 MAC/cycle, or 12.5% of
+    the nominal peak</strong>. Every convolution SoL number here was therefore pessimistic by a factor of eight.
+    Rescored against the <em>achievable</em> ceiling, convolution runs at <strong>53.9% on dronet and 51.3% on
+    fused_full</strong> — not the 3–6% the raw column suggests. The practical consequence is a changed conclusion about
+    where to spend effort: remaining RVV headroom on convolution is at most about 2×, not 16×, and going beyond that
+    requires Gemmini or a dot-product extension rather than more kernel tuning. The percentages in the tables below are
+    still against the nominal roof; multiply by eight for the achievable one.</p>
+    <p class="lede"><strong>Measured constants, not just roofs.</strong> Two costs have been pinned on this hardware
+    and both are now triage rules. A <code>vluxei8</code> memory-indexed gather runs at <strong>11.9 cycles/element
+    against 1.7 for an equivalent f32 arithmetic chain</strong> — about 7×, established by a registered prediction
+    (a LUT variant was forecast at 7.5× slower and measured 5.64×). That single constant explains why silu sits at
+    17.2 cyc/elem while batchnorm sits at 2.1 on identical tensors, so <em>&ldquo;is this a LUT/gather kernel?&rdquo;</em>
+    belongs alongside runtime share and SoL when picking targets. Separately, a <code>vnclip</code> costs roughly
+    <strong>50 cycles per channel</strong>, because GCC emits <code>csrwi vxrm,0</code> and hoists it only to the
+    channel loop; a single saturating <code>vfncvt.x.f.w</code> gets the same saturation with zero CSR writes, which
+    was worth 55.7× on dronet's batchnorm.</p>
+    <p class="lede">Utilisation is clock-independent — frequency cancels between measured GOPS and the roof — so the 20 MHz bitstream reports the same % of peak a 60 MHz one would. Absolute GOPS figures do still need the real clock, which the script currently hardcodes to 1000 MHz.</p>
+    <div class="specs">
+      <div class="spec"><dt>RVV int8 roof</dt><dd>64 ops/cyc</dd><p>V256 / DLEN 128 — 16 int8 lanes, pipelined.</p></div>
+      <div class="spec"><dt>RVV fp16 roof</dt><dd>32 ops/cyc</dd><p>Half the lanes at 16 bits. Scoring fp16 against the int8 roof understates it 2×.</p></div>
+      <div class="spec"><dt>Gemmini Q0.31 roof</dt><dd>512 ops/cyc</dd><p>DIM 16 systolic → 16 × 16 MACs × 2 ops.</p></div>
+      <div class="spec"><dt>Best measured</dt><dd>5.60 %</dd><p><code>vision_fc</code> linear_f16. Nothing yet exceeds ~6% of roof.</p></div>
+      <div class="spec"><dt>Worst big contributor</dt><dd>1.42 %</dd><p><code>vision_cnn.0</code> — 15.6% of fused_full. IC=1, K5: no OC to block over.</p></div>
+      <div class="spec"><dt>dronet reference tail</dt><dd>26.3 %</dd><p>batchnorm + add + sigmoid at 0.02–0.04% SoL, still on scalar kernels.</p></div>
+    </div></div>
+  </section>
+
+  <!-- ============ EXPERIMENTS ============ -->
+  <section>
+    <h2>Experiment log <span class="note">every run, including the ones that failed</span></h2>
+    <p class="lede">Kept so a dead end is only walked once. Three wins, but also a failed hypothesis, a self-inflicted regression from changing two variables at once, and a reverted approach — those are the entries worth reading.</p>
+    <div class="scroll"><table class="exp">
+      <thead><tr><th>#</th><th>Model</th><th>Change</th><th>Curated</th><th style="text-align:right">Cycles</th><th style="text-align:right">Err</th><th>Result</th><th>What it taught us</th></tr></thead>
+      <tbody><tr><td class="n">1</td><td class="m">dronet<br><span style="color:var(--faint)">rvv</span></td><td>baseline — reference kernels only (GLOBAL_CURATED_DIR unset)</td><td class="m">0/7</td><td class="m" style="text-align:right">528,824,155<br><span style="color:var(--good)"></span></td><td class="m" style="text-align:right">92</td><td><span class="res bad">FAIL</span></td><td class="note">scalar baseline; weighted SoL 0.1%. err=92 traced to the reference conv2d_s8 not matching the PyTorch golden.</td></tr><tr><td class="n">2</td><td class="m">mlp_generic<br><span style="color:var(--faint)">rvv</span></td><td>baseline — reference kernels only</td><td class="m">0/1</td><td class="m" style="text-align:right">29,271<br><span style="color:var(--good)"></span></td><td class="m" style="text-align:right">0</td><td><span class="res win">PASS</span></td><td class="note">scalar baseline.</td></tr><tr><td class="n">3</td><td class="m">dronet<br><span style="color:var(--faint)">rvv</span></td><td>export GLOBAL_CURATED_DIR=modelblaster/kernels</td><td class="m">4/7</td><td class="m" style="text-align:right">17,813,964<br><span style="color:var(--good)">29.7×</span></td><td class="m" style="text-align:right">0</td><td><span class="res win">WIN</span></td><td class="note">29.7x AND fixed correctness. The flag is guarded by `if [[ -n ${GLOBAL_CURATED_DIR:-} ]]` in _run_lib.sh and defaults to unset — fails silently.</td></tr><tr><td class="n">4</td><td class="m">mlp_generic<br><span style="color:var(--faint)">rvv</span></td><td>export GLOBAL_CURATED_DIR</td><td class="m">1/1</td><td class="m" style="text-align:right">9,881<br><span style="color:var(--good)">3.0×</span></td><td class="m" style="text-align:right">0</td><td><span class="res win">WIN</span></td><td class="note">SoL still <1%: K=16..32 never fills DLEN 128. Shape floor, not a defect.</td></tr><tr><td class="n">5</td><td class="m">fused_full<br><span style="color:var(--faint)">rvv</span></td><td>curated dir on plain rvv target</td><td class="m">2/5</td><td class="m" style="text-align:right">165,431,489<br><span style="color:var(--good)"></span></td><td class="m" style="text-align:right">0.000488281</td><td><span class="res warn">PARTIAL</span></td><td class="note">linear_f16 + lstm_f16 curated; conv2d_s8 stayed reference at 0.10% SoL = 98.6% of runtime.</td></tr><tr><td class="n">6</td><td class="m">dronet<br><span style="color:var(--faint)">rvv</span></td><td>re-run to re-verify batchnorm with conv already cached as curated</td><td class="m">4/7</td><td class="m" style="text-align:right">—<br><span style="color:var(--good)"></span></td><td class="m" style="text-align:right">—</td><td><span class="res neutral">NO-CHANGE</span></td><td class="note">FAILED HYPOTHESIS. Verify always starts from an all-reference baseline ('reference + curated swap'), so caching conv does not help. batchnorm2d_s8 sorts before conv2d_s8 alphabetically and inherits the reference conv's err=92.</td></tr><tr><td class="n">7</td><td class="m">fused_full<br><span style="color:var(--faint)">rvv_f16</span></td><td>switch target to rvv_f16 (has rvv_f16_lstm/linear kernels)</td><td class="m">2/5</td><td class="m" style="text-align:right">—<br><span style="color:var(--good)"></span></td><td class="m" style="text-align:right">—</td><td><span class="res neutral">NO-CHANGE</span></td><td class="note">conv2d_s8 still reference. rvv_f16_conv2d_s8_pc_direct.c was NEVER probed: candidates come from spec.algorithms, and pc_direct is not a declared AlgorithmCandidate.</td></tr><tr><td class="n">8</td><td class="m">fused_full<br><span style="color:var(--faint)">rvv_f16</span></td><td>widen target_affinity (rvv,)->(rvv,rvv_f16) AND clear the cache</td><td class="m">0/5</td><td class="m" style="text-align:right">—<br><span style="color:var(--good)"></span></td><td class="m" style="text-align:right">0.164</td><td><span class="res bad">REGRESSION</span></td><td class="note">MY ERROR: two variables at once. Clearing the cache removed a curated conv that had been making the verify baseline correct; linear_f16/lstm_f16 then failed too. All three failures shared an identical err=0.164 — the poisoned-baseline signature.</td></tr><tr><td class="n">9</td><td class="m">-<br><span style="color:var(--faint)">-</span></td><td>declare pc_direct as a new AlgorithmCandidate</td><td class="m">—</td><td class="m" style="text-align:right">—<br><span style="color:var(--good)"></span></td><td class="m" style="text-align:right">—</td><td><span class="res neutral">REVERTED</span></td><td class="note">AlgorithmCandidate requires a reference_impl seed which is not trivially available in the literal list. Reverted in favour of reusing the already-proven kernel.</td></tr><tr><td class="n">10</td><td class="m">fused_full<br><span style="color:var(--faint)">rvv_f16</span></td><td>keep widened affinity + copy proven rvv_vsmul_vnclip kernel into kernels/rvv_f16/</td><td class="m">3/5</td><td class="m" style="text-align:right">7,587,275<br><span style="color:var(--good)">1.53×</span></td><td class="m" style="text-align:right">0.000488281</td><td><span class="res win">WIN</span></td><td class="note">conv2d_s8 SoL 0.10% -> 1.42-3.80%. Also RECOVERED linear_f16 + lstm_f16, confirming the poisoned-baseline theory from exp 8.</td></tr><tr><td class="n">11</td><td class="m">-<br><span style="color:var(--faint)">-</span></td><td>add linear_f16 + lstm_f16 to OP_FORMULAS; score fp16 against a 32 ops/cyc roof</td><td class="m">—</td><td class="m" style="text-align:right">—<br><span style="color:var(--good)"></span></td><td class="m" style="text-align:right">—</td><td><span class="res neutral">TOOLING</span></td><td class="note">29.5% of fused_full had no SoL at all. fp16 gets 8 lanes at DLEN 128 vs 16 for int8, so the int8 roof understates fp16 SoL by 2x.</td></tr></tbody>
+    </table></div>
+  </section>
+
+  <!-- ============ PIPELINE ============ -->
+  <section>
+    <h2>Pipeline <span class="note">mapped → correct → fast</span></h2>
+    <div class="queue">
+      <div class="qrow"><i class="stripe done"></i><div class="what"><b>Curated kernel selection</b><span>Export <code>GLOBAL_CURATED_DIR</code> — unset by default and fails silently.</span></div><span class="pill pass">done</span></div>
+      <div class="qrow"><i class="stripe done"></i><div class="what"><b>rvv_f16 affinity fix — 21.8× on fused_full</b><span>Curated RVV convs declared <code>affinity=("rvv",)</code> and were filtered out of the superset <code>rvv_f16</code> target. Widened, and supplied the proven pure-integer kernel under that target.</span></div><span class="pill pass">done</span></div>
+      <div class="qrow"><i class="stripe done"></i><div class="what"><b>fp16 SoL visibility</b><span>Added <code>linear_f16</code> / <code>lstm_f16</code> ops formulas; 29.5% of fused_full had no SoL at all before.</span></div><span class="pill pass">done</span></div>
+      <div class="qrow"><i class="stripe now"></i><div class="what"><b>Draft a low-IC conv algorithm</b><span><code>vision_cnn.0</code>: 15.6% of runtime at 1.42% SoL. IC=1, K5 gives reduction depth 25 and OC=16 fills exactly one vector — an OC-vectorized GEMM has nothing to block over. Candidate: vectorize over output width (OW=45) instead of OC.</span></div><span class="pill pending">next</span></div>
+      <div class="qrow"><i class="stripe now"></i><div class="what"><b>Unblock batchnorm on RVV</b><span>Ops verify alphabetically as "reference + curated swap", so <code>batchnorm2d_s8</code> is checked against a model still using the broken reference conv and inherits its error (identical 92 signature). The kernel is likely fine; the baseline is not.</span></div><span class="pill pending">next</span></div>
+      <div class="qrow"><i class="stripe block"></i><div class="what"><b>Missing RVV kernels: add_s8, sigmoid_s8</b><span>Declared as algorithms but no curated file exists in <code>kernels/rvv/</code>. 3.0% of dronet runtime at 0.02% SoL. Needs new implementations, not a config fix.</span></div><span class="pill blocked">write</span></div>
+      <div class="qrow"><i class="stripe next"></i><div class="what"><b>Gemmini per-op cycles on FPGA</b><span>Coverage and correctness verified on spike only. Prefer <code>gemmini_im2col_full_C</code> to remove the 5-LSB drift of <code>gemmini_tiled_conv</code>.</span></div><span class="pill pending">queued</span></div>
+      <div class="qrow"><i class="stripe next"></i><div class="what"><b>yolov8_nano</b><span>Graph extraction unblocked (<code>ultralytics</code> installed); build then profile.</span></div><span class="pill pending">building</span></div>
+    </div></div>
+  </section>
+
+  <footer>
+    Cycles measured on AWS F2 (VU47P) via FireSim, dual-core Rocket + Saturn V256/D128 + Q0.31 Gemmini 16×16, 20 MHz.
+    Profiles emitted by the ModelBlaster harness as <code>dispatch_id,name,op,shape,cycles</code>. Quad-core configs do not fit this device — all 8 quad builds failed placement.
+  </footer>
+
+</div>
+

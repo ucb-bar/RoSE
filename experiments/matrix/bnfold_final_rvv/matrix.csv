@@ -1,0 +1,17 @@
+model,op,instances,cycles,pct_of_model
+mlp_generic,linear_s8,3,9796,100.00
+dronet,conv2d_s8,10,7205955,96.13
+dronet,maxpool2d_s8,1,217619,2.90
+dronet,batchnorm2d_s8,3,45775,0.61
+dronet,add_s8,3,21249,0.28
+dronet,linear_s8,2,4375,0.06
+dronet,sigmoid_s8,1,947,0.01
+dronet,relu_s8,1,478,0.01
+yolov8_nano,conv2d_s8,63,155466860,94.04
+yolov8_nano,silu_s8,57,4819066,2.91
+yolov8_nano,maxpool2d_s8,3,3677792,2.22
+yolov8_nano,upsample_nearest_s8,2,431415,0.26
+yolov8_nano,cat2_c1_s8,7,349396,0.21
+yolov8_nano,cat3_c1_s8,6,293763,0.18
+yolov8_nano,cat4_c1_s8,3,163534,0.10
+yolov8_nano,add_s8,6,124516,0.08

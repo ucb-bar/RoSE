@@ -1,0 +1,247 @@
+Script started on 2026-08-28 11:23:38+00:00 [COMMAND="stty intr ^] && sudo LD_LIBRARY_PATH=/scratch/vnikiforov/rose-fsim/lib ./FireSim-f2 +permissive   +macaddr0=00:12:6D:00:00:02 +niclog0=niclog0  +trace-select=1 +trace-start=0 +trace-end=-1 +trace-output-format=0 +dwarf-file-name=fq-job-1690-pm_bnfold_repro_rvv_yolov8_nano.elf-dwarf +autocounter-readrate=0 +autocounter-filename-base=AUTOCOUNTERFILE  +print-start=0 +print-end=-1 +linklatency0=6405 +netbw0=200 +shmemportname0=default +partitioned=1 +slotid=0 +permissive-off +prog0=fq-job-1690-pm_bnfold_repro_rvv_yolov8_nano.elf   && stty intr ^c" TERM="screen" TTY="/dev/pts/6" COLUMNS="80" LINES="24"]
+AFI ID for Slot  0: agfi-024f2d6a1c6890cb4
+AFI PCI  Vendor ID: 0x1d0f, Device ID 0xf002
+Attached to BAR0 (OCL)
+Attached to BAR4 (PCIS)
+widget_registry_t::add_widget(StreamEngine)
+cpu2fpga: 0, fpga2cpu: 2
+UART0 is here (stdin/stdout).
+command line for program 0. argc=19:
++permissive +macaddr0=00:12:6D:00:00:02 +niclog0=niclog0 +trace-select=1 +trace-start=0 +trace-end=-1 +trace-output-format=0 +dwarf-file-name=fq-job-1690-pm_bnfold_repro_rvv_yolov8_nano.elf-dwarf +autocounter-readrate=0 +autocounter-filename-base=AUTOCOUNTERFILE +print-start=0 +print-end=-1 +linklatency0=6405 +netbw0=200 +shmemportname0=default +partitioned=1 +slotid=0 +permissive-off fq-job-1690-pm_bnfold_repro_rvv_yolov8_nano.elf 
+entered simulation flow execution
+finished waiting
+FireSim fingerprint: 0x46697265
+Commencing simulation.
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+*** Booting Zephyr OS build c93d5bdb6078 ***
+modelblaster harness: model=yolov8_nano in=76800 out=75600
+=== MODELBLASTER_VERIFY === max_abs_err=0 max_rel_err=0 n=75600
+=== MODELBLASTER_PROFILE_BEGIN ===
+dispatch_id,name,op,shape,cycles
+0,l0.conv,conv2d_s8,N=1;IC=3;IH=160;IW=160;OC=16;OH=80;OW=80;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,2581741
+1,l0.bn,batchnorm2d_s8,N=1;C=16;H=80;W=80,127169
+2,l0.act,silu_s8,n=102400,160817
+3,l1.conv,conv2d_s8,N=1;IC=16;IH=80;IW=80;OC=32;OH=40;OW=40;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,2742813
+4,l1.bn,batchnorm2d_s8,N=1;C=32;H=40;W=40,63249
+5,l1.act,silu_s8,n=51200,94795
+6,l2.cv1.conv,conv2d_s8,N=1;IC=32;IH=40;IW=40;OC=32;OH=40;OW=40;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1287740
+7,l2.cv1.bn,batchnorm2d_s8,N=1;C=32;H=40;W=40,63288
+8,l2.cv1.act,silu_s8,n=51200,98996
+10,l2.m0.cv1.conv,conv2d_s8,N=1;IC=16;IH=40;IW=40;OC=16;OH=40;OW=40;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,2836372
+11,l2.m0.cv1.bn,batchnorm2d_s8,N=1;C=16;H=40;W=40,31669
+12,l2.m0.cv1.act,silu_s8,n=25600,96247
+13,l2.m0.cv2.conv,conv2d_s8,N=1;IC=16;IH=40;IW=40;OC=16;OH=40;OW=40;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,2835188
+14,l2.m0.cv2.bn,batchnorm2d_s8,N=1;C=16;H=40;W=40,31677
+15,l2.m0.cv2.act,silu_s8,n=25600,96379
+16,add,add_s8,n=25600,46882
+17,cat,cat3_c1_s8,N=1;H=40;W=40;C_inputs=16|16|16;C_total=48,124136
+18,l2.cv2.conv,conv2d_s8,N=1;IC=48;IH=40;IW=40;OC=32;OH=40;OW=40;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1768230
+19,l2.cv2.bn,batchnorm2d_s8,N=1;C=32;H=40;W=40,63266
+20,l2.cv2.act,silu_s8,n=51200,122030
+21,l3.conv,conv2d_s8,N=1;IC=32;IH=40;IW=40;OC=64;OH=20;OW=20;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,2793085
+22,l3.bn,batchnorm2d_s8,N=1;C=64;H=20;W=20,33411
+23,l3.act,silu_s8,n=25600,96601
+24,l4.cv1.conv,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=64;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1122758
+25,l4.cv1.bn,batchnorm2d_s8,N=1;C=64;H=20;W=20,33305
+26,l4.cv1.act,silu_s8,n=25600,96356
+28,l4.m0.cv1.conv,conv2d_s8,N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1624516
+29,l4.m0.cv1.bn,batchnorm2d_s8,N=1;C=32;H=20;W=20,16751
+30,l4.m0.cv1.act,silu_s8,n=12800,83144
+31,l4.m0.cv2.conv,conv2d_s8,N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1624967
+32,l4.m0.cv2.bn,batchnorm2d_s8,N=1;C=32;H=20;W=20,16814
+33,l4.m0.cv2.act,silu_s8,n=12800,82926
+34,add_1,add_s8,n=12800,23631
+35,l4.m1.cv1.conv,conv2d_s8,N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1619352
+36,l4.m1.cv1.bn,batchnorm2d_s8,N=1;C=32;H=20;W=20,16812
+37,l4.m1.cv1.act,silu_s8,n=12800,82802
+38,l4.m1.cv2.conv,conv2d_s8,N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1630311
+39,l4.m1.cv2.bn,batchnorm2d_s8,N=1;C=32;H=20;W=20,16932
+40,l4.m1.cv2.act,silu_s8,n=12800,82971
+41,add_2,add_s8,n=12800,23697
+42,cat_1,cat4_c1_s8,N=1;H=20;W=20;C_inputs=32|32|32|32;C_total=128,90726
+43,l4.cv2.conv,conv2d_s8,N=1;IC=128;IH=20;IW=20;OC=64;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,2088022
+44,l4.cv2.bn,batchnorm2d_s8,N=1;C=64;H=20;W=20,33259
+45,l4.cv2.act,silu_s8,n=25600,95979
+46,l5.conv,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=128;OH=10;OW=10;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,3465296
+47,l5.bn,batchnorm2d_s8,N=1;C=128;H=10;W=10,19231
+48,l5.act,silu_s8,n=12800,83515
+49,l6.cv1.conv,conv2d_s8,N=1;IC=128;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1178257
+50,l6.cv1.bn,batchnorm2d_s8,N=1;C=128;H=10;W=10,19053
+51,l6.cv1.act,silu_s8,n=12800,83325
+53,l6.m0.cv1.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1863799
+54,l6.m0.cv1.bn,batchnorm2d_s8,N=1;C=64;H=10;W=10,9662
+55,l6.m0.cv1.act,silu_s8,n=6400,77117
+56,l6.m0.cv2.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1863961
+57,l6.m0.cv2.bn,batchnorm2d_s8,N=1;C=64;H=10;W=10,9631
+58,l6.m0.cv2.act,silu_s8,n=6400,75762
+59,add_3,add_s8,n=6400,12036
+60,l6.m1.cv1.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1862934
+61,l6.m1.cv1.bn,batchnorm2d_s8,N=1;C=64;H=10;W=10,9759
+62,l6.m1.cv1.act,silu_s8,n=6400,76146
+63,l6.m1.cv2.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1862340
+64,l6.m1.cv2.bn,batchnorm2d_s8,N=1;C=64;H=10;W=10,9613
+65,l6.m1.cv2.act,silu_s8,n=6400,75995
+66,add_4,add_s8,n=6400,11979
+67,cat_2,cat4_c1_s8,N=1;H=10;W=10;C_inputs=64|64|64|64;C_total=256,45521
+68,l6.cv2.conv,conv2d_s8,N=1;IC=256;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,2508194
+69,l6.cv2.bn,batchnorm2d_s8,N=1;C=128;H=10;W=10,19079
+70,l6.cv2.act,silu_s8,n=12800,83015
+71,l7.conv,conv2d_s8,N=1;IC=128;IH=10;IW=10;OC=256;OH=5;OW=5;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,4915119
+72,l7.bn,batchnorm2d_s8,N=1;C=256;H=5;W=5,14801
+73,l7.act,silu_s8,n=6400,77134
+74,l8.cv1.conv,conv2d_s8,N=1;IC=256;IH=5;IW=5;OC=256;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1389529
+75,l8.cv1.bn,batchnorm2d_s8,N=1;C=256;H=5;W=5,14258
+76,l8.cv1.act,silu_s8,n=6400,76914
+78,l8.m0.cv1.conv,conv2d_s8,N=1;IC=128;IH=5;IW=5;OC=128;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,2342745
+79,l8.m0.cv1.bn,batchnorm2d_s8,N=1;C=128;H=5;W=5,7274
+80,l8.m0.cv1.act,silu_s8,n=3200,73649
+81,l8.m0.cv2.conv,conv2d_s8,N=1;IC=128;IH=5;IW=5;OC=128;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,2343457
+82,l8.m0.cv2.bn,batchnorm2d_s8,N=1;C=128;H=5;W=5,7103
+83,l8.m0.cv2.act,silu_s8,n=3200,73846
+84,add_5,add_s8,n=3200,6183
+85,cat_3,cat3_c1_s8,N=1;H=5;W=5;C_inputs=128|128|128;C_total=384,20170
+86,l8.cv2.conv,conv2d_s8,N=1;IC=384;IH=5;IW=5;OC=256;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,2063270
+87,l8.cv2.bn,batchnorm2d_s8,N=1;C=256;H=5;W=5,14541
+88,l8.cv2.act,silu_s8,n=6400,76636
+89,l9.cv1.conv,conv2d_s8,N=1;IC=256;IH=5;IW=5;OC=128;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,696460
+90,l9.cv1.bn,batchnorm2d_s8,N=1;C=128;H=5;W=5,7170
+91,l9.cv1.act,silu_s8,n=3200,73313
+92,l9.m1,maxpool2d_s8,N=1;C=128;IH=5;IW=5;OH=5;OW=5;KH=5;KW=5;SH=1;SW=1;PH=2;PW=2;DH=1;DW=1,1242713
+93,l9.m2,maxpool2d_s8,N=1;C=128;IH=5;IW=5;OH=5;OW=5;KH=5;KW=5;SH=1;SW=1;PH=2;PW=2;DH=1;DW=1,1219734
+94,l9.m3,maxpool2d_s8,N=1;C=128;IH=5;IW=5;OH=5;OW=5;KH=5;KW=5;SH=1;SW=1;PH=2;PW=2;DH=1;DW=1,1210913
+95,cat_4,cat4_c1_s8,N=1;H=5;W=5;C_inputs=128|128|128|128;C_total=512,22929
+96,l9.cv2.conv,conv2d_s8,N=1;IC=512;IH=5;IW=5;OC=256;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,2747627
+97,l9.cv2.bn,batchnorm2d_s8,N=1;C=256;H=5;W=5,14241
+98,l9.cv2.act,silu_s8,n=6400,76491
+99,l10,upsample_nearest_s8,N=1;C=256;IH=5;IW=5;scale=2,158022
+100,cat_5,cat2_c1_s8,N=1;H=10;W=10;C_inputs=256|128;C_total=384,60894
+101,l12.cv1.conv,conv2d_s8,N=1;IC=384;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,3839651
+102,l12.cv1.bn,batchnorm2d_s8,N=1;C=128;H=10;W=10,19145
+103,l12.cv1.act,silu_s8,n=12800,83086
+105,l12.m0.cv1.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1863174
+106,l12.m0.cv1.bn,batchnorm2d_s8,N=1;C=64;H=10;W=10,9607
+107,l12.m0.cv1.act,silu_s8,n=6400,76825
+108,l12.m0.cv2.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1863543
+109,l12.m0.cv2.bn,batchnorm2d_s8,N=1;C=64;H=10;W=10,9688
+110,l12.m0.cv2.act,silu_s8,n=6400,75802
+111,cat_6,cat3_c1_s8,N=1;H=10;W=10;C_inputs=64|64|64;C_total=192,32693
+112,l12.cv2.conv,conv2d_s8,N=1;IC=192;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1812355
+113,l12.cv2.bn,batchnorm2d_s8,N=1;C=128;H=10;W=10,19074
+114,l12.cv2.act,silu_s8,n=12800,82723
+115,l13,upsample_nearest_s8,N=1;C=128;IH=10;IW=10;scale=2,273422
+116,cat_7,cat2_c1_s8,N=1;H=20;W=20;C_inputs=128|64;C_total=192,117844
+117,l15.cv1.conv,conv2d_s8,N=1;IC=192;IH=20;IW=20;OC=64;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,3077676
+118,l15.cv1.bn,batchnorm2d_s8,N=1;C=64;H=20;W=20,33352
+119,l15.cv1.act,silu_s8,n=25600,96248
+121,l15.m0.cv1.conv,conv2d_s8,N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1626357
+122,l15.m0.cv1.bn,batchnorm2d_s8,N=1;C=32;H=20;W=20,16737
+123,l15.m0.cv1.act,silu_s8,n=12800,82737
+124,l15.m0.cv2.conv,conv2d_s8,N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1624567
+125,l15.m0.cv2.bn,batchnorm2d_s8,N=1;C=32;H=20;W=20,16803
+126,l15.m0.cv2.act,silu_s8,n=12800,82693
+127,cat_8,cat3_c1_s8,N=1;H=20;W=20;C_inputs=32|32|32;C_total=96,63622
+128,l15.cv2.conv,conv2d_s8,N=1;IC=96;IH=20;IW=20;OC=64;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1601241
+129,l15.cv2.bn,batchnorm2d_s8,N=1;C=64;H=20;W=20,33289
+130,l15.cv2.act,silu_s8,n=25600,95986
+131,l16.conv,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=64;OH=10;OW=10;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,1734867
+132,l16.bn,batchnorm2d_s8,N=1;C=64;H=10;W=10,9581
+133,l16.act,silu_s8,n=6400,76445
+134,cat_9,cat2_c1_s8,N=1;H=10;W=10;C_inputs=64|128;C_total=192,31779
+135,l18.cv1.conv,conv2d_s8,N=1;IC=192;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1816959
+136,l18.cv1.bn,batchnorm2d_s8,N=1;C=128;H=10;W=10,19193
+137,l18.cv1.act,silu_s8,n=12800,83101
+139,l18.m0.cv1.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1863600
+140,l18.m0.cv1.bn,batchnorm2d_s8,N=1;C=64;H=10;W=10,9761
+141,l18.m0.cv1.act,silu_s8,n=6400,76457
+142,l18.m0.cv2.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1864055
+143,l18.m0.cv2.bn,batchnorm2d_s8,N=1;C=64;H=10;W=10,9655
+144,l18.m0.cv2.act,silu_s8,n=6400,76781
+145,cat_10,cat3_c1_s8,N=1;H=10;W=10;C_inputs=64|64|64;C_total=192,32778
+146,l18.cv2.conv,conv2d_s8,N=1;IC=192;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1810619
+147,l18.cv2.bn,batchnorm2d_s8,N=1;C=128;H=10;W=10,19122
+148,l18.cv2.act,silu_s8,n=12800,83476
+149,l19.conv,conv2d_s8,N=1;IC=128;IH=10;IW=10;OC=128;OH=5;OW=5;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,2460894
+150,l19.bn,batchnorm2d_s8,N=1;C=128;H=5;W=5,7381
+151,l19.act,silu_s8,n=3200,74061
+152,cat_11,cat2_c1_s8,N=1;H=5;W=5;C_inputs=128|256;C_total=384,21017
+153,l21.cv1.conv,conv2d_s8,N=1;IC=384;IH=5;IW=5;OC=256;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,2064322
+154,l21.cv1.bn,batchnorm2d_s8,N=1;C=256;H=5;W=5,14141
+155,l21.cv1.act,silu_s8,n=6400,76881
+157,l21.m0.cv1.conv,conv2d_s8,N=1;IC=128;IH=5;IW=5;OC=128;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,2343365
+158,l21.m0.cv1.bn,batchnorm2d_s8,N=1;C=128;H=5;W=5,7292
+159,l21.m0.cv1.act,silu_s8,n=3200,74076
+160,l21.m0.cv2.conv,conv2d_s8,N=1;IC=128;IH=5;IW=5;OC=128;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,2342830
+161,l21.m0.cv2.bn,batchnorm2d_s8,N=1;C=128;H=5;W=5,7389
+162,l21.m0.cv2.act,silu_s8,n=3200,74135
+163,cat_12,cat3_c1_s8,N=1;H=5;W=5;C_inputs=128|128|128;C_total=384,20374
+164,l21.cv2.conv,conv2d_s8,N=1;IC=384;IH=5;IW=5;OC=256;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,2062755
+165,l21.cv2.bn,batchnorm2d_s8,N=1;C=256;H=5;W=5,14075
+166,l21.cv2.act,silu_s8,n=6400,76914
+167,detect.cv2_0_0.conv,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=64;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,6331282
+168,detect.cv2_0_0.bn,batchnorm2d_s8,N=1;C=64;H=20;W=20,33523
+169,detect.cv2_0_0.act,silu_s8,n=25600,96457
+170,detect.cv2_0_1.conv,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=64;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,6310879
+171,detect.cv2_0_1.bn,batchnorm2d_s8,N=1;C=64;H=20;W=20,33288
+172,detect.cv2_0_1.act,silu_s8,n=25600,95973
+173,detect.cv2_0_2,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=64;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1121742
+174,detect.cv3_0_0.conv,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=80;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,9462478
+175,detect.cv3_0_0.bn,batchnorm2d_s8,N=1;C=80;H=20;W=20,41595
+176,detect.cv3_0_0.act,silu_s8,n=32000,102608
+177,detect.cv3_0_1.conv,conv2d_s8,N=1;IC=80;IH=20;IW=20;OC=80;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,11752293
+178,detect.cv3_0_1.bn,batchnorm2d_s8,N=1;C=80;H=20;W=20,41519
+179,detect.cv3_0_1.act,silu_s8,n=32000,102735
+180,detect.cv3_0_2,conv2d_s8,N=1;IC=80;IH=20;IW=20;OC=80;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1999787
+181,cat_13,cat2_c1_s8,N=1;H=20;W=20;C_inputs=64|80;C_total=144,88755
+182,detect.cv2_1_0.conv,conv2d_s8,N=1;IC=128;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,3702926
+183,detect.cv2_1_0.bn,batchnorm2d_s8,N=1;C=64;H=10;W=10,9968
+184,detect.cv2_1_0.act,silu_s8,n=6400,77194
+185,detect.cv2_1_1.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1863441
+186,detect.cv2_1_1.bn,batchnorm2d_s8,N=1;C=64;H=10;W=10,9599
+187,detect.cv2_1_1.act,silu_s8,n=6400,77013
+188,detect.cv2_1_2,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,316932
+189,detect.cv3_1_0.conv,conv2d_s8,N=1;IC=128;IH=10;IW=10;OC=80;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,5525381
+190,detect.cv3_1_0.bn,batchnorm2d_s8,N=1;C=80;H=10;W=10,11972
+191,detect.cv3_1_0.act,silu_s8,n=8000,78704
+192,detect.cv3_1_1.conv,conv2d_s8,N=1;IC=80;IH=10;IW=10;OC=80;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,3465768
+193,detect.cv3_1_1.bn,batchnorm2d_s8,N=1;C=80;H=10;W=10,12032
+194,detect.cv3_1_1.act,silu_s8,n=8000,78007
+195,detect.cv3_1_2,conv2d_s8,N=1;IC=80;IH=10;IW=10;OC=80;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,568842
+196,cat_14,cat2_c1_s8,N=1;H=10;W=10;C_inputs=64|80;C_total=144,22445
+197,detect.cv2_2_0.conv,conv2d_s8,N=1;IC=256;IH=5;IW=5;OC=64;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,2338524
+198,detect.cv2_2_0.bn,batchnorm2d_s8,N=1;C=64;H=5;W=5,3792
+199,detect.cv2_2_0.act,silu_s8,n=1600,72166
+200,detect.cv2_2_1.conv,conv2d_s8,N=1;IC=64;IH=5;IW=5;OC=64;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,592675
+201,detect.cv2_2_1.bn,batchnorm2d_s8,N=1;C=64;H=5;W=5,3810
+202,detect.cv2_2_1.act,silu_s8,n=1600,72227
+203,detect.cv2_2_2,conv2d_s8,N=1;IC=64;IH=5;IW=5;OC=64;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,96120
+204,detect.cv3_2_0.conv,conv2d_s8,N=1;IC=256;IH=5;IW=5;OC=80;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,3493858
+205,detect.cv3_2_0.bn,batchnorm2d_s8,N=1;C=80;H=5;W=5,4548
+206,detect.cv3_2_0.act,silu_s8,n=2000,72755
+207,detect.cv3_2_1.conv,conv2d_s8,N=1;IC=80;IH=5;IW=5;OC=80;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1108225
+208,detect.cv3_2_1.bn,batchnorm2d_s8,N=1;C=80;H=5;W=5,4544
+209,detect.cv3_2_1.act,silu_s8,n=2000,71772
+210,detect.cv3_2_2,conv2d_s8,N=1;IC=80;IH=5;IW=5;OC=80;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,172635
+211,cat_15,cat2_c1_s8,N=1;H=5;W=5;C_inputs=64|80;C_total=144,7428
+=== MODELBLASTER_PROFILE_END ===
+=== MODELBLASTER_WALL_CYCLES === 166656
+
+Simulation complete.
+*** PASSED *** after 7495816337 cycles
+
+Emulation Performance Summary
+------------------------------
+Wallclock Time Elapsed: 125.7 s
+Host Frequency: 60.000 MHz
+Target Cycles Emulated: 7495816337
+Effective Target Frequency: 59.642 MHz
+FMR: 1.01
+Note: The latter three figures are based on the fastest target clock.
+
+Script done on 2026-08-28 11:25:45+00:00 [COMMAND_EXIT_CODE="0"]

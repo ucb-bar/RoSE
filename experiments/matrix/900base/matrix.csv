@@ -1,0 +1,14 @@
+model,op,instances,cycles,pct_of_model
+mlp_generic,linear_s8,3,9881,100.00
+dronet,conv2d_s8,10,7235704,95.86
+dronet,maxpool2d_s8,1,217609,2.88
+dronet,batchnorm2d_s8,6,67513,0.89
+dronet,add_s8,3,21143,0.28
+dronet,linear_s8,2,4857,0.06
+dronet,sigmoid_s8,1,856,0.01
+dronet,relu_s8,1,464,0.01
+fused_full,conv2d_s8,6,2841008,55.81
+fused_full,lstm_f16,3,1302615,25.59
+fused_full,linear_f16,3,944065,18.54
+fused_full,cast_i8_to_f16,3,2576,0.05
+fused_full,cat3_c1_f16,1,458,0.01

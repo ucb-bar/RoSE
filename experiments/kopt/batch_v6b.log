@@ -1,0 +1,6 @@
+submitting 4 job(s), 4-way parallel: ['dronet_v6', 'dronet_v1', 'fused_v6', 'fused_v1']
+NOTE: mixed models in batch -> per-job guard via tag prefix
+FAIL dronet_v6: fq: uartlog for dronet_v6 does not carry this submission's stamp 'dronet_v6-3f85c6' (found prog0=['fused_v1-cece280-z.elf']) -- stale lane/results content, discarded
+FAIL dronet_v1: fq: uartlog for dronet_v1 does not carry this submission's stamp 'dronet_v1-f429fa' (found prog0=['fused_v4-69b2a50-z.elf']) -- stale lane/results content, discarded
+FAIL fused_v6: fq: uartlog for fused_v6 does not carry this submission's stamp 'fused_v6-8d8a08' (found prog0=['dronet_v1-fe1a4b0-z.elf']) -- stale lane/results content, discarded
+OK   fused_v1 -> /scratch/dima/rose-infra/RoSE/experiments/kopt/logs/fused_v1.uartlog  === MODELBLASTER_VERIFY === max_abs_err=0.00048828125 max_rel_err=0.000561797759 n=2

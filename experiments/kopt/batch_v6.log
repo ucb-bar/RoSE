@@ -1,0 +1,9 @@
+submitting 7 job(s), 7-way parallel: ['dronet_v6', 'fused_v6', 'dronet_v1', 'fused_v1', 'dronet_v5', 'fused_v5', 'fused_v4']
+NOTE: mixed models in batch -> per-job guard via tag prefix
+FAIL dronet_v6: fq: no live daemon socket among ('/var/lib/fq/fq.sock', '/tmp/fq/fq.sock') on ubuntu@3.88.218.39
+FAIL fused_v6: fq: no live daemon socket among ('/var/lib/fq/fq.sock', '/tmp/fq/fq.sock') on ubuntu@3.88.218.39
+FAIL dronet_v1: fq: no live daemon socket among ('/var/lib/fq/fq.sock', '/tmp/fq/fq.sock') on ubuntu@3.88.218.39
+FAIL fused_v1: fq: no live daemon socket among ('/var/lib/fq/fq.sock', '/tmp/fq/fq.sock') on ubuntu@3.88.218.39
+FAIL dronet_v5: fq: no live daemon socket among ('/var/lib/fq/fq.sock', '/tmp/fq/fq.sock') on ubuntu@3.88.218.39
+FAIL fused_v5: fq: no live daemon socket among ('/var/lib/fq/fq.sock', '/tmp/fq/fq.sock') on ubuntu@3.88.218.39
+FAIL fused_v4: fq: no live daemon socket among ('/var/lib/fq/fq.sock', '/tmp/fq/fq.sock') on ubuntu@3.88.218.39

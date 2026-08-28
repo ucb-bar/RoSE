@@ -1,0 +1,42 @@
+ M cores/gemmini/include/gemmini_params.h
+ M examples/_run_lib.sh
+ M kernels/gemmini/gemmini_conv2d_s8_gemmini_tiled_conv.c
+RM kernels/gemmini_q31/gemmini_q31_maxpool2d_s8_gemmini_tiled_conv_pool.c -> kernels/gemmini_q31/archive/gemmini_q31_maxpool2d_s8_gemmini_tiled_conv_pool.c
+RM kernels/gemmini_q31/gemmini_q31_relu_s8_gemmini_resadd_relu.c -> kernels/gemmini_q31/archive/gemmini_q31_relu_s8_gemmini_resadd_relu.c
+ M kernels/gemmini_q31/gemmini_q31_add_s8_gemmini_resadd.c
+ D kernels/gemmini_q31/gemmini_q31_conv2d_s8_gemmini_tiled_conv.c
+ M kernels/rvv/rvv_batchnorm2d_s8_direct.c
+ M kernels/rvv/rvv_conv2d_s8_rvv_vsmul_vnclip.c
+ M kernels/rvv/rvv_linear_f16_narrow.c
+ M kernels/rvv/rvv_lstm_f16_direct.c
+ M kernels/rvv/rvv_maxpool2d_s8_direct.c
+ M kernels/rvv_f16/rvv_f16_linear_f16_narrow.c
+ M kernels/rvv_f16/rvv_f16_lstm_f16_direct.c
+ M optimize/firesim_eval/evaluator.py
+ M pipeline/backends.py
+ M pipeline/generate_kernels.py
+ M pipeline/reference_kernels.py
+ M scripts/roofline_analysis.py
+?? cores/gemmini/include/gemmini_params.h.orig-fp32
+?? examples/dronet/int8/fq_dronetadd.csv
+?? examples/dronet/int8/fq_dronetadd.uartlog
+?? examples/dronet/int8/fq_dronetbase.csv
+?? examples/dronet/int8/fq_dronetbase.uartlog
+?? examples/dronet/int8/fq_dronetbn.csv
+?? examples/dronet/int8/fq_dronetbn.uartlog
+?? examples/fused_full/
+?? examples/mlp_generic/int8/fq_mlpbase.uartlog
+?? examples/yolov8_nano_kopt/
+?? harness/backends/firesim_chipyard_dual_gemmini_q31.conf
+?? harness/backends/firesim_chipyard_dual_gemmini_vprobe.conf
+?? harness/backends/gemmini_q31_rvv.conf
+?? kernels/gemmini_q31_rvv/
+?? kernels/rvv/rvv_add_s8_direct.c
+?? kernels/rvv/rvv_sigmoid_s8_direct.c
+?? kernels/rvv_f16/rvv_f16_cast_i8_to_f16_direct.c
+?? kernels/rvv_f16/rvv_f16_conv2d_s8_rvv_vsmul_vnclip.c
+?? optimize/batch_eval.py
+?? optimize/firesim_eval/fq_transport.py
+?? pipeline/generate_kernels.py.bak-preseed
+?? pipeline/reference_kernels.py.bak-affinity
+?? scripts/roofline_analysis.py.bak-f16

@@ -1,0 +1,8 @@
+submitting 6 job(s), 6-way parallel: ['dronet_v1a', 'dronet_v1b', 'dronet_v4a', 'dronet_v4b', 'fused_v1a', 'fused_v4a']
+NOTE: mixed models in batch -> per-job guard via tag prefix
+FAIL dronet_v1a: fq: empty uartlog for dronet_v1a (/scratch/dima/rose-infra/RoSE/experiments/kopt/elfs/dronet_v1.elf)
+FAIL dronet_v1b: fq: empty uartlog for dronet_v1b (/scratch/dima/rose-infra/RoSE/experiments/kopt/elfs/dronet_v1.elf)
+FAIL dronet_v4a: fq: empty uartlog for dronet_v4a (/scratch/dima/rose-infra/RoSE/experiments/kopt/elfs/dronet_v4.elf)
+FAIL dronet_v4b: fq: empty uartlog for dronet_v4b (/scratch/dima/rose-infra/RoSE/experiments/kopt/elfs/dronet_v4.elf)
+FAIL fused_v1a: fq: empty uartlog for fused_v1a (/scratch/dima/rose-infra/RoSE/experiments/kopt/elfs/fused_v1.elf)
+FAIL fused_v4a: fq: empty uartlog for fused_v4a (/scratch/dima/rose-infra/RoSE/experiments/kopt/elfs/fused_v4.elf)

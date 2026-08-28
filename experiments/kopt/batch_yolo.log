@@ -1,0 +1,3 @@
+submitting 2 job(s), 2-way parallel: ['yolo_ocb', 'yolo_v7']
+FAIL yolo_ocb: fq: uartlog for yolo_ocb does not carry this submission's stamp 'yolo_ocb-ffeadc' (found prog0=['fq-job-910-fused_combined2.elf']) -- stale lane/results content, discarded
+FAIL yolo_v7: fq: empty uartlog for yolo_v7 (/scratch/dima/rose-infra/RoSE/experiments/kopt/elfs/yolo_v7.elf)

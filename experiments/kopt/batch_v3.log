@@ -1,0 +1,4 @@
+submitting 2 job(s), 2-way parallel: ['dronet_v3', 'fused_v3']
+NOTE: mixed models in batch -> per-job guard via tag prefix
+OK   dronet_v3 -> /scratch/dima/rose-infra/RoSE/experiments/kopt/logs/dronet_v3.uartlog  === MODELBLASTER_VERIFY === max_abs_err=0 max_rel_err=0 n=2
+OK   fused_v3 -> /scratch/dima/rose-infra/RoSE/experiments/kopt/logs/fused_v3.uartlog  === MODELBLASTER_VERIFY === max_abs_err=0.00048828125 max_rel_err=0.000561797759 n=2

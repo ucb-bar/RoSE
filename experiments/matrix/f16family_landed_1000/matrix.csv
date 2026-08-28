@@ -1,0 +1,7 @@
+model,op,instances,cycles,pct_of_model
+mlp_generic,linear_s8,3,9881,100.00
+fused_full,conv2d_s8,6,2842880,57.75
+fused_full,lstm_f16,3,1249266,25.38
+fused_full,linear_f16,3,827475,16.81
+fused_full,cast_i8_to_f16,3,2582,0.05
+fused_full,cat3_c1_f16,1,559,0.01

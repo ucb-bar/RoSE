@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Thin shim: run the fq CLI from this checkout without installing anything.
+here="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
+export PYTHONPATH="$here${PYTHONPATH:+:$PYTHONPATH}"
+exec python3 -m fq.cli "$@"

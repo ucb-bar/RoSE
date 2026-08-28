@@ -1,0 +1,2 @@
+submitting 1 job(s), 2-way parallel: ['dronet_v3b']
+FAIL dronet_v3b: fq: empty uartlog for dronet_v3b (/scratch/dima/rose-infra/RoSE/experiments/kopt/elfs/dronet_v3.elf)

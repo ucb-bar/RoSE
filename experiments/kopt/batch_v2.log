@@ -1,0 +1,3 @@
+submitting 2 job(s), 2-way parallel: ['dronet_v2', 'fused_v2']
+OK   dronet_v2 -> /scratch/dima/rose-infra/RoSE/experiments/kopt/logs/dronet_v2.uartlog  === MODELBLASTER_VERIFY === max_abs_err=0 max_rel_err=0 n=2
+OK   fused_v2 -> /scratch/dima/rose-infra/RoSE/experiments/kopt/logs/fused_v2.uartlog  === MODELBLASTER_VERIFY === max_abs_err=0.00048828125 max_rel_err=0.000561797759 n=2

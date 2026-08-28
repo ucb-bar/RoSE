@@ -1,0 +1,2350 @@
+diff --git a/cores/gemmini/include/gemmini_params.h b/cores/gemmini/include/gemmini_params.h
+index 02d9e7a..057ff71 100644
+--- a/cores/gemmini/include/gemmini_params.h
++++ b/cores/gemmini/include/gemmini_params.h
+@@ -27,7 +27,7 @@ typedef uint32_t scale_t_bits;
+ typedef int32_t scale_acc_t;
+ typedef uint32_t scale_acc_t_bits;
+ 
+-typedef float acc_scale_t;
++typedef int32_t acc_scale_t;
+ typedef uint32_t acc_scale_t_bits;
+ 
+ #define row_align(blocks) __attribute__((aligned(blocks*DIM*sizeof(elem_t))))
+@@ -35,7 +35,7 @@ typedef uint32_t acc_scale_t_bits;
+ 
+ #define MVIN_SCALE_IDENTITY 1.0
+ 
+-#define ACC_SCALE_IDENTITY 1.0
++#define ACC_SCALE_IDENTITY ((acc_scale_t)1 << 30)
+ 
+ // Rounding right shift equation: https://riscv.github.io/documents/riscv-v-spec/#_vector_fixed_point_rounding_mode_register_vxrm
+ #define ROUNDING_RIGHT_SHIFT(x, shift) \
+@@ -66,17 +66,13 @@ typedef uint32_t acc_scale_t_bits;
+          ((((shift) <= 1 ? 0 : ((x) & ((1 << ((shift)-1)) - 1))) != 0) | (((x) >> (shift)) & 1)))) : ((x) << (-(shift))))
+ 
+ #define ACC_SCALE(x, scale) \
+-    ({float y = ROUND_NEAR_EVEN((x) * (scale)); y > INT8_MAX ? INT8_MAX : (y < INT8_MIN ? INT8_MIN : (acc_t)y);})
++    ({ int64_t y = (((int64_t)(x) * (int64_t)(scale)) + (1LL << 30)) >> 31; y > INT8_MAX ? INT8_MAX : (y < INT8_MIN ? INT8_MIN : (acc_t)y); })
+ 
+ #define MVIN_SCALE(x, scale) \
+     ({float y = ROUND_NEAR_EVEN((x) * (scale)); y > INT8_MAX ? INT8_MAX : (y < INT8_MIN ? INT8_MIN : (elem_t)y);})
+ 
+ #define MVIN_SCALE_ACC(x, scale) (x)
+ 
+-#define ACC_SCALE_T_IS_FLOAT
+-#define ACC_SCALE_EXP_BITS 8
+-#define ACC_SCALE_SIG_BITS 24
+-
+ #define ACC_READ_SMALL_WIDTH
+ #define ACC_READ_FULL_WIDTH
+ 
+diff --git a/examples/_run_lib.sh b/examples/_run_lib.sh
+index 230b6f4..4a7740a 100755
+--- a/examples/_run_lib.sh
++++ b/examples/_run_lib.sh
+@@ -241,11 +241,25 @@ if [[ "${RUNNER}" == "firesim" ]]; then
+     # FIRESIM_CONF env if running a different config.
+     if [[ -n "${FIRESIM_CONF:-}" ]]; then
+         FS_CONF="${REPO_ROOT}/harness/backends/${FIRESIM_CONF}"
++    elif [[ "${GEN_TARGET}" == "gemmini_q31_rvv" ]]; then
++        # gemmini_q31_rvv (the fused Gemmini+RVV target, split off from
++        # gemmini_q31 2026-08-28 — see pipeline/backends.py's SPLIT note)
++        # carries `v` in kernel_cflags (kernel_opt_log.jsonl exp
++        # 310/312/800+) so ops with no Gemmini kernel fall back to the
++        # proven RVV kernels instead of scalar. That needs Zephyr's V
++        # Kconfig stanza too — this overlay is
++        # firesim_chipyard_dual_gemmini.conf's SMP/UART stanza plus the
++        # same V stanza rvv.conf/gemmini_q31.conf carry, which pins
++        # main() (harness/src/main.c) onto hart 1. Do NOT reuse this for
++        # plain `gemmini` or pure `gemmini_q31` (no `v`, stay on hart 0
++        # below).
++        FS_CONF="${REPO_ROOT}/harness/backends/firesim_chipyard_dual_gemmini_q31.conf"
+     elif [[ "${GEN_TARGET}" == "gemmini" || "${GEN_TARGET}" == "gemmini_q31" ]]; then
+-        # Both float-scale (gemmini) and Q0.31 (gemmini_q31) variants ride
+-        # the same dual-rocket-saturn-gemmini SoC topology, so the same
+-        # Zephyr SMP overlay applies. The runtime bitstream is selected
+-        # via config_runtime.yaml::default_hw_config.
++        # Float-scale (gemmini) and PURE Q0.31 (gemmini_q31, no `v`)
++        # variants both ride the same dual-rocket-saturn-gemmini SoC
++        # topology with no vector Kconfig needed, so the same Zephyr SMP
++        # overlay applies. The runtime bitstream is selected via
++        # config_runtime.yaml::default_hw_config.
+         FS_CONF="${REPO_ROOT}/harness/backends/firesim_chipyard_dual_gemmini.conf"
+     else
+         FS_CONF="${REPO_ROOT}/harness/backends/firesim_chipyard.conf"
+@@ -260,6 +274,16 @@ west build -p -b "${BOARD_TARGET}" harness \
+     -- "${WEST_CMAKE_ARGS[@]}" "${WEST_BUILD_EXTRA[@]}"
+ _mb_stage_end build
+ 
++# STOP_AFTER=build: emit the guest ELF and stop. Lets an external scheduler
++# (deploy/fpga_queue) own the FPGA run instead of MB driving its own FireSim
++# flow -- which otherwise targets whatever run farm the tree's config_runtime
++# points at (for chipyard-fsim that is a LOCAL U250, not AWS F2).
++if [[ "${STOP_AFTER:-}" == "build" ]]; then
++    echo "[4/5] STOP_AFTER=build -> stopping before the run stage"
++    echo "ELF: ${BUILD_DIR}/zephyr/zephyr.elf"
++    ls -l "${BUILD_DIR}/zephyr/zephyr.elf" 2>/dev/null || echo "WARNING: elf not found"
++    exit 0
++fi
+ echo "[5/5] ${RUNNER} + compare"
+ _mb_stage_begin run
+ 
+@@ -312,7 +336,7 @@ print(' '.join(b.spike_args))
+     # Gemmini backend needs the chipyard spike (has --extension=gemmini support
+     # + libgemmini.so). Use MODELBLASTER_GEMMINI_SPIKE env if set, else chipyard path.
+     SPIKE_BIN_FLAGS=()
+-    if [[ "${GEN_TARGET}" == "gemmini" ]]; then
++    if [[ "${GEN_TARGET}" == "gemmini" || "${GEN_TARGET}" == "gemmini_q31" || "${GEN_TARGET}" == "gemmini_q31_rvv" ]]; then
+         _GEMMINI_SPIKE="${MODELBLASTER_GEMMINI_SPIKE:-/scratch2/dima/chipyard-fsim/.conda-env/riscv-tools/bin/spike}"
+         _GEMMINI_LIB_DIR="${MODELBLASTER_GEMMINI_LIB_DIR:-/scratch2/dima/chipyard-fsim/.conda-env/riscv-tools/lib}"
+         if [[ -f "${_GEMMINI_SPIKE}" ]]; then
+diff --git a/kernels/gemmini/gemmini_conv2d_s8_gemmini_tiled_conv.c b/kernels/gemmini/gemmini_conv2d_s8_gemmini_tiled_conv.c
+index 783e0d5..a7fe220 100644
+--- a/kernels/gemmini/gemmini_conv2d_s8_gemmini_tiled_conv.c
++++ b/kernels/gemmini/gemmini_conv2d_s8_gemmini_tiled_conv.c
+@@ -7,6 +7,34 @@
+  *         must be zero (symmetric per-tensor int8 from extract_int8).
+  *         Float-scale introduces ≤1 LSB drift vs Q0.31 golden.
+  *
++ *         ROOT CAUSE of the drift, characterised 2026-08-28 (experiments/
++ *         kernel_opt_log.jsonl id 1100-1103): the golden reference (scalar
++ *         fallback below, kernels/rvv/rvv_conv2d_s8_rvv_vsmul_vnclip.c,
++ *         gemmini_im2col_full_C's CPU requantize) all compute a TWO-STAGE
++ *         rounding: stage1 = round_half_up(acc*mult, 2^31), THEN
++ *         stage2 = round_half_up(stage1, 2^output_shift). gemmini's HW
++ *         mvout unit only implements ONE hardware round-shift-by-31
++ *         (cores/gemmini/include/gemmini_params.h::ACC_SCALE); to use it
++ *         at all for a nonzero output_shift, this kernel (in its
++ *         MODELBLASTER_GEMMINI_Q31_ACC_SCALE branch below) pre-folds
++ *         (mult, shift) into a single Q0.31 scale = round(mult/2^shift)
++ *         BEFORE the hardware multiply, i.e. computes
++ *         round_half_up(acc * round(mult, shift), 2^31) instead. That is
++ *         structurally NOT the same operation as double rounding:
++ *         pre-rounding the SCALE turns a fixed +-0.5-output-unit rounding
++ *         error into an error that scales with acc, so a single hardware
++ *         round cannot reproduce the two-stage golden bit-for-bit for
++ *         every acc value. This is unavoidable with this HW datapath (no
++ *         Q0.31 fold choice fixes it) — the real fix is
++ *         gemmini_im2col_full_C, which bypasses this mvout unit entirely
++ *         (tiled_matmul_auto full_C=true drains the RAW accumulator, then
++ *         the exact two-stage formula runs on the CPU/RVV) and is
++ *         verified bit-exact in isolation. Kept here (not removed) as the
++ *         faster, drift-tolerant option for backends/models whose
++ *         atol_override covers ~1 LSB/layer; gemmini_q31 and
++ *         gemmini_q31_rvv (pipeline/backends.py) no longer select it —
++ *         see gemmini_q31_rvv_conv2d_s8_gemmini_im2col_full_C.c.
++ *
+  *         WEIGHT LAYOUT CONTRACT: this kernel expects `weight` to already
+  *         be in flat HWIO layout (= `[KH*KW*IC, OC]`, the form
+  *         `tiled_conv_auto` consumes directly).  The skeleton emitter at
+@@ -115,13 +143,31 @@ void kernel_conv2d_s8(const int8_t *input, const int8_t *weight,
+     /* Reset gemmini controller and drain any prior DMA. */
+     gemmini_flush(0);
+ 
+-    /* Transpose input NCHW → NHWC into ws_input. */
+-    for (int n = 0; n < N; n++)
+-        for (int h = 0; h < IH; h++)
+-            for (int w = 0; w < IW; w++)
+-                for (int c = 0; c < IC; c++)
+-                    ws_input[((n*IH + h)*IW + w)*IC + c] =
+-                        input[((n*IC + c)*IH + h)*IW + w];
++    /* Transpose input NCHW → NHWC into ws_input.
++     * Blocked (TB x TB) so the contiguous-read side and the IC-strided
++     * write side both stay resident in L1. The old 4-deep loop nest
++     * recomputed ((n*IH+h)*IW+w)*IC+c and ((n*IC+c)*IH+h)*IW+w per
++     * element; on dronet conv0 the two transposes move 137,984 bytes and
++     * were the single largest term in the layer's 1.75M cycles. */
++    {
++        const int TB = 32;
++        int HW = IH * IW;
++        for (int n = 0; n < N; n++) {
++            const int8_t *inb = input   + (size_t)n * IC * HW;
++            elem_t       *ob  = ws_input + (size_t)n * HW * IC;
++            for (int p0 = 0; p0 < HW; p0 += TB) {
++                int pn = HW - p0 < TB ? HW - p0 : TB;
++                for (int c0 = 0; c0 < IC; c0 += TB) {
++                    int cn = IC - c0 < TB ? IC - c0 : TB;
++                    for (int c = 0; c < cn; c++) {
++                        const int8_t *s = inb + (size_t)(c0 + c) * HW + p0;
++                        elem_t       *d = ob  + (size_t)p0 * IC + (c0 + c);
++                        for (int p = 0; p < pn; p++) d[(size_t)p * IC] = s[p];
++                    }
++                }
++            }
++        }
++    }
+ 
+     /* Weight is already in flat HWIO layout ([KH*KW*IC, OC]) — see the
+      * file-header WEIGHT LAYOUT CONTRACT.  The OIHW→HWIO permutation
+@@ -178,13 +224,26 @@ void kernel_conv2d_s8(const int8_t *input, const int8_t *weight,
+     gemmini_fence();
+     gemmini_flush(0);
+ 
+-    /* Transpose output NHWC → NCHW. */
+-    for (int n = 0; n < N; n++)
+-        for (int c = 0; c < OC; c++)
+-            for (int h = 0; h < OH; h++)
+-                for (int w = 0; w < OW; w++)
+-                    output[((n*OC + c)*OH + h)*OW + w] =
+-                        ws_output[((n*OH + h)*OW + w)*OC + c];
++    /* Transpose output NHWC → NCHW (same blocking as the input side). */
++    {
++        const int TB = 32;
++        int OHW = OH * OW;
++        for (int n = 0; n < N; n++) {
++            int8_t       *outb = output    + (size_t)n * OC * OHW;
++            const elem_t *ob   = ws_output + (size_t)n * OHW * OC;
++            for (int p0 = 0; p0 < OHW; p0 += TB) {
++                int pn = OHW - p0 < TB ? OHW - p0 : TB;
++                for (int c0 = 0; c0 < OC; c0 += TB) {
++                    int cn = OC - c0 < TB ? OC - c0 : TB;
++                    for (int c = 0; c < cn; c++) {
++                        int8_t       *d = outb + (size_t)(c0 + c) * OHW + p0;
++                        const elem_t *s = ob   + (size_t)p0 * OC + (c0 + c);
++                        for (int p = 0; p < pn; p++) d[p] = s[(size_t)p * OC];
++                    }
++                }
++            }
++        }
++    }
+ 
+     /* Post-clamp for activation_max < 127 (gemmini RELU only handles min==0). */
+     if (activation_max < 127) {
+diff --git a/kernels/gemmini_q31/archive/gemmini_q31_maxpool2d_s8_gemmini_tiled_conv_pool.c b/kernels/gemmini_q31/archive/gemmini_q31_maxpool2d_s8_gemmini_tiled_conv_pool.c
+index 917db80..500da42 100644
+--- a/kernels/gemmini_q31/archive/gemmini_q31_maxpool2d_s8_gemmini_tiled_conv_pool.c
++++ b/kernels/gemmini_q31/archive/gemmini_q31_maxpool2d_s8_gemmini_tiled_conv_pool.c
+@@ -1,7 +1,29 @@
+ /* source: curated */
+ /* algorithm: gemmini_tiled_conv_pool */
+-/* accuracy_class: bit_exact */
+-/* origin: tiled_conv_dw_auto — gemmini's depthwise-conv path with the
++/* accuracy_class: numeric_drift */
++/* ARCHIVED 2026-08-28: this kernel declared accuracy_class=bit_exact but
++ * is NOT bit-exact — isolation-tested on dronet (this kernel alone as the
++ * only curated swap, every other op forced to scalar reference_impl, so
++ * no other source of drift is present): max_abs_err=17
++ * (experiments/kernel_opt_log.jsonl id 1100). Root cause: the "identity"
++ * passthrough conv this kernel uses to move data through gemmini's
++ * mvout-pool datapath scales by ACC_SCALE_IDENTITY through the SAME
++ * fixed-point ACC_SCALE round-and-saturate unit conv2d_s8's HW path uses
++ * (cores/gemmini/include/gemmini_params.h::ACC_SCALE /
++ * ACC_SCALE_IDENTITY) — that unit is not a true identity for this
++ * Q31Ws32x32Acc config (see gemmini_conv2d_s8_gemmini_tiled_conv.c's
++ * header for the general "single hardware round vs two-stage golden"
++ * mismatch), so even a nominally-lossless pass-through picks up ~1 LSB
++ * of noise per element BEFORE the max is taken, and that per-element
++ * noise then propagates through dronet's downstream linear layer. Not
++ * removed from the repo (kept for reference / possible future HW fix),
++ * but relocated to this archive/ subdirectory so ModelBlaster's flat
++ * curated-kernel lookup (target_dir/<target>_<op>_<algorithm>.c) never
++ * selects it — kernels/gemmini_q31/ and kernels/gemmini_q31_rvv/ both
++ * use the RVV/scalar `direct` sliding-window max instead, which is
++ * exact (a plain max() has no rounding to get wrong) and also faster.
++ *
++ * origin: tiled_conv_dw_auto — gemmini's depthwise-conv path with the
+  *         pool tail enabled. We turn the conv into a per-channel
+  *         passthrough (kernel_dim=1, stride=1, padding=0,
+  *         weights = +1 per channel, bias = NULL, act = 0,
+diff --git a/kernels/gemmini_q31/archive/gemmini_q31_relu_s8_gemmini_resadd_relu.c b/kernels/gemmini_q31/archive/gemmini_q31_relu_s8_gemmini_resadd_relu.c
+index 5d2fb76..5840339 100644
+--- a/kernels/gemmini_q31/archive/gemmini_q31_relu_s8_gemmini_resadd_relu.c
++++ b/kernels/gemmini_q31/archive/gemmini_q31_relu_s8_gemmini_resadd_relu.c
+@@ -1,7 +1,28 @@
+ /* source: curated */
+ /* algorithm: gemmini_resadd_relu */
+-/* accuracy_class: bit_exact */
+-/* origin: relu(int8) via gemmini's tiled_resadd_auto with B=zeros and
++/* accuracy_class: numeric_drift */
++/* ARCHIVED 2026-08-28: this kernel declared accuracy_class=bit_exact but
++ * is NOT bit-exact — isolation-tested on dronet (this kernel alone as the
++ * only curated swap, every other op forced to scalar reference_impl):
++ * max_abs_err=17 (experiments/kernel_opt_log.jsonl id 1100). Same root
++ * cause as the maxpool2d_s8/gemmini_tiled_conv_pool kernel archived
++ * alongside this file: the C_scale=ACC_SCALE_IDENTITY "no rescale"
++ * passthrough this kernel relies on (tiled_resadd_auto's A*1 + 0*0, then
++ * mvout-relu) goes through the SAME fixed-point ACC_SCALE round unit
++ * conv2d_s8's HW path uses, which is not a true identity for this
++ * Q31Ws32x32Acc config — so relu(A[i]) picks up ~1 LSB of noise per
++ * element even though a max()-with-0 threshold has nothing to round.
++ * dronet's one relu_s8 call feeds 2048 elements straight into linear1/
++ * linear2 (M=1,K=2048,N=1 dot products), so per-element noise on many of
++ * those inputs is exactly the kind of thing that shows up amplified at
++ * the output. Relocated to archive/ (not deleted) so ModelBlaster's flat
++ * curated-kernel lookup never selects it; kernels/gemmini_q31/ and
++ * kernels/gemmini_q31_rvv/ both use the RVV/scalar `direct` threshold
++ * kernel instead, which is exact (max(0,x) has no rounding to get
++ * wrong) and also faster (kernel_opt_log id 801: 543 cycles vs this
++ * kernel's 10,414).
++ *
++ * origin: relu(int8) via gemmini's tiled_resadd_auto with B=zeros and
+  *         relu=true. Computes:
+  *           C[i] = sat_int8(max(0, A[i]*1 + 0*0) * 1)
+  *                = sat_int8(max(0, A[i]))
+diff --git a/kernels/gemmini_q31/gemmini_q31_add_s8_gemmini_resadd.c b/kernels/gemmini_q31/gemmini_q31_add_s8_gemmini_resadd.c
+index 9fc40e1..1cc1f5b 100644
+--- a/kernels/gemmini_q31/gemmini_q31_add_s8_gemmini_resadd.c
++++ b/kernels/gemmini_q31/gemmini_q31_add_s8_gemmini_resadd.c
+@@ -1,57 +1,74 @@
+ /* source: curated */
+ /* algorithm: gemmini_resadd */
+ /* accuracy_class: numeric_drift */
+-/* origin: tiled_resadd_auto — gemmini's residual-add path. Computes
+- *         C[i] = sat_int8(round(A_scale * A[i] + B_scale * B[i]) * C_scale)
+- *         with optional ReLU fused into the requantize tail.
++/* origin: gemmini tiled_resadd where the mvin scale ratios are in range,
++ *         fixed-point scalar otherwise.
+  *
+- *         Maps the modelblaster add_s8 contract:
+- *           output[i] = round((a[i]*scale_a + b[i]*scale_b) / scale_out)
+- *           clamp to [activation_min, activation_max]
+- *         to gemmini parameters:
+- *           A_scale = scale_a / scale_out  (mvin float scale on Q31 build)
+- *           B_scale = scale_b / scale_out
+- *           C_scale = ACC_SCALE_IDENTITY   (no further mvout scaling)
+- *           relu    = (activation_min == 0)
++ * WHY THE SCALAR PATH MATTERS: the gemmini path is gated on both operand
++ * scale ratios landing in [0.5, 2.0] (outside that the int8 mvin scale
++ * loses too much).  Every add in dronet fails that gate --
++ *   add   : 0.066793/0.339678 = 0.197
++ *   add_1 : 0.163921/0.360274 = 0.455
++ *   add_2 : 0.230922/0.707875 = 0.326
++ * -- so 100% of dronet's add_s8 work runs the fallback.  Measured on the
++ * F2 Q0.31 Gemmini bitstream the old float fallback cost 925,683 cycles
++ * for 11,456 elements (81 cyc/element): per element it did two int->float
++ * converts, an fdiv by scale_out, and an out-of-line roundf() call.
+  *
+- *         The fused activation path covers the common (activation_min=0,
+- *         activation_max=127) and (None, None) cases. For asymmetric
+- *         clamps (e.g. activation_min < 0 and != INT8_MIN, or
+- *         activation_max < 127), we post-clamp on the CPU side.
+- *
+- *         Falls back to scalar for very small n where the per-call
+- *         gemmini setup (mstatus, gemmini_flush) exceeds a scalar
+- *         elementwise pass.
+- */
++ * The fallback here folds (scale_a/scale_out, scale_b/scale_out) into two
++ * Q(S) integer multipliers once at entry and runs the element loop in
++ * pure int64 arithmetic (native on rv64), rounding half-away-from-zero to
++ * match roundf().  No fdiv, no libm call, no float in the loop. */
++
++#include <stdint.h>
++#include <stddef.h>
++#include <math.h>
++#include <gemmini.h>
++#include <gemmini_params.h>
++
+ void kernel_add_s8(const int8_t *a, const int8_t *b, int8_t *output, int n,
+                    float scale_a, float scale_b, float scale_out,
+                    int activation_min, int activation_max)
+ {
+-    /* Per-call gemmini setup is ~50–100 cycles. Below ~256 elements the
+-     * scalar pass beats us. Also fall back when the scales are too
+-     * asymmetric for gemmini's float-scale mvin path (it rounds the
+-     * scaled int8 input to int8 before accumulation, so when
+-     * scale_a/scale_out or scale_b/scale_out is ≪ 1 we lose all
+-     * precision and the output diverges by tens of LSB — observed on
+-     * yolov8 residual blocks where the two add branches have very
+-     * different per-tensor scales). */
+     float a_ratio = scale_a / scale_out;
+     float b_ratio = scale_b / scale_out;
+     float a_abs   = a_ratio < 0 ? -a_ratio : a_ratio;
+     float b_abs   = b_ratio < 0 ? -b_ratio : b_ratio;
+-    /* Keep the gemmini path when both ratios are within ~[0.5, 2.0] of
+-     * 1.0 — that's the well-conditioned residual-add regime where the
+-     * mvin int rounding error stays under a single LSB. Outside this
+-     * range, fall back to scalar (still bit-exact vs the reference). */
+     bool scales_ok = (a_abs >= 0.5f && a_abs <= 2.0f
+                       && b_abs >= 0.5f && b_abs <= 2.0f);
+ 
+-    if (n <= 0 || n < 256 || !scales_ok) {
++    if (n <= 0) return;
++
++    if (n < 256 || !scales_ok) {
++        /* Fixed-point scalar path. S is picked so ratio*2^S stays exactly
++         * representable in float (|ratio|*2^S < 2^24) and the int64 product
++         * cannot overflow. */
++        int S = 24;
++        float mx = a_abs > b_abs ? a_abs : b_abs;
++        while (S > 0 && mx * (float)((uint32_t)1 << S) >= 8388608.0f) S--;
++
++        int64_t ma = (int64_t)lrintf(a_ratio * (float)((uint32_t)1 << S));
++        int64_t mb = (int64_t)lrintf(b_ratio * (float)((uint32_t)1 << S));
++        int64_t rnd = (int64_t)1 << (S - 1);
++
++        /* Both operands are int8, so there are only 256 possible products
++         * per side. Tabulate them once (2 x 1 KB, L1-resident) and the
++         * element loop becomes two table loads, an add, a shift and a
++         * clamp -- no multiplier in the loop at all. On a small in-order
++         * Rocket the 64-bit multiplier is the loop's critical resource;
++         * the tables trade it for L1 hits. */
++        static int64_t ta[256], tb[256];
++        for (int v = 0; v < 256; v++) {
++            int sv = v - 128;                 /* ta/tb are indexed by v+128 */
++            ta[v] = (int64_t)sv * ma;
++            tb[v] = (int64_t)sv * mb;
++        }
++
+         for (int i = 0; i < n; i++) {
+-            float fa = (float)a[i] * scale_a;
+-            float fb = (float)b[i] * scale_b;
+-            float fout = (fa + fb) / scale_out;
+-            int32_t v = (int32_t)roundf(fout);
++            int64_t acc = ta[(int)a[i] + 128] + tb[(int)b[i] + 128];
++            int32_t v = (acc >= 0)
++                      ? (int32_t)((acc + rnd) >> S)
++                      : -(int32_t)(((-acc) + rnd) >> S);
+             if (v < activation_min) v = activation_min;
+             if (v > activation_max) v = activation_max;
+             output[i] = (int8_t)v;
+@@ -59,42 +76,22 @@ void kernel_add_s8(const int8_t *a, const int8_t *b, int8_t *output, int n,
+         return;
+     }
+ 
+-    /* gemmini's fused-relu only applies activation_min=0; any clamp tighter
+-     * than the int8 range needs a post-pass. We keep relu fusion for the
+-     * common (0, 127) case and post-clamp the rest. */
+     bool fused_relu = (activation_min == 0 && activation_max == 127);
+     bool need_post_clamp = !(activation_min == -128 && activation_max == 127)
+                             && !fused_relu;
+ 
+     asm volatile("csrs mstatus, %0" : : "r"(0x18000) : "memory");
+ 
+-    scale_t a_scale = (scale_t)(scale_a / scale_out);
+-    scale_t b_scale = (scale_t)(scale_b / scale_out);
++    scale_t a_scale = (scale_t)a_ratio;
++    scale_t b_scale = (scale_t)b_ratio;
+ 
+-    /* tiled_resadd_auto's internal tiler shrinks tile_J in DIM-multiples
+-     * until acc_rows ≤ ACC_ROWS/2 = 512. The autotune is correct for
+-     * I=1 only up to a regime where the J tile-merge bookkeeping stays
+-     * coherent — empirically I=1 with very large J (yolov8: n=25600,
+-     * 12800, 6400, 3200) crashes with mcause=1 mepc=0 (stack corruption
+-     * from a stray DMA write past the output buffer when tile_J merges
+-     * across many J-tiles).
+-     *
+-     * Workaround: chunk the call into ≤6272-element pieces (the
+-     * largest size we've validated cleanly on dronet) and issue
+-     * back-to-back `tiled_resadd_auto`s with a fence between them.
+-     * Each chunk is independent — the math (per-element) doesn't
+-     * depend on neighbors. Adds at most ~10 µs per chunk for the
+-     * gemmini handshake; way under what the equivalent scalar pass
+-     * would cost. */
+     enum { ADD_CHUNK_MAX = 6272 };
+     int remaining = n;
+     int offset = 0;
+     while (remaining > 0) {
+         int chunk = remaining > ADD_CHUNK_MAX ? ADD_CHUNK_MAX : remaining;
+-
+         gemmini_flush(0);
+         asm volatile("fence" ::: "memory");
+-
+         tiled_resadd_auto(
+             /* I = */ 1, /* J = */ (size_t)chunk,
+             a_scale, b_scale, ACC_SCALE_IDENTITY,
+@@ -102,16 +99,12 @@ void kernel_add_s8(const int8_t *a, const int8_t *b, int8_t *output, int n,
+             /* relu = */ fused_relu,
+             WS
+         );
+-
+         gemmini_fence();
+         gemmini_flush(0);
+-
+         offset    += chunk;
+         remaining -= chunk;
+     }
+ 
+-    /* Post-clamp for asymmetric activation ranges that gemmini's fused
+-     * path can't express. */
+     if (need_post_clamp) {
+         for (int i = 0; i < n; i++) {
+             int v = output[i];
+diff --git a/kernels/gemmini_q31/gemmini_q31_conv2d_s8_gemmini_tiled_conv.c b/kernels/gemmini_q31/gemmini_q31_conv2d_s8_gemmini_tiled_conv.c
+deleted file mode 120000
+index f980eb7..0000000
+--- a/kernels/gemmini_q31/gemmini_q31_conv2d_s8_gemmini_tiled_conv.c
++++ /dev/null
+@@ -1 +0,0 @@
+-../gemmini/gemmini_conv2d_s8_gemmini_tiled_conv.c
+\ No newline at end of file
+diff --git a/kernels/rvv/rvv_batchnorm2d_s8_direct.c b/kernels/rvv/rvv_batchnorm2d_s8_direct.c
+index b2dcb00..ac03a08 100644
+--- a/kernels/rvv/rvv_batchnorm2d_s8_direct.c
++++ b/kernels/rvv/rvv_batchnorm2d_s8_direct.c
+@@ -1,50 +1,88 @@
+ /* source: curated */
+ /* algorithm: direct */
+-/* origin: vectorized RVV batchnorm2d_s8 (LMUL-tiled / LUT-gather where applicable). */
++/* origin: vectorized RVV batchnorm2d_s8, per-channel affine.
++ *
++ * Four things matter on a Saturn-class decoupled vector unit (VLEN=256,
++ * DLEN=128), where an instruction's cost tracks the BYTES it touches, so a
++ * 32-bit-wide op moves 4 elements/cycle while an 8/16-bit one moves 16/8:
++ *
++ *   * i8 -> i16 -> f32 via vsext.vf2 + vfwcvt, so only the second widening
++ *     step runs at 32-bit width.
++ *   * The per-channel bias is broadcast ONCE per channel, so the inner loop
++ *     is a single vfmadd (vd = vd*cs + vcb) rather than a broadcast plus a
++ *     vfmacc. The broadcast is issued at min(hw, VLMAX) -- issuing it at
++ *     VLMAX wastes most of a vector op on every channel of a late layer
++ *     whose whole H*W plane is shorter than one vector (dronet's last BN is
++ *     C=128, H*W=16).
++ *   * vfncvt.x.f.w converts f32 -> i16 in ONE instruction, and RVV float ->
++ *     int conversions already clip to the destination range, so it replaces
++ *     the vfcvt + narrow pair AND provides the saturation for free.
++ *   * That deliberately avoids vnclip. vnclip is a fixed-point op, so GCC
++ *     emits a `csrwi vxrm` for it, and the mode-switching pass only hoists
++ *     that out as far as the CHANNEL loop -- on this core a vxrm write costs
++ *     ~50 cycles of vector-unit sync PER CHANNEL. Measured on F2: a vnclip
++ *     tail beat this one by 18 cyc/chunk on the C=32,H*W=729 layer and lost
++ *     by 30 cyc/channel on C=128,H*W=16, i.e. it bought the big layers by
++ *     taxing every channel of the small ones.
++ *
++ * Folding: one FMA of x * (scale[c]*scale_in/scale_out) + bias[c]/scale_out,
++ * identical to the previously curated kernel, which verifies bit-exact
++ * against the dronet golden. The int16-domain clamp assumes the activation
++ * range fits in int8 (what a quantizer emitting an int8 tensor produces);
++ * the bounds are clamped into int8 so a wider nominal range saturates rather
++ * than wraps. */
+ 
+ void kernel_batchnorm2d_s8(const int8_t *input, const float *scale,
+                            const float *bias, int8_t *output,
+                            int N, int C, int H, int W,
+                            float scale_in, float scale_out,
+                            int activation_min, int activation_max) {
+-    float inv_scale_out = 1.0f / scale_out;
+-    int hw = H * W;
+-    int act_min = activation_min;
+-    int act_max = activation_max;
++    const float inv_scale_out = 1.0f / scale_out;
++    const int hw = H * W;
++
++    const int16_t lo = (int16_t)(activation_min < -128 ? -128
++                                 : (activation_min > 127 ? 127
++                                    : activation_min));
++    const int16_t hi = (int16_t)(activation_max < -128 ? -128
++                                 : (activation_max > 127 ? 127
++                                    : activation_max));
++
++    if (hw <= 0) {
++        return;
++    }
++    /* Width of the bias broadcast: never more than one plane's worth. */
++    const size_t vl_b = __riscv_vsetvl_e32m8((size_t)hw);
+ 
+     for (int n = 0; n < N; n++) {
+         for (int c = 0; c < C; c++) {
+-            /* Precompute combined per-channel scalars */
+-            float cs = scale[c] * scale_in * inv_scale_out;
+-            float cb = bias[c] * inv_scale_out;
+-            int base = (n * C + c) * hw;
++            const float cs = scale[c] * scale_in * inv_scale_out;
++            const float cb = bias[c] * inv_scale_out;
++            const int base = (n * C + c) * hw;
+             const int8_t *in_ptr = input + base;
+             int8_t *out_ptr = output + base;
++
++            vfloat32m8_t vcb = __riscv_vfmv_v_f_f32m8(cb, vl_b);
++
+             int i = 0;
+             size_t vl;
+             for (; i < hw; i += vl) {
+                 vl = __riscv_vsetvl_e8m2(hw - i);
+-                /* Load int8 input */
+-                vint8m2_t vi8 = __riscv_vle8_v_i8m2(in_ptr + i, vl);
+-                /* Sign-extend i8 -> i32 directly (4x widen) */
+-                vint32m8_t vi32 = __riscv_vsext_vf4_i32m8(vi8, vl);
+-                /* Convert to float */
+-                vfloat32m8_t vf = __riscv_vfcvt_f_x_v_f32m8(vi32, vl);
+-                /* Apply combined scale and bias: out = vf * cs + cb */
+-                vf = __riscv_vfmacc_vf_f32m8(
+-                         __riscv_vfmv_v_f_f32m8(cb, vl),
+-                         cs, vf, vl);
+-                /* Convert float to int32 with rounding (round-to-nearest) */
+-                vint32m8_t vi_out = __riscv_vfcvt_x_f_v_i32m8(vf, vl);
+-                /* Clamp to [activation_min, activation_max] */
+-                vi_out = __riscv_vmax_vx_i32m8(vi_out, act_min, vl);
+-                vi_out = __riscv_vmin_vx_i32m8(vi_out, act_max, vl);
+-                /* Narrow i32 -> i16 -> i8 */
+-                vint16m4_t vi16_out = __riscv_vncvt_x_x_w_i16m4(vi_out, vl);
+-                vint8m2_t vi8_out = __riscv_vncvt_x_x_w_i8m2(vi16_out, vl);
+-                /* Store */
+-                __riscv_vse8_v_i8m2(out_ptr + i, vi8_out, vl);
++
++                vint8m2_t v8 = __riscv_vle8_v_i8m2(in_ptr + i, vl);
++                vint16m4_t v16 = __riscv_vsext_vf2_i16m4(v8, vl);
++                vfloat32m8_t vf = __riscv_vfwcvt_f_x_v_f32m8(v16, vl);
++
++                /* vf = vf * cs + vcb */
++                vf = __riscv_vfmadd_vf_f32m8(vf, cs, vcb, vl);
++
++                /* f32 -> i16 with round-to-nearest and range clipping. */
++                vint16m4_t o16 = __riscv_vfncvt_x_f_w_i16m4(vf, vl);
++                o16 = __riscv_vmax_vx_i16m4(o16, lo, vl);
++                o16 = __riscv_vmin_vx_i16m4(o16, hi, vl);
++
++                vint8m2_t o8 = __riscv_vncvt_x_x_w_i8m2(o16, vl);
++                __riscv_vse8_v_i8m2(out_ptr + i, o8, vl);
+             }
+         }
+     }
+-}
+\ No newline at end of file
++}
+diff --git a/kernels/rvv/rvv_conv2d_s8_rvv_vsmul_vnclip.c b/kernels/rvv/rvv_conv2d_s8_rvv_vsmul_vnclip.c
+index 6ea7f12..d6bd8cf 100644
+--- a/kernels/rvv/rvv_conv2d_s8_rvv_vsmul_vnclip.c
++++ b/kernels/rvv/rvv_conv2d_s8_rvv_vsmul_vnclip.c
+@@ -1,22 +1,71 @@
+ /* source: curated */
+ /* algorithm: rvv_vsmul_vnclip */
+-/* origin: pure-integer RVV requantize via vsmul (Q0.31 multiply) +
+- *         vnclip (shift+saturating narrow); no FP ops, runs on Zve32x.
+- *         LMUL=4 gives 2x more OC/iter than the LMUL=2 rvv_widening_oc. */
++/* origin: pure-integer RVV requantize via vsmul (Q0.31) + vnclip, with
++ *         OUTPUT-PIXEL REGISTER TILING over the reduction loop.
++ *
++ * Why tiling, and not a different vectorization axis:
++ *   Measured on FireSim, dronet conv_modules.0 spends ~41 cycles per
++ *   reduction tap while the vector work in a tap is only ~14 (vle8 2 +
++ *   vwadd 4 + vwmacc 8 at OC=32). The other ~27 are scalar: two index
++ *   multiplies, two bounds branches, and a scalar load feeding a
++ *   vector-scalar dependency. MAC/cycle is also FLAT in OC across models
++ *   (~1.06 at OC=32, 0.84 at OC=256), which rules out vector width as the
++ *   binding constraint and points squarely at per-reduction-index overhead.
++ *
++ *   Tiling amortizes exactly that. For a strip of TILE output pixels
++ *   sharing an (oh, oc-block), the weight vector for a tap is IDENTICAL
++ *   across the strip, so one vle8 + one vwadd feeds TILE vwmaccs, and the
++ *   address math is a pointer walk. Per pixel-tap the fixed cost drops
++ *   from (2+4+27) to ((2+4)/TILE + a few), leaving the vwmacc as the
++ *   dominant term -- which is the whole point.
++ *
++ *   An earlier attempt vectorized over OW instead. That was 1.7x SLOWER
++ *   (fused_full vision_cnn.0: 1.19M -> 2.02M cycles) because it makes the
++ *   INPUT the vector operand, and at SW=2 that is a vlse8 strided load
++ *   which this vector unit serialises at ~1 element/cycle. Tiling keeps
++ *   every vector load contiguous.
++ *
++ * Padding semantics are preserved exactly: an out-of-bounds tap is NOT
++ * skipped, it contributes input_offset*(w+filter_offset), because the
++ * quantized pad value 0 still carries the input zero point. Only the
++ * all-in-bounds fast path elides the checks.
++ */
+ 
+ #include <stdint.h>
+ #include <stddef.h>
+ #include <riscv_vector.h>
+ 
+-/*
+- * LMUL alignment (element counts identical across all three types):
+- *   i32m4 — accumulator    VLMAX = 4*VLEN/32
+- *   i16m2 — requant mid    VLMAX = 2*VLEN/16  = same
+- *   i8m1  — weights/out    VLMAX = VLEN/8     = same
+- *
+- * Output is NCHW [N, OC, OH, OW].  OC elements at a fixed (n,oh,ow) are
+- * separated by stride OH*OW, so we use a strided store (vsse8).
+- */
++#ifndef MB_CONV_TILE
++#define MB_CONV_TILE 4
++#endif
++
++static inline vint8m1_t mb_requant_i32m4(vint32m4_t vacc,
++                                         int output_multiplier, int output_shift,
++                                         int output_offset,
++                                         int activation_min, int activation_max,
++                                         size_t vl)
++{
++    vint32m4_t vscaled = __riscv_vsmul_vx_i32m4(
++        vacc, output_multiplier, __RISCV_VXRM_RNU, vl);
++    vint16m2_t vout16;
++    if (output_shift < 0) {
++        vint32m4_t vsh = __riscv_vsll_vx_i32m4(vscaled, (size_t)(-output_shift), vl);
++        vout16 = __riscv_vnclip_wx_i16m2(vsh, 0, __RISCV_VXRM_RNU, vl);
++    } else if (output_shift < 32) {
++        vout16 = __riscv_vnclip_wx_i16m2(vscaled, (size_t)output_shift,
++                                         __RISCV_VXRM_RNU, vl);
++    } else {
++        int sa2 = output_shift - 31;
++        if (sa2 > 31) sa2 = 31;
++        vint32m4_t v2 = __riscv_vsra_vx_i32m4(vscaled, 31, vl);
++        vout16 = __riscv_vnclip_wx_i16m2(v2, (size_t)sa2, __RISCV_VXRM_RNU, vl);
++    }
++    vout16 = __riscv_vadd_vx_i16m2(vout16, (int16_t)output_offset, vl);
++    vout16 = __riscv_vmax_vx_i16m2(vout16, (int16_t)activation_min, vl);
++    vout16 = __riscv_vmin_vx_i16m2(vout16, (int16_t)activation_max, vl);
++    return __riscv_vnsra_wx_i8m1(vout16, 0, vl);
++}
++
+ void kernel_conv2d_s8(const int8_t *input, const int8_t *weight,
+                       const int32_t *bias, int8_t *output,
+                       int N, int IC, int IH, int IW, int OC,
+@@ -27,99 +76,230 @@ void kernel_conv2d_s8(const int8_t *input, const int8_t *weight,
+ {
+     int OH = (IH + 2*PH - KH) / SH + 1;
+     int OW = (IW + 2*PW - KW) / SW + 1;
++
+     for (int n = 0; n < N; n++) {
+         for (int oh = 0; oh < OH; oh++) {
+-            for (int ow = 0; ow < OW; ow++) {
++            int ow = 0;
++
++            /* ---- tiled strip: MB_CONV_TILE pixels share each weight load ---- */
++            for (; ow + MB_CONV_TILE <= OW; ow += MB_CONV_TILE) {
+                 int oc_base = 0;
+                 while (oc_base < OC) {
+                     size_t vl = __riscv_vsetvl_e32m4((size_t)(OC - oc_base));
+ 
+-                    /* Init accumulator from bias or zero. */
+-                    vint32m4_t vacc;
+-                    if (bias != NULL)
+-                        vacc = __riscv_vle32_v_i32m4(bias + oc_base, vl);
+-                    else
+-                        vacc = __riscv_vmv_v_x_i32m4(0, vl);
++                    vint32m4_t a0, a1, a2, a3;
++                    if (bias != NULL) {
++                        vint32m4_t vb = __riscv_vle32_v_i32m4(bias + oc_base, vl);
++                        a0 = vb; a1 = vb; a2 = vb; a3 = vb;
++                    } else {
++                        vint32m4_t vz = __riscv_vmv_v_x_i32m4(0, vl);
++                        a0 = vz; a1 = vz; a2 = vz; a3 = vz;
++                    }
+ 
+-                    /* Inner reduction over (IC, KH, KW). */
+                     for (int ic = 0; ic < IC; ic++) {
++                        const int8_t *in_ic =
++                            input + (size_t)(n*IC + ic) * IH * IW;
++                        const int8_t *w_ic = weight
++                            + (size_t)ic * KH * KW * OC + oc_base;
++
+                         for (int kh = 0; kh < KH; kh++) {
+                             int ih = oh * SH - PH + kh;
+                             int row_in = (ih >= 0 && ih < IH);
+-                            for (int kw = 0; kw < KW; kw++) {
+-                                int iw = ow * SW - PW + kw;
+-                                int8_t in_byte = 0;
+-                                if (row_in && iw >= 0 && iw < IW)
+-                                    in_byte = input[((n*IC + ic)*IH + ih)*IW + iw];
+-                                int32_t in_v = (int32_t)in_byte + input_offset;
+-
+-                                /* IHWOC: weight[ic][kh][kw][oc] — OC contiguous */
+-                                const int8_t *wp = weight
+-                                    + ((size_t)ic * KH * KW + (size_t)kh * KW + kw) * OC
+-                                    + oc_base;
+-                                vint8m1_t vw8 = __riscv_vle8_v_i8m1(wp, vl);
+-
+-                                /* Sign-extend i8m1 → i16m2, fold filter_offset. */
+-                                vint16m2_t vw16 = __riscv_vwadd_vx_i16m2(
+-                                    vw8, (int16_t)filter_offset, vl);
++                            const int8_t *wq = w_ic + (size_t)kh * KW * OC;
++                            int iw0 = ow * SW - PW;
++                            int iw_last = iw0 + (MB_CONV_TILE - 1) * SW + (KW - 1);
++                            const int8_t *ip = in_ic + (size_t)ih * IW + iw0;
+ 
+-                                /* Widening MAC: i32m4 += i16m2 * scalar. */
+-                                vacc = __riscv_vwmacc_vx_i32m4(
+-                                    vacc, (int16_t)in_v, vw16, vl);
++                            if (row_in && iw0 >= 0 && iw_last < IW) {
++                                /* all taps of all TILE pixels in bounds */
++                                for (int kw = 0; kw < KW; kw++) {
++                                    vint8m1_t vw8 = __riscv_vle8_v_i8m1(wq, vl);
++                                    vint16m2_t vw16 = __riscv_vwadd_vx_i16m2(
++                                        vw8, (int16_t)filter_offset, vl);
++                                    const int8_t *q = ip + kw;
++                                    a0 = __riscv_vwmacc_vx_i32m4(a0,
++                                        (int16_t)((int32_t)q[0]        + input_offset), vw16, vl);
++                                    a1 = __riscv_vwmacc_vx_i32m4(a1,
++                                        (int16_t)((int32_t)q[SW]       + input_offset), vw16, vl);
++                                    a2 = __riscv_vwmacc_vx_i32m4(a2,
++                                        (int16_t)((int32_t)q[2*SW]     + input_offset), vw16, vl);
++                                    a3 = __riscv_vwmacc_vx_i32m4(a3,
++                                        (int16_t)((int32_t)q[3*SW]     + input_offset), vw16, vl);
++                                    wq += OC;
++                                }
++                            } else {
++                                const int8_t *in_row = in_ic + (size_t)ih * IW;
++                                for (int kw = 0; kw < KW; kw++) {
++                                    vint8m1_t vw8 = __riscv_vle8_v_i8m1(wq, vl);
++                                    vint16m2_t vw16 = __riscv_vwadd_vx_i16m2(
++                                        vw8, (int16_t)filter_offset, vl);
++                                    int8_t b0 = 0, b1 = 0, b2 = 0, b3 = 0;
++                                    if (row_in) {
++                                        int w0 = iw0 + kw;
++                                        if (w0 >= 0 && w0 < IW)             b0 = in_row[w0];
++                                        if (w0+SW >= 0 && w0+SW < IW)       b1 = in_row[w0+SW];
++                                        if (w0+2*SW >= 0 && w0+2*SW < IW)   b2 = in_row[w0+2*SW];
++                                        if (w0+3*SW >= 0 && w0+3*SW < IW)   b3 = in_row[w0+3*SW];
++                                    }
++                                    a0 = __riscv_vwmacc_vx_i32m4(a0,
++                                        (int16_t)((int32_t)b0 + input_offset), vw16, vl);
++                                    a1 = __riscv_vwmacc_vx_i32m4(a1,
++                                        (int16_t)((int32_t)b1 + input_offset), vw16, vl);
++                                    a2 = __riscv_vwmacc_vx_i32m4(a2,
++                                        (int16_t)((int32_t)b2 + input_offset), vw16, vl);
++                                    a3 = __riscv_vwmacc_vx_i32m4(a3,
++                                        (int16_t)((int32_t)b3 + input_offset), vw16, vl);
++                                    wq += OC;
++                                }
+                             }
+                         }
+                     }
+ 
+-                    /* ---- Pure-integer requantize (no FP) ----
+-                     *
+-                     * vsmul: computes (acc * output_multiplier + 2^30) >> 31
+-                     * bit-exact to the Q0.31 reference scalar formula.
+-                     */
+-                    vint32m4_t vscaled = __riscv_vsmul_vx_i32m4(
+-                        vacc, output_multiplier, __RISCV_VXRM_RNU, vl);
+-
+-                    /* Saturating narrow i32m4 → i16m2 with output_shift.
+-                     * vnclip handles the rounding at the discarded bits. */
+-                    vint16m2_t vout16;
+-                    if (output_shift < 0) {
+-                        /* Left-shift then saturating narrow. */
+-                        vint32m4_t vshifted = __riscv_vsll_vx_i32m4(
+-                            vscaled, (size_t)(-output_shift), vl);
+-                        vout16 = __riscv_vnclip_wx_i16m2(
+-                            vshifted, 0, __RISCV_VXRM_RNU, vl);
+-                    } else if (output_shift < 32) {
+-                        /* Normal case: shift fits in log2(SEW)=5 bits. */
+-                        vout16 = __riscv_vnclip_wx_i16m2(
+-                            vscaled, (size_t)output_shift, __RISCV_VXRM_RNU, vl);
++                    int8_t *op = output + ((size_t)n * OC + oc_base) * OH * OW
++                                        + (size_t)oh * OW + ow;
++                    ptrdiff_t st = (ptrdiff_t)(OH * OW);
++                    __riscv_vsse8_v_i8m1(op + 0, st,
++                        mb_requant_i32m4(a0, output_multiplier, output_shift,
++                            output_offset, activation_min, activation_max, vl), vl);
++                    __riscv_vsse8_v_i8m1(op + 1, st,
++                        mb_requant_i32m4(a1, output_multiplier, output_shift,
++                            output_offset, activation_min, activation_max, vl), vl);
++                    __riscv_vsse8_v_i8m1(op + 2, st,
++                        mb_requant_i32m4(a2, output_multiplier, output_shift,
++                            output_offset, activation_min, activation_max, vl), vl);
++                    __riscv_vsse8_v_i8m1(op + 3, st,
++                        mb_requant_i32m4(a3, output_multiplier, output_shift,
++                            output_offset, activation_min, activation_max, vl), vl);
++
++                    oc_base += (int)vl;
++                }
++            }
++
++            /* ---- half-width strip: 2 pixels per weight load.
++             * OW=7 shapes (dronet conv_modules.4/5/6) left 3 of every
++             * 7 columns on the untiled path, which is why they gained
++             * least from TILE=4 (19-33% of the vwmacc ceiling vs ~50%
++             * for OW=56/14). A 2-pixel tier reclaims most of it. */
++            for (; ow + 2 <= OW; ow += 2) {
++                int oc_base = 0;
++                while (oc_base < OC) {
++                    size_t vl = __riscv_vsetvl_e32m4((size_t)(OC - oc_base));
++
++                    vint32m4_t a0, a1;
++                    if (bias != NULL) {
++                        vint32m4_t vb = __riscv_vle32_v_i32m4(bias + oc_base, vl);
++                        a0 = vb; a1 = vb;
+                     } else {
+-                        /* output_shift >= 32: vnclip masks shift mod 32, so we
+-                         * split into vsra(31) + vnclip(shift-31).  The remainder
+-                         * (shift-31) is in [1,31] for shifts in [32,62], which
+-                         * covers all values seen in practice.  For extreme shifts
+-                         * we cap the remainder at 31 (result rounds to 0 anyway). */
+-                        int sa2 = output_shift - 31;
+-                        if (sa2 > 31) sa2 = 31;
+-                        vint32m4_t vscaled2 = __riscv_vsra_vx_i32m4(vscaled, 31, vl);
+-                        vout16 = __riscv_vnclip_wx_i16m2(
+-                            vscaled2, (size_t)sa2, __RISCV_VXRM_RNU, vl);
++                        vint32m4_t vz = __riscv_vmv_v_x_i32m4(0, vl);
++                        a0 = vz; a1 = vz;
++                    }
++
++                    for (int ic = 0; ic < IC; ic++) {
++                        const int8_t *in_ic =
++                            input + (size_t)(n*IC + ic) * IH * IW;
++                        const int8_t *w_ic = weight
++                            + (size_t)ic * KH * KW * OC + oc_base;
++
++                        for (int kh = 0; kh < KH; kh++) {
++                            int ih = oh * SH - PH + kh;
++                            int row_in = (ih >= 0 && ih < IH);
++                            const int8_t *wq = w_ic + (size_t)kh * KW * OC;
++                            int iw0 = ow * SW - PW;
++                            int iw_last = iw0 + 1 * SW + (KW - 1);
++                            const int8_t *ip = in_ic + (size_t)ih * IW + iw0;
++
++                            if (row_in && iw0 >= 0 && iw_last < IW) {
++                                /* all taps of all TILE pixels in bounds */
++                                for (int kw = 0; kw < KW; kw++) {
++                                    vint8m1_t vw8 = __riscv_vle8_v_i8m1(wq, vl);
++                                    vint16m2_t vw16 = __riscv_vwadd_vx_i16m2(
++                                        vw8, (int16_t)filter_offset, vl);
++                                    const int8_t *q = ip + kw;
++                                    a0 = __riscv_vwmacc_vx_i32m4(a0,
++                                        (int16_t)((int32_t)q[0]        + input_offset), vw16, vl);
++                                    a1 = __riscv_vwmacc_vx_i32m4(a1,
++                                        (int16_t)((int32_t)q[SW]       + input_offset), vw16, vl);
++                                    wq += OC;
++                                }
++                            } else {
++                                const int8_t *in_row = in_ic + (size_t)ih * IW;
++                                for (int kw = 0; kw < KW; kw++) {
++                                    vint8m1_t vw8 = __riscv_vle8_v_i8m1(wq, vl);
++                                    vint16m2_t vw16 = __riscv_vwadd_vx_i16m2(
++                                        vw8, (int16_t)filter_offset, vl);
++                                    int8_t b0 = 0, b1 = 0;
++                                    if (row_in) {
++                                        int w0 = iw0 + kw;
++                                        if (w0 >= 0 && w0 < IW)             b0 = in_row[w0];
++                                        if (w0+SW >= 0 && w0+SW < IW)       b1 = in_row[w0+SW];
++                                    }
++                                    a0 = __riscv_vwmacc_vx_i32m4(a0,
++                                        (int16_t)((int32_t)b0 + input_offset), vw16, vl);
++                                    a1 = __riscv_vwmacc_vx_i32m4(a1,
++                                        (int16_t)((int32_t)b1 + input_offset), vw16, vl);
++                                    wq += OC;
++                                }
++                            }
++                        }
+                     }
+ 
+-                    /* Add zero-point, clamp to activation range. */
+-                    vout16 = __riscv_vadd_vx_i16m2(vout16, (int16_t)output_offset, vl);
+-                    vout16 = __riscv_vmax_vx_i16m2(vout16, (int16_t)activation_min, vl);
+-                    vout16 = __riscv_vmin_vx_i16m2(vout16, (int16_t)activation_max, vl);
++                    int8_t *op = output + ((size_t)n * OC + oc_base) * OH * OW
++                                        + (size_t)oh * OW + ow;
++                    ptrdiff_t st = (ptrdiff_t)(OH * OW);
++                    __riscv_vsse8_v_i8m1(op + 0, st,
++                        mb_requant_i32m4(a0, output_multiplier, output_shift,
++                            output_offset, activation_min, activation_max, vl), vl);
++                    __riscv_vsse8_v_i8m1(op + 1, st,
++                        mb_requant_i32m4(a1, output_multiplier, output_shift,
++                            output_offset, activation_min, activation_max, vl), vl);
++
++                    oc_base += (int)vl;
++                }
++            }
+ 
+-                    /* Truncate i16m2 → i8m1 (already clamped, no saturation needed). */
+-                    vint8m1_t vout8 = __riscv_vnsra_wx_i8m1(vout16, 0, vl);
++            /* ---- remainder columns: one pixel at a time ---- */
++            for (; ow < OW; ow++) {
++                int oc_base = 0;
++                while (oc_base < OC) {
++                    size_t vl = __riscv_vsetvl_e32m4((size_t)(OC - oc_base));
++                    vint32m4_t vacc;
++                    if (bias != NULL) vacc = __riscv_vle32_v_i32m4(bias + oc_base, vl);
++                    else              vacc = __riscv_vmv_v_x_i32m4(0, vl);
+ 
+-                    int8_t *op = output
+-                        + ((size_t)n * OC + oc_base) * OH * OW
+-                        + (size_t)oh * OW + ow;
+-                    int8_t _obuf[256];
+-                    __riscv_vse8_v_i8m1(_obuf, vout8, vl);
+-                    for (size_t _vi = 0; _vi < vl; _vi++)
+-                        op[_vi * (ptrdiff_t)(OH * OW)] = _obuf[_vi];
++                    for (int ic = 0; ic < IC; ic++) {
++                        const int8_t *in_ic =
++                            input + (size_t)(n*IC + ic) * IH * IW;
++                        const int8_t *w_ic = weight
++                            + (size_t)ic * KH * KW * OC + oc_base;
++                        for (int kh = 0; kh < KH; kh++) {
++                            int ih = oh * SH - PH + kh;
++                            int row_in = (ih >= 0 && ih < IH);
++                            const int8_t *in_row = in_ic + (size_t)ih * IW;
++                            const int8_t *wq = w_ic + (size_t)kh * KW * OC;
++                            int iw0 = ow * SW - PW;
++                            for (int kw = 0; kw < KW; kw++) {
++                                int iw = iw0 + kw;
++                                int8_t in_byte = 0;
++                                if (row_in && iw >= 0 && iw < IW)
++                                    in_byte = in_row[iw];
++                                vint8m1_t vw8 = __riscv_vle8_v_i8m1(wq, vl);
++                                vint16m2_t vw16 = __riscv_vwadd_vx_i16m2(
++                                    vw8, (int16_t)filter_offset, vl);
++                                vacc = __riscv_vwmacc_vx_i32m4(vacc,
++                                    (int16_t)((int32_t)in_byte + input_offset),
++                                    vw16, vl);
++                                wq += OC;
++                            }
++                        }
++                    }
+ 
++                    vint8m1_t vo = mb_requant_i32m4(vacc, output_multiplier,
++                        output_shift, output_offset, activation_min,
++                        activation_max, vl);
++                    __riscv_vsse8_v_i8m1(
++                        output + ((size_t)n * OC + oc_base) * OH * OW
++                               + (size_t)oh * OW + ow,
++                        (ptrdiff_t)(OH * OW), vo, vl);
+                     oc_base += (int)vl;
+                 }
+             }
+diff --git a/kernels/rvv/rvv_linear_f16_narrow.c b/kernels/rvv/rvv_linear_f16_narrow.c
+index c63b654..7f27cda 100644
+--- a/kernels/rvv/rvv_linear_f16_narrow.c
++++ b/kernels/rvv/rvv_linear_f16_narrow.c
+@@ -9,31 +9,119 @@
+  *   accumulator): use THIS on targets with no fp32 vector datapath (the FPGA drone
+  *   target has no LUT area for an fp32 vector ALU). Divergence from the reference
+  *   is reduction ORDER only (fp16 is non-associative) -> numeric_drift. bias +
+- *   final store match the reference (output[m*N+n] = (_Float16)(acc + bias[n])). */
++ *   final store match the reference (output[m*N+n] = (_Float16)(acc + bias[n])).
++ *
++ * N-BLOCKED BY 4 (2026-08-28, kernel_opt_log exp 1000+): input[m]'s K-length row
++ * is IDENTICAL across every output n -- only the weight row differs. The
++ * original per-n loop reloaded the whole input row from memory via vle16 once
++ * per K-chunk *per n*, i.e. N times total for a given m, on Saturn's
++ * single-ported vector LSU (exactly one LoadSequencer for the whole core --
++ * saturn/src/main/scala/backend/Backend.scala). For the actual production
++ * shapes here (fused_full's vision_fc M=1,K=1536,N=512 and depth_fc
++ * M=1,K=1024,N=64), that made the redundant input-row reload traffic roughly
++ * EQUAL to the necessary (load-each-weight-element-once) weight traffic --
++ * i.e. this kernel was paying for ~2x the load-port bandwidth it needed.
++ *
++ * This version processes N in blocks of 4: for each K-chunk, `input` is
++ * loaded ONCE and fed to 4 independent accumulators (one per output in the
++ * block), each fed by its own weight-chunk load. That cuts input-row reload
++ * traffic ~4x while leaving weight traffic and the reduction count IDENTICAL
++ * to the original (still exactly one reduction per (m,n), same per-n chunk
++ * order) — the four accumulators are NUMERICALLY INDEPENDENT of each other,
++ * so this is not just same-accuracy-class but bit-identical to running the
++ * original per-n algorithm 4 times, just with the input load shared. B=4
++ * also matches Saturn's FMA pipe depth (fmaPipeDepth=4), so 4 independent
++ * accumulator chains issued back-to-back keep the FMA pipe covered instead
++ * of stalling on a lone accumulator's loop-carried RAW dependency.
++ *
++ * The N%4 tail (if any) falls back to the original single-n algorithm
++ * unchanged, so odd N is still exactly correct. */
+ 
+ #include <stddef.h>
+ #include <riscv_vector.h>
+ 
++/* Original per-n algorithm, used for the N%4 tail. */
++static inline _Float16 mb_linear_f16_one(const _Float16 *in_row, const _Float16 *w_row,
++                                          int K, size_t vlmax) {
++    vfloat16m4_t vacc = __riscv_vfmv_v_f_f16m4((_Float16)0.0f, vlmax);
++    int k = 0;
++    size_t vl;
++    for (; k < K; k += (int)vl) {
++        vl = __riscv_vsetvl_e16m4(K - k);
++        vfloat16m4_t va = __riscv_vle16_v_f16m4(in_row + k, vl);
++        vfloat16m4_t vb = __riscv_vle16_v_f16m4(w_row + k, vl);
++        vacc = __riscv_vfmacc_vv_f16m4(vacc, va, vb, vl);
++    }
++    vfloat16m1_t vs = __riscv_vfmv_s_f_f16m1((_Float16)0.0f, 1);
++    vs = __riscv_vfredusum_vs_f16m4_f16m1(vacc, vs, vlmax);
++    return __riscv_vfmv_f_s_f16m1_f16(vs);
++}
++
+ void kernel_linear_f16(const _Float16 *input, const _Float16 *weight,
+                        const _Float16 *bias, _Float16 *output,
+                        int M, int K, int N) {
+     const size_t vlmax = __riscv_vsetvlmax_e16m4();
+     for (int m = 0; m < M; m++) {
+         const _Float16 *in_row = input + (size_t)m * (size_t)K;
+-        for (int n = 0; n < N; n++) {
+-            const _Float16 *w_row = weight + (size_t)n * (size_t)K;
+-            vfloat16m4_t vacc = __riscv_vfmv_v_f_f16m4((_Float16)0.0f, vlmax);
++        int n = 0;
++        for (; n + 4 <= N; n += 4) {
++            const _Float16 *w0 = weight + (size_t)(n + 0) * (size_t)K;
++            const _Float16 *w1 = weight + (size_t)(n + 1) * (size_t)K;
++            const _Float16 *w2 = weight + (size_t)(n + 2) * (size_t)K;
++            const _Float16 *w3 = weight + (size_t)(n + 3) * (size_t)K;
++
++            vfloat16m4_t vacc0 = __riscv_vfmv_v_f_f16m4((_Float16)0.0f, vlmax);
++            vfloat16m4_t vacc1 = __riscv_vfmv_v_f_f16m4((_Float16)0.0f, vlmax);
++            vfloat16m4_t vacc2 = __riscv_vfmv_v_f_f16m4((_Float16)0.0f, vlmax);
++            vfloat16m4_t vacc3 = __riscv_vfmv_v_f_f16m4((_Float16)0.0f, vlmax);
++
+             int k = 0;
+             size_t vl;
+             for (; k < K; k += (int)vl) {
+                 vl = __riscv_vsetvl_e16m4(K - k);
+-                vfloat16m4_t va = __riscv_vle16_v_f16m4(in_row + k, vl);
+-                vfloat16m4_t vb = __riscv_vle16_v_f16m4(w_row + k, vl);
+-                vacc = __riscv_vfmacc_vv_f16m4(vacc, va, vb, vl);  /* fp16 MAC + acc */
++                vfloat16m4_t va = __riscv_vle16_v_f16m4(in_row + k, vl);  /* loaded ONCE, shared by 4 outputs */
++
++                vfloat16m4_t vb0 = __riscv_vle16_v_f16m4(w0 + k, vl);
++                vacc0 = __riscv_vfmacc_vv_f16m4(vacc0, va, vb0, vl);
++
++                vfloat16m4_t vb1 = __riscv_vle16_v_f16m4(w1 + k, vl);
++                vacc1 = __riscv_vfmacc_vv_f16m4(vacc1, va, vb1, vl);
++
++                vfloat16m4_t vb2 = __riscv_vle16_v_f16m4(w2 + k, vl);
++                vacc2 = __riscv_vfmacc_vv_f16m4(vacc2, va, vb2, vl);
++
++                vfloat16m4_t vb3 = __riscv_vle16_v_f16m4(w3 + k, vl);
++                vacc3 = __riscv_vfmacc_vv_f16m4(vacc3, va, vb3, vl);
+             }
+-            vfloat16m1_t vs = __riscv_vfmv_s_f_f16m1((_Float16)0.0f, 1);
+-            vs = __riscv_vfredusum_vs_f16m4_f16m1(vacc, vs, vlmax);
+-            _Float16 acc = __riscv_vfmv_f_s_f16m1_f16(vs);
++
++            vfloat16m1_t vs0 = __riscv_vfmv_s_f_f16m1((_Float16)0.0f, 1);
++            vfloat16m1_t vs1 = __riscv_vfmv_s_f_f16m1((_Float16)0.0f, 1);
++            vfloat16m1_t vs2 = __riscv_vfmv_s_f_f16m1((_Float16)0.0f, 1);
++            vfloat16m1_t vs3 = __riscv_vfmv_s_f_f16m1((_Float16)0.0f, 1);
++            vs0 = __riscv_vfredusum_vs_f16m4_f16m1(vacc0, vs0, vlmax);
++            vs1 = __riscv_vfredusum_vs_f16m4_f16m1(vacc1, vs1, vlmax);
++            vs2 = __riscv_vfredusum_vs_f16m4_f16m1(vacc2, vs2, vlmax);
++            vs3 = __riscv_vfredusum_vs_f16m4_f16m1(vacc3, vs3, vlmax);
++
++            _Float16 acc0 = __riscv_vfmv_f_s_f16m1_f16(vs0);
++            _Float16 acc1 = __riscv_vfmv_f_s_f16m1_f16(vs1);
++            _Float16 acc2 = __riscv_vfmv_f_s_f16m1_f16(vs2);
++            _Float16 acc3 = __riscv_vfmv_f_s_f16m1_f16(vs3);
++            if (bias) {
++                acc0 = (_Float16)(acc0 + bias[n + 0]);
++                acc1 = (_Float16)(acc1 + bias[n + 1]);
++                acc2 = (_Float16)(acc2 + bias[n + 2]);
++                acc3 = (_Float16)(acc3 + bias[n + 3]);
++            }
++            output[(size_t)m * N + n + 0] = acc0;
++            output[(size_t)m * N + n + 1] = acc1;
++            output[(size_t)m * N + n + 2] = acc2;
++            output[(size_t)m * N + n + 3] = acc3;
++        }
++        /* N % 4 tail: original per-n algorithm, unchanged. */
++        for (; n < N; n++) {
++            const _Float16 *w_row = weight + (size_t)n * (size_t)K;
++            _Float16 acc = mb_linear_f16_one(in_row, w_row, K, vlmax);
+             if (bias) acc = (_Float16)(acc + bias[n]);
+             output[(size_t)m * N + n] = acc;
+         }
+diff --git a/kernels/rvv/rvv_lstm_f16_direct.c b/kernels/rvv/rvv_lstm_f16_direct.c
+index 9b00ddb..7237c55 100644
+--- a/kernels/rvv/rvv_lstm_f16_direct.c
++++ b/kernels/rvv/rvv_lstm_f16_direct.c
+@@ -14,39 +14,103 @@
+  *   The gate sigmoid/tanh + cell update are evaluated in scalar float (O(H), tiny)
+  *   exactly as the reference — on the scalar FPU, not the vector unit. Deferred
+  *   hidden writeback preserved (the h.w_hh GEMM reads the PREVIOUS h; new hidden
+- *   goes to out[], committed to h[] after all units; out must not alias h). */
++ *   goes to out[], committed to h[] after all units; out must not alias h).
++ *
++ * GATE-BLOCKED (2026-08-28, kernel_opt_log exp 1000+): x and h are IDENTICAL
++ * across all 4 gates of a given unit j -- only the weight row differs (row =
++ * g*H+j). The original per-gate mb_dot_f16() call reloaded x (length in_size)
++ * and h (length H) from memory FOUR TIMES per unit (once per gate), via
++ * vle16, on Saturn's single-ported vector LSU (one LoadSequencer for the
++ * whole core, confirmed in saturn/src/main/scala/backend/Backend.scala --
++ * `vls`/`vss` are each instantiated exactly once). mb_dot4_f16() below loads
++ * each K-chunk of `a` (x or h) ONCE per chunk and reuses that same register
++ * across all 4 gates' independent accumulators, cutting a/b-stream load
++ * traffic ~4x for the x-dot and h-dot passes without changing weight traffic
++ * (already loaded exactly once per element, unavoidable) or reduction count
++ * (still exactly 4 reductions per pass, matching the original 4 separate
++ * mb_dot_f16 calls -- see below). B=4 also happens to match Saturn's FMA
++ * pipe depth (fmaPipeDepth=4 in VectorParams), so the 4 independent
++ * accumulator chains issued back-to-back keep the FMA pipe's throughput
++ * covered instead of stalling on the single-accumulator loop-carried RAW
++ * dependency the original had.
++ *
++ * NUMERICALLY IDENTICAL to the previous curated kernel (not just same
++ * accuracy_class): for a fixed gate g, vacc_g is updated by the exact same
++ * sequence of vfmacc(vacc_g, va_chunk_k, vb_g_chunk_k) operations in the same
++ * chunk order as the old mb_dot_f16(a, w[g], n) call would have produced --
++ * only the *interleaving* with the other 3 gates' independent accumulators
++ * changed, which does not affect any single gate's floating-point result. */
+ 
+ #include <math.h>
+ #include <stddef.h>
+ #include <riscv_vector.h>
+ 
+-/* Unit-stride fp16 dot product over n elements, accumulated in fp16 (no fp32). */
+-static inline _Float16 mb_dot_f16(const _Float16 *a, const _Float16 *b, int n) {
+-    vfloat16m4_t vacc = __riscv_vfmv_v_f_f16m4((_Float16)0.0f,
+-                                               __riscv_vsetvlmax_e16m4());
++/* 4-way "gate-blocked" fp16 dot product: computes dot(a, w[g]) for g=0..3
++ * simultaneously, loading `a` ONCE per K-chunk and reusing it across all 4
++ * gate weight rows. See file header for why this beats 4x mb_dot_f16(). */
++static inline void mb_dot4_f16(const _Float16 *a, const _Float16 *const w[4],
++                                int n, _Float16 out[4]) {
++    const size_t vlmax = __riscv_vsetvlmax_e16m4();
++    vfloat16m4_t vacc0 = __riscv_vfmv_v_f_f16m4((_Float16)0.0f, vlmax);
++    vfloat16m4_t vacc1 = __riscv_vfmv_v_f_f16m4((_Float16)0.0f, vlmax);
++    vfloat16m4_t vacc2 = __riscv_vfmv_v_f_f16m4((_Float16)0.0f, vlmax);
++    vfloat16m4_t vacc3 = __riscv_vfmv_v_f_f16m4((_Float16)0.0f, vlmax);
+     int k = 0;
+     size_t vl;
+     for (; k < n; k += (int)vl) {
+         vl = __riscv_vsetvl_e16m4(n - k);
+-        vfloat16m4_t va = __riscv_vle16_v_f16m4(a + k, vl);
+-        vfloat16m4_t vb = __riscv_vle16_v_f16m4(b + k, vl);
+-        vacc = __riscv_vfmacc_vv_f16m4(vacc, va, vb, vl);   /* fp16 MAC, fp16 acc */
++        vfloat16m4_t va = __riscv_vle16_v_f16m4(a + k, vl);   /* loaded ONCE, shared by 4 gates */
++
++        vfloat16m4_t vb0 = __riscv_vle16_v_f16m4(w[0] + k, vl);
++        vacc0 = __riscv_vfmacc_vv_f16m4(vacc0, va, vb0, vl);
++
++        vfloat16m4_t vb1 = __riscv_vle16_v_f16m4(w[1] + k, vl);
++        vacc1 = __riscv_vfmacc_vv_f16m4(vacc1, va, vb1, vl);
++
++        vfloat16m4_t vb2 = __riscv_vle16_v_f16m4(w[2] + k, vl);
++        vacc2 = __riscv_vfmacc_vv_f16m4(vacc2, va, vb2, vl);
++
++        vfloat16m4_t vb3 = __riscv_vle16_v_f16m4(w[3] + k, vl);
++        vacc3 = __riscv_vfmacc_vv_f16m4(vacc3, va, vb3, vl);
+     }
+-    vfloat16m1_t vs = __riscv_vfmv_s_f_f16m1((_Float16)0.0f, 1);
+-    vs = __riscv_vfredusum_vs_f16m4_f16m1(vacc, vs, __riscv_vsetvlmax_e16m4());
+-    return __riscv_vfmv_f_s_f16m1_f16(vs);
++    vfloat16m1_t vs0 = __riscv_vfmv_s_f_f16m1((_Float16)0.0f, 1);
++    vfloat16m1_t vs1 = __riscv_vfmv_s_f_f16m1((_Float16)0.0f, 1);
++    vfloat16m1_t vs2 = __riscv_vfmv_s_f_f16m1((_Float16)0.0f, 1);
++    vfloat16m1_t vs3 = __riscv_vfmv_s_f_f16m1((_Float16)0.0f, 1);
++    vs0 = __riscv_vfredusum_vs_f16m4_f16m1(vacc0, vs0, vlmax);
++    vs1 = __riscv_vfredusum_vs_f16m4_f16m1(vacc1, vs1, vlmax);
++    vs2 = __riscv_vfredusum_vs_f16m4_f16m1(vacc2, vs2, vlmax);
++    vs3 = __riscv_vfredusum_vs_f16m4_f16m1(vacc3, vs3, vlmax);
++    out[0] = __riscv_vfmv_f_s_f16m1_f16(vs0);
++    out[1] = __riscv_vfmv_f_s_f16m1_f16(vs1);
++    out[2] = __riscv_vfmv_f_s_f16m1_f16(vs2);
++    out[3] = __riscv_vfmv_f_s_f16m1_f16(vs3);
+ }
+ 
+ void kernel_lstm_f16(const _Float16 *x, const _Float16 *w_ih, const _Float16 *w_hh,
+                      const _Float16 *bias, _Float16 *h, _Float16 *c, _Float16 *out,
+                      int in_size, int H) {
+     for (int j = 0; j < H; j++) {
++        const _Float16 *wih_rows[4] = {
++            w_ih + (long)(0 * H + j) * in_size,
++            w_ih + (long)(1 * H + j) * in_size,
++            w_ih + (long)(2 * H + j) * in_size,
++            w_ih + (long)(3 * H + j) * in_size,
++        };
++        const _Float16 *whh_rows[4] = {
++            w_hh + (long)(0 * H + j) * H,
++            w_hh + (long)(1 * H + j) * H,
++            w_hh + (long)(2 * H + j) * H,
++            w_hh + (long)(3 * H + j) * H,
++        };
++        _Float16 ax[4], ah[4];
++        mb_dot4_f16(x, wih_rows, in_size, ax);
++        mb_dot4_f16(h, whh_rows, H, ah);
++
+         float pre[4];
+         for (int g = 0; g < 4; g++) {
+             int row = g * H + j;
+-            _Float16 ax = mb_dot_f16(x, w_ih + (long)row * in_size, in_size);
+-            _Float16 ah = mb_dot_f16(h, w_hh + (long)row * H, H);
+-            pre[g] = (float)ax + (float)ah + (float)bias[row];
++            pre[g] = (float)ax[g] + (float)ah[g] + (float)bias[row];
+         }
+         float ig = 1.0f / (1.0f + expf(-pre[0]));
+         float fg = 1.0f / (1.0f + expf(-pre[1]));
+diff --git a/kernels/rvv/rvv_maxpool2d_s8_direct.c b/kernels/rvv/rvv_maxpool2d_s8_direct.c
+index 4ab1b94..61f4237 100644
+--- a/kernels/rvv/rvv_maxpool2d_s8_direct.c
++++ b/kernels/rvv/rvv_maxpool2d_s8_direct.c
+@@ -1,6 +1,43 @@
+ /* source: curated */
+ /* algorithm: direct */
+-/* origin: vectorized RVV maxpool2d_s8 (LMUL-tiled / LUT-gather where applicable). */
++/* origin: vectorized RVV maxpool2d_s8 with a DEINTERLEAVED load path for
++ *         stride-2 pooling (contiguous vle16 + vnsrl, no strided gather).
++ *
++ * The problem this fixes
++ * ---------------------
++ * The previous kernel vectorized over OW and fetched each tap with
++ * vlse8 -- a stride-SW gather. On dronet's only maxpool (C=32, 56x56 ->
++ * 27x27, K=3, S=2) that is 9 gathers of 27 elements per (channel, row),
++ * and it measured ~96 cycles per gather+max, i.e. ~3.5 cycles PER ELEMENT.
++ * Memory-indexed access on this vector unit is in the same slow family as
++ * vluxei (~11.9 cyc/elem measured elsewhere); contiguous loads and
++ * register-internal permutes run ~1.7.
++ *
++ * The fix
++ * -------
++ * At SW=2, the taps a pooling window needs are exactly the even and odd
++ * byte lanes of a CONTIGUOUS run. Load 2*vl bytes as vl 16-bit elements
++ * and split them with vnsrl:
++ *     vnsrl(v16, 0) -> bytes at even offsets   (taps with even index)
++ *     vnsrl(v16, 8) -> bytes at odd offsets    (taps with odd index)
++ * so one contiguous vle16 serves TWO taps, and a K=3 window costs two
++ * loads instead of three gathers. Nothing is indexed; every load is unit
++ * stride and every split is a register-internal shift.
++ *
++ * Generality
++ * ----------
++ * The deinterleave path is taken only when SW==2 && DW==1, the whole
++ * chunk is in bounds, and the row base is 2-byte aligned (vle16 needs
++ * element alignment). Everything else -- other strides, dilation, edge
++ * chunks, unaligned rows -- falls through to the original strided/scalar
++ * behaviour, which is preserved exactly. Padded positions are still
++ * simply not considered, matching -inf padding against the INT8_MIN
++ * accumulator init.
++ */
++
++#include <stdint.h>
++#include <stddef.h>
++#include <riscv_vector.h>
+ 
+ void kernel_maxpool2d_s8(const int8_t *input, int8_t *output,
+                          int N, int C, int IH, int IW,
+@@ -8,129 +45,80 @@ void kernel_maxpool2d_s8(const int8_t *input, int8_t *output,
+                          int PH, int PW, int DH, int DW) {
+     int OH = (IH + 2*PH - DH*(KH-1) - 1) / SH + 1;
+     int OW = (IW + 2*PW - DW*(KW-1) - 1) / SW + 1;
++    const int deint_shape = (SW == 2 && DW == 1);
+ 
+     for (int n = 0; n < N; n++) {
+         for (int c = 0; c < C; c++) {
+-            const int8_t *in_nc = input + (n*C + c)*IH*IW;
+-            int8_t *out_nc = output + (n*C + c)*OH*OW;
++            const int8_t *in_nc = input + (size_t)(n*C + c)*IH*IW;
++            int8_t *out_nc = output + (size_t)(n*C + c)*OH*OW;
+ 
+             for (int oh = 0; oh < OH; oh++) {
+                 int ow = 0;
+                 size_t vl;
+-
+-                /* Vectorize over OW dimension */
+                 for (; ow < OW; ow += vl) {
+-                    vl = __riscv_vsetvl_e8m4(OW - ow);
+-
+-                    /* Initialize accumulator with INT8_MIN */
++                    vl = __riscv_vsetvl_e8m4((size_t)(OW - ow));
+                     vint8m4_t vacc = __riscv_vmv_v_x_i8m4((int8_t)(-128), vl);
+ 
+                     for (int kh = 0; kh < KH; kh++) {
+                         int ih = oh*SH - PH + kh*DH;
+                         if (ih < 0 || ih >= IH) continue;
++                        const int8_t *in_row = in_nc + (size_t)ih*IW;
++                        int iw_base = ow*SW - PW;
+ 
+-                        const int8_t *in_row = in_nc + ih*IW;
++                        /* ---- fast path: contiguous load + vnsrl split ---- */
++                        if (deint_shape
++                            && iw_base >= 0
++                            && iw_base + (KW - 1) + 2*(int)vl <= IW
++                            && ((((uintptr_t)in_row) & 1u) == 0)) {
++                            int last_off = -1;
++                            vuint16m8_t v16 = __riscv_vmv_v_x_u16m8(0, vl);
++                            for (int kw = 0; kw < KW; kw++) {
++                                int idx = iw_base + kw;      /* byte index of tap */
++                                int odd = idx & 1;
++                                int off = idx - odd;         /* even -> 16b aligned */
++                                if (off != last_off) {
++                                    v16 = __riscv_vle16_v_u16m8(
++                                        (const uint16_t *)(const void *)(in_row + off),
++                                        vl);
++                                    last_off = off;
++                                }
++                                vuint8m4_t by = __riscv_vnsrl_wx_u8m4(
++                                    v16, (size_t)(odd ? 8 : 0), vl);
++                                vacc = __riscv_vmax_vv_i8m4(
++                                    vacc, __riscv_vreinterpret_v_u8m4_i8m4(by), vl);
++                            }
++                            continue;
++                        }
+ 
++                        /* ---- general path: strided when fully in bounds ---- */
+                         for (int kw = 0; kw < KW; kw++) {
+-                            /* Base input column for first output in this vector chunk */
+-                            /* output ow+lane corresponds to input (ow+lane)*SW - PW + kw*DW */
+-                            /* For SW==1: iw = ow + kw*DW - PW, contiguous load */
+-                            /* For SW>1: strided load with stride SW bytes */
+-
+-                            int iw_base = ow*SW - PW + kw*DW;
+-
+-                            if (SW == 1) {
+-                                /* Check if any element in [iw_base, iw_base+vl) is valid */
+-                                /* For contiguous load, handle boundary with masking */
+-                                if (iw_base >= IW || iw_base + (int)vl <= 0) continue;
+-
+-                                if (iw_base >= 0 && iw_base + (int)vl <= IW) {
+-                                    /* Fully in bounds: simple load */
+-                                    vint8m4_t vdata = __riscv_vle8_v_i8m4(in_row + iw_base, vl);
+-                                    vacc = __riscv_vmax_vv_i8m4(vacc, vdata, vl);
+-                                } else {
+-                                    /* Partial: scalar fallback for this kw */
+-                                    for (size_t lane = 0; lane < vl; lane++) {
+-                                        int iw = iw_base + (int)lane;
+-                                        if (iw >= 0 && iw < IW) {
+-                                            int8_t v = in_row[iw];
+-                                            /* We need to update lane 'lane' of vacc */
+-                                            /* Use scalar approach for boundary cases */
+-                                            /* Extract, compare, insert is expensive;
+-                                               just do scalar for the whole chunk */
+-                                        }
+-                                    }
+-                                    /* Fall back to scalar for this kw */
+-                                    for (size_t lane = 0; lane < vl; lane++) {
+-                                        int iw = iw_base + (int)lane;
+-                                        if (iw >= 0 && iw < IW) {
+-                                            /* We need per-lane update - use slide approach */
+-                                            /* Simpler: just do scalar accumulation */
+-                                        }
+-                                    }
+-                                    /* Actually handle with scalar for boundary kw */
+-                                    goto scalar_kw;
+-                                }
+-                                continue;
+-                            scalar_kw:;
+-                                /* scalar path for boundary */
++                            int iw0 = iw_base + kw*DW;
++                            int iw_last = iw0 + (int)(vl - 1)*SW;
++                            if (iw0 >= 0 && iw_last < IW) {
++                                vint8m4_t vd = (SW == 1)
++                                    ? __riscv_vle8_v_i8m4(in_row + iw0, vl)
++                                    : __riscv_vlse8_v_i8m4(in_row + iw0,
++                                          (ptrdiff_t)SW, vl);
++                                vacc = __riscv_vmax_vv_i8m4(vacc, vd, vl);
++                            } else {
++                                /* boundary chunk: per-lane, skipping pads */
++                                int8_t tmp[256];
++                                __riscv_vse8_v_i8m4(tmp, vacc, vl);
+                                 for (size_t lane = 0; lane < vl; lane++) {
+-                                    int iw = iw_base + (int)lane;
++                                    int iw = iw0 + (int)lane*SW;
+                                     if (iw >= 0 && iw < IW) {
+-                                        int8_t cur = __riscv_vmv_x_s_i8m4_i8(
+-                                            __riscv_vslidedown_vx_i8m4(vacc, lane, 1));
+                                         int8_t v = in_row[iw];
+-                                        if (v > cur) {
+-                                            /* Can't easily update single lane; use scalar acc */
+-                                        }
+-                                    }
+-                                }
+-                                /* This is getting complex - just do full scalar for boundary */
+-                                {
+-                                    /* Write back vacc to temp, update, reload */
+-                                    int8_t tmp[256];
+-                                    __riscv_vse8_v_i8m4(tmp, vacc, vl);
+-                                    for (size_t lane = 0; lane < vl; lane++) {
+-                                        int iw = iw_base + (int)lane;
+-                                        if (iw >= 0 && iw < IW) {
+-                                            int8_t v = in_row[iw];
+-                                            if (v > tmp[lane]) tmp[lane] = v;
+-                                        }
+-                                    }
+-                                    vacc = __riscv_vle8_v_i8m4(tmp, vl);
+-                                }
+-                            } else {
+-                                /* SW > 1: strided load */
+-                                if (iw_base >= IW) continue;
+-                                /* Check bounds for all lanes */
+-                                int iw_last = iw_base + (int)(vl-1)*SW;
+-                                if (iw_base >= 0 && iw_last < IW) {
+-                                    /* All in bounds */
+-                                    vint8m4_t vdata = __riscv_vlse8_v_i8m4(
+-                                        in_row + iw_base,
+-                                        (ptrdiff_t)SW * (ptrdiff_t)sizeof(int8_t),
+-                                        vl);
+-                                    vacc = __riscv_vmax_vv_i8m4(vacc, vdata, vl);
+-                                } else {
+-                                    /* Boundary: scalar fallback */
+-                                    int8_t tmp[256];
+-                                    __riscv_vse8_v_i8m4(tmp, vacc, vl);
+-                                    for (size_t lane = 0; lane < vl; lane++) {
+-                                        int iw = iw_base + (int)lane*SW;
+-                                        if (iw >= 0 && iw < IW) {
+-                                            int8_t v = in_row[iw];
+-                                            if (v > tmp[lane]) tmp[lane] = v;
+-                                        }
++                                        if (v > tmp[lane]) tmp[lane] = v;
+                                     }
+-                                    vacc = __riscv_vle8_v_i8m4(tmp, vl);
+                                 }
++                                vacc = __riscv_vle8_v_i8m4(tmp, vl);
+                             }
+                         }
+                     }
+ 
+-                    __riscv_vse8_v_i8m4(out_nc + oh*OW + ow, vacc, vl);
++                    __riscv_vse8_v_i8m4(out_nc + (size_t)oh*OW + ow, vacc, vl);
+                 }
+             }
+         }
+     }
+-}
+\ No newline at end of file
++}
+diff --git a/kernels/rvv_f16/rvv_f16_linear_f16_narrow.c b/kernels/rvv_f16/rvv_f16_linear_f16_narrow.c
+index c63b654..7f27cda 100644
+--- a/kernels/rvv_f16/rvv_f16_linear_f16_narrow.c
++++ b/kernels/rvv_f16/rvv_f16_linear_f16_narrow.c
+@@ -9,31 +9,119 @@
+  *   accumulator): use THIS on targets with no fp32 vector datapath (the FPGA drone
+  *   target has no LUT area for an fp32 vector ALU). Divergence from the reference
+  *   is reduction ORDER only (fp16 is non-associative) -> numeric_drift. bias +
+- *   final store match the reference (output[m*N+n] = (_Float16)(acc + bias[n])). */
++ *   final store match the reference (output[m*N+n] = (_Float16)(acc + bias[n])).
++ *
++ * N-BLOCKED BY 4 (2026-08-28, kernel_opt_log exp 1000+): input[m]'s K-length row
++ * is IDENTICAL across every output n -- only the weight row differs. The
++ * original per-n loop reloaded the whole input row from memory via vle16 once
++ * per K-chunk *per n*, i.e. N times total for a given m, on Saturn's
++ * single-ported vector LSU (exactly one LoadSequencer for the whole core --
++ * saturn/src/main/scala/backend/Backend.scala). For the actual production
++ * shapes here (fused_full's vision_fc M=1,K=1536,N=512 and depth_fc
++ * M=1,K=1024,N=64), that made the redundant input-row reload traffic roughly
++ * EQUAL to the necessary (load-each-weight-element-once) weight traffic --
++ * i.e. this kernel was paying for ~2x the load-port bandwidth it needed.
++ *
++ * This version processes N in blocks of 4: for each K-chunk, `input` is
++ * loaded ONCE and fed to 4 independent accumulators (one per output in the
++ * block), each fed by its own weight-chunk load. That cuts input-row reload
++ * traffic ~4x while leaving weight traffic and the reduction count IDENTICAL
++ * to the original (still exactly one reduction per (m,n), same per-n chunk
++ * order) — the four accumulators are NUMERICALLY INDEPENDENT of each other,
++ * so this is not just same-accuracy-class but bit-identical to running the
++ * original per-n algorithm 4 times, just with the input load shared. B=4
++ * also matches Saturn's FMA pipe depth (fmaPipeDepth=4), so 4 independent
++ * accumulator chains issued back-to-back keep the FMA pipe covered instead
++ * of stalling on a lone accumulator's loop-carried RAW dependency.
++ *
++ * The N%4 tail (if any) falls back to the original single-n algorithm
++ * unchanged, so odd N is still exactly correct. */
+ 
+ #include <stddef.h>
+ #include <riscv_vector.h>
+ 
++/* Original per-n algorithm, used for the N%4 tail. */
++static inline _Float16 mb_linear_f16_one(const _Float16 *in_row, const _Float16 *w_row,
++                                          int K, size_t vlmax) {
++    vfloat16m4_t vacc = __riscv_vfmv_v_f_f16m4((_Float16)0.0f, vlmax);
++    int k = 0;
++    size_t vl;
++    for (; k < K; k += (int)vl) {
++        vl = __riscv_vsetvl_e16m4(K - k);
++        vfloat16m4_t va = __riscv_vle16_v_f16m4(in_row + k, vl);
++        vfloat16m4_t vb = __riscv_vle16_v_f16m4(w_row + k, vl);
++        vacc = __riscv_vfmacc_vv_f16m4(vacc, va, vb, vl);
++    }
++    vfloat16m1_t vs = __riscv_vfmv_s_f_f16m1((_Float16)0.0f, 1);
++    vs = __riscv_vfredusum_vs_f16m4_f16m1(vacc, vs, vlmax);
++    return __riscv_vfmv_f_s_f16m1_f16(vs);
++}
++
+ void kernel_linear_f16(const _Float16 *input, const _Float16 *weight,
+                        const _Float16 *bias, _Float16 *output,
+                        int M, int K, int N) {
+     const size_t vlmax = __riscv_vsetvlmax_e16m4();
+     for (int m = 0; m < M; m++) {
+         const _Float16 *in_row = input + (size_t)m * (size_t)K;
+-        for (int n = 0; n < N; n++) {
+-            const _Float16 *w_row = weight + (size_t)n * (size_t)K;
+-            vfloat16m4_t vacc = __riscv_vfmv_v_f_f16m4((_Float16)0.0f, vlmax);
++        int n = 0;
++        for (; n + 4 <= N; n += 4) {
++            const _Float16 *w0 = weight + (size_t)(n + 0) * (size_t)K;
++            const _Float16 *w1 = weight + (size_t)(n + 1) * (size_t)K;
++            const _Float16 *w2 = weight + (size_t)(n + 2) * (size_t)K;
++            const _Float16 *w3 = weight + (size_t)(n + 3) * (size_t)K;
++
++            vfloat16m4_t vacc0 = __riscv_vfmv_v_f_f16m4((_Float16)0.0f, vlmax);
++            vfloat16m4_t vacc1 = __riscv_vfmv_v_f_f16m4((_Float16)0.0f, vlmax);
++            vfloat16m4_t vacc2 = __riscv_vfmv_v_f_f16m4((_Float16)0.0f, vlmax);
++            vfloat16m4_t vacc3 = __riscv_vfmv_v_f_f16m4((_Float16)0.0f, vlmax);
++
+             int k = 0;
+             size_t vl;
+             for (; k < K; k += (int)vl) {
+                 vl = __riscv_vsetvl_e16m4(K - k);
+-                vfloat16m4_t va = __riscv_vle16_v_f16m4(in_row + k, vl);
+-                vfloat16m4_t vb = __riscv_vle16_v_f16m4(w_row + k, vl);
+-                vacc = __riscv_vfmacc_vv_f16m4(vacc, va, vb, vl);  /* fp16 MAC + acc */
++                vfloat16m4_t va = __riscv_vle16_v_f16m4(in_row + k, vl);  /* loaded ONCE, shared by 4 outputs */
++
++                vfloat16m4_t vb0 = __riscv_vle16_v_f16m4(w0 + k, vl);
++                vacc0 = __riscv_vfmacc_vv_f16m4(vacc0, va, vb0, vl);
++
++                vfloat16m4_t vb1 = __riscv_vle16_v_f16m4(w1 + k, vl);
++                vacc1 = __riscv_vfmacc_vv_f16m4(vacc1, va, vb1, vl);
++
++                vfloat16m4_t vb2 = __riscv_vle16_v_f16m4(w2 + k, vl);
++                vacc2 = __riscv_vfmacc_vv_f16m4(vacc2, va, vb2, vl);
++
++                vfloat16m4_t vb3 = __riscv_vle16_v_f16m4(w3 + k, vl);
++                vacc3 = __riscv_vfmacc_vv_f16m4(vacc3, va, vb3, vl);
+             }
+-            vfloat16m1_t vs = __riscv_vfmv_s_f_f16m1((_Float16)0.0f, 1);
+-            vs = __riscv_vfredusum_vs_f16m4_f16m1(vacc, vs, vlmax);
+-            _Float16 acc = __riscv_vfmv_f_s_f16m1_f16(vs);
++
++            vfloat16m1_t vs0 = __riscv_vfmv_s_f_f16m1((_Float16)0.0f, 1);
++            vfloat16m1_t vs1 = __riscv_vfmv_s_f_f16m1((_Float16)0.0f, 1);
++            vfloat16m1_t vs2 = __riscv_vfmv_s_f_f16m1((_Float16)0.0f, 1);
++            vfloat16m1_t vs3 = __riscv_vfmv_s_f_f16m1((_Float16)0.0f, 1);
++            vs0 = __riscv_vfredusum_vs_f16m4_f16m1(vacc0, vs0, vlmax);
++            vs1 = __riscv_vfredusum_vs_f16m4_f16m1(vacc1, vs1, vlmax);
++            vs2 = __riscv_vfredusum_vs_f16m4_f16m1(vacc2, vs2, vlmax);
++            vs3 = __riscv_vfredusum_vs_f16m4_f16m1(vacc3, vs3, vlmax);
++
++            _Float16 acc0 = __riscv_vfmv_f_s_f16m1_f16(vs0);
++            _Float16 acc1 = __riscv_vfmv_f_s_f16m1_f16(vs1);
++            _Float16 acc2 = __riscv_vfmv_f_s_f16m1_f16(vs2);
++            _Float16 acc3 = __riscv_vfmv_f_s_f16m1_f16(vs3);
++            if (bias) {
++                acc0 = (_Float16)(acc0 + bias[n + 0]);
++                acc1 = (_Float16)(acc1 + bias[n + 1]);
++                acc2 = (_Float16)(acc2 + bias[n + 2]);
++                acc3 = (_Float16)(acc3 + bias[n + 3]);
++            }
++            output[(size_t)m * N + n + 0] = acc0;
++            output[(size_t)m * N + n + 1] = acc1;
++            output[(size_t)m * N + n + 2] = acc2;
++            output[(size_t)m * N + n + 3] = acc3;
++        }
++        /* N % 4 tail: original per-n algorithm, unchanged. */
++        for (; n < N; n++) {
++            const _Float16 *w_row = weight + (size_t)n * (size_t)K;
++            _Float16 acc = mb_linear_f16_one(in_row, w_row, K, vlmax);
+             if (bias) acc = (_Float16)(acc + bias[n]);
+             output[(size_t)m * N + n] = acc;
+         }
+diff --git a/kernels/rvv_f16/rvv_f16_lstm_f16_direct.c b/kernels/rvv_f16/rvv_f16_lstm_f16_direct.c
+index 9b00ddb..7237c55 100644
+--- a/kernels/rvv_f16/rvv_f16_lstm_f16_direct.c
++++ b/kernels/rvv_f16/rvv_f16_lstm_f16_direct.c
+@@ -14,39 +14,103 @@
+  *   The gate sigmoid/tanh + cell update are evaluated in scalar float (O(H), tiny)
+  *   exactly as the reference — on the scalar FPU, not the vector unit. Deferred
+  *   hidden writeback preserved (the h.w_hh GEMM reads the PREVIOUS h; new hidden
+- *   goes to out[], committed to h[] after all units; out must not alias h). */
++ *   goes to out[], committed to h[] after all units; out must not alias h).
++ *
++ * GATE-BLOCKED (2026-08-28, kernel_opt_log exp 1000+): x and h are IDENTICAL
++ * across all 4 gates of a given unit j -- only the weight row differs (row =
++ * g*H+j). The original per-gate mb_dot_f16() call reloaded x (length in_size)
++ * and h (length H) from memory FOUR TIMES per unit (once per gate), via
++ * vle16, on Saturn's single-ported vector LSU (one LoadSequencer for the
++ * whole core, confirmed in saturn/src/main/scala/backend/Backend.scala --
++ * `vls`/`vss` are each instantiated exactly once). mb_dot4_f16() below loads
++ * each K-chunk of `a` (x or h) ONCE per chunk and reuses that same register
++ * across all 4 gates' independent accumulators, cutting a/b-stream load
++ * traffic ~4x for the x-dot and h-dot passes without changing weight traffic
++ * (already loaded exactly once per element, unavoidable) or reduction count
++ * (still exactly 4 reductions per pass, matching the original 4 separate
++ * mb_dot_f16 calls -- see below). B=4 also happens to match Saturn's FMA
++ * pipe depth (fmaPipeDepth=4 in VectorParams), so the 4 independent
++ * accumulator chains issued back-to-back keep the FMA pipe's throughput
++ * covered instead of stalling on the single-accumulator loop-carried RAW
++ * dependency the original had.
++ *
++ * NUMERICALLY IDENTICAL to the previous curated kernel (not just same
++ * accuracy_class): for a fixed gate g, vacc_g is updated by the exact same
++ * sequence of vfmacc(vacc_g, va_chunk_k, vb_g_chunk_k) operations in the same
++ * chunk order as the old mb_dot_f16(a, w[g], n) call would have produced --
++ * only the *interleaving* with the other 3 gates' independent accumulators
++ * changed, which does not affect any single gate's floating-point result. */
+ 
+ #include <math.h>
+ #include <stddef.h>
+ #include <riscv_vector.h>
+ 
+-/* Unit-stride fp16 dot product over n elements, accumulated in fp16 (no fp32). */
+-static inline _Float16 mb_dot_f16(const _Float16 *a, const _Float16 *b, int n) {
+-    vfloat16m4_t vacc = __riscv_vfmv_v_f_f16m4((_Float16)0.0f,
+-                                               __riscv_vsetvlmax_e16m4());
++/* 4-way "gate-blocked" fp16 dot product: computes dot(a, w[g]) for g=0..3
++ * simultaneously, loading `a` ONCE per K-chunk and reusing it across all 4
++ * gate weight rows. See file header for why this beats 4x mb_dot_f16(). */
++static inline void mb_dot4_f16(const _Float16 *a, const _Float16 *const w[4],
++                                int n, _Float16 out[4]) {
++    const size_t vlmax = __riscv_vsetvlmax_e16m4();
++    vfloat16m4_t vacc0 = __riscv_vfmv_v_f_f16m4((_Float16)0.0f, vlmax);
++    vfloat16m4_t vacc1 = __riscv_vfmv_v_f_f16m4((_Float16)0.0f, vlmax);
++    vfloat16m4_t vacc2 = __riscv_vfmv_v_f_f16m4((_Float16)0.0f, vlmax);
++    vfloat16m4_t vacc3 = __riscv_vfmv_v_f_f16m4((_Float16)0.0f, vlmax);
+     int k = 0;
+     size_t vl;
+     for (; k < n; k += (int)vl) {
+         vl = __riscv_vsetvl_e16m4(n - k);
+-        vfloat16m4_t va = __riscv_vle16_v_f16m4(a + k, vl);
+-        vfloat16m4_t vb = __riscv_vle16_v_f16m4(b + k, vl);
+-        vacc = __riscv_vfmacc_vv_f16m4(vacc, va, vb, vl);   /* fp16 MAC, fp16 acc */
++        vfloat16m4_t va = __riscv_vle16_v_f16m4(a + k, vl);   /* loaded ONCE, shared by 4 gates */
++
++        vfloat16m4_t vb0 = __riscv_vle16_v_f16m4(w[0] + k, vl);
++        vacc0 = __riscv_vfmacc_vv_f16m4(vacc0, va, vb0, vl);
++
++        vfloat16m4_t vb1 = __riscv_vle16_v_f16m4(w[1] + k, vl);
++        vacc1 = __riscv_vfmacc_vv_f16m4(vacc1, va, vb1, vl);
++
++        vfloat16m4_t vb2 = __riscv_vle16_v_f16m4(w[2] + k, vl);
++        vacc2 = __riscv_vfmacc_vv_f16m4(vacc2, va, vb2, vl);
++
++        vfloat16m4_t vb3 = __riscv_vle16_v_f16m4(w[3] + k, vl);
++        vacc3 = __riscv_vfmacc_vv_f16m4(vacc3, va, vb3, vl);
+     }
+-    vfloat16m1_t vs = __riscv_vfmv_s_f_f16m1((_Float16)0.0f, 1);
+-    vs = __riscv_vfredusum_vs_f16m4_f16m1(vacc, vs, __riscv_vsetvlmax_e16m4());
+-    return __riscv_vfmv_f_s_f16m1_f16(vs);
++    vfloat16m1_t vs0 = __riscv_vfmv_s_f_f16m1((_Float16)0.0f, 1);
++    vfloat16m1_t vs1 = __riscv_vfmv_s_f_f16m1((_Float16)0.0f, 1);
++    vfloat16m1_t vs2 = __riscv_vfmv_s_f_f16m1((_Float16)0.0f, 1);
++    vfloat16m1_t vs3 = __riscv_vfmv_s_f_f16m1((_Float16)0.0f, 1);
++    vs0 = __riscv_vfredusum_vs_f16m4_f16m1(vacc0, vs0, vlmax);
++    vs1 = __riscv_vfredusum_vs_f16m4_f16m1(vacc1, vs1, vlmax);
++    vs2 = __riscv_vfredusum_vs_f16m4_f16m1(vacc2, vs2, vlmax);
++    vs3 = __riscv_vfredusum_vs_f16m4_f16m1(vacc3, vs3, vlmax);
++    out[0] = __riscv_vfmv_f_s_f16m1_f16(vs0);
++    out[1] = __riscv_vfmv_f_s_f16m1_f16(vs1);
++    out[2] = __riscv_vfmv_f_s_f16m1_f16(vs2);
++    out[3] = __riscv_vfmv_f_s_f16m1_f16(vs3);
+ }
+ 
+ void kernel_lstm_f16(const _Float16 *x, const _Float16 *w_ih, const _Float16 *w_hh,
+                      const _Float16 *bias, _Float16 *h, _Float16 *c, _Float16 *out,
+                      int in_size, int H) {
+     for (int j = 0; j < H; j++) {
++        const _Float16 *wih_rows[4] = {
++            w_ih + (long)(0 * H + j) * in_size,
++            w_ih + (long)(1 * H + j) * in_size,
++            w_ih + (long)(2 * H + j) * in_size,
++            w_ih + (long)(3 * H + j) * in_size,
++        };
++        const _Float16 *whh_rows[4] = {
++            w_hh + (long)(0 * H + j) * H,
++            w_hh + (long)(1 * H + j) * H,
++            w_hh + (long)(2 * H + j) * H,
++            w_hh + (long)(3 * H + j) * H,
++        };
++        _Float16 ax[4], ah[4];
++        mb_dot4_f16(x, wih_rows, in_size, ax);
++        mb_dot4_f16(h, whh_rows, H, ah);
++
+         float pre[4];
+         for (int g = 0; g < 4; g++) {
+             int row = g * H + j;
+-            _Float16 ax = mb_dot_f16(x, w_ih + (long)row * in_size, in_size);
+-            _Float16 ah = mb_dot_f16(h, w_hh + (long)row * H, H);
+-            pre[g] = (float)ax + (float)ah + (float)bias[row];
++            pre[g] = (float)ax[g] + (float)ah[g] + (float)bias[row];
+         }
+         float ig = 1.0f / (1.0f + expf(-pre[0]));
+         float fg = 1.0f / (1.0f + expf(-pre[1]));
+diff --git a/optimize/firesim_eval/evaluator.py b/optimize/firesim_eval/evaluator.py
+index 8c1d756..541cbde 100644
+--- a/optimize/firesim_eval/evaluator.py
++++ b/optimize/firesim_eval/evaluator.py
+@@ -85,6 +85,14 @@ class FiresimEvalConfig:
+     replacement_threshold_pct: float = 1.0
+     # FireSim board target — chipyard's quad-rocket-saturn slot.
+     board_target: str = "chipyard_riscv64/rocketchip_virt_riscv64"
++    # How the ELF actually reaches an FPGA:
++    #   "local" — drive the FIRESIM_ROOT install directly (one local U250,
++    #             serialised; this is garden's board).
++    #   "fq"    — submit to the shared AWS F2 pool through the `fq` queue
++    #             (8 lanes, runs candidates concurrently).
++    # Default is "fq": kernel re-ranking should not squat garden's U250,
++    # and the pool is what makes batch re-rank cheap.
++    transport: str = os.environ.get("FIRESIM_TRANSPORT", "fq")
+ 
+ 
+ @dataclass
+@@ -102,6 +110,66 @@ class FiresimEvalResult:
+     golden_max_abs_err: Optional[float] = None
+ 
+ 
++# ---------------------------------------------------------------------------
++# uartlog -> result  (shared by the single-candidate and batch paths)
++# ---------------------------------------------------------------------------
++
++def parse_uart_result(uart: str, io_path: str) -> tuple[bool, str, dict]:
++    """Turn a FireSim/fq uartlog into (ok, diagnostic, parsed).
++
++    `parsed` carries cycles_by_op / wall_cycles / golden_ok /
++    golden_max_abs_err. Transport-agnostic on purpose: the local runner
++    and the fq pool emit byte-identical harness output.
++    """
++    from modelblaster.validation.runner_common import (
++        parse_output, parse_profile, parse_verify, parse_wall_cycles,
++        compare,
++    )
++    import numpy as np
++
++    verify = parse_verify(uart)
++    profile = parse_profile(uart) or []
++    cycles_by_op: dict[str, int] = {}
++    for row in profile:
++        cycles_by_op[row["op"]] = (
++            cycles_by_op.get(row["op"], 0) + int(row["cycles"])
++        )
++    wall = parse_wall_cycles(uart)
++
++    raw_golden = np.load(io_path)["output"]
++    is_int = raw_golden.dtype.kind in ("i", "u")
++    is_fp16 = raw_golden.dtype == np.float16
++    if is_int:
++        atol = rtol = 0.0
++    elif is_fp16:
++        atol, rtol = 1e-2, 1e-2
++    else:
++        atol, rtol = 1e-5, 1e-4
++
++    if verify is not None:
++        n_golden = int(np.asarray(raw_golden).reshape(-1).size)
++        if verify["n"] != n_golden:
++            ok, max_ae = False, float("inf")
++        else:
++            max_ae = verify["max_abs_err"]
++            ok = (max_ae <= atol) or (verify["max_rel_err"] <= rtol)
++    else:
++        try:
++            actual = parse_output(uart)
++        except Exception as e:  # noqa: BLE001
++            return False, f"output parse failed: {e}", {}
++        golden = raw_golden.astype(np.float32).reshape(-1)
++        ok, stats = compare(actual, golden, atol=atol, rtol=rtol)
++        max_ae = stats.get("max_abs_err")
++
++    return True, "ok", {
++        "cycles_by_op": cycles_by_op,
++        "wall_cycles": wall,
++        "golden_ok": ok,
++        "golden_max_abs_err": max_ae,
++    }
++
++
+ # ---------------------------------------------------------------------------
+ # FPGA queue helper
+ # ---------------------------------------------------------------------------
+@@ -371,77 +439,35 @@ class FiresimEvaluator:
+         """Stage the elf to the firesim sim slot, run it, parse output.
+         Returns (ok, diagnostic, parsed_dict). parsed_dict holds
+         cycles_by_op, wall_cycles, golden_ok, golden_max_abs_err."""
+-        # Local imports — same lazy pattern; firesim_runner is heavy.
+-        from modelblaster.validation.firesim_runner import run_firesim
+-        from modelblaster.validation.runner_common import (
+-            parse_output, parse_profile, parse_verify, parse_wall_cycles,
+-            compare,
+-        )
+-        import numpy as np
+-
+-        try:
+-            uart = run_firesim(
+-                elf_path,
+-                models=None,  # single-model harness
+-                firesim_root=self.config.firesim_root,
+-                firesim_env=self.config.firesim_env,
+-                firesim_slot=self.config.firesim_slot,
+-                timeout=self.config.firesim_timeout_sec,
+-                stage_elf=True,
+-                kill_first=True,
+-                verbose=False,
++        if self.config.transport == "fq":
++            from modelblaster.optimize.firesim_eval.fq_transport import (
++                run_fq,
+             )
+-        except Exception as e:
+-            return False, f"firesim run threw: {type(e).__name__}: {e}", {}
+-
+-        # Modern harness emits a single MODELBLASTER_VERIFY summary; legacy
+-        # binaries ship the per-element OUTPUT block. Prefer the
+-        # summary on FireSim — the OUTPUT path's per-element printf
+-        # over HTIF UART used to dominate the wall budget.
+-        verify = parse_verify(uart)
+-
+-        profile = parse_profile(uart) or []
+-        cycles_by_op: dict[str, int] = {}
+-        for row in profile:
+-            cycles_by_op[row["op"]] = (
+-                cycles_by_op.get(row["op"], 0) + int(row["cycles"])
+-            )
+-        wall = parse_wall_cycles(uart)
+-
+-        raw_golden = np.load(self.io_path)["output"]
+-        is_int = raw_golden.dtype.kind in ("i", "u")
+-        is_fp16 = raw_golden.dtype == np.float16
+-        if is_int:
+-            atol = rtol = 0.0
+-        elif is_fp16:
+-            atol, rtol = 1e-2, 1e-2
+-        else:
+-            atol, rtol = 1e-5, 1e-4
+-
+-        if verify is not None:
+-            n_golden = int(np.asarray(raw_golden).reshape(-1).size)
+-            if verify["n"] != n_golden:
+-                ok = False
+-                max_ae = float("inf")
+-            else:
+-                max_ae = verify["max_abs_err"]
+-                max_re = verify["max_rel_err"]
+-                ok = (max_ae <= atol) or (max_re <= rtol)
++            try:
++                uart = run_fq(
++                    elf_path,
++                    timeout_sec=int(self.config.firesim_timeout_sec),
++                )
++            except Exception as e:  # noqa: BLE001
++                return False, f"fq run threw: {type(e).__name__}: {e}", {}
+         else:
++            from modelblaster.validation.firesim_runner import run_firesim
+             try:
+-                actual = parse_output(uart)
+-            except Exception as e:
+-                return False, f"firesim output parse failed: {e}", {}
+-            golden = raw_golden.astype(np.float32).reshape(-1)
+-            ok, stats = compare(actual, golden, atol=atol, rtol=rtol)
+-            max_ae = stats.get("max_abs_err")
+-
+-        return True, "ok", {
+-            "cycles_by_op": cycles_by_op,
+-            "wall_cycles": wall,
+-            "golden_ok": ok,
+-            "golden_max_abs_err": max_ae,
+-        }
++                uart = run_firesim(
++                    elf_path,
++                    models=None,  # single-model harness
++                    firesim_root=self.config.firesim_root,
++                    firesim_env=self.config.firesim_env,
++                    firesim_slot=self.config.firesim_slot,
++                    timeout=self.config.firesim_timeout_sec,
++                    stage_elf=True,
++                    kill_first=True,
++                    verbose=False,
++                )
++            except Exception as e:  # noqa: BLE001
++                return False, f"firesim run threw: {type(e).__name__}: {e}", {}
++
++        return parse_uart_result(uart, self.io_path)
+ 
+ 
+ # ---------------------------------------------------------------------------
+diff --git a/pipeline/backends.py b/pipeline/backends.py
+index 7ba9e21..d2e3d0d 100644
+--- a/pipeline/backends.py
++++ b/pipeline/backends.py
+@@ -278,17 +278,49 @@ GEMMINI = Backend(
+ #      (or set MODELBLASTER_GEMMINI_LIB_DIR to a dir that has libgemmini.so.q31
+ #      renamed to libgemmini.so).
+ #   3. TARGET=gemmini_q31 modelblaster/examples/<m>/run.sh ...
++#
++# SPLIT (2026-08-28, correctness campaign): this used to be ONE Backend
++# that quietly turned into a fused Gemmini+Saturn(RVV) target the moment
++# `v` was added to kernel_cflags — every "gemmini_q31" number on record
++# up to that point (5.222x, 3,411,130 cycles, 155x-off-baseline) was
++# really "Gemmini+RVV vs RVV", not a statement about Gemmini alone. It is
++# now two backends:
++#   - GEMMINI_Q31      — PURE Gemmini. rv64imafdc, no `v`. Gemmini kernels
++#                        only for the ops Gemmini actually covers
++#                        correctly (conv2d_s8, add_s8, linear_s8); every
++#                        other op is scalar reference. This is the honest
++#                        "what does Gemmini alone do" measurement,
++#                        coverage gap included.
++#   - GEMMINI_Q31_RVV  — the fused target. Same Gemmini kernels for
++#                        conv2d_s8/add_s8/linear_s8 PLUS `v` + the RVV
++#                        kernels for the ops Gemmini doesn't (efficiently)
++#                        cover. All the previously-reported wins live
++#                        here now, correctly labeled.
++# Both targets pick ONLY bit-exact algorithms for conv2d_s8/maxpool2d_s8/
++# relu_s8 — see kernels/gemmini_q31/archive/ for the two kernels
++# (gemmini_tiled_conv_pool, gemmini_resadd_relu) that turned out to
++# declare accuracy_class=bit_exact and are not (experiments/
++# kernel_opt_log.jsonl ids 1100-1108).
+ GEMMINI_Q31 = Backend(
+     name="gemmini_q31",
+     description=(
+-        "Same as gemmini but for the Q0.31 acc_scale bitstream variant: "
+-        "tiled_conv_auto's mvout requantize is bit-exact integer instead "
+-        "of f32. Used after chipyard rebuilds with Q31GemminiRocketConfig."
++        "PURE Gemmini on the Q0.31 acc_scale bitstream variant: no `v`, "
++        "no RVV fallback kernels. Gemmini kernels for conv2d_s8 "
++        "(gemmini_im2col_full_C — bit-exact; gemmini_tiled_conv is NOT "
++        "offered here, see its header), add_s8 and linear_s8; every "
++        "other op (batchnorm2d_s8, maxpool2d_s8, relu_s8, sigmoid_s8) is "
++        "scalar reference_impl. Used after chipyard rebuilds with "
++        "Q31GemminiRocketConfig. For the fused Gemmini+RVV target, see "
++        "GEMMINI_Q31_RVV below."
+     ),
+     kernel_cflags=GEMMINI.kernel_cflags + (
+         # Tells gemmini_conv2d_s8_gemmini_tiled_conv.c to fold (mult, shift)
+         # into a single Q0.31 scale instead of computing a float scale via
+         # ldexpf. Required when acc_scale_t is int32 (Q31 gemmini config).
++        # (gemmini_tiled_conv isn't actually selected by this target's
++        # curated dir any more — see its header for why — but the define
++        # is harmless to carry and keeps the TU consistent if it's ever
++        # re-offered.)
+         "-DMODELBLASTER_GEMMINI_Q31_ACC_SCALE=1",
+     ),
+     kernel_includes=GEMMINI.kernel_includes,
+@@ -296,16 +328,77 @@ GEMMINI_Q31 = Backend(
+     spike_args=GEMMINI.spike_args,
+     optimization_guide=GEMMINI.optimization_guide,
+     verify_method=GEMMINI.verify_method,
+-    # Q0.31 fold introduces ≤1 LSB drift per layer (one rounded multiply
+-    # vs the two-stage TFLite formula). dronet (~30 layers) stays well
+-    # inside atol; yolov8 (~200 layers) accumulates to ~80 LSB. Bumping
+-    # to atol=128 lets gemmini_tiled_conv (HW im2col + GEMM in one call)
+-    # win verify on yolov8 too instead of falling back to the slower
+-    # gemmini_im2col_full_C (CPU im2col + scalar Q0.31). The drift is a
+-    # known-bounded mode (single-stage vs two-stage Q0.31 fold), not a
+-    # kernel bug; downstream model accuracy on int8 detection is robust
+-    # to it.
+-    atol_override=128.0,
++    # Both conv2d_s8 (gemmini_im2col_full_C) and add_s8/linear_s8
++    # (gemmini_resadd / gemmini_tiled_matmul, both verified bit-exact in
++    # isolation, kernel_opt_log id 1102/1103) are now exact, and every
++    # other op is scalar reference (exact by construction). Tight atol —
++    # this target should verify at max_abs_err=0.
++    atol_override=1.0,
++    rtol_override=0.0,
++)
++
++
++# Fused Gemmini+Saturn(RVV) target: same acc_scale_t=int32 Q0.31 bitstream
++# as GEMMINI_Q31, but with `v` added so ops Gemmini doesn't (efficiently)
++# cover fall back to the proven RVV kernels instead of scalar. This is
++# where every previously-reported "gemmini_q31" speed number now lives —
++# see the SPLIT note above GEMMINI_Q31 for why it moved.
++#
++# kernel_cflags: unlike GEMMINI, this is NOT rv64imafdc — see exp
++# 310/312 (kernel_opt_log.jsonl). Every op with no Gemmini kernel
++# (batchnorm2d_s8, and — by triage — maxpool2d_s8/relu_s8/linear_s8,
++# which measure SLOWER on Gemmini than on RVV) was silently falling
++# back to SCALAR, not RVV, because GEMMINI.kernel_cflags carries no
++# `v`. exp 310 proved hart 1 (where main.c pins execution once
++# CONFIG_RISCV_ISA_EXT_V is defined — see harness/src/main.c) still
++# has a working Gemmini RoCC port on the SatGemDualSmall bitstream,
++# so adding `v` does not strand the accelerator. `<repo_root>` is
++# substituted the same way as GEMMINI's isystem paths.
++GEMMINI_Q31_RVV = Backend(
++    name="gemmini_q31_rvv",
++    description=(
++        "Fused Gemmini+Saturn(RVV) on the Q0.31 acc_scale bitstream: "
++        "Gemmini kernels for conv2d_s8/add_s8, RVV kernels (kernels/rvv/"
++        "*_direct.c, unmodified) for batchnorm2d_s8/maxpool2d_s8/"
++        "relu_s8/linear_s8. All of it verified bit-exact (kernel_opt_log "
++        "id 1105+); this is the fast headline configuration."
++    ),
++    kernel_cflags=tuple(
++        "-march=rv64imafdcv" if f == "-march=rv64imafdc" else f
++        for f in GEMMINI.kernel_cflags
++    ) + (
++        "-DMODELBLASTER_GEMMINI_Q31_ACC_SCALE=1",
++    ),
++    # + riscv_vector.h so the RVV fallback kernels (batchnorm2d_s8,
++    # maxpool2d_s8, relu_s8, linear_s8 — kernels/gemmini_q31_rvv/)
++    # compile alongside gemmini.h's RoCC macros in the same kernels.c TU.
++    kernel_includes=GEMMINI.kernel_includes + ("<riscv_vector.h>",),
++    # gemmini_q31.conf carries the rvv.conf V stanza (EAGER context
++    # switch + CONFIG_RISCV_V_KERNEL_ONLY) on top of GEMMINI's overlay.
++    # NOTE (same caveat as GEMMINI.prj_conf_overlay elsewhere in this
++    # file): this field is not read by examples/_run_lib.sh's firesim
++    # path today — that path selects harness/backends/
++    # firesim_chipyard_dual_gemmini_q31.conf directly by GEN_TARGET name
++    # (dual_gemmini.conf's SMP/UART stanza + this same V stanza). Kept
++    # here for documentation / future wiring.
++    prj_conf_overlay="gemmini_q31.conf",
++    # `v` added to the isa string so RUNNER=spike / curated_verify's
++    # nested spike-harness builds can decode the RVV fallback kernels'
++    # intrinsics alongside --extension=gemmini's RoCC decode. Spike
++    # itself is single-hart-with-everything (unlike the FPGA's hart-0
++    # lacks V / hart-1 has V split), so this combination is expected to
++    # "just work", but as of this change it had not been separately
++    # regression-tested against a V-containing curated kernel — only
++    # against the FPGA hardware run (see kernel_opt_log.jsonl id 800+).
++    spike_args=("--extension=gemmini", "--isa=rv64gcv_zicntr"),
++    optimization_guide=GEMMINI.optimization_guide,
++    verify_method=GEMMINI.verify_method,
++    # conv2d_s8 now uses gemmini_im2col_full_C (RVV-vectorized, exact)
++    # instead of the drifting gemmini_tiled_conv — see kernels/
++    # gemmini_q31_rvv/gemmini_q31_rvv_conv2d_s8_gemmini_im2col_full_C.c.
++    # Every op in this target's curated set (kernels/gemmini_q31_rvv/)
++    # is bit-exact; tight atol.
++    atol_override=1.0,
+     rtol_override=0.0,
+ )
+ 
+@@ -341,6 +434,7 @@ BACKENDS: dict[str, Backend] = {
+     RVV_OPU.name: RVV_OPU,
+     GEMMINI.name: GEMMINI,
+     GEMMINI_Q31.name: GEMMINI_Q31,
++    GEMMINI_Q31_RVV.name: GEMMINI_Q31_RVV,
+ }
+ 
+ 
+diff --git a/pipeline/generate_kernels.py b/pipeline/generate_kernels.py
+index 73656e1..aec1851 100644
+--- a/pipeline/generate_kernels.py
++++ b/pipeline/generate_kernels.py
+@@ -1247,6 +1247,41 @@ def generate(
+             os.environ.get("MODELBLASTER_CURATED_VERIFY", "1") == "1"
+             and needs_harness_paths
+         )
++        # PRE-SEED PASS.
++        # `_verify` only ever compares the FINAL model output against the
++        # PyTorch golden -- it has no view of intermediates. So the impls
++        # dict that surrounds the kernel under test *is* the experiment's
++        # control, and seeding it all-reference makes that control wrong:
++        # any op whose reference_impl is broken poisons the verdict for
++        # every op verified before the good curated kernel for it lands.
++        #
++        # specs iterate in sorted(op_kinds) order, so on dronet
++        # `batchnorm2d_s8` is judged while conv2d_s8 is still the broken
++        # scalar reference, and inherits that conv's max_abs_err=92.
++        # The batchnorm kernel was never the problem.
++        #
++        # Fix: seed every op that HAS a curated file with it up front, so
++        # each op is judged against the best-known stack rather than the
++        # worst-known one. A curated kernel that then fails verify is
++        # reverted to reference immediately (below) so it cannot poison
++        # the ops after it.
++        curated_seed: dict[str, tuple[str, str, str]] = {}
++        if global_curated_dir is not None:
++            for spec in specs:
++                for algorithm in spec.algorithms:
++                    _fn = f"{target.name}_{spec.op}_{algorithm.name}.c"
++                    _cp = os.path.join(global_curated_dir, target.name, _fn)
++                    if os.path.exists(_cp):
++                        curated_seed[spec.op] = (
++                            algorithm.name, _cp, open(_cp).read())
++                        break
++            if curated_seed:
++                for _op, (_algo, _cp, _src) in curated_seed.items():
++                    impls[_op] = _src
++                log(f"  [curated] pre-seeded verify baseline with "
++                    f"{len(curated_seed)} curated kernel(s): "
++                    f"{sorted(curated_seed)}")
++
+         if global_curated_dir is not None:
+             for spec in specs:
+                 for algorithm in spec.algorithms:
+@@ -1276,16 +1311,74 @@ def generate(
+                                 algorithm_name=algorithm.name,
+                             )
+                         except Exception as e:
+-                            log(f"  [{spec.op}/{algorithm.name}] curated "
+-                                f"verify raised {type(e).__name__}: {e}; "
+-                                f"falling back to reference_impl")
+-                            accepted = False
++                            # A BUILD failure is NOT evidence against this op.
++                            # The harness is compiled with every pre-seeded
++                            # curated kernel in it, so one non-compiling
++                            # pre-seed fails the build for every op that is
++                            # verified before the culprit is reached and
++                            # reverted -- silently downgrading all of them to
++                            # reference. That cost yolov8n 21% of runtime
++                            # (batchnorm2d + cat2/3/4) before it was noticed.
++                            # Numeric failures are handled below and are real;
++                            # only compile failures get this treatment.
++                            _build_fail = "west build failed" in str(e)
++                            if _build_fail and curated_seed:
++                                log(f"  [{spec.op}/{algorithm.name}] curated "
++                                    f"verify hit a BUILD failure, not a "
++                                    f"numeric mismatch. The harness carries "
++                                    f"{len(curated_seed)} pre-seeded curated "
++                                    f"kernel(s), so the culprit may be any of "
++                                    f"{sorted(curated_seed)} -- not "
++                                    f"necessarily {spec.op}. Every op sorting "
++                                    f"before the real culprit is being "
++                                    f"downgraded to reference by this. Set "
++                                    f"MB_PRESEED_RECOVER=1 to re-verify "
++                                    f"against a reference-only baseline.")
++                            else:
++                                log(f"  [{spec.op}/{algorithm.name}] curated "
++                                    f"verify raised {type(e).__name__}: {e}; "
++                                    f"falling back to reference_impl")
+                             vres = None
++                            if (_build_fail and curated_seed
++                                    and os.environ.get("MB_PRESEED_RECOVER")
++                                    == "1"):
++                                # Retry this op alone against an unpoisoned
++                                # baseline. If it builds and verifies here,
++                                # the fault was another op's kernel.
++                                log(f"  [{spec.op}/{algorithm.name}] "
++                                    f"MB_PRESEED_RECOVER: re-verifying "
++                                    f"against a reference-only baseline")
++                                _clean = {sp.op: sp.reference_impl
++                                          for sp in specs}
++                                try:
++                                    vres = _verify(
++                                        spec, curated_src, shapes,
++                                        backend=target, impls=_clean,
++                                        specs=specs, repo_root=repo_root,
++                                        model_dir=out_dir,
++                                        build_dir=build_dir,
++                                        harness_dir=harness_dir,
++                                        io_path=io_path,
++                                        algorithm_name=algorithm.name,
++                                    )
++                                except Exception as e2:
++                                    log(f"  [{spec.op}/{algorithm.name}] "
++                                        f"recovery verify also failed "
++                                        f"({type(e2).__name__}: {e2}); "
++                                        f"falling back to reference_impl")
++                                    vres = None
++                            if vres is None:
++                                accepted = False
++                                impls[spec.op] = spec.reference_impl
+                         if vres is not None and not vres.ok:
+                             log(f"  [{spec.op}/{algorithm.name}] curated "
+                                 f"verify FAIL — {vres.message}; "
+                                 f"falling back to reference_impl")
+                             accepted = False
++                            # Undo the pre-seed for this op right away:
++                            # leaving a known-bad kernel in the baseline
++                            # would mis-judge every op verified after it.
++                            impls[spec.op] = spec.reference_impl
+                         elif vres is not None:
+                             log(f"  [{spec.op}/{algorithm.name}] curated "
+                                 f"verify PASS — {vres.message}")
+@@ -1536,9 +1629,11 @@ def generate(
+                     repo_root=firesim_evaluator.repo_root,
+                     runner="firesim",
+                     firesim_config=firesim_evaluator.config,
++                    harness_dir=firesim_evaluator.harness_dir,
++                    impls=firesim_evaluator.impls,
+                     log=log,
+                 )
+-                _batch_results = _batch.evaluate(_run_list)
++                _batch_results = _batch.evaluate(_run_list, spec=spec)
+ 
+                 fbest_code = None
+                 fbest_cycles = None
+diff --git a/pipeline/reference_kernels.py b/pipeline/reference_kernels.py
+index fed6456..2a6d513 100644
+--- a/pipeline/reference_kernels.py
++++ b/pipeline/reference_kernels.py
+@@ -1500,6 +1500,14 @@ void kernel_linear_s8(const int8_t *input, const int8_t *weight,
+         # Generalization
+         {"M": 1, "K": 7,  "N": 13},
+         {"M": 4, "K": 17, "N": 23},
++        # dronet linear2: a SINGLE output. A kernel vectorized over N runs
++        # at vl=1 here; nothing else covered that tail.
++        {"M": 1, "K": 64, "N": 1},
++        # dronet's ACTUAL linear1/linear2 heads (kernel_opt_log 1000+): both
++        # run at M=1,K=2048,N=1 -- the N=1 tail above only tested K=64. K=2048
++        # is 32x larger (more K-chunk iterations before the vl=1 tail), which
++        # the K=64 shape cannot exercise.
++        {"M": 1, "K": 2048, "N": 1},
+     ],
+     argtypes_factory=_linear_s8_argtypes,
+     algorithms=[
+@@ -1845,6 +1853,12 @@ void kernel_conv2d_s8(const int8_t *input, const int8_t *weight,
+          "KH": 3, "KW": 3, "SH": 2, "SW": 2, "PH": 1, "PW": 1},
+         {"N": 1, "IC": 32, "IH": 16, "IW": 16, "OC": 64,
+          "KH": 1, "KW": 1, "SH": 2, "SW": 2, "PH": 0, "PW": 0},
++        # fused_full vision_cnn.0 shape class: PADDING 2. Every shape above
++        # is PH/PW <= 1, so the 2-column border path -- where an out-of-bounds
++        # tap must still contribute input_offset rather than be skipped -- was
++        # exercised by no build except fused_full's own, on a SHARED kernel.
++        {"N": 1, "IC": 1, "IH": 20, "IW": 30, "OC": 16,
++         "KH": 5, "KW": 5, "SH": 2, "SW": 2, "PH": 2, "PW": 2},
+     ],
+     argtypes_factory=_conv2d_s8_argtypes,
+     algorithms=[
+@@ -1958,7 +1972,7 @@ void kernel_conv2d_s8(const int8_t *input, const int8_t *weight,
+         ),
+         AlgorithmCandidate(
+             name="rvv_widening_oc",
+-            target_affinity=("rvv",),
++            target_affinity=("rvv", "rvv_f16"),
+             weight_layout="ihwoc",
+             description=(
+                 "Vectorize over OUTPUT CHANNELS using RVV's widening "
+@@ -2142,7 +2156,7 @@ void kernel_conv2d_s8(const int8_t *input, const int8_t *weight,
+         ),
+         AlgorithmCandidate(
+             name="rvv_vsmul_vnclip",
+-            target_affinity=("rvv",),
++            target_affinity=("rvv", "rvv_f16"),
+             weight_layout="ihwoc",
+             description=(
+                 "Pure-integer RVV conv2d_s8 using vsmul (Q0.31 multiply) "
+@@ -2287,7 +2301,7 @@ void kernel_conv2d_s8(const int8_t *input, const int8_t *weight,
+         ),
+         AlgorithmCandidate(
+             name="rvv_oc_blocked",
+-            target_affinity=("rvv",),
++            target_affinity=("rvv", "rvv_f16"),
+             weight_layout="ihwoc",
+             description=(
+                 "Cache-aware variant of rvv_vsmul_vnclip. Same inner "
+@@ -3067,6 +3081,12 @@ void kernel_maxpool2d_s8(const int8_t *input, int8_t *output,
+         # DroNet
+         {"N": 1, "C": 32, "IH": 64, "IW": 64, "KH": 3, "KW": 3, "SH": 2, "SW": 2,
+          "PH": 0, "PW": 0, "DH": 1, "DW": 1},
++        # YOLOv8 SPPF. Every shape above is SW=2/PW=0, so a kernel's
++        # stride-1 and padded-boundary paths were exercised by NO model's
++        # verify -- and maxpool2d_s8 is a single kernel shared by every
++        # model that has the op. This shape covers both.
++        {"N": 1, "C": 128, "IH": 5, "IW": 5, "KH": 5, "KW": 5, "SH": 1, "SW": 1,
++         "PH": 2, "PW": 2, "DH": 1, "DW": 1},
+     ],
+     argtypes_factory=_maxpool2d_s8_argtypes,
+     algorithms=[
+@@ -4808,6 +4828,15 @@ void kernel_linear_f16(const _Float16 *input, const _Float16 *weight,
+         {"M": 1, "K": 7, "N": 13},
+         {"M": 4, "K": 17, "N": 23},
+         {"M": 1, "K": 64, "N": 64},
++        # Production shapes (fused_full's fp16 tail, kernel_opt_log 1000+):
++        # every prior shape had K,N <= 64, far under a single LMUL4 register
++        # group (vlmax_e16m4 = 64 @ VLEN=256) and under the N-blocking width
++        # (4) any curated kernel would tile by -- none of them exercised
++        # multi-chunk K reduction or an N%4 tail at production scale. These
++        # three are fused_full's actual vision_fc / depth_fc / head calls.
++        {"M": 1, "K": 1536, "N": 512},   # vision_fc: 1536->512 (multi-chunk K, N%4==0)
++        {"M": 1, "K": 1024, "N": 64},    # depth_fc: 1024->64 (multi-chunk K, N%4==0)
++        {"M": 1, "K": 128, "N": 2},      # head: 128->2 (N<4, exercises the tail-only path)
+     ],
+     argtypes_factory=_linear_f16_argtypes,
+     algorithms=[
+@@ -6098,6 +6127,11 @@ void kernel_upsample_nearest_s8(const int8_t *input, int8_t *output,
+     extra_shapes=[
+         {"N": 1, "C": 4,  "IH": 5,  "IW": 5,  "scale": 2},
+         {"N": 1, "C": 16, "IH": 10, "IW": 10, "scale": 2},
++        # yolov8n's two real upsample calls. The shapes above are C=4/C=16;
++        # yolov8n runs C=256 (5x5) and C=128 (10x10), so the op that faults
++        # at kernels.c:857 had NO verify coverage at the shapes it faults on.
++        {"N": 1, "C": 256, "IH": 5,  "IW": 5,  "scale": 2},
++        {"N": 1, "C": 128, "IH": 10, "IW": 10, "scale": 2},
+     ],
+     argtypes_factory=_upsample_nearest_s8_argtypes,
+ )
+@@ -7284,7 +7318,17 @@ void kernel_lstm_f16(const _Float16 *x, const _Float16 *w_ih, const _Float16 *w_
+     for (int j = 0; j < H; j++) h[j] = out[j];
+ }
+ """,
+-    extra_shapes=[{"in_size": 8, "H": 4}, {"in_size": 16, "H": 8}],
++    extra_shapes=[
++        {"in_size": 8, "H": 4},
++        {"in_size": 16, "H": 8},
++        # Production shapes (fused_full's 3-layer LSTM, kernel_opt_log 1000+):
++        # both prior shapes have in_size,H <= 16, well under a single LMUL4
++        # register group (vlmax_e16m4 = 64 @ VLEN=256) -- neither exercised
++        # multi-chunk K reduction, which is what the gate-blocked kernel's
++        # hoisted-load loop actually runs at production scale.
++        {"in_size": 597, "H": 128},   # layer 0: fused (1,597) -> hidden 128
++        {"in_size": 128, "H": 128},   # layers 1,2: hidden 128 -> hidden 128
++    ],
+     argtypes_factory=_lstm_f16_argtypes,
+ )
+ 
+diff --git a/scripts/roofline_analysis.py b/scripts/roofline_analysis.py
+index e825e31..62c0372 100644
+--- a/scripts/roofline_analysis.py
++++ b/scripts/roofline_analysis.py
+@@ -518,3 +518,21 @@ def main() -> None:
+ 
+ if __name__ == "__main__":
+     main()
++
++def _linear_f16(s: dict) -> tuple[int, int]:
++    """fp16 GEMV/GEMM: 2 ops per MAC. bytes = weights (2B) + in + out."""
++    M = s.get("M", 1); K = s.get("K", 0); N = s.get("N", 0)
++    return 2 * M * K * N, 2 * (K * N + M * K + M * N)
++
++
++def _lstm_f16(s: dict) -> tuple[int, int]:
++    """One LSTM timestep, 4 gates. Each gate does an input matmul
++    (in_size x H) and a recurrent matmul (H x H); 2 ops per MAC.
++    Elementwise gate math is ~O(H) and negligible beside the matmuls."""
++    ins = s.get("in_size", 0); H = s.get("H", 0)
++    macs = 4 * (ins * H + H * H)
++    return 2 * macs, 2 * (macs + ins + H)
++
++
++OP_FORMULAS["linear_f16"] = _linear_f16
++OP_FORMULAS["lstm_f16"] = _lstm_f16
