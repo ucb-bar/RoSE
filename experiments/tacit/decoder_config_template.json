@@ -1,0 +1,20 @@
+{
+  "encoded_trace": "/PATH/TO/tacit0.out",
+  "application_binary_asid_tuples": [ ["/PATH/TO/zephyr.elf", "0"] ],
+  "sbi_binary": "/PATH/TO/zephyr.elf",
+  "kernel_binary": "",
+  "kernel_jump_label_patch_log": "",
+  "driver_binary_entry_tuples": [],
+  "header_only": false,
+  "to_stats": true,
+  "to_txt": false,
+  "to_stack_txt": false,
+  "to_atomics": false,
+  "to_afdo": false,
+  "gcno": "",
+  "to_gcda": false,
+  "to_speedscope": false,
+  "to_perfetto": false,
+  "to_vbb": true,
+  "to_path_profile": false
+}

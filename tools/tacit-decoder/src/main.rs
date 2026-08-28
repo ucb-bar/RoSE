@@ -250,6 +250,19 @@ fn main() -> Result<()> {
         let (first_packet, runtime_cfg, trace_format) =
             frontend::packet::read_first_packet(&mut trace_reader)?;
         drop(trace_reader);
+        // ---- RoSE: branch-mode override -----------------------------------
+        // read_first_packet() hardcodes BrTarget for HW traces because the RTL
+        // sync packet carries no runtime_cfg byte. If the encoder was actually
+        // left in history/predict mode, every packet is misinterpreted. Allow
+        // pinning the real mode: TACIT_BR_MODE=0|1|2.
+        let runtime_cfg = match std::env::var("TACIT_BR_MODE") {
+            Ok(v) => {
+                let m = frontend::br_mode::BrMode::from(v.trim().parse::<u64>().unwrap_or(0));
+                eprintln!("[RoSE] TACIT_BR_MODE override: {:?}", m);
+                frontend::runtime_cfg::DecoderRuntimeCfg { br_mode: m, ..runtime_cfg }
+            }
+            Err(_) => runtime_cfg,
+        };
         (first_packet, runtime_cfg, trace_format)
     };
 

@@ -106,7 +106,19 @@ fn step_bb(pc: u64, insn_map: &FxHashMap<u64, Insn>, bus: &mut Bus<Entry>, br_mo
     let mut num_instructions = 0;
     loop {
         trace!("stepping bb pc: {:x}", pc);
-        let insn = insn_map.get(&pc).unwrap();
+        let insn = match insn_map.get(&pc) {
+            Some(i) => i,
+            None => {
+                eprintln!("[MISS/step_bb] pc={:#x} initial_pc={:#x} num_insns_in_bb={} total_insns={}",
+                          pc, initial_pc, num_instructions, *insn_count);
+                for d in [-8i64, -6, -4, -2, 2, 4] {
+                    let q = (pc as i64 + d) as u64;
+                    eprintln!("   neighbor {:#x} present={}", q, insn_map.contains_key(&q));
+                }
+                eprintln!("   map_size={}", insn_map.len());
+                std::process::exit(42);
+            }
+        };
         // bus.broadcast(Entry::instruction(insn, pc));
         num_instructions += 1;
         if stop_on_ij {
@@ -143,7 +155,15 @@ fn step_bb_until(
     let mut pc = pc;
     let mut num_instructions = 0;
     loop {
-        let insn = insn_map.get(&pc).unwrap();
+        let insn = match insn_map.get(&pc) {
+            Some(i) => i,
+            None => {
+                eprintln!("[MISS/step_bb_until] pc={:#x} target_pc={:#x} num_insns_in_bb={} total_insns={}",
+                          pc, target_pc, num_instructions, *insn_count);
+                eprintln!("   map_size={}", insn_map.len());
+                std::process::exit(42);
+            }
+        };
         // bus.broadcast(Entry::instruction(insn, pc));
         num_instructions += 1;
         if insn.is_branch() || insn.is_direct_jump() {
@@ -200,6 +220,21 @@ pub fn decode_trace(
     // initial state from first packet
     // let mut packet_count = 0u64;
     let mut pc = PC::new(first_packet.target_address);
+    // ---- RoSE: start-PC override ------------------------------------------
+    // The AWS-F2 TacitEncoder emits a sync packet whose address field has
+    // corrupt HIGH bits (low 16 bits are correct; see experiments/tacit/).
+    // TACIT sync is the ONLY packet carrying an absolute PC -- every later
+    // packet is a delta -- so one bad field poisons the entire decode. This
+    // lets the caller pin the known-correct start PC (read off the ELF at the
+    // `l_trace_encoder_start` store) and decode the rest of the stream.
+    if let Ok(v) = std::env::var("TACIT_START_PC") {
+        let v = v.trim_start_matches("0x");
+        if let Ok(forced) = u64::from_str_radix(v, 16) {
+            eprintln!("[RoSE] TACIT_START_PC override: {:#x} (packet said {:#x})",
+                      forced, pc.get_addr());
+            pc.set_addr(forced);
+        }
+    }
     let mut timestamp = first_packet.timestamp;
     let mut prv = first_packet.target_prv;
     let mut ctx = first_packet.target_ctx;

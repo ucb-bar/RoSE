@@ -24,3 +24,6 @@ soc/sim/rose_spike_trace
 soc/sim/zephyr_*build*/
 # Large media (co-sim videos): permanent on disk, not committed
 docs/media/
+
+# TACIT raw traces are large binary captures; keep the analysis, not the bytes
+experiments/tacit/traces/*.out

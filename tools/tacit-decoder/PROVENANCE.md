@@ -43,3 +43,28 @@ Files changed vs upstream `dev` (see `rose-patches/*.patch`):
   line of that run's reference `tacit.debug`.
 
 See `docs/ROSE_TACIT_TRACING.md` for the end-to-end setup / build / decode guide.
+
+## RoSE debug additions (2026-08-28, F2 bring-up)
+
+Three additive, env-gated changes made while diagnosing the AWS-F2 trace path
+(`experiments/tacit/F2_TACIT_VERDICT.md`). All are no-ops unless the env var is set; the
+U250 reference trace still decodes byte-identically (`--header-only` -> `0x80000202`, ts 346).
+
+1. **`TACIT_START_PC=<hex>`** (`src/frontend/decoder.rs`) — override the start PC taken from
+   the sync packet. The sync packet carries the *only* absolute PC in a TACIT trace; if its
+   address field is damaged, nothing downstream can recover, because every later packet is a
+   delta. This lets you pin the true start PC (read off the ELF) and decode the rest.
+2. **`TACIT_BR_MODE=0|1|2`** (`src/main.rs`) — override the branch mode. `read_first_packet()`
+   hardcodes `BrTarget` for HW traces because the RTL sync packet carries no runtime_cfg byte;
+   if the encoder was left in history/predict mode, every packet is misread.
+3. **`[MISS]` diagnostics** (`src/frontend/decoder.rs`) — the two bare
+   `insn_map.get(&pc).unwrap()` calls in `step_bb`/`step_bb_until` now print the failing PC,
+   its neighbours, the in-block instruction count and the map size before exiting 42. Same
+   failure, actionable output. (This is the hunk from
+   `experiments/rose_arb_deadlock/traces/tacit_decoder_dev_zephyr_perfetto.patch`, kept.)
+
+**Caveat learned the hard way:** `0x00` is a legal 1-byte TACIT packet (compressed
+taken-branch, timestamp delta 0). A trace file that is entirely zeros therefore parses as an
+endless run of valid packets. Never use "no parse errors" as a stream-health metric — use the
+timestamp-sum integrity check instead (summed deltas must equal the traced window's cycle
+count; `experiments/tacit/tsplit.py`).
