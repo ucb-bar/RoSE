@@ -666,6 +666,30 @@
     artifact. <code>gemmini_tiled_conv_pool</code> declares <code>accuracy_class=BIT_EXACT</code> but was host-verified
     against a naive reference and is not. The current Gemmini configuration carries <code>max_abs_err=5</code>, which is
     not yet reduced to zero.</p>
+
+    <h2 style="margin-top:34px">Where the exact path actually spends its cycles <span class="note">measured, not modelled — and it refuted the plan</span></h2>
+    <p class="lede">The numerically-exact Gemmini conv path costs <strong>6.2× the drifting one</strong>. The working
+    theory was that this was <em>DMA drain traffic</em>: <code>full_C=true</code> moves int32 accumulators out instead
+    of int8, so the drain should carry 4× the bytes. That theory was used to scope the next optimization — vectorize
+    the requantize. An <code>rdcycle</code>-bracketed instrumented copy of the kernel (isolation-verified numerically
+    inert, err&nbsp;0) run over all 10 dronet conv layers says the theory is <strong>wrong</strong>.</p>
+    <div class="scroll"><table><thead><tr><th>Phase</th><th style="text-align:right">Cycles</th><th style="text-align:right">Share</th><th>What it is</th></tr></thead><tbody>
+      <tr><td class="op">im2col gather</td><td class="num">3,727,975</td><td class="num">43.4%</td><td class="note">CPU scalar loop building the patch matrix</td></tr>
+      <tr><td class="op">requantize</td><td class="num">3,740,646</td><td class="num">43.6%</td><td class="note">CPU scalar int64 two-stage Q0.31</td></tr>
+      <tr><td class="op">transpose</td><td class="num">1,052,263</td><td class="num">12.3%</td><td class="note">CPU scalar weight/activation layout</td></tr>
+      <tr><td class="op">Gemmini GEMM + DMA drain</td><td class="num">66,573</td><td class="num sol-hi">0.8%</td><td class="note">the accelerator itself, and the drain the theory blamed</td></tr>
+    </tbody></table></div>
+    <p class="lede" style="margin-top:4px"><strong>Gemmini's own GEMM and drain are under 1% of the cost.</strong> The
+    4×-drain-traffic story does not survive measurement. What actually dominates is two roughly <em>equal</em>
+    CPU-scalar loops. The consequence for the plan is direct: vectorizing only the requantize — the way this work was
+    originally scoped — recovers at most <strong>~44%</strong> of the gap. The im2col gather is an equally large and
+    equally vectorizable target that the framing missed entirely. Both belong on the fused
+    <code>gemmini_q31_rvv</code> target, where vectorizing them changes no numerics; the pure
+    <code>gemmini_q31</code> target cannot take either, since it may not contain vector instructions.</p>
+    <p class="note">Method note: the decomposition ran on spike, not FPGA. Phase <em>shares</em> are what is being
+    claimed, and those are structural (scalar loop lengths vs. a fixed accelerator call), not clock-dependent. No FPGA
+    lane was consumed.</p>
+
   </section>
 
   <section>
@@ -775,6 +799,7 @@
       <div class="qrow"><i class="stripe now"></i><div class="what"><b>Draft a low-IC conv algorithm</b><span><code>vision_cnn.0</code>: 15.6% of runtime at 1.42% SoL. IC=1, K5 gives reduction depth 25 and OC=16 fills exactly one vector — an OC-vectorized GEMM has nothing to block over. Candidate: vectorize over output width (OW=45) instead of OC.</span></div><span class="pill pending">next</span></div>
       <div class="qrow"><i class="stripe now"></i><div class="what"><b>Unblock batchnorm on RVV</b><span>Ops verify alphabetically as "reference + curated swap", so <code>batchnorm2d_s8</code> is checked against a model still using the broken reference conv and inherits its error (identical 92 signature). The kernel is likely fine; the baseline is not.</span></div><span class="pill pending">next</span></div>
       <div class="qrow"><i class="stripe block"></i><div class="what"><b>Missing RVV kernels: add_s8, sigmoid_s8</b><span>Declared as algorithms but no curated file exists in <code>kernels/rvv/</code>. 3.0% of dronet runtime at 0.02% SoL. Needs new implementations, not a config fix.</span></div><span class="pill blocked">write</span></div>
+      <div class="qrow"><i class="stripe now"></i><div class="what"><b>Vectorize BOTH scalar loops on <code>gemmini_q31_rvv</code></b><span>Measurement (see above) puts im2col gather at 43.4% and requantize at 43.6% of the exact path, with Gemmini itself at 0.8%. Doing only the requantize — how this was originally scoped — caps the recovery at ~44%. Both loops are vectorizable and neither changes numerics. Pure <code>gemmini_q31</code> is excluded: no vector instructions allowed there.</span></div><span class="pill pending">next</span></div>
       <div class="qrow"><i class="stripe next"></i><div class="what"><b>Gemmini per-op cycles on FPGA</b><span>Coverage and correctness verified on spike only. Prefer <code>gemmini_im2col_full_C</code> to remove the 5-LSB drift of <code>gemmini_tiled_conv</code>.</span></div><span class="pill pending">queued</span></div>
       <div class="qrow"><i class="stripe next"></i><div class="what"><b>yolov8_nano</b><span>Graph extraction unblocked (<code>ultralytics</code> installed); build then profile.</span></div><span class="pill pending">building</span></div>
     </div></div>
