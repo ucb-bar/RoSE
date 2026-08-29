@@ -1,0 +1,44 @@
+{
+  "entries": 295,
+  "predicted_makespan_ms": 78.631,
+  "actual_makespan_ms": 78.397,
+  "ratio_actual_over_predicted": 0.997,
+  "instances": {
+    "dronet": 4,
+    "mlp_control": 8,
+    "yolov8_nano": 1
+  },
+  "per_network_busy_ms": {
+    "dronet": {
+      "predicted": 16.755,
+      "actual": 16.542,
+      "ratio": 0.987
+    },
+    "mlp_control": {
+      "predicted": 4.258,
+      "actual": 4.285,
+      "ratio": 1.006
+    },
+    "yolov8_nano": {
+      "predicted": 67.739,
+      "actual": 66.075,
+      "ratio": 0.975
+    }
+  },
+  "per_core_busy_ms": {
+    "gemmini_q31": {
+      "predicted": 56.508,
+      "actual": 54.382,
+      "ratio": 0.962,
+      "utilisation_actual": 0.694
+    },
+    "rvv": {
+      "predicted": 32.243,
+      "actual": 32.52,
+      "ratio": 1.009,
+      "utilisation_actual": 0.415
+    }
+  },
+  "entries_over_predicted_finish": 77,
+  "worst_overrun_ms": 0.11
+}

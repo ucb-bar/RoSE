@@ -1,0 +1,4 @@
+bnfold_gemmini_q31 236 /home/ubuntu/bnab_bnfold_gemmini_q31_res
+nobnfold_gemmini_q31 237 /home/ubuntu/bnab_nobnfold_gemmini_q31_res
+bnfold_rvv 238 /home/ubuntu/bnab_bnfold_rvv_res
+nobnfold_rvv 239 /home/ubuntu/bnab_nobnfold_rvv_res

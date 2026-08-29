@@ -1,0 +1,9 @@
+prof_mlp_control_gemmini_q31 252 /home/ubuntu/armA_prof_mlp_control_gemmini_q31_res
+prof_mlp_control_rvv 253 /home/ubuntu/armA_prof_mlp_control_rvv_res
+prof_dronet_gemmini_q31 254 /home/ubuntu/armA_prof_dronet_gemmini_q31_res
+prof_dronet_rvv 255 /home/ubuntu/armA_prof_dronet_rvv_res
+prof_yolov8_nano_gemmini_q31 259 /home/ubuntu/armA_prof_yolov8_nano_gemmini_q31_res
+prof_yolov8_nano_rvv 260 /home/ubuntu/armA_prof_yolov8_nano_rvv_res
+prof_yolov8_nano_gemmini_q31_r2 263 /home/ubuntu/armA_prof_yolov8_nano_gemmini_q31_r2_res
+yolodbg 265 /home/ubuntu/armA_yolodbg_res
+xpurt3net 266 /home/ubuntu/armA_xpurt3net_res

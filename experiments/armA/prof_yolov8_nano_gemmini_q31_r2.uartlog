@@ -1,0 +1,46 @@
+Script started on 2026-08-29 01:23:18+00:00 [COMMAND="stty intr ^] && sudo LD_LIBRARY_PATH=/scratch/vnikiforov/rose-fsim/lib ./FireSim-f2 +permissive   +macaddr0=00:12:6D:00:00:02 +niclog0=niclog0  +trace-select=1 +trace-start=0 +trace-end=-1 +trace-output-format=0 +dwarf-file-name=fq-job-2630-armA_prof_yolov8_nano_gemmini_q31_r2.elf-dwarf +autocounter-readrate=0 +autocounter-filename-base=AUTOCOUNTERFILE  +print-start=0 +print-end=-1 +linklatency0=6405 +netbw0=200 +shmemportname0=default +partitioned=1 +slotid=0 +permissive-off +prog0=fq-job-2630-armA_prof_yolov8_nano_gemmini_q31_r2.elf   && stty intr ^c" TERM="screen" TTY="/dev/pts/6" COLUMNS="80" LINES="24"]
+AFI ID for Slot  0: agfi-024f2d6a1c6890cb4
+AFI PCI  Vendor ID: 0x1d0f, Device ID 0xf002
+Attached to BAR0 (OCL)
+Attached to BAR4 (PCIS)
+widget_registry_t::add_widget(StreamEngine)
+cpu2fpga: 0, fpga2cpu: 2
+UART0 is here (stdin/stdout).
+command line for program 0. argc=19:
++permissive +macaddr0=00:12:6D:00:00:02 +niclog0=niclog0 +trace-select=1 +trace-start=0 +trace-end=-1 +trace-output-format=0 +dwarf-file-name=fq-job-2630-armA_prof_yolov8_nano_gemmini_q31_r2.elf-dwarf +autocounter-readrate=0 +autocounter-filename-base=AUTOCOUNTERFILE +print-start=0 +print-end=-1 +linklatency0=6405 +netbw0=200 +shmemportname0=default +partitioned=1 +slotid=0 +permissive-off fq-job-2630-armA_prof_yolov8_nano_gemmini_q31_r2.elf 
+entered simulation flow execution
+finished waiting
+FireSim fingerprint: 0x46697265
+Commencing simulation.
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+*** Booting Zephyr OS build c93d5bdb6078 ***
+modelblaster harness: model=yolov8_nano in=76800 out=75600
+
+ mcause: 1, Instruction Access fault
+  mtval: 0
+     a0: 000000008052ead8    t0: 000000000000000a
+     a1: 000000008052d1d8    t1: 000000008053043b
+     a2: ffffffffbfb086de    t2: 0000000000000064
+     a3: 000000003f851591    t3: 0000000000000040
+     a4: 000000003f80ec13    t4: 0000000000000000
+     a5: 000000003e80ec13    t5: 0000000000000064
+     a6: 000000008003a2b8    t6: 0000000000000040
+     a7: 0000000000000068
+     sp: 000000008077b730
+     ra: 00000000800090b2
+   mepc: 0000000000000000
+mstatus: 8000000a0001f880
+
+call trace:
+      0: sp: 000000008077b790 ra: 000000008000464e
+      1: sp: 000000008077b7a0 ra: 0000000080006b12
+bash: line 1: 590088 Killed                  sudo LD_LIBRARY_PATH=/scratch/vnikiforov/rose-fsim/lib ./FireSim-f2 +permissive +macaddr0=00:12:6D:00:00:02 +niclog0=niclog0 +trace-select=1 +trace-start=0 +trace-end=-1 +trace-output-format=0 +dwarf-file-name=fq-job-2630-armA_prof_yolov8_nano_gemmini_q31_r2.elf-dwarf +autocounter-readrate=0 +autocounter-filename-base=AUTOCOUNTERFILE +print-start=0 +print-end=-1 +linklatency0=6405 +netbw0=200 +shmemportname0=default +partitioned=1 +slotid=0 +permissive-off +prog0=fq-job-2630-armA_prof_yolov8_nano_gemmini_q31_r2.elf
+
+Script done on 2026-08-29 01:23:37+00:00 [COMMAND_EXIT_CODE="137"]

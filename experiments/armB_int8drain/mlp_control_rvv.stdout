@@ -1,0 +1,2 @@
+=== [mlp_control_armB/rvv] build start 2026-08-28T18:08:11-07:00  MB_DRIFT_ATOL=2 GLOBAL_CURATED_DIR=/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels
+=== [mlp_control_armB/rvv] rc=0 elf=963560 2026-08-28T18:08:22-07:00

@@ -1,0 +1,26 @@
+  [18:15:37] pending=2
+  [18:16:12] pending=2
+  [18:16:47] pending=2
+  [18:17:22] pending=2
+  [18:17:57] pending=2
+  [18:18:32] pending=2
+  [18:19:07] pending=2
+  [18:19:42] pending=2
+  [18:20:18] pending=1
+  [18:20:53] pending=1
+  [18:21:28] pending=1
+  [18:22:03] pending=1
+  [18:22:38] pending=1
+  [18:23:13] pending=0
+--- dronet_gemmini_q31 (job 251): [2026-08-29 01:08:17] job 251 finished: DONE rc=0 lane=f2-01
+    bytes=4014 elf='armB_dronet_gemmini_q31.elf' model='dronet'
+--- dronet_rvv (job 256): [2026-08-29 01:13:24] job 256 finished: DONE rc=0 lane=f2-02
+    bytes=3964 elf='armB_dronet_rvv.elf' model='dronet'
+--- mlp_control_gemmini_q31 (job 257): [2026-08-29 01:14:24] job 257 finished: DONE rc=0 lane=f2-01
+    bytes=2763 elf='armB_mlp_control_gemmini_q31.elf' model='mlp_control'
+--- mlp_control_rvv (job 258): [2026-08-29 01:15:24] job 258 finished: DONE rc=0 lane=f2-02
+    bytes=2731 elf='armB_mlp_control_rvv.elf' model='mlp_control'
+--- yolov8_nano_gemmini_q31 (job 261): [2026-08-29 01:19:51] job 261 finished: DONE rc=0 lane=f2-01
+    bytes=13067 elf='armB_yolov8_nano_gemmini_q31.elf' model='yolov8_nano'
+--- yolov8_nano_rvv (job 262): [2026-08-29 01:22:47] job 262 finished: DONE rc=0 lane=f2-02
+    bytes=12954 elf='armB_yolov8_nano_rvv.elf' model='yolov8_nano'

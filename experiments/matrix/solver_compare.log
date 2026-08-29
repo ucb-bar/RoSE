@@ -1,0 +1,93 @@
+############################################################
+### 15:46:42  solver=decomposed  time-limit=1200s (20 min)
+############################################################
+============================================================
+Loading network hierarchy from JSON...
+============================================================
+
+Loading networks from: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/data/toplevel/networks_mlp10_dronet20_yolov8_f2_q31profile.json
+
+Found 3 networks:
+  - mlp_control (id: 0, identifier: mlp_control)
+  - dronet (id: 1, identifier: dronet)
+  - yolov8_nano (id: 2, identifier: yolov8_nano)
+
+Found 0 network-level dependencies:
+
+Resolved runtime configuration:
+  Machine core counts: {'CPU_P': 1, 'CPU_E': 1}
+  Profile HW mapping: CPU_P->gemmini_q31, CPU_E->V256D128_rvv
+  Profile target/topology: target=firesim_f2_rocket_saturn, topo_tag=topo_0
+  p_core_speedup: 1.0
+  random_seed: 42
+  solver_verbosity: 0
+  time_limit: 1200.0
+  use_profiled: True
+  prune_periodic: True
+  restrict_makespan_to_nonperiodic: False
+  machine_combination_mode: singletons
+  enforce_same_processor_combinations: True
+
+Using profiled runtimes where available...
+
+--- decomposed iteration 1 ---
+  Total operations: 435
+  Job names: ['mlp_control0', 'dronet0', 'yolov8_nano', 'mlp_control1', 'mlp_control2', 'mlp_control3', 'mlp_control4', 'mlp_control5', 'mlp_control6', 'mlp_control7', 'mlp_control8', 'mlp_control9', 'mlp_control10', 'mlp_control11', 'mlp_control12', 'mlp_control13', 'mlp_control14', 'mlp_control15', 'dronet1', 'dronet2', 'dronet3', 'dronet4', 'dronet5', 'dronet6', 'dronet7']
+decomposed_schedule: 25 jobs total (24 periodic, 1 non-periodic)
+  Makespan: 150.53 ms
+  Periodic 'mlp_control': period=10ms current=16 needed=16
+  Periodic 'dronet': period=20ms current=8 needed=8
+  All periodic counts cover makespan — converged.
+
+Final greedy makespan: 150.53 ms (after 1 iteration)
+
+Scheduling completed!
+Makespan (non-periodic): 91.62 ms
+
+Combination assignments:
+  1xCPU_P: 149 operations
+  1xCPU_E: 181 operations
+
+Per-network combination assignments:
+  Mlp_control0: 1xCPU_P=7
+  Dronet0: 1xCPU_P=3, 1xCPU_E=18
+  Yolov8_nano: 1xCPU_P=64, 1xCPU_E=91
+  Mlp_control1: 1xCPU_P=7
+  Mlp_control2: 1xCPU_P=7
+  Mlp_control3: 1xCPU_P=7
+  Mlp_control4: 1xCPU_P=7
+  Mlp_control5: 1xCPU_P=7
+  Mlp_control6: 1xCPU_P=7
+  Mlp_control7: 1xCPU_P=7
+  Mlp_control8: 1xCPU_P=7
+  Mlp_control9: 1xCPU_P=7
+  Dronet1: 1xCPU_P=3, 1xCPU_E=18
+  Dronet2: 1xCPU_P=3, 1xCPU_E=18
+  Dronet3: 1xCPU_P=3, 1xCPU_E=18
+  Dronet4: 1xCPU_P=3, 1xCPU_E=18
+Job 'mlp_control0' (job_id=0, color_index=0) -> color RGB=[0.59607843 0.8345098  0.57882353]
+DEBUG TRANSFER: alpha_shape=(330, 2), num_actual_machines=2, len(machines)=2, alpha_cols=2, is_using_combos=False, prev_machine=0, machine=0, transfer_times_shape=(2, 2), machine_combinations=True
+DEBUG IMMEDIATE: op=62, job_id=10, lookup=10, op_color_index=10, base_colors[10]=(0.0, 0.4079046520569012, 0.16444444444444445)
+DEBUG AFTER MODULO: op=62, original=10, after_modulo=10, len(base_colors)=16
+DEBUG BEFORE LEGEND: op=62, op_color_index=10, original=10, job_index=8, legend_key=kind_mlp_control, in_legend=True
+DEBUG IMMEDIATE: op=63, job_id=11, lookup=11, op_color_index=11, base_colors[11]=(0.0, 0.32719723183391003, 0.13098039215686275)
+DEBUG AFTER MODULO: op=63, original=11, after_modulo=11, len(base_colors)=16
+DEBUG BEFORE LEGEND: op=63, op_color_index=11, original=11, job_index=9, legend_key=kind_mlp_control, in_legend=True
+DEBUG IMMEDIATE: op=64, job_id=11, lookup=11, op_color_index=11, base_colors[11]=(0.0, 0.32719723183391003, 0.13098039215686275)
+DEBUG AFTER MODULO: op=64, original=11, after_modulo=11, len(base_colors)=16
+DEBUG BEFORE LEGEND: op=64, op_color_index=11, original=11, job_index=9, legend_key=kind_mlp_control, in_legend=True
+Job 'dronet0' (job_id=1, color_index=1) -> color RGB=[0.57960784 0.77019608 0.87372549]
+Job 'yolov8_nano' (job_id=2, color_index=2) -> color RGB=[0.8871511  0.33208766 0.0310496 ]
+Saving plot to plots/networks_mlp10_dronet20_yolov8_f2_q31profile_decomposed_profiled.png...
+
+Plot saved to plots/networks_mlp10_dronet20_yolov8_f2_q31profile_decomposed_profiled.png
+
+Outputting scheduled JSON...
+
+Scheduled JSON saved to: schedules/scheduled_networks_mlp10_dronet20_yolov8_f2_q31profile_decomposed_profiled.json
+### 15:46:45 solver=decomposed rc=0
+############################################################
+### 15:46:45  solver=milp  time-limit=1200s (20 min)
+############################################################
+### 16:16:46 solver=milp rc=0
+### ALL DONE 16:16:46

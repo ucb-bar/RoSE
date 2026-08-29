@@ -1,0 +1,2 @@
+p2_dronet_gemmini_q31 267 /home/ubuntu/armA_p2_dronet_gemmini_q31_res
+p2_yolov8_nano_gemmini_q31 268 /home/ubuntu/armA_p2_yolov8_nano_gemmini_q31_res

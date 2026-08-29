@@ -1,0 +1,50 @@
+{
+  "_comment": "AWS-F2 refresh of networks_mlp10_dronet20_yolov8_firesim_static_q31profile.json. Identical workload (mlp_control @10ms x16, dronet @20ms x8, one-shot yolov8_nano) but retargeted at profile target 'firesim_f2_rocket_saturn': per-dispatch times measured on the f2_dual_small_norose_tacit_q31_60mhz bitstream with the CURRENT modelblaster codegen. The original spec's 'firesim_rocket_saturn' profiles date from Jun 2026 and were captured against an older IR (dronet 30 dispatches, yolov8_nano 212); today's extract_graph fuses bn/conv/relu and emits 21 / 155, so those schedules can no longer be ingested into a harness built from this tree. Dispatch graphs here are emitted by modelblaster.pipeline.emit_dispatch_graph from the same graph.json the harness links.",
+
+  "hardware": {
+    "machines": { "cpu_p": 1, "cpu_e": 1 },
+    "profile_hw": { "cpu_p": "gemmini_q31", "cpu_e": "V256D128_rvv" },
+    "profile": {
+      "target": "firesim_f2_rocket_saturn",
+      "topo_tag": "topo_0",
+      "topo_tag_override": true,
+      "gen_root": "zephyr-chipyard-sw/gen"
+    },
+    "p_core_speedup": 1.0
+  },
+
+  "scheduler": {
+    "random_seed": 42,
+    "solver_verbosity": 2,
+    "time_limit": 60,
+    "use_profiled": true,
+    "prune_periodic": true,
+    "restrict_makespan_to_nonperiodic": false
+  },
+
+  "networks": {
+    "mlp_control": {
+      "id": 0,
+      "identifier": "mlp_control",
+      "dispatch_deps_path": "zephyr-chipyard-sw/gen/vmfb/mlp_control/firesim_f2_rocket_saturn/gemmini_q31/mlp_control.fp32/mlp_control.fp32_dispatch_graph.json",
+      "period": 10,
+      "window_duration": 10,
+      "num_instances": 16
+    },
+    "dronet": {
+      "id": 1,
+      "identifier": "dronet",
+      "dispatch_deps_path": "zephyr-chipyard-sw/gen/vmfb/dronet/firesim_f2_rocket_saturn/gemmini_q31/dronet.int8/dronet.int8_dispatch_graph.json",
+      "period": 20,
+      "window_duration": 20,
+      "num_instances": 8
+    },
+    "yolov8_nano": {
+      "id": 2,
+      "identifier": "yolov8_nano",
+      "dispatch_deps_path": "zephyr-chipyard-sw/gen/vmfb/yolov8_nano/firesim_f2_rocket_saturn/gemmini_q31/yolov8_nano.int8/yolov8_nano.int8_dispatch_graph.json"
+    }
+  },
+
+  "edges": []
+}

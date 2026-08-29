@@ -1,0 +1,2 @@
+prof_yolov8_nano_gemmini_q31 259 /home/ubuntu/armA_prof_yolov8_nano_gemmini_q31_res
+prof_yolov8_nano_rvv 260 /home/ubuntu/armA_prof_yolov8_nano_rvv_res

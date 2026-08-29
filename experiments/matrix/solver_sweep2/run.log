@@ -1,0 +1,6 @@
+##### A_greedy_plain : --solver greedy #####
+##### B_greedy_nonperiodic_obj : --solver greedy --restrict-makespan-to-nonperiodic #####
+##### C_gperiodic_plain : --solver greedy_periodic #####
+##### D_gperiodic_nonperiodic_obj : --solver greedy_periodic --restrict-makespan-to-nonperiodic #####
+##### E_gperiodic_iters12 : --solver greedy_periodic --max-periodic-iters 12 #####
+##### DONE #####

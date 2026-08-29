@@ -1,0 +1,2 @@
+=== [yolov8_nano_armB/gemmini_q31] build start 2026-08-28T18:11:13-07:00  MB_DRIFT_ATOL=6 GLOBAL_CURATED_DIR=/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels
+=== [yolov8_nano_armB/gemmini_q31] rc=0 elf=4465128 2026-08-28T18:12:39-07:00

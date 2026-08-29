@@ -1,0 +1,4 @@
+prof_mlp_control_gemmini_q31 252 /home/ubuntu/armA_prof_mlp_control_gemmini_q31_res
+prof_mlp_control_rvv 253 /home/ubuntu/armA_prof_mlp_control_rvv_res
+prof_dronet_gemmini_q31 254 /home/ubuntu/armA_prof_dronet_gemmini_q31_res
+prof_dronet_rvv 255 /home/ubuntu/armA_prof_dronet_rvv_res

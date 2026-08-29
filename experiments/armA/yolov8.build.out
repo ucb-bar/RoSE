@@ -1,0 +1,4 @@
+=== [yolov8_nano_gemmini_q31] build start 2026-08-28T18:06:38-07:00  quant=int8 curated=/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels
+=== [yolov8_nano_gemmini_q31] rc=0 elf=4435488 2026-08-28T18:08:17-07:00
+=== [yolov8_nano_rvv] build start 2026-08-28T18:08:17-07:00  quant=int8 curated=/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels
+=== [yolov8_nano_rvv] rc=0 elf=4406408 2026-08-28T18:10:45-07:00

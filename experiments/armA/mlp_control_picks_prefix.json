@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "target": "gemmini_q31",
+  "picks": {
+    "elu": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "linear": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    }
+  }
+}

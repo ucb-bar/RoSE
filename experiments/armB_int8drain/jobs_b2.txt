@@ -1,0 +1,1 @@
+mlp_control_rvv 258 /home/ubuntu/armB_mlp_control_rvv_res

@@ -1,0 +1,7 @@
+dronet_gemmini_q31 251 /home/ubuntu/armB_dronet_gemmini_q31_res
+dronet_rvv 256 /home/ubuntu/armB_dronet_rvv_res
+mlp_control_gemmini_q31 257 /home/ubuntu/armB_mlp_control_gemmini_q31_res
+mlp_control_rvv 258 /home/ubuntu/armB_mlp_control_rvv_res
+yolov8_nano_gemmini_q31 261 /home/ubuntu/armB_yolov8_nano_gemmini_q31_res
+yolov8_nano_rvv 262 /home/ubuntu/armB_yolov8_nano_rvv_res
+xpurt3net 264 /home/ubuntu/armB_xpurt3net_res

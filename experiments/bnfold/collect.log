@@ -1,0 +1,23 @@
+  [16:40:13] pending=3
+  [16:40:46] pending=3
+  [16:41:20] pending=3
+  [16:41:53] pending=3
+  [16:42:27] pending=3
+  [16:43:01] pending=3
+  [16:43:34] pending=2
+  [16:44:07] pending=1
+  [16:44:41] pending=1
+  [16:45:14] pending=1
+  [16:45:48] pending=1
+  [16:46:22] pending=1
+  [16:46:55] pending=1
+  [16:47:29] pending=1
+  [16:48:02] pending=0
+--- bnfold_gemmini_q31 (job 236): [2026-08-28 23:38:44] job 236 finished: DONE rc=0 lane=f2-00
+    bytes=13407 elf='bnab_bnfold_gemmini_q31.elf' model='yolov8_nano_bnfold'
+--- nobnfold_gemmini_q31 (job 237): [2026-08-28 23:43:20] job 237 finished: DONE rc=0 lane=f2-00
+    bytes=16826 elf='bnab_nobnfold_gemmini_q31.elf' model='yolov8_nano_nobnfold'
+--- bnfold_rvv (job 238): [2026-08-28 23:43:50] job 238 finished: DONE rc=0 lane=f2-01
+    bytes=12943 elf='bnab_bnfold_rvv.elf' model='yolov8_nano_bnfold'
+--- nobnfold_rvv (job 239): [2026-08-28 23:47:53] job 239 finished: DONE rc=0 lane=f2-00
+    bytes=16154 elf='bnab_nobnfold_rvv.elf' model='yolov8_nano_nobnfold'

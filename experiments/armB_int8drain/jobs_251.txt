@@ -1,0 +1,1 @@
+dronet_gemmini_q31 251 /home/ubuntu/armB_dronet_gemmini_q31_res

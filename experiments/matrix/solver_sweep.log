@@ -1,0 +1,21 @@
+##### --solver greedy_periodic #####
+Outputting scheduled JSON...
+
+Scheduled JSON saved to: schedules/scheduled_networks_mlp10_dronet20_yolov8_f2_q31profile_greedy_periodic_profiled.json
+WARN: granularity advisor -- the desired granularity for yolov8_nano's dispatches should be finer: its largest dispatch (2.78 ms) exceeds dronet's available free slot (0.00 ms) (period 3.77 ms, free slot 0.00 ms after dronet's own utilization) -- it would overrun dronet's cadence if they shared a core
+##### --solver greedy_periodic --restrict-makespan-to-nonperiodic #####
+Outputting scheduled JSON...
+
+Scheduled JSON saved to: schedules/scheduled_networks_mlp10_dronet20_yolov8_f2_q31profile_greedy_periodic_profiled.json
+WARN: granularity advisor -- the desired granularity for yolov8_nano's dispatches should be finer: its largest dispatch (2.78 ms) exceeds dronet's available free slot (0.00 ms) (period 3.77 ms, free slot 0.00 ms after dronet's own utilization) -- it would overrun dronet's cadence if they shared a core
+##### --solver greedy --restrict-makespan-to-nonperiodic #####
+
+Outputting scheduled JSON...
+
+Scheduled JSON saved to: schedules/scheduled_networks_mlp10_dronet20_yolov8_f2_q31profile_greedy_profiled.json
+##### --solver greedy_periodic --max-periodic-iters 12 #####
+Outputting scheduled JSON...
+
+Scheduled JSON saved to: schedules/scheduled_networks_mlp10_dronet20_yolov8_f2_q31profile_greedy_periodic_profiled.json
+WARN: granularity advisor -- the desired granularity for yolov8_nano's dispatches should be finer: its largest dispatch (2.78 ms) exceeds dronet's available free slot (0.00 ms) (period 3.77 ms, free slot 0.00 ms after dronet's own utilization) -- it would overrun dronet's cadence if they shared a core
+##### SWEEP DONE #####

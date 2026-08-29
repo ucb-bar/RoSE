@@ -1,0 +1,17 @@
+  [19:29:10] pending=1
+  [19:29:41] pending=1
+  [19:30:12] pending=1
+  [19:30:43] pending=1
+  [19:31:14] pending=1
+  [19:31:45] pending=1
+  [19:32:17] pending=1
+  [19:32:48] pending=1
+  [19:33:19] pending=1
+  [19:33:50] pending=1
+  [19:34:21] pending=1
+  [19:34:52] pending=1
+  [19:35:24] pending=1
+  [19:35:55] pending=1
+  [19:36:26] pending=0
+--- xpurt3net_p2 (job 269): [2026-08-29 02:36:03] job 269 finished: DONE rc=0 lane=f2-00
+    bytes=42052 elf='armA_xpurt3net_p2.elf' model=''

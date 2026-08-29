@@ -1,0 +1,2 @@
+dronet_rvv 256 /home/ubuntu/armB_dronet_rvv_res
+mlp_control_gemmini_q31 257 /home/ubuntu/armB_mlp_control_gemmini_q31_res
