@@ -1,0 +1,9 @@
+{
+  "benchmark_name": "fq-job-526",
+  "common_bootbinary": "nhwc_nBA.elf",
+  "common_rootfs": null,
+  "common_simulation_outputs": [
+    "uartlog"
+  ],
+  "no_post_run_hook": true
+}

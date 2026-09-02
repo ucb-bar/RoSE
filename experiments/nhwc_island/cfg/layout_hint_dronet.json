@@ -1,0 +1,5 @@
+{
+  "contract": "modelblaster.layout_hints/v1",
+  "reason": "F2 phase trace (fq 475) attributes 87% of gemmini conv2d_s8 cycles to NCHW<->NHWC conversion: in 34.3%, gemmini 12.8%, out 52.9%. Chaining NHWC through the conv section leaves only the model-input and pre-flatten conversions.",
+  "networks": [{"network": "dronet", "layout": "nhwc"}]
+}

@@ -1,0 +1,11 @@
+### submit nI 2026-09-02T09:54:52Z
+#### submit: submitted job 525  (completion=exit, timeout=3000s)
+  logs:   fq logs 525 -f
+  status: fq status 525
+#### jid=525
+#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/nhwc_island/results/res_nI/2026-09-02--09-57-02-fq-job-525-fq525x4d0f7dd3/fq-job-5250/uartlog
+#### schedule_in_uartlog=nI expected=nI
+xpurt-runner: schedule=nI entries=23 kinds=2 on chipyard_riscv64/rocketchip_virt_riscv64
+=== MODELBLASTER_VERIFY [dronet] === max_abs_err=2 max_rel_err=0.0357142873 n=2 instance=0 ready=1
+*** PASSED *** after 2357603642 cycles
+############ FQDONE nI ############

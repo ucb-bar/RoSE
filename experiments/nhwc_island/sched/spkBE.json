@@ -1,0 +1,299 @@
+{
+ "dot_file": "shard_dim.json",
+ "dispatches": {
+  "dronet0_dispatch_0": {
+   "id": 0,
+   "ordinal": 1,
+   "total": 1,
+   "dependencies": [],
+   "hardware_target": "CPU_E#0",
+   "start_time": 0.0,
+   "duration": 0.01,
+   "job_name": "dronet0",
+   "module_name": "conv_modules.0"
+  },
+  "dronet0_dispatch_1": {
+   "id": 1,
+   "ordinal": 1,
+   "total": 1,
+   "dependencies": [
+    "dronet0_dispatch_0"
+   ],
+   "hardware_target": "CPU_E#0",
+   "start_time": 0.01,
+   "duration": 0.01,
+   "job_name": "dronet0",
+   "module_name": "maxpool1"
+  },
+  "dronet0_dispatch_2": {
+   "id": 2,
+   "ordinal": 1,
+   "total": 1,
+   "dependencies": [
+    "dronet0_dispatch_1"
+   ],
+   "hardware_target": "CPU_E#0",
+   "start_time": 0.02,
+   "duration": 0.01,
+   "job_name": "dronet0",
+   "module_name": "bn_modules.0"
+  },
+  "dronet0_dispatch_3": {
+   "id": 3,
+   "ordinal": 1,
+   "total": 1,
+   "dependencies": [
+    "dronet0_dispatch_2"
+   ],
+   "hardware_target": "CPU_E#0",
+   "start_time": 0.03,
+   "duration": 0.01,
+   "job_name": "dronet0",
+   "module_name": "conv_modules.1"
+  },
+  "dronet0_dispatch_4": {
+   "id": 4,
+   "ordinal": 1,
+   "total": 1,
+   "dependencies": [
+    "dronet0_dispatch_3"
+   ],
+   "hardware_target": "CPU_E#0",
+   "start_time": 0.04,
+   "duration": 0.01,
+   "job_name": "dronet0",
+   "module_name": "conv_modules.2"
+  },
+  "dronet0_dispatch_5": {
+   "id": 5,
+   "ordinal": 1,
+   "total": 1,
+   "dependencies": [
+    "dronet0_dispatch_1",
+    "dronet0_dispatch_4"
+   ],
+   "hardware_target": "CPU_E#0",
+   "start_time": 0.05,
+   "duration": 0.01,
+   "job_name": "dronet0",
+   "module_name": "conv_modules.3"
+  },
+  "dronet0_dispatch_6": {
+   "id": 6,
+   "ordinal": 1,
+   "total": 1,
+   "dependencies": [
+    "dronet0_dispatch_4",
+    "dronet0_dispatch_5"
+   ],
+   "hardware_target": "CPU_E#0",
+   "start_time": 0.06,
+   "duration": 0.01,
+   "job_name": "dronet0",
+   "module_name": "add"
+  },
+  "dronet0_dispatch_7": {
+   "id": 7,
+   "ordinal": 1,
+   "total": 1,
+   "dependencies": [
+    "dronet0_dispatch_6"
+   ],
+   "hardware_target": "CPU_E#0",
+   "start_time": 0.07,
+   "duration": 0.01,
+   "job_name": "dronet0",
+   "module_name": "bn_modules.2"
+  },
+  "dronet0_dispatch_8": {
+   "id": 8,
+   "ordinal": 1,
+   "total": 1,
+   "dependencies": [
+    "dronet0_dispatch_7"
+   ],
+   "hardware_target": "CPU_E#0",
+   "start_time": 0.08,
+   "duration": 0.01,
+   "job_name": "dronet0",
+   "module_name": "conv_modules.4"
+  },
+  "dronet0_dispatch_9": {
+   "id": 9,
+   "ordinal": 1,
+   "total": 1,
+   "dependencies": [
+    "dronet0_dispatch_8"
+   ],
+   "hardware_target": "CPU_E#0",
+   "start_time": 0.09,
+   "duration": 0.01,
+   "job_name": "dronet0",
+   "module_name": "conv_modules.5"
+  },
+  "dronet0_dispatch_10": {
+   "id": 10,
+   "ordinal": 1,
+   "total": 1,
+   "dependencies": [
+    "dronet0_dispatch_6",
+    "dronet0_dispatch_9"
+   ],
+   "hardware_target": "CPU_E#0",
+   "start_time": 0.1,
+   "duration": 0.01,
+   "job_name": "dronet0",
+   "module_name": "conv_modules.6"
+  },
+  "dronet0_dispatch_11": {
+   "id": 11,
+   "ordinal": 1,
+   "total": 1,
+   "dependencies": [
+    "dronet0_dispatch_9",
+    "dronet0_dispatch_10"
+   ],
+   "hardware_target": "CPU_E#0",
+   "start_time": 0.11,
+   "duration": 0.01,
+   "job_name": "dronet0",
+   "module_name": "add_1"
+  },
+  "dronet0_dispatch_12": {
+   "id": 12,
+   "ordinal": 1,
+   "total": 1,
+   "dependencies": [
+    "dronet0_dispatch_11"
+   ],
+   "hardware_target": "CPU_E#0",
+   "start_time": 0.12,
+   "duration": 0.01,
+   "job_name": "dronet0",
+   "module_name": "bn_modules.4"
+  },
+  "dronet0_dispatch_13": {
+   "id": 13,
+   "ordinal": 1,
+   "total": 1,
+   "dependencies": [
+    "dronet0_dispatch_12"
+   ],
+   "hardware_target": "CPU_E#0",
+   "start_time": 0.13,
+   "duration": 0.01,
+   "job_name": "dronet0",
+   "module_name": "conv_modules.7"
+  },
+  "dronet0_dispatch_14": {
+   "id": 14,
+   "ordinal": 1,
+   "total": 1,
+   "dependencies": [
+    "dronet0_dispatch_13"
+   ],
+   "hardware_target": "CPU_E#0",
+   "start_time": 0.14,
+   "duration": 0.01,
+   "job_name": "dronet0",
+   "module_name": "conv_modules.8"
+  },
+  "dronet0_dispatch_15": {
+   "id": 15,
+   "ordinal": 1,
+   "total": 1,
+   "dependencies": [
+    "dronet0_dispatch_11",
+    "dronet0_dispatch_14"
+   ],
+   "hardware_target": "CPU_E#0",
+   "start_time": 0.15,
+   "duration": 0.01,
+   "job_name": "dronet0",
+   "module_name": "conv_modules.9"
+  },
+  "dronet0_dispatch_16": {
+   "id": 16,
+   "ordinal": 1,
+   "total": 1,
+   "dependencies": [
+    "dronet0_dispatch_14",
+    "dronet0_dispatch_15"
+   ],
+   "hardware_target": "CPU_E#0",
+   "start_time": 0.16,
+   "duration": 0.01,
+   "job_name": "dronet0",
+   "module_name": "add_2"
+  },
+  "dronet0_dispatch_17": {
+   "id": 17,
+   "ordinal": 1,
+   "total": 1,
+   "dependencies": [
+    "dronet0_dispatch_16"
+   ],
+   "hardware_target": "CPU_E#0",
+   "start_time": 0.17,
+   "duration": 0.01,
+   "job_name": "dronet0",
+   "module_name": "relu_modules.6"
+  },
+  "dronet0_dispatch_18": {
+   "id": 18,
+   "ordinal": 1,
+   "total": 1,
+   "dependencies": [
+    "dronet0_dispatch_17"
+   ],
+   "hardware_target": "CPU_E#0",
+   "start_time": 0.18,
+   "duration": 0.01,
+   "job_name": "dronet0",
+   "module_name": "linear1"
+  },
+  "dronet0_dispatch_19": {
+   "id": 19,
+   "ordinal": 1,
+   "total": 1,
+   "dependencies": [
+    "dronet0_dispatch_17",
+    "dronet0_dispatch_18"
+   ],
+   "hardware_target": "CPU_E#0",
+   "start_time": 0.19,
+   "duration": 0.01,
+   "job_name": "dronet0",
+   "module_name": "linear2"
+  },
+  "dronet0_dispatch_20": {
+   "id": 20,
+   "ordinal": 1,
+   "total": 1,
+   "dependencies": [
+    "dronet0_dispatch_19"
+   ],
+   "hardware_target": "CPU_E#0",
+   "start_time": 0.2,
+   "duration": 0.01,
+   "job_name": "dronet0",
+   "module_name": "sigmoid1"
+  }
+ },
+ "metadata": {
+  "makespan": 0.21000000000000005,
+  "num_operations": 21,
+  "machines": [
+   "CPU_E#0"
+  ],
+  "machine_combinations": [
+   [
+    "CPU_E#0"
+   ]
+  ],
+  "profile_hw": {
+   "CPU_P": "gemmini_q31",
+   "CPU_E": "V256D128_rvv"
+  }
+ }
+}
