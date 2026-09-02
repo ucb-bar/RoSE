@@ -1,0 +1,1 @@
+{"job_id": 538, "state": "RUNNING", "phase": "COLLECT", "pid": 1997129, "lane": "f2-07", "started_at": 1788345347.6702547, "updated_at": 1788345771.0781054, "exit_code": null, "message": "", "completion": {"mode": "exit", "sentinel_regex": null, "fail_regex": "(mcause:|ZEPHYR FATAL ERROR|Faulting instruction address)", "timeout_s": 5400}}

@@ -1,0 +1,1293 @@
+[10:35:47] job 538 on lane f2-07 hosts=['192.168.0.175']
+[10:35:47] clearing stale uartlogs on run hosts
+Warning: Permanently added '192.168.0.175' (ED25519) to the list of known hosts.
+[10:35:48] === phase INFRASETUP ===
+[10:35:48] $ bash -c set -o pipefail; export PATH=/home/ubuntu/miniconda3/bin:/home/ubuntu/miniconda3/condabin:$PATH; unset CONDA_PREFIX CONDA_DEFAULT_ENV CONDA_PROMPT_MODIFIER CONDA_PYTHON_EXE CONDA_SHLVL CONDA_EXE _CE_M _CE_CONDA; source /home/ubuntu/chipyard-rose/env.sh; cd /home/ubuntu/chipyard-rose/sims/firesim; source /home/ubuntu/chipyard-rose/sims/firesim/sourceme-manager.sh --skip-ssh-setup; cd /home/ubuntu/chipyard-rose/sims/firesim/deploy; firesim -c /var/lib/fq/jobs/538/config_runtime.yaml -a /var/lib/fq/jobs/538/config_hwdb.yaml infrasetup
+./env.sh: line 4: /scratch/dima/rose-infra/RoSE/soc/sim/chipyard/sims/firesim/../../env.sh: No such file or directory
+FireSim Manager. Docs: https://docs.fires.im
+Running: infrasetup
+
+Please rename your 'deploy_triplet_override' key in your hwdb entry to 'deploy_quintuplet_override'. Support for 'deploy_triplet_override' will be removed in the future.
+firesim_rocket_30MHz_singlecore_no_nic is overriding a deploy quintuplet in your config_hwdb.yaml file. Make sure you understand why!
+Please rename your 'deploy_triplet_override' key in your hwdb entry to 'deploy_quintuplet_override'. Support for 'deploy_triplet_override' will be removed in the future.
+firesim-rocket-singlecore-fp32gemmini-with-airsim-fast-no-nic-l2-llc4mb-ddr3 is overriding a deploy quintuplet in your config_hwdb.yaml file. Make sure you understand why!
+Please rename your 'deploy_triplet_override' key in your hwdb entry to 'deploy_quintuplet_override'. Support for 'deploy_triplet_override' will be removed in the future.
+firesim-dual-large-boom-fp32gemmini-singlecore-with-airsim-no-nic-l2-llc4mb-ddr3 is overriding a deploy quintuplet in your config_hwdb.yaml file. Make sure you understand why!
+get_local_driver_dir f2-firesim-FireSim-DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.RocketConfig-F30MHz_BaseVitisConfig
+get_local_driver_dir f2-firesim-FireSim-DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.AirSimIOTLFPGemminiLargeBoomConfig-F30MHz_BaseVitisConfig
+get_local_driver_dir f2-firesim-FireSim-DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.AirSimIOTLFPGemminiLargeDualBoomConfig-F30MHz_BaseVitisConfig
+get_local_driver_dir f2-firesim-FireSim-DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.AirSimIOTLFPGemminiRocketConfig-F30MHz_BaseVitisConfig
+get_local_driver_dir f2-firesim-FireSim-DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.AirSimIOTLFPGemminiRocketConfig-F45MHz_BaseVitisConfig
+get_local_driver_dir f1-firesim-FireSim-RoseTLRocketMMIOOnlyConfig-BaseF1Config
+get_local_driver_dir f1-firesim-FireSim-RoseTLRocketStereoAccRoccMMIOOnlyConfig-BaseF1Config
+get_local_driver_dir f1-firesim-FireSim-RoseTLRocketStereoAccMMIOOnlyConfig-BaseF1Config
+get_local_driver_dir f1-firesim-FireSim-RoseTLRocketDualDMAMMIOOnlyConfig-BaseF1Config
+get_local_driver_dir f1-firesim-FireSim-RoseTLBOOMDualDMAMMIOOnlyConfig-BaseF1Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLBOOMDualDMAMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLRocketStereoAccMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir f1-firesim-FireSim-RoseTLRocketEdgeDetAccMMIOOnlyConfig-BaseF1Config
+get_local_driver_dir f1-firesim-FireSim-RoseTLRocketStereoAccNICConfig-BaseF1Config
+get_local_driver_dir f1-firesim-FireSim-RocketNICConfig-BaseF1Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLRocketMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLRocketSaturnMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLRocketSaturnMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLDualRocketSaturnGemminiMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLDualRocketSaturnGemminiQ31MMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLDualRocketSaturnGemminiQ31WsMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLRocketSaturnTacitMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLRocketSaturnDMAMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLRocketSaturnDMAMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLBOOMMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLBOOMGemminiMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-FireSimRocketConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir f2-firesim-FireSim-RoseTLDualSmallTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemDualSmallTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-RoseTLDualLargeTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemDualLargeTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-RoseTLQuadSmallTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemQuadSmallTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-RoseTLQuadLargeTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemQuadLargeTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-RoseTLDualSmallTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemDualSmallTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-RoseTLDualLargeTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemDualLargeTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-RoseTLQuadSmallTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemQuadSmallTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-RoseTLQuadLargeTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemQuadLargeTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemQuadHeteroTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-RoseTLQuadHeteroTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemQuadHeteroTacitMMIOOnlyConfig-BaseF2PCIMConfig
+get_local_driver_dir f2-firesim-FireSim-SatGemDualSmallTacitMMIOOnlyConfig-BaseF2PCIMConfig
+run_farm_hosts_dict defaultdict(<class 'list'>, {'192.168.0.175': [(<runtools.run_farm.Inst object at 0x779c75848160>, None)]})
+set_server_hardware_config 0 None
+[192.168.0.175] Checking if host instance is up...
+Building FPGA software driver for f2-firesim-FireSim-SatGemQuadHeteroTacitMMIOOnlyConfig-BaseF2Config
+[localhost] run: make PLATFORM=f2 TARGET_PROJECT=firesim TARGET_PROJECT_MAKEFRAG=/home/ubuntu/chipyard-rose/sims/firesim/deploy/../../../generators/firechip/chip/src/main/makefrag/firesim DESIGN=FireSim TARGET_CONFIG=SatGemQuadHeteroTacitMMIOOnlyConfig PLATFORM_CONFIG=BaseF2Config f2
+[localhost] out: /home/ubuntu/.bash_profile: line 4: [: $?: integer expression expected
+[localhost] out: ./env.sh: line 4: /scratch/dima/rose-infra/RoSE/soc/sim/chipyard/sims/firesim/../../env.sh: No such file or directory
+[localhost] out: ln: /home/ubuntu/chipyard-rose/sims/firesim/sim/midas/src/main/scala/target-symlinks/bridgeinterfaces/./src: cannot overwrite directory
+[localhost] out: ln: /home/ubuntu/chipyard-rose/sims/firesim/sim/midas/src/main/scala/target-symlinks/goldengateimplementations/./src: cannot overwrite directory
+[localhost] out: mkdir -p /home/ubuntu/chipyard-rose/sims/firesim/sim/midas/src/main/scala/target-symlinks
+[localhost] out: # make the symlink dir
+[localhost] out: # symlink things
+[localhost] out: # remove any folders that don't match
+[localhost] out: find /home/ubuntu/chipyard-rose/sims/firesim/sim/midas/src/main/scala/target-symlinks/* -type d | grep -v -e "/home/ubuntu/chipyard-rose/sims/firesim/sim/midas/src/main/scala/target-symlinks/bridgeinterfaces" -e "/home/ubuntu/chipyard-rose/sims/firesim/sim/midas/src/main/scala/target-symlinks/goldengateimplementations" | xargs rm -rf
+[localhost] out: source /home/ubuntu/chipyard-rose/env.sh && \
+[localhost] out: 	make -C /home/ubuntu/chipyard-rose/sims/firesim-staging \
+[localhost] out: 		SBT_PROJECT=firechip \
+[localhost] out: 		MODEL=FireSim \
+[localhost] out: 		MODEL_PACKAGE=firechip.chip \
+[localhost] out: 		VLOG_MODEL=FireSim \
+[localhost] out: 		CONFIG=SatGemQuadHeteroTacitMMIOOnlyConfig \
+[localhost] out: 		CONFIG_PACKAGE=firechip.chip \
+[localhost] out: 		GENERATOR_PACKAGE=chipyard \
+[localhost] out: 		EXTRA_CHISEL_OPTIONS=--emit-legacy-sfc \
+[localhost] out: 		TB=unused \
+[localhost] out: 		TOP=unused
+[localhost] out: make[1]: Entering directory '/home/ubuntu/chipyard-rose/sims/firesim-staging'
+[localhost] out: make[1]: Nothing to be done for 'default'.
+[localhost] out: make[1]: Leaving directory '/home/ubuntu/chipyard-rose/sims/firesim-staging'
+[localhost] out: # firechip.chip.FireSim.SatGemQuadHeteroTacitMMIOOnlyConfig must be same as Chipyard
+[localhost] out: ln -sf /home/ubuntu/chipyard-rose/sims/firesim-staging/generated-src/firechip.chip.FireSim.SatGemQuadHeteroTacitMMIOOnlyConfig/firechip.chip.FireSim.SatGemQuadHeteroTacitMMIOOnlyConfig.sfc.fir /home/ubuntu/chipyard-rose/sims/firesim/sim/generated-src/f2/f2-firesim-FireSim-SatGemQuadHeteroTacitMMIOOnlyConfig-BaseF2Config/firechip.chip.FireSim.SatGemQuadHeteroTacitMMIOOnlyConfig.fir
+[localhost] out: ln -sf /home/ubuntu/chipyard-rose/sims/firesim-staging/generated-src/firechip.chip.FireSim.SatGemQuadHeteroTacitMMIOOnlyConfig/firechip.chip.FireSim.SatGemQuadHeteroTacitMMIOOnlyConfig.anno.json /home/ubuntu/chipyard-rose/sims/firesim/sim/generated-src/f2/f2-firesim-FireSim-SatGemQuadHeteroTacitMMIOOnlyConfig-BaseF2Config/firechip.chip.FireSim.SatGemQuadHeteroTacitMMIOOnlyConfig.anno.json
+[localhost] out: # .d needed to run metasim CI tests
+[localhost] out: ln -sf /home/ubuntu/chipyard-rose/sims/firesim-staging/generated-src/firechip.chip.FireSim.SatGemQuadHeteroTacitMMIOOnlyConfig/firechip.chip.FireSim.SatGemQuadHeteroTacitMMIOOnlyConfig.d /home/ubuntu/chipyard-rose/sims/firesim/sim/generated-src/f2/f2-firesim-FireSim-SatGemQuadHeteroTacitMMIOOnlyConfig-BaseF2Config/firechip.chip.FireSim.SatGemQuadHeteroTacitMMIOOnlyConfig.d
+[localhost] out: 
+get_local_driver_dir f2-firesim-FireSim-SatGemQuadHeteroTacitMMIOOnlyConfig-BaseF2Config
+[localhost] local: pwd
+[localhost] run: rsync -pthrvz -L ../sim/output/f2/f2-firesim-FireSim-SatGemQuadHeteroTacitMMIOOnlyConfig-BaseF2Config/FireSim-f2 /tmp/tmp87zjw_y_/
+[localhost] out: /home/ubuntu/.bash_profile: line 4: [: $?: integer expression expected
+[localhost] out: sending incremental file list
+[localhost] out: FireSim-f2
+[localhost] out: 
+[localhost] out: sent 4.69M bytes  received 35 bytes  9.38M bytes/sec
+[localhost] out: total size is 13.19M  speedup is 2.81
+[localhost] out: 
+[localhost] local: pwd
+[localhost] run: rsync -pthrvz -L /home/ubuntu/chipyard-rose/.conda-env/riscv-tools/lib/libriscv.so /tmp/tmp87zjw_y_/libriscv.so
+[localhost] out: /home/ubuntu/.bash_profile: line 4: [: $?: integer expression expected
+[localhost] out: sending incremental file list
+[localhost] out: libriscv.so
+[localhost] out: 
+[localhost] out: sent 31.69M bytes  received 35 bytes  63.38M bytes/sec
+[localhost] out: total size is 178.66M  speedup is 5.64
+[localhost] out: 
+[localhost] local: pwd
+[localhost] run: rsync -pthrvz -L /home/ubuntu/chipyard-fsim/.conda-env/lib/libdwarf.so.1.0.0 /tmp/tmp87zjw_y_/libdwarf.so.1
+[localhost] out: /home/ubuntu/.bash_profile: line 4: [: $?: integer expression expected
+[localhost] out: sending incremental file list
+[localhost] out: libdwarf.so.1.0.0
+[localhost] out: 
+[localhost] out: sent 199.64K bytes  received 35 bytes  399.34K bytes/sec
+[localhost] out: total size is 486.20K  speedup is 2.43
+[localhost] out: 
+[localhost] local: pwd
+[localhost] run: rsync -pthrvz -L /home/ubuntu/chipyard-fsim/.conda-env/lib/libelf-0.187.so /tmp/tmp87zjw_y_/libelf.so.1
+[localhost] out: /home/ubuntu/.bash_profile: line 4: [: $?: integer expression expected
+[localhost] out: sending incremental file list
+[localhost] out: libelf-0.187.so
+[localhost] out: 
+[localhost] out: sent 50.99K bytes  received 35 bytes  102.06K bytes/sec
+[localhost] out: total size is 117.87K  speedup is 2.31
+[localhost] out: 
+[localhost] local: pwd
+[localhost] run: rsync -pthrvz -L /home/ubuntu/chipyard-fsim/.conda-env/lib/libz.so.1.2.13 /tmp/tmp87zjw_y_/libz.so.1
+[localhost] out: /home/ubuntu/.bash_profile: line 4: [: $?: integer expression expected
+[localhost] out: sending incremental file list
+[localhost] out: libz.so.1.2.13
+[localhost] out: 
+[localhost] out: sent 59.72K bytes  received 35 bytes  119.50K bytes/sec
+[localhost] out: total size is 112.80K  speedup is 1.89
+[localhost] out: 
+[localhost] local: pwd
+[localhost] run: rsync -pthrvz -L /home/ubuntu/chipyard-fsim/.conda-env/lib/libstdc++.so.6.0.35 /tmp/tmp87zjw_y_/libstdc++.so.6
+[localhost] out: /home/ubuntu/.bash_profile: line 4: [: $?: integer expression expected
+[localhost] out: sending incremental file list
+[localhost] out: libstdc++.so.6.0.35
+[localhost] out: 
+[localhost] out: sent 8.22M bytes  received 35 bytes  16.43M bytes/sec
+[localhost] out: total size is 23.91M  speedup is 2.91
+[localhost] out: 
+[localhost] local: pwd
+[localhost] run: rsync -pthrvz -L /home/ubuntu/chipyard-fsim/.conda-env/lib/libgmp.so.10.5.0 /tmp/tmp87zjw_y_/libgmp.so.10
+[localhost] out: /home/ubuntu/.bash_profile: line 4: [: $?: integer expression expected
+[localhost] out: sending incremental file list
+[localhost] out: libgmp.so.10.5.0
+[localhost] out: 
+[localhost] out: sent 348.26K bytes  received 35 bytes  696.58K bytes/sec
+[localhost] out: total size is 749.06K  speedup is 2.15
+[localhost] out: 
+[localhost] local: pwd
+[localhost] run: rsync -pthrvz -L /home/ubuntu/chipyard-fsim/.conda-env/lib/libgcc_s.so.1 /tmp/tmp87zjw_y_/libgcc_s.so.1
+[localhost] out: /home/ubuntu/.bash_profile: line 4: [: $?: integer expression expected
+[localhost] out: sending incremental file list
+[localhost] out: libgcc_s.so.1
+[localhost] out: 
+[localhost] out: sent 363.76K bytes  received 35 bytes  727.59K bytes/sec
+[localhost] out: total size is 921.30K  speedup is 2.53
+[localhost] out: 
+[localhost] local: pwd
+[localhost] run: find . -mindepth 1 -maxdepth 1 -printf "%P
+" | xargs tar -czvf /home/ubuntu/chipyard-rose/sims/firesim/deploy/../sim/output/f2/f2-firesim-FireSim-SatGemQuadHeteroTacitMMIOOnlyConfig-BaseF2Config/driver-bundle.tar.gz
+[localhost] out: /home/ubuntu/.bash_profile: line 4: [: $?: integer expression expected
+[localhost] out: libgcc_s.so.1
+[localhost] out: libz.so.1
+[localhost] out: libelf.so.1
+[localhost] out: FireSim-f2
+[localhost] out: libriscv.so
+[localhost] out: libdwarf.so.1
+[localhost] out: libstdc++.so.6
+[localhost] out: libgmp.so.10
+[localhost] out: 
+[192.168.0.175] Copying FPGA simulation infrastructure for slot: 0.
+[192.168.0.175] Installing AWS FPGA SDK on remote nodes. Upstream hash: 5e4c3c2
+Warning: run() received nonzero return code 128 while executing 'git clone https://github.com/firesim/aws-fpga-firesim-f2.git aws-fpga'!
+Warning: run() received nonzero return code 1 while executing 'cd aws-fpga && git checkout 5e4c3c2'!
+[192.168.0.175] Unloading XRT-related Kernel Modules.
+Warning: run() received nonzero return code 5 while executing 'sudo systemctl stop mpd'!
+Warning: run() received nonzero return code 1 while executing 'sudo yum remove -y xrt xrt-aws'!
+[192.168.0.175] Clearing FPGA Slot 0.
+[192.168.0.175] Checking for Cleared FPGA Slot 0.
+[192.168.0.175] Flashing FPGA Slot: 0 with agfi: agfi-0662319f4b07483a7.
+[192.168.0.175] Checking for Flashed FPGA Slot: 0 with agfi: agfi-0662319f4b07483a7.
+[192.168.0.175] Starting Vivado hw_server.
+[192.168.0.175] Starting Vivado virtual JTAG.
+The full log of this run is:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-35-50-infrasetup-KXFM8ILF3QCLB5LT.log
+[10:36:48] === phase RUN ===
+[10:36:48] $ bash -c set -o pipefail; export PATH=/home/ubuntu/miniconda3/bin:/home/ubuntu/miniconda3/condabin:$PATH; unset CONDA_PREFIX CONDA_DEFAULT_ENV CONDA_PROMPT_MODIFIER CONDA_PYTHON_EXE CONDA_SHLVL CONDA_EXE _CE_M _CE_CONDA; source /home/ubuntu/chipyard-rose/env.sh; cd /home/ubuntu/chipyard-rose/sims/firesim; source /home/ubuntu/chipyard-rose/sims/firesim/sourceme-manager.sh --skip-ssh-setup; cd /home/ubuntu/chipyard-rose/sims/firesim/deploy; firesim -c /var/lib/fq/jobs/538/config_runtime.yaml -a /var/lib/fq/jobs/538/config_hwdb.yaml runworkload
+./env.sh: line 4: /scratch/dima/rose-infra/RoSE/soc/sim/chipyard/sims/firesim/../../env.sh: No such file or directory
+FireSim Manager. Docs: https://docs.fires.im
+Running: runworkload
+
+Please rename your 'deploy_triplet_override' key in your hwdb entry to 'deploy_quintuplet_override'. Support for 'deploy_triplet_override' will be removed in the future.
+firesim_rocket_30MHz_singlecore_no_nic is overriding a deploy quintuplet in your config_hwdb.yaml file. Make sure you understand why!
+Please rename your 'deploy_triplet_override' key in your hwdb entry to 'deploy_quintuplet_override'. Support for 'deploy_triplet_override' will be removed in the future.
+firesim-rocket-singlecore-fp32gemmini-with-airsim-fast-no-nic-l2-llc4mb-ddr3 is overriding a deploy quintuplet in your config_hwdb.yaml file. Make sure you understand why!
+Please rename your 'deploy_triplet_override' key in your hwdb entry to 'deploy_quintuplet_override'. Support for 'deploy_triplet_override' will be removed in the future.
+firesim-dual-large-boom-fp32gemmini-singlecore-with-airsim-no-nic-l2-llc4mb-ddr3 is overriding a deploy quintuplet in your config_hwdb.yaml file. Make sure you understand why!
+get_local_driver_dir f2-firesim-FireSim-DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.RocketConfig-F30MHz_BaseVitisConfig
+get_local_driver_dir f2-firesim-FireSim-DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.AirSimIOTLFPGemminiLargeBoomConfig-F30MHz_BaseVitisConfig
+get_local_driver_dir f2-firesim-FireSim-DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.AirSimIOTLFPGemminiLargeDualBoomConfig-F30MHz_BaseVitisConfig
+get_local_driver_dir f2-firesim-FireSim-DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.AirSimIOTLFPGemminiRocketConfig-F30MHz_BaseVitisConfig
+get_local_driver_dir f2-firesim-FireSim-DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.AirSimIOTLFPGemminiRocketConfig-F45MHz_BaseVitisConfig
+get_local_driver_dir f1-firesim-FireSim-RoseTLRocketMMIOOnlyConfig-BaseF1Config
+get_local_driver_dir f1-firesim-FireSim-RoseTLRocketStereoAccRoccMMIOOnlyConfig-BaseF1Config
+get_local_driver_dir f1-firesim-FireSim-RoseTLRocketStereoAccMMIOOnlyConfig-BaseF1Config
+get_local_driver_dir f1-firesim-FireSim-RoseTLRocketDualDMAMMIOOnlyConfig-BaseF1Config
+get_local_driver_dir f1-firesim-FireSim-RoseTLBOOMDualDMAMMIOOnlyConfig-BaseF1Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLBOOMDualDMAMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLRocketStereoAccMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir f1-firesim-FireSim-RoseTLRocketEdgeDetAccMMIOOnlyConfig-BaseF1Config
+get_local_driver_dir f1-firesim-FireSim-RoseTLRocketStereoAccNICConfig-BaseF1Config
+get_local_driver_dir f1-firesim-FireSim-RocketNICConfig-BaseF1Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLRocketMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLRocketSaturnMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLRocketSaturnMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLDualRocketSaturnGemminiMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLDualRocketSaturnGemminiQ31MMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLDualRocketSaturnGemminiQ31WsMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLRocketSaturnTacitMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLRocketSaturnDMAMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLRocketSaturnDMAMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLBOOMMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLBOOMGemminiMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-FireSimRocketConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir f2-firesim-FireSim-RoseTLDualSmallTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemDualSmallTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-RoseTLDualLargeTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemDualLargeTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-RoseTLQuadSmallTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemQuadSmallTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-RoseTLQuadLargeTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemQuadLargeTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-RoseTLDualSmallTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemDualSmallTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-RoseTLDualLargeTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemDualLargeTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-RoseTLQuadSmallTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemQuadSmallTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-RoseTLQuadLargeTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemQuadLargeTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemQuadHeteroTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-RoseTLQuadHeteroTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemQuadHeteroTacitMMIOOnlyConfig-BaseF2PCIMConfig
+get_local_driver_dir f2-firesim-FireSim-SatGemDualSmallTacitMMIOOnlyConfig-BaseF2PCIMConfig
+run_farm_hosts_dict defaultdict(<class 'list'>, {'192.168.0.175': [(<runtools.run_farm.Inst object at 0x7ccf5e3cc160>, None)]})
+set_server_hardware_config 0 None
+Creating the directory: /home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+[192.168.0.175] Checking if host instance is up...
+start_simulations_instance 1
+[192.168.0.175] Starting FPGA simulation for slot: 0.
+start_sim_slot slotno: 0 server_id 0 remote_sim_dir /home/ubuntu/sim_slot_0/ /home/ubuntu
+[2J
+FireSim Simulation Status @ 2026-09-02 10:36:58.278273
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2026-09-02 10:37:08.796980
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2026-09-02 10:37:19.115349
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2026-09-02 10:37:29.430185
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2026-09-02 10:37:39.769325
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2026-09-02 10:37:50.330920
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2026-09-02 10:38:00.671406
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2026-09-02 10:38:10.992539
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2026-09-02 10:38:21.333343
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2026-09-02 10:38:31.662196
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2026-09-02 10:38:41.981210
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2026-09-02 10:38:52.309987
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2026-09-02 10:39:02.650418
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2026-09-02 10:39:12.968949
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2026-09-02 10:39:23.288509
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2026-09-02 10:39:33.616978
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2026-09-02 10:39:43.946049
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2026-09-02 10:39:54.264976
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2026-09-02 10:40:04.575063
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2026-09-02 10:40:14.893044
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2026-09-02 10:40:25.221994
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2026-09-02 10:40:35.530602
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2026-09-02 10:40:45.859889
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2026-09-02 10:40:56.188655
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2026-09-02 10:41:06.514534
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2026-09-02 10:41:16.843562
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2026-09-02 10:41:27.172655
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2026-09-02 10:41:37.490805
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2026-09-02 10:41:47.809727
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2026-09-02 10:41:58.118467
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2026-09-02 10:42:08.437390
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2026-09-02 10:42:18.766230
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[2J
+FireSim Simulation Status @ 2026-09-02 10:42:29.095051
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [33mTrue [0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+1/1 simulations are still running.
+--------------------------------------------------------------------------------
+[192.168.0.175] Slot 0, Job fq-job-5380 completed!
+[2J
+FireSim Simulation Status @ 2026-09-02 10:42:39.767279
+--------------------------------------------------------------------------------
+This workload's output is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+This run's log is located in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+This status will update every 10s.
+--------------------------------------------------------------------------------
+Instances
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Terminated: [33mFalse[0m
+--------------------------------------------------------------------------------
+Simulated Switches
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Pipes
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Simulated Nodes/Jobs
+--------------------------------------------------------------------------------
+Hostname/IP: 192.168.0.175 | Job: fq-job-5380 | Sim running: [32mFalse[0m
+--------------------------------------------------------------------------------
+Summary
+--------------------------------------------------------------------------------
+1/1 instances are still running.
+0/1 simulations are still running.
+--------------------------------------------------------------------------------
+FireSim Simulation Exited Successfully. See results in:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/2026-09-02--10-36-51-fq-job-538-fq538xa73c8fb4/
+The full log of this run is:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-36-51-runworkload-VBNOV37C5ZBF0SK6.log
+[10:42:41] === phase KILL ===
+[10:42:41] $ bash -c set -o pipefail; export PATH=/home/ubuntu/miniconda3/bin:/home/ubuntu/miniconda3/condabin:$PATH; unset CONDA_PREFIX CONDA_DEFAULT_ENV CONDA_PROMPT_MODIFIER CONDA_PYTHON_EXE CONDA_SHLVL CONDA_EXE _CE_M _CE_CONDA; source /home/ubuntu/chipyard-rose/env.sh; cd /home/ubuntu/chipyard-rose/sims/firesim; source /home/ubuntu/chipyard-rose/sims/firesim/sourceme-manager.sh --skip-ssh-setup; cd /home/ubuntu/chipyard-rose/sims/firesim/deploy; firesim -c /var/lib/fq/jobs/538/config_runtime.yaml -a /var/lib/fq/jobs/538/config_hwdb.yaml kill
+./env.sh: line 4: /scratch/dima/rose-infra/RoSE/soc/sim/chipyard/sims/firesim/../../env.sh: No such file or directory
+FireSim Manager. Docs: https://docs.fires.im
+Running: kill
+
+Please rename your 'deploy_triplet_override' key in your hwdb entry to 'deploy_quintuplet_override'. Support for 'deploy_triplet_override' will be removed in the future.
+firesim_rocket_30MHz_singlecore_no_nic is overriding a deploy quintuplet in your config_hwdb.yaml file. Make sure you understand why!
+Please rename your 'deploy_triplet_override' key in your hwdb entry to 'deploy_quintuplet_override'. Support for 'deploy_triplet_override' will be removed in the future.
+firesim-rocket-singlecore-fp32gemmini-with-airsim-fast-no-nic-l2-llc4mb-ddr3 is overriding a deploy quintuplet in your config_hwdb.yaml file. Make sure you understand why!
+Please rename your 'deploy_triplet_override' key in your hwdb entry to 'deploy_quintuplet_override'. Support for 'deploy_triplet_override' will be removed in the future.
+firesim-dual-large-boom-fp32gemmini-singlecore-with-airsim-no-nic-l2-llc4mb-ddr3 is overriding a deploy quintuplet in your config_hwdb.yaml file. Make sure you understand why!
+get_local_driver_dir f2-firesim-FireSim-DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.RocketConfig-F30MHz_BaseVitisConfig
+get_local_driver_dir f2-firesim-FireSim-DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.AirSimIOTLFPGemminiLargeBoomConfig-F30MHz_BaseVitisConfig
+get_local_driver_dir f2-firesim-FireSim-DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.AirSimIOTLFPGemminiLargeDualBoomConfig-F30MHz_BaseVitisConfig
+get_local_driver_dir f2-firesim-FireSim-DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.AirSimIOTLFPGemminiRocketConfig-F30MHz_BaseVitisConfig
+get_local_driver_dir f2-firesim-FireSim-DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.AirSimIOTLFPGemminiRocketConfig-F45MHz_BaseVitisConfig
+get_local_driver_dir f1-firesim-FireSim-RoseTLRocketMMIOOnlyConfig-BaseF1Config
+get_local_driver_dir f1-firesim-FireSim-RoseTLRocketStereoAccRoccMMIOOnlyConfig-BaseF1Config
+get_local_driver_dir f1-firesim-FireSim-RoseTLRocketStereoAccMMIOOnlyConfig-BaseF1Config
+get_local_driver_dir f1-firesim-FireSim-RoseTLRocketDualDMAMMIOOnlyConfig-BaseF1Config
+get_local_driver_dir f1-firesim-FireSim-RoseTLBOOMDualDMAMMIOOnlyConfig-BaseF1Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLBOOMDualDMAMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLRocketStereoAccMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir f1-firesim-FireSim-RoseTLRocketEdgeDetAccMMIOOnlyConfig-BaseF1Config
+get_local_driver_dir f1-firesim-FireSim-RoseTLRocketStereoAccNICConfig-BaseF1Config
+get_local_driver_dir f1-firesim-FireSim-RocketNICConfig-BaseF1Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLRocketMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLRocketSaturnMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLRocketSaturnMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLDualRocketSaturnGemminiMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLDualRocketSaturnGemminiQ31MMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLDualRocketSaturnGemminiQ31WsMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLRocketSaturnTacitMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLRocketSaturnDMAMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLRocketSaturnDMAMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLBOOMMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-RoseTLBOOMGemminiMMIOOnlyConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir xilinx_alveo_u250-firesim-FireSim-FireSimRocketConfig-BaseXilinxAlveoU250Config
+get_local_driver_dir f2-firesim-FireSim-RoseTLDualSmallTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemDualSmallTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-RoseTLDualLargeTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemDualLargeTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-RoseTLQuadSmallTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemQuadSmallTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-RoseTLQuadLargeTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemQuadLargeTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-RoseTLDualSmallTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemDualSmallTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-RoseTLDualLargeTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemDualLargeTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-RoseTLQuadSmallTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemQuadSmallTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-RoseTLQuadLargeTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemQuadLargeTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemQuadHeteroTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-RoseTLQuadHeteroTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemQuadHeteroTacitMMIOOnlyConfig-BaseF2PCIMConfig
+get_local_driver_dir f2-firesim-FireSim-SatGemDualSmallTacitMMIOOnlyConfig-BaseF2PCIMConfig
+run_farm_hosts_dict defaultdict(<class 'list'>, {'192.168.0.175': [(<runtools.run_farm.Inst object at 0x7dc679a34160>, None)]})
+set_server_hardware_config 0 None
+[192.168.0.175] Killing FPGA simulation for slot: 0.
+Warning: run() received nonzero return code 1 while executing 'sudo pkill -SIGKILL FireSim-f2'!
+Confirming exit...
+screenoutput There are screens on:
+	171241.virtual_jtag	(09/02/26 10:36:46)	(Detached)
+	171079.hw_server	(09/02/26 10:36:45)	(Detached)
+2 Sockets in /run/screen/S-ubuntu.
+The full log of this run is:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-02--10-42-43-kill-KZ3XXKFA1TSSEUZT.log
+[10:42:51] === phase COLLECT -> /home/ubuntu/n3res_net3_gempair_greedy ===
+[10:42:51] $ bash -c mkdir -p /home/ubuntu/n3res_net3_gempair_greedy; shopt -s nullglob; for r in /home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/*-fq-job-538-fq538xa73c8fb4; do cp -a "$r" /home/ubuntu/n3res_net3_gempair_greedy/ || true; done

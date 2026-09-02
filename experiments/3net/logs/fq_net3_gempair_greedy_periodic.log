@@ -3,3 +3,10 @@
   logs:   fq logs 539 -f
   status: fq status 539
 #### jid=539
+#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/3net/res_net3_gempair_greedy_periodic/2026-09-02--10-37-59-fq-job-539-fq539xb75b250e/fq-job-5390/uartlog
+#### identity OK (net3_gempair_greedy_periodic)
+xpurt-runner: schedule=net3_gempair_greedy_periodic entries=295 kinds=2 on chipyard_riscv64/rocketchip_virt_riscv64
+=== MODELBLASTER_VERIFY [mlp_control] === max_abs_err=6.67572021e-06 max_rel_err=3.7000018e-06 n=4 instance=0 ready=1
+=== MODELBLASTER_VERIFY [dronet] === max_abs_err=2 max_rel_err=0.0357142873 n=2 instance=0 ready=1
+=== MODELBLASTER_VERIFY [yolov8_nano] === max_abs_err=119 max_rel_err=5.00000002e+13 n=75600 instance=0 ready=1
+############ FQDONE net3_gempair_greedy_periodic ############

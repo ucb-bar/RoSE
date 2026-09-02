@@ -1,0 +1,9 @@
+{
+  "benchmark_name": "fq-job-539",
+  "common_bootbinary": "n3_net3_gempair_greedy_periodic.elf",
+  "common_rootfs": null,
+  "common_simulation_outputs": [
+    "uartlog"
+  ],
+  "no_post_run_hook": true
+}
