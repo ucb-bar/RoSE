@@ -1,11 +1,3 @@
-/scratch2/dima/miniforge3/envs/xpurt/lib/python3.11/site-packages/mosek/__init__.py:11539: UserWarning: Argument subi in putaijlist64: Incorrect array format causing data to be copied
-  warnings.warn("Argument subi in putaijlist64: Incorrect array format causing data to be copied");
-/scratch2/dima/miniforge3/envs/xpurt/lib/python3.11/site-packages/mosek/__init__.py:11568: UserWarning: Argument subj in putaijlist64: Incorrect array format causing data to be copied
-  warnings.warn("Argument subj in putaijlist64: Incorrect array format causing data to be copied");
-/scratch2/dima/miniforge3/envs/xpurt/lib/python3.11/site-packages/cvxpy/reductions/solvers/conic_solvers/mosek_conif.py:306: UserWarning: Optimization terminated by time limit; solution may be imprecise or absent.
-  warnings.warn(
-/scratch2/dima/miniforge3/envs/xpurt/lib/python3.11/site-packages/cvxpy/problems/problem.py:1539: UserWarning: Solution may be inaccurate. Try another solver, adjusting the solver settings, or solve with verbose=True for more information.
-  warnings.warn(
 ============================================================
 Loading network hierarchy from JSON...
 ============================================================
@@ -34,41 +26,37 @@ Resolved runtime configuration:
   enforce_same_processor_combinations: True
 
 Using profiled runtimes where available...
+  Workload declares horizon 0 ms and 2 explicit periodic instance counts; those counts are used as given. Networks without one are still sized by the refinement loop below.
 
-Creating workload from network hierarchy...
-
-Workload created successfully!
+--- greedy iteration 1 ---
   Total operations: 190
-  Scheduler machines (2 cores): ['CPU_E#0', 'CPU_E#1']
-  Machine combination options: 3 (mode=singletons)
   Job names: ['mlp_control0', 'dronet0', 'yolov8_nano', 'mlp_control1']
-  Operations with multiple predecessors: 25
-  Independent jobs (can run in parallel): 4
+  Makespan: 150.46 ms
+  Periodic 'mlp_control': the schedule runs to 150 ms, which would take 16 instances, but the workload asks for 2 — keeping 2
+  Periodic 'mlp_control': period=10ms current=2 needed=2
+  Periodic 'dronet': the schedule runs to 150 ms, which would take 8 instances, but the workload asks for 1 — keeping 1
+  Periodic 'dronet': period=20ms current=1 needed=1
+  All periodic counts cover makespan — converged.
 
-============================================================
-Scheduling combined workload (MILP)...
-============================================================
-Status:  optimal_inaccurate
-Optimal value:  173.03512836518738
-Validation: All 190 operations have been scheduled.
+Final greedy makespan: 150.46 ms (after 1 iteration)
 
 Scheduling completed!
-Makespan (non-periodic): 173.04 ms (all operations: 173.04 ms)
+Makespan (non-periodic): 150.46 ms (all operations: 150.46 ms)
 
 Combination assignments:
-  1xCPU_E: 177 operations
-  2xCPU_E: 13 operations
-  1xCPU_E: 177 operations
+  1xCPU_E: 190 operations
+  2xCPU_E: 0 operations
+  1xCPU_E: 190 operations
 
 Per-network combination assignments:
-  Mlp_control0: 1xCPU_E=6, 2xCPU_E=1, 1xCPU_E=6
-  Dronet0: 1xCPU_E=18, 2xCPU_E=3, 1xCPU_E=18
-  Yolov8_nano: 1xCPU_E=149, 2xCPU_E=6, 1xCPU_E=149
-  Mlp_control1: 1xCPU_E=4, 2xCPU_E=3, 1xCPU_E=4
+  Mlp_control0: 1xCPU_E=7, 1xCPU_E=7
+  Dronet0: 1xCPU_E=21, 1xCPU_E=21
+  Yolov8_nano: 1xCPU_E=155, 1xCPU_E=155
+  Mlp_control1: 1xCPU_E=7, 1xCPU_E=7
 Job ID to color index mapping: {0: 0, 1: 1, 2: 2, 3: 3}
 Job ID distribution: {0: 7, 3: 7, 1: 21, 2: 155}
 Job 'mlp_control0' (job_id=0, color_index=0) -> color RGB=[0.59607843 0.8345098  0.57882353]
-DEBUG TRANSFER: alpha_shape=(190, 3), num_actual_machines=2, len(machines)=2, alpha_cols=3, is_using_combos=True, prev_machine=0, machine=1, transfer_times_shape=(2, 2), machine_combinations=True
+DEBUG TRANSFER: alpha_shape=(190, 3), num_actual_machines=2, len(machines)=2, alpha_cols=3, is_using_combos=True, prev_machine=0, machine=0, transfer_times_shape=(2, 2), machine_combinations=True
 Job 'dronet0' (job_id=1, color_index=1) -> color RGB=[0.17914648 0.49287197 0.73542484]
 Job 'yolov8_nano' (job_id=2, color_index=2) -> color RGB=[0.8871511  0.33208766 0.0310496 ]
 DEBUG IMMEDIATE: op=62, job_id=2, lookup=2, op_color_index=2, base_colors[2]=(0.8871510957324106, 0.3320876585928489, 0.03104959630911188)
@@ -80,11 +68,11 @@ DEBUG BEFORE LEGEND: op=63, op_color_index=2, original=2, job_index=3, legend_ke
 DEBUG IMMEDIATE: op=64, job_id=2, lookup=2, op_color_index=2, base_colors[2]=(0.8871510957324106, 0.3320876585928489, 0.03104959630911188)
 DEBUG AFTER MODULO: op=64, original=2, after_modulo=2, len(base_colors)=4
 DEBUG BEFORE LEGEND: op=64, op_color_index=2, original=2, job_index=3, legend_key=kind_yolov8_nano, in_legend=True
-Saving plot to plots/networks_3net_small_rvvpair_profiled.png...
+Saving plot to plots/networks_3net_small_rvvpair_greedy_profiled.png...
 
-Plot saved to plots/networks_3net_small_rvvpair_profiled.png
+Plot saved to plots/networks_3net_small_rvvpair_greedy_profiled.png
 
 Outputting scheduled JSON...
 
-Scheduled JSON saved to: schedules/scheduled_networks_3net_small_rvvpair_profiled.json
+Scheduled JSON saved to: schedules/scheduled_networks_3net_small_rvvpair_greedy_profiled.json
 WARN: granularity advisor -- the desired granularity for yolov8_nano's dispatches should be finer: its largest dispatch (11.73 ms) exceeds mlp_control's available free slot (9.42 ms) (period 10.00 ms, free slot 9.42 ms after mlp_control's own utilization) -- it would overrun mlp_control's cadence if they shared a core

@@ -1,0 +1,576 @@
+Script started on 2026-09-02 10:31:03+00:00 [COMMAND="stty intr ^] && sudo LD_LIBRARY_PATH=/scratch/vnikiforov/rose-fsim/lib ./FireSim-f2 +permissive   +macaddr0=00:12:6D:00:00:02 +niclog0=niclog0  +trace-select=1 +trace-start=0 +trace-end=-1 +trace-output-format=0 +dwarf-file-name=fq-job-5360-n3_net3_rvvpair_greedy_periodic.elf-dwarf +autocounter-readrate=0 +autocounter-filename-base=AUTOCOUNTERFILE  +print-start=0 +print-end=-1 +linklatency0=6405 +netbw0=200 +shmemportname0=default +partitioned=1 +slotid=0 +permissive-off +prog0=fq-job-5360-n3_net3_rvvpair_greedy_periodic.elf   && stty intr ^c" TERM="screen" TTY="/dev/pts/6" COLUMNS="80" LINES="24"]
+AFI ID for Slot  0: agfi-0662319f4b07483a7
+AFI PCI  Vendor ID: 0x1d0f, Device ID 0xf002
+Attached to BAR0 (OCL)
+Attached to BAR4 (PCIS)
+widget_registry_t::add_widget(StreamEngine)
+cpu2fpga: 0, fpga2cpu: 4
+UART0 is here (stdin/stdout).
+command line for program 0. argc=19:
++permissive +macaddr0=00:12:6D:00:00:02 +niclog0=niclog0 +trace-select=1 +trace-start=0 +trace-end=-1 +trace-output-format=0 +dwarf-file-name=fq-job-5360-n3_net3_rvvpair_greedy_periodic.elf-dwarf +autocounter-readrate=0 +autocounter-filename-base=AUTOCOUNTERFILE +print-start=0 +print-end=-1 +linklatency0=6405 +netbw0=200 +shmemportname0=default +partitioned=1 +slotid=0 +permissive-off fq-job-5360-n3_net3_rvvpair_greedy_periodic.elf 
+entered simulation flow execution
+finished waiting
+FireSim fingerprint: 0x46697265
+Commencing simulation.
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+*** Booting Zephyr OS build c93d5bdb6078 ***
+xpurt-runner: schedule=net3_rvvpair_greedy_periodic entries=295 kinds=2 on chipyard_riscv64/rocketchip_virt_riscv64
+xpurt: worker[0] kind=rvv pinned_hart=2 observed_cpu=-1 claims_unbound=0 entries_done=223
+xpurt: worker[1] kind=rvv pinned_hart=3 observed_cpu=-1 claims_unbound=0 entries_done=72
+=== MODELBLASTER_HART_ACC_BEGIN ===
+worker_idx,kind_idx,kind,hart,kernel_us,dep_wait_us,sync_overhead_us,target_gate_spin_us,hart_idle_us,gemmini_cfg_emit_us,entries_done,wall_total_us
+0,1,rvv,2,142993,12040,3322,11,36,0,223,158686
+1,1,rvv,3,58132,83178,140,7,24,0,72,141639
+=== MODELBLASTER_HART_ACC_END ===
+=== MODELBLASTER_XPURT_TRACE_BEGIN ===
+entry_id,network,instance,dispatch_id,op,name,core_kind,hart,predicted_start_ms,predicted_duration_ms,worker_kind_idx,worker_hart,actual_start_cycles,actual_end_cycles
+0,yolov8_nano,0,0,conv2d_s8,l0.conv,rvv,2,0.000000,2.582709,1,2,20,2610
+1,yolov8_nano,0,1,silu_s8,l0.act,rvv,2,2.582709,0.162342,1,2,2615,2777
+2,yolov8_nano,0,2,conv2d_s8,l1.conv,rvv,2,2.745051,2.737774,1,2,2780,5527
+3,yolov8_nano,0,3,silu_s8,l1.act,rvv,2,5.482825,0.094797,1,2,5531,5627
+4,yolov8_nano,0,4,conv2d_s8,l2.cv1.conv,rvv,2,5.577622,1.286908,1,2,5630,6917
+5,yolov8_nano,0,5,silu_s8,l2.cv1.act,rvv,2,6.864530,0.099061,1,2,6920,7020
+6,yolov8_nano,0,-1,chunk2_c1,chunk,rvv,2,6.963591,0.000000,-1,-1,0,0
+7,yolov8_nano,0,6,conv2d_s8,l2.m0.cv1.conv,rvv,2,6.963591,2.831676,1,2,7024,9862
+8,yolov8_nano,0,7,silu_s8,l2.m0.cv1.act,rvv,2,9.795267,0.096212,1,2,9865,9962
+9,yolov8_nano,0,8,conv2d_s8,l2.m0.cv2.conv,rvv,2,9.891479,2.830005,1,2,9965,12801
+10,yolov8_nano,0,9,silu_s8,l2.m0.cv2.act,rvv,2,12.721484,0.096222,1,2,12804,12902
+11,yolov8_nano,0,10,add_s8,add,rvv,2,12.817706,0.046891,1,2,12904,12951
+12,yolov8_nano,0,11,cat3_c1_s8,cat,rvv,2,12.864597,0.124282,1,2,12954,13079
+13,yolov8_nano,0,12,conv2d_s8,l2.cv2.conv,rvv,2,12.988879,1.764984,1,2,13082,14848
+14,yolov8_nano,0,13,silu_s8,l2.cv2.act,rvv,2,14.753863,0.122103,1,2,14851,14974
+15,yolov8_nano,0,14,conv2d_s8,l3.conv,rvv,2,14.875966,2.787949,1,2,14977,17766
+16,yolov8_nano,0,15,silu_s8,l3.act,rvv,2,17.663916,0.096546,1,2,17769,17866
+17,yolov8_nano,0,16,conv2d_s8,l4.cv1.conv,rvv,2,17.760462,1.120145,1,2,17869,18990
+18,yolov8_nano,0,17,silu_s8,l4.cv1.act,rvv,2,18.880606,0.096232,1,2,18993,19090
+19,yolov8_nano,0,-1,chunk2_c1,chunk_1,rvv,2,18.976837,0.000000,-1,-1,0,0
+20,yolov8_nano,0,18,conv2d_s8,l4.m0.cv1.conv,rvv,2,18.976837,1.619580,1,2,19094,20727
+21,yolov8_nano,0,19,silu_s8,l4.m0.cv1.act,rvv,2,20.596418,0.083170,1,2,20730,20815
+22,yolov8_nano,0,20,conv2d_s8,l4.m0.cv2.conv,rvv,2,20.679588,1.618747,1,2,20817,22442
+23,yolov8_nano,0,21,silu_s8,l4.m0.cv2.act,rvv,2,22.298334,0.082582,1,2,22445,22528
+24,yolov8_nano,0,22,add_s8,add_1,rvv,2,22.380917,0.023759,1,2,22531,22555
+25,yolov8_nano,0,23,conv2d_s8,l4.m1.cv1.conv,rvv,2,22.404676,1.618813,1,2,22557,24183
+26,yolov8_nano,0,24,silu_s8,l4.m1.cv1.act,rvv,2,24.023489,0.082838,1,2,24186,24270
+27,yolov8_nano,0,25,conv2d_s8,l4.m1.cv2.conv,rvv,2,24.106327,1.619411,1,2,24272,25896
+28,yolov8_nano,0,26,silu_s8,l4.m1.cv2.act,rvv,2,25.725739,0.082898,1,2,25899,25983
+29,yolov8_nano,0,27,add_s8,add_2,rvv,2,25.808636,0.023693,1,2,25986,26010
+30,yolov8_nano,0,28,cat4_c1_s8,cat_1,rvv,2,25.832329,0.095172,1,2,26012,26104
+31,yolov8_nano,0,29,conv2d_s8,l4.cv2.conv,rvv,2,25.927502,2.084667,1,2,26106,28189
+32,yolov8_nano,0,30,silu_s8,l4.cv2.act,rvv,2,28.012169,0.096164,1,2,28192,28289
+33,yolov8_nano,0,31,conv2d_s8,l5.conv,rvv,2,28.108332,3.462321,1,2,28292,31756
+34,yolov8_nano,0,32,silu_s8,l5.act,rvv,2,31.570654,0.083402,1,2,31759,31844
+35,yolov8_nano,0,33,conv2d_s8,l6.cv1.conv,rvv,2,31.654055,1.184777,1,2,31847,33025
+36,yolov8_nano,0,34,silu_s8,l6.cv1.act,rvv,2,32.838833,0.083323,1,2,33028,33112
+37,yolov8_nano,0,-1,chunk2_c1,chunk_2,rvv,2,32.922153,0.000000,-1,-1,0,0
+38,yolov8_nano,0,35,conv2d_s8,l6.m0.cv1.conv,rvv,2,32.922153,1.862236,1,2,33116,34980
+39,yolov8_nano,0,36,silu_s8,l6.m0.cv1.act,rvv,2,34.784389,0.076809,1,2,34982,35060
+40,yolov8_nano,0,37,conv2d_s8,l6.m0.cv2.conv,rvv,2,34.861198,1.861301,1,2,35063,36925
+41,yolov8_nano,0,38,silu_s8,l6.m0.cv2.act,rvv,2,36.722500,0.075692,1,2,36928,37005
+42,yolov8_nano,0,39,add_s8,add_3,rvv,2,36.798195,0.011903,1,2,37007,37019
+43,yolov8_nano,0,40,conv2d_s8,l6.m1.cv1.conv,rvv,2,36.810097,1.862142,1,2,37022,38885
+44,yolov8_nano,0,41,silu_s8,l6.m1.cv1.act,rvv,2,38.672237,0.076198,1,2,38888,38965
+45,yolov8_nano,0,42,conv2d_s8,l6.m1.cv2.conv,rvv,2,38.748436,1.862893,1,2,38968,40831
+46,yolov8_nano,0,43,silu_s8,l6.m1.cv2.act,rvv,2,40.611328,0.076203,1,2,40834,40911
+47,yolov8_nano,0,44,add_s8,add_4,rvv,2,40.687531,0.012084,1,2,40914,40926
+48,yolov8_nano,0,45,cat4_c1_s8,cat_2,rvv,2,40.699615,0.045407,1,2,40928,40974
+49,yolov8_nano,0,46,conv2d_s8,l6.cv2.conv,rvv,2,40.745022,2.505243,1,2,40977,43486
+50,yolov8_nano,0,47,silu_s8,l6.cv2.act,rvv,2,43.250267,0.083020,1,2,43490,43574
+51,yolov8_nano,0,48,conv2d_s8,l7.conv,rvv,2,43.333286,4.912302,1,2,43577,48482
+52,yolov8_nano,0,49,silu_s8,l7.act,rvv,2,48.245586,0.077286,1,2,48486,48564
+53,yolov8_nano,0,50,conv2d_s8,l8.cv1.conv,rvv,2,48.322872,1.388783,1,2,48567,49956
+54,yolov8_nano,0,51,silu_s8,l8.cv1.act,rvv,2,49.711658,0.076722,1,2,49959,50038
+55,yolov8_nano,0,-1,chunk2_c1,chunk_3,rvv,2,49.788380,0.000000,-1,-1,0,0
+56,yolov8_nano,0,52,conv2d_s8,l8.m0.cv1.conv,rvv,2,49.788380,2.343533,1,2,50041,52388
+57,yolov8_nano,0,53,silu_s8,l8.m0.cv1.act,rvv,2,52.131912,0.073455,1,2,52391,52466
+58,yolov8_nano,0,54,conv2d_s8,l8.m0.cv2.conv,rvv,2,52.205368,2.344109,1,2,52468,54814
+59,yolov8_nano,0,55,silu_s8,l8.m0.cv2.act,rvv,2,54.549477,0.073760,1,2,54817,54892
+60,yolov8_nano,0,56,add_s8,add_5,rvv,2,54.623238,0.006074,1,2,54895,54901
+61,yolov8_nano,0,57,cat3_c1_s8,cat_3,rvv,2,54.629311,0.020439,1,2,54904,54925
+62,yolov8_nano,0,58,conv2d_s8,l8.cv2.conv,rvv,2,54.649750,2.061686,1,2,54927,56990
+63,yolov8_nano,0,59,silu_s8,l8.cv2.act,rvv,2,56.711433,0.076646,1,2,56994,57072
+64,yolov8_nano,0,60,conv2d_s8,l9.cv1.conv,rvv,2,56.788082,0.696520,1,2,57074,57771
+65,yolov8_nano,0,61,silu_s8,l9.cv1.act,rvv,2,57.484600,0.073345,1,2,57774,57848
+66,yolov8_nano,0,62,maxpool2d_s8,l9.m1,rvv,2,57.557945,1.245771,1,2,57851,59103
+67,yolov8_nano,0,63,maxpool2d_s8,l9.m2,rvv,2,58.803719,1.221340,1,2,59106,60331
+68,yolov8_nano,0,64,maxpool2d_s8,l9.m3,rvv,2,60.025059,1.210792,1,2,60333,61549
+69,yolov8_nano,0,65,cat4_c1_s8,cat_4,rvv,2,61.235847,0.022758,1,2,61552,61575
+70,yolov8_nano,0,66,conv2d_s8,l9.cv2.conv,rvv,2,61.258606,2.760605,1,2,61577,64320
+71,yolov8_nano,0,67,silu_s8,l9.cv2.act,rvv,2,64.019211,0.076780,1,2,64323,64401
+72,yolov8_nano,0,68,upsample_nearest_s8,l10,rvv,2,64.095993,0.158105,1,2,64404,64563
+73,yolov8_nano,0,69,cat2_c1_s8,cat_5,rvv,2,64.254097,0.060791,1,2,64565,64627
+74,yolov8_nano,0,70,conv2d_s8,l12.cv1.conv,rvv,2,64.314888,3.836310,1,2,64629,68467
+75,yolov8_nano,0,71,silu_s8,l12.cv1.act,rvv,2,68.151199,0.082990,1,2,68470,68554
+76,yolov8_nano,0,-1,chunk2_c1,chunk_4,rvv,2,68.234184,0.000000,-1,-1,0,0
+77,yolov8_nano,0,72,conv2d_s8,l12.m0.cv1.conv,rvv,2,68.234184,1.861597,1,2,68558,70420
+78,yolov8_nano,0,73,silu_s8,l12.m0.cv1.act,rvv,2,70.095787,0.076793,1,2,70423,70501
+79,yolov8_nano,0,74,conv2d_s8,l12.m0.cv2.conv,rvv,2,70.172577,1.861394,1,2,70503,72366
+80,yolov8_nano,0,75,silu_s8,l12.m0.cv2.act,rvv,2,72.033974,0.075615,1,2,72368,72445
+81,yolov8_nano,0,76,cat3_c1_s8,cat_6,rvv,2,72.109589,0.032673,1,2,72448,72481
+82,yolov8_nano,0,77,conv2d_s8,l12.cv2.conv,rvv,2,72.142258,1.809469,1,2,72484,74297
+83,yolov8_nano,0,78,silu_s8,l12.cv2.act,rvv,2,73.951729,0.082716,1,2,74300,74385
+84,yolov8_nano,0,79,upsample_nearest_s8,l13,rvv,2,74.034447,0.273337,1,2,74387,74661
+85,yolov8_nano,0,80,cat2_c1_s8,cat_7,rvv,2,74.307785,0.118408,1,2,74664,74783
+86,yolov8_nano,0,81,conv2d_s8,l15.cv1.conv,rvv,2,74.426193,3.074255,1,2,74786,77861
+87,yolov8_nano,0,82,silu_s8,l15.cv1.act,rvv,2,77.500443,0.096061,1,2,77864,77962
+88,yolov8_nano,0,-1,chunk2_c1,chunk_5,rvv,2,77.596504,0.000000,-1,-1,0,0
+89,yolov8_nano,0,83,conv2d_s8,l15.m0.cv1.conv,rvv,2,77.596504,1.619012,1,2,77965,79590
+90,yolov8_nano,0,84,silu_s8,l15.m0.cv1.act,rvv,2,79.215515,0.082742,1,2,79593,79677
+91,yolov8_nano,0,85,conv2d_s8,l15.m0.cv2.conv,rvv,2,79.298264,1.618462,1,2,79680,81304
+92,yolov8_nano,0,86,silu_s8,l15.m0.cv2.act,rvv,2,80.916725,0.082611,1,2,81307,81391
+93,yolov8_nano,0,87,cat3_c1_s8,cat_8,rvv,2,80.999336,0.063580,1,2,81394,81458
+94,yolov8_nano,0,88,conv2d_s8,l15.cv2.conv,rvv,2,81.062912,1.599641,1,2,81461,83063
+95,yolov8_nano,0,89,silu_s8,l15.cv2.act,rvv,2,82.662552,0.095936,1,2,83066,83163
+96,yolov8_nano,0,114,conv2d_s8,detect.cv2_0_0.conv,rvv,3,82.758492,6.327894,1,3,83174,89501
+97,yolov8_nano,0,90,conv2d_s8,l16.conv,rvv,2,82.758492,1.731887,1,2,83171,84905
+98,yolov8_nano,0,91,silu_s8,l16.act,rvv,2,84.490379,0.076351,1,2,84909,84987
+99,yolov8_nano,0,92,cat2_c1_s8,cat_9,rvv,2,84.566727,0.031015,1,2,84989,85021
+100,yolov8_nano,0,93,conv2d_s8,l18.cv1.conv,rvv,2,84.597740,1.816641,1,2,85024,86840
+101,yolov8_nano,0,94,silu_s8,l18.cv1.act,rvv,2,86.414383,0.082964,1,2,86843,86927
+102,yolov8_nano,0,-1,chunk2_c1,chunk_6,rvv,2,86.497345,0.000000,-1,-1,0,0
+103,yolov8_nano,0,95,conv2d_s8,l18.m0.cv1.conv,rvv,2,86.497345,1.862133,1,2,86931,88794
+104,yolov8_nano,0,96,silu_s8,l18.m0.cv1.act,rvv,2,88.359482,0.076480,1,2,88797,88874
+105,mlp_control,0,0,linear,mlp.0,rvv,2,88.435959,0.055456,1,2,88878,88934
+106,mlp_control,0,1,elu,mlp.1,rvv,2,88.491417,0.025500,1,2,88937,88963
+107,mlp_control,1,0,linear,mlp.0,rvv,2,88.516914,0.055456,1,2,88965,89007
+108,mlp_control,1,1,elu,mlp.1,rvv,2,88.572372,0.025500,1,2,89010,89035
+109,mlp_control,2,0,linear,mlp.0,rvv,2,88.597870,0.055456,1,2,89037,89079
+110,mlp_control,2,1,elu,mlp.1,rvv,2,88.653328,0.025500,1,2,89081,89106
+111,mlp_control,3,0,linear,mlp.0,rvv,2,88.678825,0.055456,1,2,89109,89150
+112,mlp_control,3,1,elu,mlp.1,rvv,2,88.734283,0.025500,1,2,89153,89178
+113,mlp_control,4,0,linear,mlp.0,rvv,2,88.759789,0.055456,1,2,89180,89221
+114,mlp_control,4,1,elu,mlp.1,rvv,2,88.815239,0.025500,1,2,89224,89249
+115,mlp_control,5,0,linear,mlp.0,rvv,2,88.840744,0.055456,1,2,89251,89292
+116,mlp_control,5,1,elu,mlp.1,rvv,2,88.896194,0.025500,1,2,89295,89320
+117,mlp_control,6,0,linear,mlp.0,rvv,2,88.921700,0.055456,1,2,89322,89364
+118,mlp_control,6,1,elu,mlp.1,rvv,2,88.977150,0.025500,1,2,89366,89391
+119,mlp_control,7,0,linear,mlp.0,rvv,2,89.002655,0.055456,1,2,89394,89435
+120,mlp_control,7,1,elu,mlp.1,rvv,2,89.058105,0.025500,1,2,89437,89462
+121,mlp_control,0,2,linear,mlp.2,rvv,2,89.083611,0.376602,1,2,89465,89857
+122,mlp_control,1,2,linear,mlp.2,rvv,3,89.086388,0.376602,1,3,89506,89857
+123,mlp_control,0,3,elu,mlp.3,rvv,2,89.460213,0.015485,1,2,89866,89882
+124,mlp_control,1,3,elu,mlp.3,rvv,3,89.462990,0.015485,1,3,89871,89887
+125,mlp_control,0,4,linear,mlp.4,rvv,2,89.475693,0.095629,1,2,89885,89988
+126,mlp_control,1,4,linear,mlp.4,rvv,3,89.478470,0.095629,1,3,89891,89988
+127,mlp_control,0,5,elu,mlp.5,rvv,2,89.571327,0.006439,1,2,89992,90000
+128,mlp_control,1,5,elu,mlp.5,rvv,3,89.574097,0.006439,1,3,89993,90001
+129,mlp_control,0,6,linear,mlp.6,rvv,2,89.577766,0.003128,1,2,90004,90008
+130,mlp_control,1,6,linear,mlp.6,rvv,3,89.580536,0.003128,1,3,90005,90008
+131,mlp_control,2,2,linear,mlp.2,rvv,2,89.580894,0.376602,1,2,90013,90327
+132,mlp_control,3,2,linear,mlp.2,rvv,3,89.583664,0.376602,1,3,90012,90327
+133,mlp_control,2,3,elu,mlp.3,rvv,2,89.957497,0.015485,1,2,90332,90349
+134,mlp_control,3,3,elu,mlp.3,rvv,3,89.960266,0.015485,1,3,90332,90350
+135,mlp_control,2,4,linear,mlp.4,rvv,2,89.972977,0.095629,1,2,90353,90432
+136,mlp_control,3,4,linear,mlp.4,rvv,3,89.975754,0.095629,1,3,90353,90432
+137,mlp_control,2,5,elu,mlp.5,rvv,2,90.068611,0.006439,1,2,90445,90453
+138,mlp_control,3,5,elu,mlp.5,rvv,3,90.071381,0.006439,1,3,90440,90447
+139,mlp_control,2,6,linear,mlp.6,rvv,2,90.075050,0.003128,1,2,90457,90460
+140,mlp_control,3,6,linear,mlp.6,rvv,3,90.077820,0.003128,1,3,90450,90453
+141,mlp_control,4,2,linear,mlp.2,rvv,2,90.078178,0.376602,1,2,90462,90762
+142,mlp_control,5,2,linear,mlp.2,rvv,3,90.080948,0.376602,1,3,90456,90759
+143,mlp_control,4,3,elu,mlp.3,rvv,2,90.454781,0.015485,1,2,90765,90781
+144,mlp_control,5,3,elu,mlp.3,rvv,3,90.457550,0.015485,1,3,90762,90777
+145,mlp_control,4,4,linear,mlp.4,rvv,2,90.470261,0.095629,1,2,90783,90861
+146,mlp_control,5,4,linear,mlp.4,rvv,3,90.473038,0.095629,1,3,90780,90859
+147,mlp_control,4,5,elu,mlp.5,rvv,2,90.565887,0.006439,1,2,90864,90871
+148,mlp_control,5,5,elu,mlp.5,rvv,3,90.568665,0.006439,1,3,90862,90869
+149,mlp_control,4,6,linear,mlp.6,rvv,2,90.572327,0.003128,1,2,90874,90877
+150,mlp_control,5,6,linear,mlp.6,rvv,3,90.575104,0.003128,1,3,90872,90875
+151,mlp_control,6,2,linear,mlp.2,rvv,2,90.575455,0.376602,1,2,90880,91179
+152,mlp_control,7,2,linear,mlp.2,rvv,3,90.578232,0.376602,1,3,90878,91178
+153,mlp_control,6,3,elu,mlp.3,rvv,2,90.952057,0.015485,1,2,91183,91199
+154,mlp_control,7,3,elu,mlp.3,rvv,3,90.954834,0.015485,1,3,91182,91198
+155,mlp_control,6,4,linear,mlp.4,rvv,2,90.967545,0.095629,1,2,91203,91280
+156,mlp_control,7,4,linear,mlp.4,rvv,3,90.970322,0.095629,1,3,91201,91279
+157,mlp_control,6,5,elu,mlp.5,rvv,2,91.063171,0.006439,1,2,91284,91291
+158,mlp_control,7,5,elu,mlp.5,rvv,3,91.065948,0.006439,1,3,91282,91290
+159,mlp_control,6,6,linear,mlp.6,rvv,2,91.069611,0.003128,1,2,91294,91297
+160,mlp_control,7,6,linear,mlp.6,rvv,3,91.072388,0.003128,1,3,91293,91296
+161,dronet,0,0,conv2d_s8,conv_modules.0,rvv,2,91.072739,1.495032,1,2,91306,92845
+162,dronet,1,0,conv2d_s8,conv_modules.0,rvv,3,91.075516,1.495032,1,3,91302,92845
+163,dronet,0,1,maxpool2d_s8,maxpool1,rvv,2,92.567772,0.218024,1,2,92853,93094
+164,dronet,1,1,maxpool2d_s8,maxpool1,rvv,3,92.570549,0.218024,1,3,92857,93097
+165,dronet,0,2,batchnorm2d_s8,bn_modules.0,rvv,2,92.785797,0.031082,1,2,93098,93128
+166,dronet,1,2,batchnorm2d_s8,bn_modules.0,rvv,3,92.788574,0.031082,1,3,93100,93130
+167,dronet,0,5,conv2d_s8,conv_modules.3,rvv,2,92.816879,0.177518,1,2,93131,93312
+168,dronet,1,5,conv2d_s8,conv_modules.3,rvv,3,92.819656,0.177518,1,3,93133,93313
+169,dronet,0,3,conv2d_s8,conv_modules.1,rvv,2,92.994400,0.838614,1,2,93317,94163
+170,dronet,1,3,conv2d_s8,conv_modules.1,rvv,3,92.997169,0.838614,1,3,93317,94163
+171,dronet,0,4,conv2d_s8,conv_modules.2,rvv,2,93.833008,0.833264,1,2,94167,95007
+172,dronet,1,4,conv2d_s8,conv_modules.2,rvv,3,93.835785,0.833264,1,3,94167,95007
+173,dronet,0,6,add_s8,add,rvv,2,94.666275,0.011577,1,2,95013,95208
+174,dronet,1,6,add_s8,add,rvv,3,94.669052,0.011577,1,3,95017,95212
+175,dronet,0,7,batchnorm2d_s8,bn_modules.2,rvv,2,94.677849,0.009146,1,2,95211,95221
+176,dronet,1,7,batchnorm2d_s8,bn_modules.2,rvv,3,94.680626,0.009146,1,3,95215,95225
+177,dronet,0,10,conv2d_s8,conv_modules.6,rvv,2,94.686996,0.112011,1,2,95223,95337
+178,dronet,1,10,conv2d_s8,conv_modules.6,rvv,3,94.689774,0.112011,1,3,95227,95340
+179,dronet,0,8,conv2d_s8,conv_modules.4,rvv,2,94.799011,0.591950,1,2,95340,95922
+180,dronet,1,8,conv2d_s8,conv_modules.4,rvv,3,94.801781,0.591950,1,3,95343,95923
+181,dronet,0,9,conv2d_s8,conv_modules.5,rvv,2,95.390961,1.127540,1,2,95925,97032
+182,dronet,1,9,conv2d_s8,conv_modules.5,rvv,3,95.393738,1.127540,1,3,95927,97032
+183,dronet,0,11,add_s8,add_1,rvv,2,96.518501,0.005781,1,2,97044,97142
+184,dronet,1,11,add_s8,add_1,rvv,3,96.521271,0.005781,1,3,97039,97137
+185,dronet,0,12,batchnorm2d_s8,bn_modules.4,rvv,2,96.524277,0.005419,1,2,97145,97150
+186,dronet,1,12,batchnorm2d_s8,bn_modules.4,rvv,3,96.527054,0.005419,1,3,97140,97146
+187,dronet,0,15,conv2d_s8,conv_modules.9,rvv,2,96.529701,0.090931,1,2,97153,97243
+188,dronet,1,15,conv2d_s8,conv_modules.9,rvv,3,96.532471,0.090931,1,3,97149,97240
+189,dronet,0,13,conv2d_s8,conv_modules.7,rvv,2,96.620628,0.660444,1,2,97246,97898
+190,dronet,1,13,conv2d_s8,conv_modules.7,rvv,3,96.623405,0.660444,1,3,97243,97898
+191,dronet,0,14,conv2d_s8,conv_modules.8,rvv,2,97.281075,1.297793,1,2,97905,99197
+192,dronet,1,14,conv2d_s8,conv_modules.8,rvv,3,97.283852,1.297793,1,3,97909,99197
+193,dronet,0,16,add_s8,add_2,rvv,2,98.578865,0.003916,1,2,99203,99268
+194,dronet,1,16,add_s8,add_2,rvv,3,98.581642,0.003916,1,3,99207,99271
+195,dronet,0,17,relu_s8,relu_modules.6,rvv,2,98.582787,0.000407,1,2,99271,99271
+196,dronet,0,19,linear_s8,linear2,rvv,2,98.583191,0.002167,1,2,99276,99279
+197,dronet,0,20,sigmoid_s8,sigmoid1,rvv,3,98.585556,0.000913,1,3,99285,99287
+198,dronet,1,17,relu_s8,relu_modules.6,rvv,2,98.585556,0.000407,1,2,99284,99284
+199,dronet,1,19,linear_s8,linear2,rvv,2,98.585968,0.002167,1,2,99288,99289
+200,dronet,0,18,linear_s8,linear1,rvv,3,98.586472,0.002529,1,3,99291,99293
+201,dronet,1,20,sigmoid_s8,sigmoid1,rvv,2,98.588135,0.000913,1,2,99292,99293
+202,dronet,1,18,linear_s8,linear1,rvv,3,98.588997,0.002529,1,3,99297,99299
+203,dronet,2,0,conv2d_s8,conv_modules.0,rvv,2,98.589043,1.495032,1,2,99297,100825
+204,dronet,3,0,conv2d_s8,conv_modules.0,rvv,3,98.591530,1.495032,1,3,99301,100825
+205,dronet,2,1,maxpool2d_s8,maxpool1,rvv,2,100.084076,0.218024,1,2,100832,101072
+206,dronet,3,1,maxpool2d_s8,maxpool1,rvv,3,100.086563,0.218024,1,3,100836,101076
+207,dronet,2,2,batchnorm2d_s8,bn_modules.0,rvv,2,100.302101,0.031082,1,2,101075,101105
+208,dronet,3,2,batchnorm2d_s8,bn_modules.0,rvv,3,100.304588,0.031082,1,3,101079,101109
+209,dronet,2,5,conv2d_s8,conv_modules.3,rvv,2,100.333183,0.177518,1,2,101108,101287
+210,dronet,3,5,conv2d_s8,conv_modules.3,rvv,3,100.335670,0.177518,1,3,101111,101290
+211,dronet,2,3,conv2d_s8,conv_modules.1,rvv,2,100.510704,0.838614,1,2,101291,102135
+212,dronet,3,3,conv2d_s8,conv_modules.1,rvv,3,100.513184,0.838614,1,3,101293,102136
+213,dronet,2,4,conv2d_s8,conv_modules.2,rvv,2,101.349312,0.833264,1,2,102139,102978
+214,dronet,3,4,conv2d_s8,conv_modules.2,rvv,3,101.351799,0.833264,1,3,102141,102978
+215,dronet,2,6,add_s8,add,rvv,2,102.182579,0.011577,1,2,102982,103177
+216,dronet,3,6,add_s8,add,rvv,3,102.185066,0.011577,1,3,102982,103177
+217,dronet,2,7,batchnorm2d_s8,bn_modules.2,rvv,2,102.194153,0.009146,1,2,103181,103190
+218,dronet,3,7,batchnorm2d_s8,bn_modules.2,rvv,3,102.196640,0.009146,1,3,103181,103190
+219,dronet,2,10,conv2d_s8,conv_modules.6,rvv,2,102.203300,0.112011,1,2,103196,103308
+220,dronet,3,10,conv2d_s8,conv_modules.6,rvv,3,102.205788,0.112011,1,3,103200,103312
+221,dronet,2,8,conv2d_s8,conv_modules.4,rvv,2,102.315315,0.591950,1,2,103312,103893
+222,dronet,3,8,conv2d_s8,conv_modules.4,rvv,3,102.317795,0.591950,1,3,103316,103896
+223,dronet,2,9,conv2d_s8,conv_modules.5,rvv,2,102.907265,1.127540,1,2,103895,105001
+224,dronet,3,9,conv2d_s8,conv_modules.5,rvv,3,102.909744,1.127540,1,3,103899,105002
+225,dronet,2,11,add_s8,add_1,rvv,2,104.034805,0.005781,1,2,105005,105103
+226,dronet,3,11,add_s8,add_1,rvv,3,104.037285,0.005781,1,3,105006,105104
+227,dronet,2,12,batchnorm2d_s8,bn_modules.4,rvv,2,104.040581,0.005419,1,2,105106,105112
+228,dronet,3,12,batchnorm2d_s8,bn_modules.4,rvv,3,104.043068,0.005419,1,3,105108,105113
+229,dronet,2,15,conv2d_s8,conv_modules.9,rvv,2,104.046005,0.090931,1,2,105116,105206
+230,dronet,3,15,conv2d_s8,conv_modules.9,rvv,3,104.048485,0.090931,1,3,105116,105206
+231,dronet,2,13,conv2d_s8,conv_modules.7,rvv,2,104.136932,0.660444,1,2,105212,105865
+232,dronet,3,13,conv2d_s8,conv_modules.7,rvv,3,104.139420,0.660444,1,3,105216,105866
+233,dronet,2,14,conv2d_s8,conv_modules.8,rvv,2,104.797379,1.297793,1,2,105869,107156
+234,dronet,3,14,conv2d_s8,conv_modules.8,rvv,3,104.799866,1.297793,1,3,105870,107156
+235,dronet,2,16,add_s8,add_2,rvv,2,106.095169,0.003916,1,2,107168,107232
+236,dronet,3,16,add_s8,add_2,rvv,3,106.097656,0.003916,1,3,107164,107228
+237,dronet,2,17,relu_s8,relu_modules.6,rvv,2,106.099091,0.000407,1,2,107237,107237
+238,dronet,2,19,linear_s8,linear2,rvv,2,106.099495,0.002167,1,2,107241,107242
+239,dronet,3,17,relu_s8,relu_modules.6,rvv,3,106.101570,0.000407,1,3,107231,107232
+240,dronet,2,20,sigmoid_s8,sigmoid1,rvv,2,106.101662,0.000913,1,2,107245,107246
+241,dronet,3,19,linear_s8,linear2,rvv,3,106.101974,0.002167,1,3,107236,107238
+242,dronet,2,18,linear_s8,linear1,rvv,3,106.104141,0.002529,1,3,107242,107244
+243,dronet,3,20,sigmoid_s8,sigmoid1,rvv,2,106.104141,0.000913,1,2,107250,107250
+244,dronet,3,18,linear_s8,linear1,rvv,2,106.105057,0.002529,1,2,107252,107254
+245,yolov8_nano,0,115,silu_s8,detect.cv2_0_0.act,rvv,3,106.106674,0.096295,1,3,107248,107346
+246,yolov8_nano,0,97,conv2d_s8,l18.m0.cv2.conv,rvv,2,106.107590,1.862697,1,2,107256,109130
+247,yolov8_nano,0,116,conv2d_s8,detect.cv2_0_1.conv,rvv,3,106.202972,6.307569,1,3,107349,113685
+248,yolov8_nano,0,98,silu_s8,l18.m0.cv2.act,rvv,2,107.970284,0.076656,1,2,109134,109212
+249,yolov8_nano,0,99,cat3_c1_s8,cat_10,rvv,2,108.046944,0.032741,1,2,109215,109249
+250,yolov8_nano,0,100,conv2d_s8,l18.cv2.conv,rvv,2,108.079681,1.810079,1,2,109252,111067
+251,yolov8_nano,0,101,silu_s8,l18.cv2.act,rvv,2,109.889763,0.083583,1,2,111070,111154
+252,yolov8_nano,0,102,conv2d_s8,l19.conv,rvv,2,109.973343,2.454870,1,2,111157,113619
+253,yolov8_nano,0,103,silu_s8,l19.act,rvv,2,112.428215,0.074080,1,2,113622,113698
+254,yolov8_nano,0,104,cat2_c1_s8,cat_11,rvv,2,112.502296,0.020905,1,2,113701,113722
+255,yolov8_nano,0,117,silu_s8,detect.cv2_0_1.act,rvv,3,112.510536,0.096094,1,3,113689,113786
+256,yolov8_nano,0,105,conv2d_s8,l21.cv1.conv,rvv,3,112.606628,2.063194,1,3,113793,115859
+257,yolov8_nano,0,118,conv2d_s8,detect.cv2_0_2,rvv,2,112.606628,1.121203,1,2,113796,114923
+258,yolov8_nano,0,106,silu_s8,l21.cv1.act,rvv,2,114.669823,0.076770,1,2,115867,115945
+259,yolov8_nano,0,125,conv2d_s8,detect.cv2_1_0.conv,rvv,3,114.669823,3.691549,1,3,115865,119576
+260,yolov8_nano,0,-1,chunk2_c1,chunk_7,rvv,2,114.746597,0.000000,-1,-1,0,0
+261,yolov8_nano,0,107,conv2d_s8,l21.m0.cv1.conv,rvv,2,114.746597,2.344078,1,2,115950,118299
+262,yolov8_nano,0,108,silu_s8,l21.m0.cv1.act,rvv,2,117.090675,0.073933,1,2,118302,118377
+263,yolov8_nano,0,109,conv2d_s8,l21.m0.cv2.conv,rvv,3,118.361374,2.344368,1,3,119583,121932
+264,yolov8_nano,0,126,silu_s8,detect.cv2_1_0.act,rvv,2,118.361374,0.076926,1,2,119584,119662
+265,yolov8_nano,0,127,conv2d_s8,detect.cv2_1_1.conv,rvv,2,118.438301,1.867237,1,2,119666,121536
+266,yolov8_nano,0,128,silu_s8,detect.cv2_1_1.act,rvv,2,120.305534,0.076798,1,2,121540,121618
+267,yolov8_nano,0,129,conv2d_s8,detect.cv2_1_2,rvv,2,120.382339,0.316722,1,2,121620,121938
+268,yolov8_nano,0,110,silu_s8,l21.m0.cv2.act,rvv,2,120.705742,0.074016,1,2,121941,122016
+269,yolov8_nano,0,130,conv2d_s8,detect.cv3_1_0.conv,rvv,3,120.705742,5.514671,1,3,121935,127495
+270,yolov8_nano,0,111,cat3_c1_s8,cat_12,rvv,2,120.779762,0.020280,1,2,122019,122040
+271,yolov8_nano,0,112,conv2d_s8,l21.cv2.conv,rvv,2,120.800041,2.063619,1,2,122043,124108
+272,yolov8_nano,0,113,silu_s8,l21.cv2.act,rvv,2,122.863655,0.076953,1,2,124111,124189
+273,yolov8_nano,0,136,conv2d_s8,detect.cv2_2_0.conv,rvv,2,122.940613,2.340357,1,2,124192,126539
+274,yolov8_nano,0,137,silu_s8,detect.cv2_2_0.act,rvv,2,125.280968,0.072145,1,2,126543,126616
+275,yolov8_nano,0,138,conv2d_s8,detect.cv2_2_1.conv,rvv,2,125.353111,0.593822,1,2,126619,127214
+276,yolov8_nano,0,139,silu_s8,detect.cv2_2_1.act,rvv,2,125.946938,0.072163,1,2,127217,127290
+277,yolov8_nano,0,140,conv2d_s8,detect.cv2_2_2,rvv,2,126.019096,0.096009,1,2,127292,127389
+278,yolov8_nano,0,131,silu_s8,detect.cv3_1_0.act,rvv,2,126.220413,0.078881,1,2,127504,127584
+279,yolov8_nano,0,141,conv2d_s8,detect.cv3_2_0.conv,rvv,3,126.220413,3.495586,1,3,127503,131004
+280,yolov8_nano,0,132,conv2d_s8,detect.cv3_1_1.conv,rvv,2,126.299294,3.464649,1,2,127588,131060
+281,yolov8_nano,0,142,silu_s8,detect.cv3_2_0.act,rvv,3,129.716003,0.072741,1,3,131007,131082
+282,yolov8_nano,0,133,silu_s8,detect.cv3_1_1.act,rvv,2,129.763947,0.078006,1,2,131064,131143
+283,yolov8_nano,0,143,conv2d_s8,detect.cv3_2_1.conv,rvv,3,129.788742,1.103400,1,3,131085,132190
+284,yolov8_nano,0,134,conv2d_s8,detect.cv3_1_2,rvv,2,129.841949,0.567732,1,2,131146,131715
+285,yolov8_nano,0,135,cat2_c1_s8,cat_14,rvv,2,130.409683,0.022623,1,2,131718,131742
+286,yolov8_nano,0,119,conv2d_s8,detect.cv3_0_0.conv,rvv,3,130.892136,9.434765,1,3,132196,141654
+287,yolov8_nano,0,144,silu_s8,detect.cv3_2_1.act,rvv,2,130.892136,0.071735,1,2,132198,132271
+288,yolov8_nano,0,145,conv2d_s8,detect.cv3_2_2,rvv,2,130.963882,0.172586,1,2,132275,132448
+289,yolov8_nano,0,146,cat2_c1_s8,cat_15,rvv,2,131.136459,0.007240,1,2,132451,132459
+290,yolov8_nano,0,120,silu_s8,detect.cv3_0_0.act,rvv,2,140.326904,0.102303,1,2,141665,141768
+291,yolov8_nano,0,121,conv2d_s8,detect.cv3_0_1.conv,rvv,2,140.429214,11.727721,1,2,141771,153523
+292,yolov8_nano,0,122,silu_s8,detect.cv3_0_1.act,rvv,2,152.156937,0.102837,1,2,153526,153630
+293,yolov8_nano,0,123,conv2d_s8,detect.cv3_0_2,rvv,2,152.259766,1.999819,1,2,153632,155633
+294,yolov8_nano,0,124,cat2_c1_s8,cat_13,rvv,2,154.259583,0.088146,1,2,155636,155727
+=== MODELBLASTER_XPURT_TRACE_END ===
+=== MODELBLASTER_VERIFY [mlp_control] === max_abs_err=6.67572021e-06 max_rel_err=3.7000018e-06 n=4 instance=0 ready=1
+=== MODELBLASTER_OUTPUT_BEGIN [mlp_control] ===
+14.5770216
+-2.32976532
+2.5671916
+-0.0226536971
+=== MODELBLASTER_OUTPUT_END [mlp_control] ===
+=== MODELBLASTER_PROFILE_BEGIN [mlp_control] ===
+backend,dispatch_id,name,op,shape,cycles
+rvv,6,mlp.6,linear,M=1;K=64;N=4,2698
+rvv,3,mlp.3,elu,n=128,16087
+rvv,4,mlp.4,linear,M=1;K=128;N=64,76964
+rvv,4,mlp.4,linear,M=1;K=128;N=64,76774
+rvv,5,mlp.5,elu,n=64,6858
+rvv,5,mlp.5,elu,n=64,6962
+rvv,6,mlp.6,linear,M=1;K=64;N=4,2722
+=== MODELBLASTER_PROFILE_END [mlp_control] ===
+=== MODELBLASTER_WALL_CYCLES_INST [mlp_control#0] === 1132
+=== MODELBLASTER_WALL_CYCLES_INST [mlp_control#1] === 1046
+=== MODELBLASTER_WALL_CYCLES_INST [mlp_control#2] === 1424
+=== MODELBLASTER_WALL_CYCLES_INST [mlp_control#3] === 1346
+=== MODELBLASTER_WALL_CYCLES_INST [mlp_control#4] === 1699
+=== MODELBLASTER_WALL_CYCLES_INST [mlp_control#5] === 1626
+=== MODELBLASTER_WALL_CYCLES_INST [mlp_control#6] === 1976
+=== MODELBLASTER_WALL_CYCLES_INST [mlp_control#7] === 1904
+=== MODELBLASTER_WALL_CYCLES [mlp_control] === 1976
+=== MODELBLASTER_VERIFY [dronet] === max_abs_err=0 max_rel_err=0 n=2 instance=0 ready=1
+=== MODELBLASTER_OUTPUT_BEGIN [dronet] ===
+-56
+127
+=== MODELBLASTER_OUTPUT_END [dronet] ===
+=== MODELBLASTER_PROFILE_BEGIN [dronet] ===
+backend,dispatch_id,name,op,shape,cycles
+rvv,11,add_1,add_s8,n=3136,96859
+rvv,11,add_1,add_s8,n=3136,96862
+rvv,12,bn_modules.4,batchnorm2d_s8,N=1;C=64;H=7;W=7,5416
+rvv,12,bn_modules.4,batchnorm2d_s8,N=1;C=64;H=7;W=7,5193
+rvv,15,conv_modules.9,conv2d_s8,N=1;IC=64;IH=7;IW=7;OC=128;OH=4;OW=4;KH=1;KW=1;SH=2;SW=2;PH=0;PW=0,90048
+rvv,15,conv_modules.9,conv2d_s8,N=1;IC=64;IH=7;IW=7;OC=128;OH=4;OW=4;KH=1;KW=1;SH=2;SW=2;PH=0;PW=0,89454
+rvv,13,conv_modules.7,conv2d_s8,N=1;IC=64;IH=7;IW=7;OC=128;OH=4;OW=4;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,652364
+rvv,13,conv_modules.7,conv2d_s8,N=1;IC=64;IH=7;IW=7;OC=128;OH=4;OW=4;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,649433
+rvv,14,conv_modules.8,conv2d_s8,N=1;IC=128;IH=4;IW=4;OC=128;OH=4;OW=4;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1286109
+rvv,14,conv_modules.8,conv2d_s8,N=1;IC=128;IH=4;IW=4;OC=128;OH=4;OW=4;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1287029
+rvv,16,add_2,add_s8,n=2048,62904
+rvv,16,add_2,add_s8,n=2048,62929
+rvv,17,relu_modules.6,relu_s8,n=2048,488
+rvv,17,relu_modules.6,relu_s8,n=2048,304
+rvv,19,linear2,linear_s8,M=1;K=2048;N=1,2118
+rvv,19,linear2,linear_s8,M=1;K=2048;N=1,1432
+rvv,18,linear1,linear_s8,M=1;K=2048;N=1,1938
+rvv,20,sigmoid1,sigmoid_s8,n=1,699
+rvv,20,sigmoid1,sigmoid_s8,n=1,382
+rvv,18,linear1,linear_s8,M=1;K=2048;N=1,1255
+rvv,9,conv_modules.5,conv2d_s8,N=1;IC=64;IH=7;IW=7;OC=64;OH=7;OW=7;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1103037
+=== MODELBLASTER_PROFILE_END [dronet] ===
+=== MODELBLASTER_WALL_CYCLES_INST [dronet#0] === 7996
+=== MODELBLASTER_WALL_CYCLES_INST [dronet#1] === 8001
+=== MODELBLASTER_WALL_CYCLES_INST [dronet#2] === 7953
+=== MODELBLASTER_WALL_CYCLES_INST [dronet#3] === 7955
+=== MODELBLASTER_WALL_CYCLES [dronet] === 8001
+=== MODELBLASTER_VERIFY [yolov8_nano] === max_abs_err=54 max_rel_err=9.99999996e+11 n=75600 instance=0 ready=1
+=== MODELBLASTER_OUTPUT_BEGIN [yolov8_nano] ===
+OUTPUT_SAMPLED size=75600 head=8 tail=8
+  [0] 44
+  [1] 17
+  [2] 13
+  [3] 8
+  [4] 4
+  [5] 2
+  [6] 2
+  [7] 2
+  [75592] -33
+  [75593] -32
+  [75594] -43
+  [75595] -42
+  [75596] -42
+  [75597] -36
+  [75598] -43
+  [75599] -43
+OUTPUT_SUMMARY sum=-3.65063e+06 abs_sum=4.24086e+06 min=-123 max=60
+=== MODELBLASTER_OUTPUT_END [yolov8_nano] ===
+=== MODELBLASTER_PROFILE_BEGIN [yolov8_nano] ===
+backend,dispatch_id,name,op,shape,cycles
+rvv,0,l0.conv,conv2d_s8,N=1;IC=3;IH=160;IW=160;OC=16;OH=80;OW=80;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,2589512
+rvv,1,l0.act,silu_s8,n=102400,161036
+rvv,2,l1.conv,conv2d_s8,N=1;IC=16;IH=80;IW=80;OC=32;OH=40;OW=40;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,2746560
+rvv,3,l1.act,silu_s8,n=51200,95061
+rvv,4,l2.cv1.conv,conv2d_s8,N=1;IC=32;IH=40;IW=40;OC=32;OH=40;OW=40;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1286656
+rvv,5,l2.cv1.act,silu_s8,n=51200,99220
+rvv,7,l2.m0.cv1.conv,conv2d_s8,N=1;IC=16;IH=40;IW=40;OC=16;OH=40;OW=40;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,2837709
+rvv,8,l2.m0.cv1.act,silu_s8,n=25600,96450
+rvv,9,l2.m0.cv2.conv,conv2d_s8,N=1;IC=16;IH=40;IW=40;OC=16;OH=40;OW=40;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,2836079
+rvv,10,l2.m0.cv2.act,silu_s8,n=25600,96370
+rvv,11,add,add_s8,n=25600,46673
+rvv,12,cat,cat3_c1_s8,N=1;H=40;W=40;C_inputs=16|16|16;C_total=48,124303
+rvv,13,l2.cv2.conv,conv2d_s8,N=1;IC=48;IH=40;IW=40;OC=32;OH=40;OW=40;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1765408
+rvv,14,l2.cv2.act,silu_s8,n=51200,122245
+rvv,15,l3.conv,conv2d_s8,N=1;IC=32;IH=40;IW=40;OC=64;OH=20;OW=20;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,2788505
+rvv,16,l3.act,silu_s8,n=25600,96680
+rvv,17,l4.cv1.conv,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=64;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1120706
+rvv,18,l4.cv1.act,silu_s8,n=25600,96321
+rvv,20,l4.m0.cv1.conv,conv2d_s8,N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1632396
+rvv,21,l4.m0.cv1.act,silu_s8,n=12800,83483
+rvv,22,l4.m0.cv2.conv,conv2d_s8,N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1623988
+rvv,23,l4.m0.cv2.act,silu_s8,n=12800,82878
+rvv,24,add_1,add_s8,n=12800,23420
+rvv,25,l4.m1.cv1.conv,conv2d_s8,N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1624988
+rvv,26,l4.m1.cv1.act,silu_s8,n=12800,83042
+rvv,27,l4.m1.cv2.conv,conv2d_s8,N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1623686
+rvv,28,l4.m1.cv2.act,silu_s8,n=12800,83087
+rvv,29,add_2,add_s8,n=12800,23309
+rvv,30,cat_1,cat4_c1_s8,N=1;H=20;W=20;C_inputs=32|32|32|32;C_total=128,90857
+rvv,31,l4.cv2.conv,conv2d_s8,N=1;IC=128;IH=20;IW=20;OC=64;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,2082705
+rvv,32,l4.cv2.act,silu_s8,n=25600,96313
+rvv,33,l5.conv,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=128;OH=10;OW=10;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,3463423
+rvv,34,l5.act,silu_s8,n=12800,83672
+rvv,35,l6.cv1.conv,conv2d_s8,N=1;IC=128;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1177694
+rvv,36,l6.cv1.act,silu_s8,n=12800,83356
+rvv,38,l6.m0.cv1.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1863200
+rvv,39,l6.m0.cv1.act,silu_s8,n=6400,77122
+rvv,40,l6.m0.cv2.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1861759
+rvv,41,l6.m0.cv2.act,silu_s8,n=6400,75626
+rvv,42,add_3,add_s8,n=6400,11754
+rvv,43,l6.m1.cv1.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1862712
+rvv,44,l6.m1.cv1.act,silu_s8,n=6400,76095
+rvv,45,l6.m1.cv2.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1863240
+rvv,46,l6.m1.cv2.act,silu_s8,n=6400,76258
+rvv,47,add_4,add_s8,n=6400,11690
+rvv,48,cat_2,cat4_c1_s8,N=1;H=10;W=10;C_inputs=64|64|64|64;C_total=256,45538
+rvv,49,l6.cv2.conv,conv2d_s8,N=1;IC=256;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,2509055
+rvv,50,l6.cv2.act,silu_s8,n=12800,83216
+rvv,51,l7.conv,conv2d_s8,N=1;IC=128;IH=10;IW=10;OC=256;OH=5;OW=5;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,4904724
+rvv,52,l7.act,silu_s8,n=6400,77342
+rvv,53,l8.cv1.conv,conv2d_s8,N=1;IC=256;IH=5;IW=5;OC=256;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1388823
+rvv,54,l8.cv1.act,silu_s8,n=6400,77102
+rvv,56,l8.m0.cv1.conv,conv2d_s8,N=1;IC=128;IH=5;IW=5;OC=128;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,2346077
+rvv,57,l8.m0.cv1.act,silu_s8,n=3200,73675
+rvv,58,l8.m0.cv2.conv,conv2d_s8,N=1;IC=128;IH=5;IW=5;OC=128;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,2345824
+rvv,59,l8.m0.cv2.act,silu_s8,n=3200,73964
+rvv,60,add_5,add_s8,n=3200,6119
+rvv,61,cat_3,cat3_c1_s8,N=1;H=5;W=5;C_inputs=128|128|128;C_total=384,20629
+rvv,62,l8.cv2.conv,conv2d_s8,N=1;IC=384;IH=5;IW=5;OC=256;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,2062528
+rvv,63,l8.cv2.act,silu_s8,n=6400,76966
+rvv,64,l9.cv1.conv,conv2d_s8,N=1;IC=256;IH=5;IW=5;OC=128;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,696551
+rvv,65,l9.cv1.act,silu_s8,n=3200,73535
+rvv,66,l9.m1,maxpool2d_s8,N=1;C=128;IH=5;IW=5;OH=5;OW=5;KH=5;KW=5;SH=1;SW=1;PH=2;PW=2;DH=1;DW=1,1252033
+rvv,67,l9.m2,maxpool2d_s8,N=1;C=128;IH=5;IW=5;OH=5;OW=5;KH=5;KW=5;SH=1;SW=1;PH=2;PW=2;DH=1;DW=1,1224440
+rvv,68,l9.m3,maxpool2d_s8,N=1;C=128;IH=5;IW=5;OH=5;OW=5;KH=5;KW=5;SH=1;SW=1;PH=2;PW=2;DH=1;DW=1,1215168
+rvv,69,cat_4,cat4_c1_s8,N=1;H=5;W=5;C_inputs=128|128|128|128;C_total=512,22893
+rvv,70,l9.cv2.conv,conv2d_s8,N=1;IC=512;IH=5;IW=5;OC=256;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,2742034
+rvv,71,l9.cv2.act,silu_s8,n=6400,77134
+rvv,72,l10,upsample_nearest_s8,N=1;C=256;IH=5;IW=5;scale=2,158260
+rvv,73,cat_5,cat2_c1_s8,N=1;H=10;W=10;C_inputs=256|128;C_total=384,60800
+rvv,74,l12.cv1.conv,conv2d_s8,N=1;IC=384;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,3837198
+rvv,75,l12.cv1.act,silu_s8,n=12800,83043
+rvv,77,l12.m0.cv1.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1861960
+rvv,78,l12.m0.cv1.act,silu_s8,n=6400,76685
+rvv,79,l12.m0.cv2.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1862110
+rvv,80,l12.m0.cv2.act,silu_s8,n=6400,76009
+rvv,81,cat_6,cat3_c1_s8,N=1;H=10;W=10;C_inputs=64|64|64;C_total=192,32689
+rvv,82,l12.cv2.conv,conv2d_s8,N=1;IC=192;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1812860
+rvv,83,l12.cv2.act,silu_s8,n=12800,83043
+rvv,84,l13,upsample_nearest_s8,N=1;C=128;IH=10;IW=10;scale=2,273289
+rvv,85,cat_7,cat2_c1_s8,N=1;H=20;W=20;C_inputs=128|64;C_total=192,118059
+rvv,86,l15.cv1.conv,conv2d_s8,N=1;IC=192;IH=20;IW=20;OC=64;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,3075056
+rvv,87,l15.cv1.act,silu_s8,n=25600,96331
+rvv,89,l15.m0.cv1.conv,conv2d_s8,N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1625007
+rvv,90,l15.m0.cv1.act,silu_s8,n=12800,82844
+rvv,91,l15.m0.cv2.conv,conv2d_s8,N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1624222
+rvv,92,l15.m0.cv2.act,silu_s8,n=12800,82890
+rvv,93,cat_8,cat3_c1_s8,N=1;H=20;W=20;C_inputs=32|32|32;C_total=96,63496
+rvv,94,l15.cv2.conv,conv2d_s8,N=1;IC=96;IH=20;IW=20;OC=64;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1601571
+rvv,95,l15.cv2.act,silu_s8,n=25600,96368
+rvv,96,l16.conv,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=64;OH=10;OW=10;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,1733986
+rvv,97,l16.act,silu_s8,n=6400,76559
+rvv,98,cat_9,cat2_c1_s8,N=1;H=10;W=10;C_inputs=64|128;C_total=192,31285
+rvv,99,l18.cv1.conv,conv2d_s8,N=1;IC=192;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1815709
+rvv,100,l18.cv1.act,silu_s8,n=12800,83099
+rvv,102,l18.m0.cv1.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1862875
+rvv,103,l18.m0.cv1.act,silu_s8,n=6400,76556
+rvv,122,detect.cv2_0_0.conv,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=64;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,6325975
+rvv,123,detect.cv2_0_0.act,silu_s8,n=25600,97454
+rvv,104,l18.m0.cv2.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1873406
+rvv,105,l18.m0.cv2.act,silu_s8,n=6400,77214
+rvv,106,cat_10,cat3_c1_s8,N=1;H=10;W=10;C_inputs=64|64|64;C_total=192,33352
+rvv,107,l18.cv2.conv,conv2d_s8,N=1;IC=192;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1814768
+rvv,108,l18.cv2.act,silu_s8,n=12800,83794
+rvv,109,l19.conv,conv2d_s8,N=1;IC=128;IH=10;IW=10;OC=128;OH=5;OW=5;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,2460995
+rvv,124,detect.cv2_0_1.conv,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=64;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,6335182
+rvv,110,l19.act,silu_s8,n=3200,74470
+rvv,111,cat_11,cat2_c1_s8,N=1;H=5;W=5;C_inputs=128|256;C_total=384,21258
+rvv,125,detect.cv2_0_1.act,silu_s8,n=25600,96305
+rvv,126,detect.cv2_0_2,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=64;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1126355
+rvv,112,l21.cv1.conv,conv2d_s8,N=1;IC=384;IH=5;IW=5;OC=256;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,2065239
+rvv,113,l21.cv1.act,silu_s8,n=6400,77678
+rvv,115,l21.m0.cv1.conv,conv2d_s8,N=1;IC=128;IH=5;IW=5;OC=128;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,2348341
+rvv,116,l21.m0.cv1.act,silu_s8,n=3200,74521
+rvv,133,detect.cv2_1_0.conv,conv2d_s8,N=1;IC=128;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,3710674
+rvv,134,detect.cv2_1_0.act,silu_s8,n=6400,77019
+rvv,135,detect.cv2_1_1.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1870168
+rvv,136,detect.cv2_1_1.act,silu_s8,n=6400,77115
+rvv,117,l21.m0.cv2.conv,conv2d_s8,N=1;IC=128;IH=5;IW=5;OC=128;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,2348451
+rvv,137,detect.cv2_1_2,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,317301
+rvv,118,l21.m0.cv2.act,silu_s8,n=3200,74014
+rvv,119,cat_12,cat3_c1_s8,N=1;H=5;W=5;C_inputs=128|128|128;C_total=384,20935
+rvv,120,l21.cv2.conv,conv2d_s8,N=1;IC=384;IH=5;IW=5;OC=256;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,2064157
+rvv,121,l21.cv2.act,silu_s8,n=6400,77344
+rvv,144,detect.cv2_2_0.conv,conv2d_s8,N=1;IC=256;IH=5;IW=5;OC=64;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,2345789
+rvv,145,detect.cv2_2_0.act,silu_s8,n=1600,72672
+rvv,146,detect.cv2_2_1.conv,conv2d_s8,N=1;IC=64;IH=5;IW=5;OC=64;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,594632
+rvv,147,detect.cv2_2_1.act,silu_s8,n=1600,72334
+rvv,148,detect.cv2_2_2,conv2d_s8,N=1;IC=64;IH=5;IW=5;OC=64;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,96215
+rvv,138,detect.cv3_1_0.conv,conv2d_s8,N=1;IC=128;IH=10;IW=10;OC=80;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,5559459
+rvv,139,detect.cv3_1_0.act,silu_s8,n=8000,79079
+rvv,149,detect.cv3_2_0.conv,conv2d_s8,N=1;IC=256;IH=5;IW=5;OC=80;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,3500137
+rvv,140,detect.cv3_1_1.conv,conv2d_s8,N=1;IC=80;IH=10;IW=10;OC=80;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,3472044
+rvv,150,detect.cv3_2_0.act,silu_s8,n=2000,73365
+rvv,141,detect.cv3_1_1.act,silu_s8,n=8000,78413
+rvv,142,detect.cv3_1_2,conv2d_s8,N=1;IC=80;IH=10;IW=10;OC=80;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,568145
+rvv,143,cat_14,cat2_c1_s8,N=1;H=10;W=10;C_inputs=64|80;C_total=144,23464
+rvv,151,detect.cv3_2_1.conv,conv2d_s8,N=1;IC=80;IH=5;IW=5;OC=80;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1104245
+rvv,152,detect.cv3_2_1.act,silu_s8,n=2000,72170
+rvv,153,detect.cv3_2_2,conv2d_s8,N=1;IC=80;IH=5;IW=5;OC=80;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,173291
+rvv,154,cat_15,cat2_c1_s8,N=1;H=5;W=5;C_inputs=64|80;C_total=144,7591
+rvv,127,detect.cv3_0_0.conv,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=80;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,9457167
+rvv,128,detect.cv3_0_0.act,silu_s8,n=32000,102710
+rvv,129,detect.cv3_0_1.conv,conv2d_s8,N=1;IC=80;IH=20;IW=20;OC=80;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,11750566
+rvv,130,detect.cv3_0_1.act,silu_s8,n=32000,102765
+rvv,131,detect.cv3_0_2,conv2d_s8,N=1;IC=80;IH=20;IW=20;OC=80;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,2000158
+rvv,132,cat_13,cat2_c1_s8,N=1;H=20;W=20;C_inputs=64|80;C_total=144,89993
+=== MODELBLASTER_PROFILE_END [yolov8_nano] ===
+=== MODELBLASTER_WALL_CYCLES_INST [yolov8_nano#0] === 155710
+=== MODELBLASTER_WALL_CYCLES [yolov8_nano] === 155710
+
+Simulation complete.
+*** PASSED *** after 19247748767 cycles
+
+Emulation Performance Summary
+------------------------------
+Wallclock Time Elapsed: 328.8 s
+Host Frequency: 60.000 MHz
+Target Cycles Emulated: 19247748767
+Effective Target Frequency: 58.541 MHz
+FMR: 1.02
+Note: The latter three figures are based on the fastest target clock.
+
+Script done on 2026-09-02 10:36:34+00:00 [COMMAND_EXIT_CODE="0"]

@@ -1,3 +1,6 @@
 SMALL hetero milp rc=0 Status:  optimal_inaccurate Makespan (non-periodic): 64.45 ms all operations: 64.45 ms 
 SMALL hetero greedy rc=0  Makespan (non-periodic): 68.89 ms all operations: 68.89 ms 
 SMALL hetero greedy_periodic rc=0  Makespan (non-periodic): 69.38 ms all operations: 69.38 ms 
+SMALL rvvpair milp rc=0 Status:  optimal_inaccurate Makespan (non-periodic): 173.04 ms all operations: 173.04 ms 
+SMALL rvvpair greedy rc=0  Makespan (non-periodic): 150.46 ms all operations: 150.46 ms 
+SMALL rvvpair greedy_periodic rc=0  Makespan (non-periodic): 144.84 ms all operations: 144.84 ms 

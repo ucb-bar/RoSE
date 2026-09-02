@@ -3,3 +3,10 @@
   logs:   fq logs 535 -f
   status: fq status 535
 #### jid=535
+#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/3net/res_net3_hetero_milp/uartlog
+#### identity OK (net3_hetero_milp)
+xpurt-runner: schedule=net3_hetero_milp entries=295 kinds=2 on chipyard_riscv64/rocketchip_virt_riscv64
+=== MODELBLASTER_VERIFY [mlp_control] === max_abs_err=6.67572021e-06 max_rel_err=3.7000018e-06 n=4 instance=0 ready=1
+=== MODELBLASTER_VERIFY [dronet] === max_abs_err=0 max_rel_err=0 n=2 instance=0 ready=1
+=== MODELBLASTER_VERIFY [yolov8_nano] === max_abs_err=0 max_rel_err=0 n=75600 instance=0 ready=1
+############ FQDONE net3_hetero_milp ############
