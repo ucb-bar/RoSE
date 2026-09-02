@@ -1,0 +1,19 @@
+--- first pass collected ---
+  network      machine pair           unsplit   sharded  speedup   pred us   err%  gates
+  --------------------------------------------------------------------------------------------
+  mlp_control  rvv + rvv                0.605         -        -         -      -  base:PASS/err=6.67572021e-06
+  mlp_control  gemmini + gemmini            -     0.370        -       492  -24.8  shard:PASS/err=6.67572021e-06
+  mlp_control  rvv + gemmini            0.556     0.377    1.47x       505  -25.3  base:PASS/err=6.67572021e-06 shard:PASS/err=6.67572021e-06
+
+  speedup = unsplit / sharded on the SAME machine pair; pred/err% are the schedule's prediction vs measurement.
+  rvvpair: predicted_us=313.0 BUILDDONE 
+  gempair: predicted_us=288.6 BUILDDONE 
+  hetero: predicted_us=312.4 BUILDDONE 
+--- after cost fix ---
+  network      machine pair           unsplit   sharded  speedup   pred us   err%  gates
+  --------------------------------------------------------------------------------------------
+  mlp_control  rvv + rvv                0.605     0.383    1.58x       313  +22.4  base:PASS/err=6.67572021e-06 shard:PASS/err=6.67572021e-06
+  mlp_control  gemmini + gemmini            -     0.377        -       289  +30.6  shard:PASS/err=6.67572021e-06
+  mlp_control  rvv + gemmini            0.556     0.378    1.47x       312  +21.0  base:PASS/err=6.67572021e-06 shard:PASS/err=6.67572021e-06
+
+  speedup = unsplit / sharded on the SAME machine pair; pred/err% are the schedule's prediction vs measurement.

@@ -1,0 +1,19 @@
+[mk_plan] 155 dispatches, 126 legal (op, axis) splits
+[mk_plan] unsplit predicted makespan 60922.0 us
+  + l15.cv1.conv                 did=86   OC [32, 32]   -> 59622.4 us
+  + detect.cv2_0_0.conv          did=122  OC [32, 32]   -> 58551.3 us
+  + l1.conv                      did=2    OC [16, 16]   -> 57503.2 us
+  + detect.cv3_0_2               did=131  OC [40, 40]   -> 56561.6 us
+  + l4.cv2.conv                  did=31   OC [32, 32]   -> 55748.3 us
+  + l3.conv                      did=15   OH [10, 10]   -> 54950.2 us
+  + l15.cv2.conv                 did=94   OC [32, 32]   -> 54258.6 us
+  + l0.conv                      did=0    OH [40, 40]   -> 53739.3 us
+  + detect.cv2_1_0.conv          did=133  OC [32, 32]   -> 53289.5 us
+  + l4.cv1.conv                  did=17   OC [32, 32]   -> 52908.7 us
+  + l2.m0.cv1.conv               did=7    OH [20, 20]   -> 52624.4 us
+  + l2.m0.cv2.conv               did=9    OH [20, 20]   -> 52355.5 us
+
+[mk_plan] 12 splits, predicted 52355.5 us
+mk_split args:
+  86:OC:32,32 122:OC:32,32 2:OC:16,16 131:OC:40,40 31:OC:32,32 15:OH:10,10 94:OC:32,32 0:OH:40,40 133:OC:32,32 17:OC:32,32 7:OH:20,20 9:OH:20,20
+[mk_plan] -> /tmp/plan_yolov8_nano_hetero.json

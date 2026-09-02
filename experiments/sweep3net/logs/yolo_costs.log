@@ -1,0 +1,14 @@
+✓ Conda environment 'zephyr' activated successfully
+Zephyr SDK environment variables set:
+  ZEPHYR_BASE=/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr
+  ZEPHYR_SDK_INSTALL_DIR=/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1
+  ZEPHYR_TOOLCHAIN_VARIANT=zephyr
+=== regen yolov8_nano against the 25 new kernels ===
+regen rc=0 curated_pass=8
+[silu_s8/scalar_lut]
+=== serial builds ===
+  yolov8_nano_serialE_base: dispatches=155 BUILDDONE 
+  yolov8_nano_serialP_base: dispatches=155 BUILDDONE 
+  rvv: 147 dispatches from /scratch/dima/rose-infra/RoSE/experiments/sweep3net/res_yolov8_nano_serialE_base
+  gemmini_q31: 147 dispatches from /scratch/dima/rose-infra/RoSE/experiments/sweep3net/res_yolov8_nano_serialP_base
+[mk_costs] -> /tmp/unsplit_costs_yolov8_nano.json

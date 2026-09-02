@@ -16,8 +16,26 @@ LABEL = {"rvvpair": "rvv + rvv", "gempair": "gemmini + gemmini",
 
 
 def cell(tag):
+    """Return the measurement for one cell, or None.
+
+    IDENTITY IS CHECKED, not assumed. fq copies simulation outputs off the run
+    host's sim_slot_*/, and those contents SURVIVE BETWEEN JOBS -- so a cell can
+    collect the previous job's uartlog and look perfectly healthy. That happened
+    once here: an mlp cell came back carrying a ViNT run (obs_img__cast_f16,
+    goal_img), PASSED banner and all. The generated schedule prints
+    `xpurt-runner: schedule=<tag>`, so require it to match and skip any file
+    that does not.
+    """
     c = glob.glob(f"{OUT}/res_{tag}/**/uartlog", recursive=True) + [f"{OUT}/res_{tag}/uartlog"]
-    p = next((x for x in c if os.path.exists(x)), None)
+    p = None
+    for x in c:
+        if not os.path.exists(x):
+            continue
+        head = open(x, errors="ignore").read(20000)
+        m = re.search(r"xpurt-runner: schedule=(\S+)", head)
+        if m and m.group(1) == tag:
+            p = x
+            break
     if not p:
         return None
     t = open(p, errors="ignore").read()

@@ -1,0 +1,4 @@
+--- serial costs collected ---
+  rvv: 21 dispatches from /scratch/dima/rose-infra/RoSE/experiments/sweep3net/res_dronet_serialE_base
+  gemmini_q31: 21 dispatches from /scratch/dima/rose-infra/RoSE/experiments/sweep3net/res_dronet_serialP_base
+[mk_costs] -> /tmp/unsplit_costs_dronet.json

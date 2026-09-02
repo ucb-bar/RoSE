@@ -1,0 +1,9 @@
+### submit mlp_control_gempair_base 2026-09-02T08:03:01Z
+#### submit: submitted job 507  (completion=exit, timeout=3000s)
+  logs:   fq logs 507 -f
+  status: fq status 507
+#### jid=507
+#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/sweep3net/res_mlp_control_gempair_base/2026-09-02--08-00-57-fq-job-505-fq505xd1011b25/fq-job-5050/uartlog
+=== MODELBLASTER_VERIFY === max_abs_err=0.327884674 max_rel_err=0.187136054 n=21
+*** PASSED *** after 89554857317 cycles
+############ FQDONE mlp_control_gempair_base ############

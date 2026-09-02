@@ -1,0 +1,77 @@
+#!/usr/bin/env python3
+"""Build a split tree carrying an ARBITRARY (possibly uneven) OC partition per op.
+
+The alignment study's variable is not the split DEGREE but the per-tile WIDTH:
+whether each tile is a whole multiple of the backend's blocking quantum
+(rvv V=32, gemmini DIM=16).  `mk_sweep.py` could only ask for k even tiles;
+this asks for an explicit partition via apply_split_hint's `tile_sizes`.
+
+  mk_align.py <src_exdir> <quant> <dst_exdir> <did>:<w1>,<w2>[,<w3>...] ...
+
+Kernels are COPIED from the source tree, never regenerated: generate_skeleton
+does not emit kernels.c, and a regenerated kernel_picks.json would silently
+change the conv algorithm (see MB_DRIFT_ATOL in the study notes).
+"""
+import json, os, shutil, subprocess, sys
+MB = "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster"
+sys.path.insert(0, os.path.dirname(MB))
+from modelblaster.pipeline.apply_split_hint import apply_split_hint
+
+KEEP = ("kernels.c", "kernels.h", "kernel_picks.json")
+BACKENDS = ("gemmini_q31", "rvv")
+
+
+def main():
+    src_ex, quant, dst_ex = sys.argv[1:4]
+    plan = {}
+    for tok in sys.argv[4:]:
+        d, ws = tok.split(":")
+        plan[int(d)] = [int(x) for x in ws.split(",")]
+    SRC = f"{MB}/examples/{src_ex}/{quant}/generated"
+    DST = f"{MB}/examples/{dst_ex}/{quant}/generated"
+    os.makedirs(DST, exist_ok=True)
+    for f in ("weights.npz", "io.npz"):
+        shutil.copy2(f"{SRC}/{f}", f"{DST}/{f}")
+    for be in BACKENDS:
+        os.makedirs(f"{DST}/{be}", exist_ok=True)
+        for f in KEEP:
+            shutil.copy2(f"{SRC}/{be}/{f}", f"{DST}/{be}/{f}")
+
+    g = json.load(open(f"{SRC}/graph.json"))
+    by = {o["dispatch_id"]: o for o in g["ops"] if o.get("dispatch_id") is not None}
+    hints = []
+    for d, ws in sorted(plan.items()):
+        oc = int((by[d].get("shape") or {}).get("OC", 0))
+        if sum(ws) != oc:
+            raise SystemExit(f"did {d} ({by[d]['name']}): partition {ws} sums to "
+                             f"{sum(ws)} but OC={oc}")
+        hints.append({"op": d, "n_splits": len(ws), "tile_sizes": ws})
+    out = apply_split_hint(g, hints)
+    json.dump(out, open(f"{DST}/graph.json", "w"), indent=2)
+    n = sum(1 for o in out["ops"] if o.get("dispatch_id") is not None)
+    print(f"[mk_align] {dst_ex}: {len(hints)} ops split -> {n} dispatches")
+    for d, ws in sorted(plan.items()):
+        oc = int((by[d].get("shape") or {}).get("OC", 0))
+        rv = sum(-(-w // 32) for w in ws); rv0 = -(-oc // 32)
+        gm = sum(-(-w // 16) for w in ws); gm0 = -(-oc // 16)
+        print(f"    did={d:<3} {by[d]['name']:<16} OC={oc:<4} part={ws} "
+              f"rvv_slabs={rv}/{rv0}{' ALIGNED' if rv == rv0 else ' MISALIGNED'} "
+              f"gem_blocks={gm}/{gm0}{' ALIGNED' if gm == gm0 else ' MISALIGNED'}")
+
+    for be in BACKENDS:
+        gen = f"{DST}/{be}"
+        keep = {f: open(f"{gen}/{f}", "rb").read() for f in KEEP}
+        r = subprocess.run(
+            [sys.executable, "-m", "modelblaster.pipeline.generate_skeleton",
+             "--ir", f"{DST}/graph.json", "--weights", f"{DST}/weights.npz",
+             "--io", f"{DST}/io.npz", "--out-dir", gen, "--backend", be],
+            cwd=MB, capture_output=True, text=True,
+            env={**os.environ, "PYTHONPATH": os.path.dirname(MB)})
+        if r.returncode != 0:
+            print(r.stdout[-3000:], r.stderr[-3000:]); raise SystemExit(f"skeleton {be} failed")
+        for f, d in keep.items():
+            open(f"{gen}/{f}", "wb").write(d)
+        print(f"[mk_align] {be}: skeleton regenerated, kernels preserved")
+
+
+main()

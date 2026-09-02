@@ -1,0 +1,10 @@
+### submit mlp_control_hetero_base 2026-09-02T07:08:26Z
+#### submit: submitted job 496  (completion=exit, timeout=3000s)
+  logs:   fq logs 496 -f
+  status: fq status 496
+#### jid=496
+#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/sweep3net/res_mlp_control_hetero_base/uartlog
+xpurt-runner: schedule=mlp_control_hetero_base entries=7 kinds=2 on chipyard_riscv64/rocketchip_virt_riscv64
+=== MODELBLASTER_VERIFY [mlp_control] === max_abs_err=6.67572021e-06 max_rel_err=3.7000018e-06 n=4 instance=0 ready=1
+*** PASSED *** after 1291068662 cycles
+############ FQDONE mlp_control_hetero_base ############

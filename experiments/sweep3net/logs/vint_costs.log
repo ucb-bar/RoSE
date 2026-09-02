@@ -1,0 +1,13 @@
+✓ Conda environment 'zephyr' activated successfully
+Zephyr SDK environment variables set:
+  ZEPHYR_BASE=/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr
+  ZEPHYR_SDK_INSTALL_DIR=/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1
+  ZEPHYR_TOOLCHAIN_VARIANT=zephyr
+=== regen vint against the 25 new kernels ===
+regen rc=0 curated_pass=21
+  vint_serialE_base: dispatches=605 BUILDDONE 
+  vint_serialP_base: dispatches=605 BUILDDONE 
+  rvv: 605 dispatches from /scratch/dima/rose-infra/RoSE/experiments/sweep3net/res_vint_serialE_base
+  gemmini_q31: 605 dispatches from /scratch/dima/rose-infra/RoSE/experiments/sweep3net/res_vint_serialP_base
+[mk_costs] -> /tmp/unsplit_costs_vint.json
+VINT_COSTS_DONE

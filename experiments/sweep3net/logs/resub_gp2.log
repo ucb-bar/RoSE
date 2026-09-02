@@ -1,0 +1,11 @@
+--- final mlp+dronet matrix ---
+  network      machine pair           unsplit   sharded  speedup   pred us   err%  gates
+  --------------------------------------------------------------------------------------------
+  dronet       rvv + rvv                7.534     4.219    1.79x      4098   +3.0  base:PASS/err=0 shard:PASS/err=0
+  dronet       gemmini + gemmini        6.404     5.662    1.13x      5407   +4.7  base:PASS/err=2 shard:PASS/err=2
+  dronet       rvv + gemmini            2.674     2.432    1.10x      2350   +3.5  base:PASS/err=2 shard:PASS/err=2
+  mlp_control  rvv + rvv                0.605     0.383    1.58x       313  +22.4  base:PASS/err=6.67572021e-06 shard:PASS/err=6.67572021e-06
+  mlp_control  gemmini + gemmini            -     0.377        -       289  +30.6  shard:PASS/err=6.67572021e-06
+  mlp_control  rvv + gemmini            0.556     0.378    1.47x       312  +21.0  base:PASS/err=6.67572021e-06 shard:PASS/err=6.67572021e-06
+
+  speedup = unsplit / sharded on the SAME machine pair; pred/err% are the schedule's prediction vs measurement.

@@ -1,0 +1,19 @@
+[mk_plan] 155 dispatches, 126 legal (op, axis) splits
+[mk_plan] unsplit predicted makespan 80594.3 us
+  + l0.conv                      did=0    OC [8, 8]   -> 78105.6 us
+  + l2.cv2.conv                  did=13   OC [16, 16]   -> 76177.5 us
+  + l1.conv                      did=2    OC [16, 16]   -> 74475.3 us
+  + detect.cv3_0_0.conv          did=127  OC [40, 40]   -> 72972.6 us
+  + l15.cv1.conv                 did=86   OC [32, 32]   -> 71553.3 us
+  + l2.cv1.conv                  did=4    OC [16, 16]   -> 70141.5 us
+  + l4.cv2.conv                  did=31   OC [32, 32]   -> 68867.8 us
+  + l3.conv                      did=15   OC [32, 32]   -> 67844.5 us
+  + detect.cv3_0_2               did=131  OC [40, 40]   -> 66873.6 us
+  + l15.cv2.conv                 did=94   OC [32, 32]   -> 65963.9 us
+  + detect.cv2_0_1.conv          did=124  OC [32, 32]   -> 65118.0 us
+  + l4.cv1.conv                  did=17   OC [32, 32]   -> 64376.6 us
+
+[mk_plan] 12 splits, predicted 64376.6 us
+mk_split args:
+  0:OC:8,8 13:OC:16,16 2:OC:16,16 127:OC:40,40 86:OC:32,32 4:OC:16,16 31:OC:32,32 15:OC:32,32 131:OC:40,40 94:OC:32,32 124:OC:32,32 17:OC:32,32
+[mk_plan] -> /tmp/plan_yolov8_nano_gempair.json

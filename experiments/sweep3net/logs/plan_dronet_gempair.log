@@ -1,0 +1,14 @@
+[mk_plan] 21 dispatches, 20 legal (op, axis) splits
+[mk_plan] unsplit predicted makespan 4629.3 us
+  + conv_modules.0               did=0    OC [16, 16]   -> 4057.5 us
+  + conv_modules.1               did=3    OC [16, 16]   -> 3928.3 us
+  + conv_modules.2               did=4    OC [16, 16]   -> 3875.2 us
+  + conv_modules.8               did=14   OC [64, 64]   -> 3826.0 us
+  + conv_modules.4               did=8    OC [32, 32]   -> 3783.2 us
+  + conv_modules.7               did=13   OC [64, 64]   -> 3746.8 us
+  + conv_modules.5               did=9    OC [32, 32]   -> 3713.4 us
+
+[mk_plan] 7 splits, predicted 3713.4 us
+mk_split args:
+  0:OC:16,16 3:OC:16,16 4:OC:16,16 14:OC:64,64 8:OC:32,32 13:OC:64,64 9:OC:32,32
+[mk_plan] -> /tmp/plan_dronet_gempair.json

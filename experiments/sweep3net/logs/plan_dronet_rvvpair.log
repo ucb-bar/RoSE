@@ -1,0 +1,17 @@
+[mk_plan] 21 dispatches, 20 legal (op, axis) splits
+[mk_plan] unsplit predicted makespan 7448.6 us
+  + conv_modules.0               did=0    OH [28, 28]   -> 6540.3 us
+  + conv_modules.8               did=14   OC [64, 64]   -> 5893.5 us
+  + conv_modules.5               did=9    OC [32, 32]   -> 5340.0 us
+  + conv_modules.2               did=4    OH [7, 7]   -> 4880.7 us
+  + conv_modules.1               did=3    OH [7, 7]   -> 4535.0 us
+  + conv_modules.7               did=13   OH [2, 2]   -> 4256.3 us
+  + conv_modules.4               did=8    OH [3, 4]   -> 4039.7 us
+  + conv_modules.3               did=5    OC [16, 16]   -> 3980.8 us
+  + conv_modules.6               did=10   OC [32, 32]   -> 3933.8 us
+  + conv_modules.9               did=15   OC [64, 64]   -> 3893.7 us
+
+[mk_plan] 10 splits, predicted 3893.7 us
+mk_split args:
+  0:OH:28,28 14:OC:64,64 9:OC:32,32 4:OH:7,7 3:OH:7,7 13:OH:2,2 8:OH:3,4 5:OC:16,16 10:OC:32,32 15:OC:64,64
+[mk_plan] -> /tmp/plan_dronet_rvvpair.json

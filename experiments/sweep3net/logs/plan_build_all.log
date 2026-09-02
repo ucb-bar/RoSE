@@ -1,0 +1,19 @@
+PLAN dronet rvvpair predicted=3893.7us splits=10
+  BUILD dronet_rvvpair_base: dispatches=21 predicted_us=7448.6 BUILDDONE 
+  BUILD dronet_rvvpair_shard: dispatches=31 predicted_us=3893.7 BUILDDONE 
+PLAN yolov8_nano rvvpair predicted=us splits=0
+  BUILD yolov8_nano_rvvpair_base: ABORT mk_costs_split 
+  BUILD yolov8_nano_rvvpair_shard: ABORT mk_costs_split 
+PLAN dronet gempair predicted=3713.4us splits=7
+  BUILD dronet_gempair_base: dispatches=21 predicted_us=4629.3 BUILDDONE 
+  BUILD dronet_gempair_shard: dispatches=28 predicted_us=3713.4 BUILDDONE 
+PLAN yolov8_nano gempair predicted=us splits=0
+  BUILD yolov8_nano_gempair_base: ABORT mk_costs_split 
+  BUILD yolov8_nano_gempair_shard: ABORT mk_costs_split 
+PLAN dronet hetero predicted=2008.6us splits=3
+  BUILD dronet_hetero_base: dispatches=21 predicted_us=2567.6 BUILDDONE 
+  BUILD dronet_hetero_shard: dispatches=24 predicted_us=2008.6 BUILDDONE 
+PLAN yolov8_nano hetero predicted=us splits=0
+  BUILD yolov8_nano_hetero_base: ABORT mk_costs_split 
+  BUILD yolov8_nano_hetero_shard: ABORT mk_costs_split 
+BUILDS_DONE

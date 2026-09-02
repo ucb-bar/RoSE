@@ -27,10 +27,17 @@ set +u; source $ZCS/scripts/activate_conda.sh; source $ZCS/scripts/set_envvars_s
 export PYTHONPATH=$ZCS MB_DRIFT_ATOL=2
 cd $MB
 
+# serialE / serialP pin EVERY dispatch to one hart. They are not a machine pair
+# under test -- they are how a network that has no measured cost table gets one:
+# between the two runs, every dispatch has a cost on both backends, taken from
+# this hardware rather than from a model.
+SERIAL=""
 case $PAIR in
   rvvpair) SLOTS="CPU_E#0=rvv,CPU_E#1=rvv" ;;
   gempair) SLOTS="CPU_P#0=gemmini_q31,CPU_P#1=gemmini_q31" ;;
   hetero)  SLOTS="CPU_P#0=gemmini_q31,CPU_E#0=rvv" ;;
+  serialE) SLOTS="CPU_E#0=rvv";          SERIAL="CPU_E#0" ;;
+  serialP) SLOTS="CPU_P#0=gemmini_q31";  SERIAL="CPU_P#0" ;;
   *) echo "### ABORT unknown pair $PAIR"; exit 1 ;;
 esac
 echo "### tag=$TAG net=$NET src=$SRC quant=$QUANT pair=$PAIR arm=$ARM"
@@ -45,16 +52,33 @@ fi
 G=$MB/examples/$EX/$QUANT/generated/graph.json
 [ -f "$G" ] || { echo "### ABORT no graph at $G"; exit 1; }
 
-# Costs: the measured-cell table where it exists (dronet), else the serial runs.
-python3 $S/mk_costs_synth.py /tmp/costs_$TAG.json --graph $G 2>/dev/null \
-  || { echo "### note: no measured-cell table for $NET, falling back to mk_costs"; \
-       python3 $S/mk_costs.py /tmp/costs_$TAG.json \
-         $R/experiments/shard_dim/results/serial/${NET}_E $R/experiments/shard_dim/results/serial/${NET}_P \
-         || { echo "### ABORT no costs"; exit 1; }; }
-
 SJ=$R/experiments/shard_dim/ohsched/${TAG}.json
-python3 $S/mk_par_sched.py $SJ --graph $G --model $NET --costs /tmp/costs_$TAG.json --slots "$SLOTS" \
-  || { echo "### ABORT mk_par_sched"; exit 1; }
+if [ -n "$SERIAL" ]; then
+    # Cost-discovery run: no cost table needed, and none is used.
+    python3 $S/mk_serial_sched.py $SJ --graph $G --model $NET --slot "$SERIAL" \
+      || { echo "### ABORT mk_serial_sched"; exit 1; }
+else
+    # Costs: the measured-cell table where one exists (dronet), else the two
+    # serial runs above.
+    # SWEEP_FORCE_SERIAL_COSTS=1 skips the measured-cell table. Needed whenever
+    # the kernels have changed under it: dronet's table was captured before the
+    # curated-coverage close, and batchnorm2d_s8 alone got 3.28x faster there.
+    if [ "${SWEEP_FORCE_SERIAL_COSTS:-0}" = "1" ] \
+       || ! python3 $S/mk_costs_synth.py /tmp/costs_$TAG.json --graph $G 2>/dev/null; then
+        echo "### note: no measured-cell table for $NET; using the serial runs"
+        python3 $S/mk_costs.py /tmp/unsplit_costs_$NET.json \
+          $OUT/res_${NET}_serialE_base $OUT/res_${NET}_serialP_base \
+          || { echo "### ABORT no costs -- run the serialE/serialP arms first"; exit 1; }
+        # Those costs are keyed by the UNSPLIT graph's dispatch ids, and
+        # apply_split_hint renumbers ids. Project them by NAME onto this graph.
+        python3 $S/mk_costs_split.py /tmp/costs_$TAG.json --graph $G \
+          --costs /tmp/unsplit_costs_$NET.json \
+          --unsplit-graph $MB/examples/$SRC/$QUANT/generated/graph.json \
+          || { echo "### ABORT mk_costs_split"; exit 1; }
+    fi
+    python3 $S/mk_par_sched.py $SJ --graph $G --model $NET --costs /tmp/costs_$TAG.json --slots "$SLOTS" \
+      || { echo "### ABORT mk_par_sched"; exit 1; }
+fi
 NDISP=$(python3 -c "import json;print(len(json.load(open('$SJ'))['dispatches']))")
 PRED=$(python3 -c "
 import json;d=json.load(open('$SJ'))['dispatches']

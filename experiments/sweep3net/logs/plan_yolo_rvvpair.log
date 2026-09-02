@@ -1,0 +1,19 @@
+[mk_plan] 155 dispatches, 126 legal (op, axis) splits
+[mk_plan] unsplit predicted makespan 143443.4 us
+  + detect.cv3_0_0.conv          did=127  OC [40, 40]   -> 133275.1 us
+  + l21.cv2.conv                 did=120  OH [2, 3]   -> 129935.9 us
+  + l7.conv                      did=51   OH [2, 3]   -> 127318.1 us
+  + l5.conv                      did=33   OH [5, 5]   -> 125239.0 us
+  + l12.cv1.conv                 did=74   OC [64, 64]   -> 123322.0 us
+  + l3.conv                      did=15   OH [10, 10]   -> 121646.6 us
+  + l1.conv                      did=2    OH [20, 20]   -> 119996.4 us
+  + l2.m0.cv1.conv               did=7    OH [20, 20]   -> 118348.5 us
+  + l2.m0.cv2.conv               did=9    OH [20, 20]   -> 116702.8 us
+  + l0.conv                      did=0    OH [40, 40]   -> 115144.9 us
+  + l15.cv1.conv                 did=86   OC [32, 32]   -> 113605.8 us
+  + l9.cv2.conv                  did=70   OC [128, 128]   -> 112228.7 us
+
+[mk_plan] 12 splits, predicted 112228.7 us
+mk_split args:
+  127:OC:40,40 120:OH:2,3 51:OH:2,3 33:OH:5,5 74:OC:64,64 15:OH:10,10 2:OH:20,20 7:OH:20,20 9:OH:20,20 0:OH:40,40 86:OC:32,32 70:OC:128,128
+[mk_plan] -> /tmp/plan_yolov8_nano_rvvpair.json

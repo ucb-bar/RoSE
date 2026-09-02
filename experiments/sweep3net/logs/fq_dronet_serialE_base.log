@@ -1,0 +1,10 @@
+### submit dronet_serialE_base 2026-09-02T09:09:27Z
+#### submit: submitted job 509  (completion=exit, timeout=3000s)
+  logs:   fq logs 509 -f
+  status: fq status 509
+#### jid=509
+#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/sweep3net/res_dronet_serialE_base/2026-09-02--09-11-52-fq-job-509-fq509xc45f1d1c/fq-job-5090/uartlog
+xpurt-runner: schedule=dronet_serialE_base entries=21 kinds=2 on chipyard_riscv64/rocketchip_virt_riscv64
+=== MODELBLASTER_VERIFY [dronet] === max_abs_err=0 max_rel_err=0 n=2 instance=0 ready=1
+*** PASSED *** after 2211255797 cycles
+############ FQDONE dronet_serialE_base ############
