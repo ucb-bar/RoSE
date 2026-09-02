@@ -1041,7 +1041,8 @@ def header_comment(path: str) -> str:
     return "\n".join(out)
 
 
-def check_headers(P: dict, measured: dict) -> list[Finding]:
+def check_headers(P: dict, measured: dict,
+                  isolated: Optional[dict] = None) -> list[Finding]:
     out = []
     for f in sorted(glob.glob(os.path.join(P["kernels"], "*", "*.c"))):
         key = os.path.basename(f)
@@ -1050,14 +1051,30 @@ def check_headers(P: dict, measured: dict) -> list[Finding]:
             continue
         claims_broken = live_claims(hdr)
         errs = [float(x) for x in ERRCLAIM_RE.findall(hdr)]
-        if key not in measured:
+        basis = "this kernel's own contribution (isolated)"
+        iso = (isolated or {}).get(key)
+        if iso is not None:
+            # Prefer the ISOLATED number: a header's quoted figure is a
+            # claim about THIS kernel, and the pipeline's whole-model verify
+            # number is not that. Comparing a per-kernel claim against a
+            # chain measurement produced 5 of the 6 warnings this check
+            # first emitted, all of them spurious.
+            err, floor, prov = iso
+            err = err if floor is None else max(0.0, err - floor)
+            if floor is not None and err <= log_resolution(iso[0]):
+                err = 0.0
+        elif key in measured:
+            err, prov = measured[key]
+            basis = ("the WHOLE MODEL with this kernel selected -- no "
+                     "isolation run exists, so this number is the chain's, "
+                     "not the kernel's")
+        else:
             if claims_broken:
                 out.append(Finding("headers", key, SKIP,
                                    f"header asserts {claims_broken[0]!r}; "
                                    f"no current measurement to confirm or "
                                    f"refute", evidence="unmeasured this run"))
             continue
-        err, prov = measured[key]
         if err is None:
             continue
         # A header that calls something BROKEN while the current build
@@ -1072,8 +1089,11 @@ def check_headers(P: dict, measured: dict) -> list[Finding]:
         elif errs and err not in errs:
             out.append(Finding(
                 "headers", key, WARN,
-                f"header quotes max_abs_err {sorted(set(errs))} but the "
-                f"current selection measures {err:g}",
+                f"REVIEW (not a defect on its own): header quotes "
+                f"max_abs_err {sorted(set(errs))}; {basis} measures "
+                f"{err:g}. Headers legitimately quote historical and "
+                f"pre-fix figures, so this only flags the file for a human "
+                f"to read.",
                 evidence=prov,
                 data={"claimed": sorted(set(errs)), "measured": err}))
         else:
@@ -1435,6 +1455,91 @@ def check_seed_layout(P: dict, nets, backends) -> list[Finding]:
     return out
 
 
+def load_floors(P: dict) -> dict:
+    """All-reference whole-model errors, keyed (network, backend)."""
+    floors: dict = {}
+    fj = os.path.join(P["results"], "floors.json")
+    if os.path.exists(fj):
+        for k, v in json.load(open(fj)).items():
+            n, b = k.split("/", 1)
+            floors[(n, b)] = v
+    for lg in glob.glob(os.path.join(P["results"], "*run*.log")):
+        for m in re.finditer(r"^  floor (\S+?)/(\S+?): (\S+)$",
+                             open(lg, errors="replace").read(), re.M):
+            try:
+                floors.setdefault((m.group(1), m.group(2)),
+                                  float(m.group(3)))
+            except ValueError:
+                pass
+    return floors
+
+
+def check_gate(P: dict, regen_results: list[dict], floors: dict
+               ) -> list[Finding]:
+    """Is the curated-verify gate even PASSABLE for this (network, backend)?
+
+    generate_kernels' gate compares the WHOLE MODEL against the PyTorch
+    golden. When the all-reference chain itself already exceeds the
+    tolerance, no curated kernel can pass however good it is, and the tree
+    silently ships 100% reference_impl while the logs read like a
+    library-wide correctness failure.
+
+    MEASURED: vint's all-reference model reads max_abs_err=0.327884674 on
+    BOTH gemmini_q31 and rvv_f16. gemmini_q31 carries atol_override=1.0
+    (pipeline/backends.py) so it passes and 21 curated kernels get selected;
+    rvv and rvv_f16 carry atol_override=None, so their gate is
+    max(1e-5, 1e-4*sqrt(K)) -- two to three orders of magnitude BELOW the
+    floor -- and all 29 curated candidates are rejected, every one of them
+    at the floor value. That is a gate defect, not a kernel defect.
+    """
+    sys.path.insert(0, P["zcs"])
+    try:
+        from modelblaster.pipeline import backends as backends_mod
+    except Exception as e:                                   # noqa: BLE001
+        return [Finding("gate", "-", SKIP,
+                        f"cannot import backends ({type(e).__name__}: {e})",
+                        evidence="")]
+    out = []
+    for r in regen_results:
+        key = (r["net"], r["backend"])
+        subj = f"{r['net']}/{r['backend']}"
+        floor = floors.get(key)
+        if floor is None:
+            out.append(Finding("gate", subj, SKIP,
+                               "no all-reference floor measured for this "
+                               "cell", evidence=""))
+            continue
+        try:
+            tgt = backends_mod.get(r.get("target", r["backend"]))
+        except Exception:                                    # noqa: BLE001
+            continue
+        ov = getattr(tgt, "atol_override", None)
+        drift = float(r["drift"]) if r["drift"] else 0.0
+        # The most generous gate any op in this model can get.
+        gate = max(ov if ov is not None else 1e-2, drift)
+        if floor <= gate:
+            out.append(Finding(
+                "gate", subj, PASS,
+                f"all-reference floor {floor:g} <= the loosest gate "
+                f"{gate:g} (atol_override={ov}, MB_DRIFT_ATOL={r['drift']}) "
+                f"-- a good kernel can pass",
+                evidence=r["log"]))
+            continue
+        n_fail = sum(1 for v in r["verify"].values() if v["result"] == "FAIL")
+        out.append(Finding(
+            "gate", subj, FAIL,
+            f"UNPASSABLE GATE: the ALL-REFERENCE model already reads "
+            f"max_abs_err={floor:g}, above the loosest gate {gate:g} "
+            f"(atol_override={ov}, MB_DRIFT_ATOL={r['drift']}). No curated "
+            f"kernel can be selected here however good it is -- "
+            f"{n_fail}/{len(r['verify'])} candidates were rejected this "
+            f"run. This tree ships 100% reference_impl for a reason that "
+            f"is not about any kernel.",
+            evidence=f"measured floor + {r['log']}",
+            data={"floor": floor, "gate": gate, "atol_override": ov}))
+    return out
+
+
 # ==========================================================================
 # Check 5 -- reachability: is a racy kernel actually co-scheduled?
 # ==========================================================================
@@ -1725,6 +1830,26 @@ def coverage(P: dict, findings: list[Finding]) -> str:
                 if f.check in ("class", "headers") and f.status != SKIP}
     stale_cells = {f.subject for f in findings if f.check == "stale"
                    and f.status != SKIP}
+    # Which of the 101 distinct (target, op, algorithm) selections do those
+    # cells actually cover? Counting cells double-counts a selection that
+    # several networks share, and can exceed the 101 total.
+    audited_nets = {f.subject.split("/")[0] for f in findings
+                    if f.check == "stale" and f.status != SKIP}
+    covered_triples = set()
+    for name, exdir, quant, _d in NETWORKS:
+        if name not in audited_nets:
+            continue
+        for pf in glob.glob(os.path.join(P["examples"], exdir, quant,
+                                         "generated", "*",
+                                         "kernel_picks.json")):
+            try:
+                d = json.load(open(pf))
+            except Exception:
+                continue
+            for op, pk in (d.get("picks") or {}).items():
+                if pk.get("algorithm"):
+                    covered_triples.add((d.get("target"), op,
+                                         pk["algorithm"]))
     t2 = {f.subject for f in findings if f.check == "tier2"
           and f.status != SKIP}
     L = [
@@ -1739,7 +1864,9 @@ def coverage(P: dict, findings: list[Finding]) -> str:
         f"{len(all_names - sel_files):4d}   (static checks only; no "
         f"numeric evidence exists for these)",
         f"  distinct (target, op, algorithm) picks  {len(sel_triples):4d}",
-        f"    covered by a staleness cell this run  {len(stale_cells):4d}",
+        f"    re-selected + diffed this run         "
+        f"{len(covered_triples & sel_triples):4d}   "
+        f"(across {len(stale_cells)} (network, backend, op) cells)",
         f"  Tier 2 arms scored                      {len(t2):4d}",
     ]
     return "\n".join(L)
@@ -1792,7 +1919,7 @@ def main() -> int:
                     help="Tier 1 static checks only -- skip the selection "
                          "staleness regen (which builds and needs the tree)")
     ap.add_argument("--checks",
-                    default="selftest,hart,seed,stale,isolate,class,headers",
+                    default="selftest,hart,seed,stale,isolate,gate,class,headers",
                     help="comma list of Tier 1 checks to run")
     ap.add_argument("--nets", default=None,
                     help="comma list of network names (default: all four)")
@@ -1904,10 +2031,12 @@ def main() -> int:
             isolated = run_isolation_campaign(
                 P, regen_results, args.jobs,
                 only_indeterminate=not args.isolate_all)
+        if "gate" in checks:
+            findings += check_gate(P, regen_results, load_floors(P))
         if "class" in checks:
             findings += check_accuracy_class(P, measured, isolated)
         if "headers" in checks:
-            findings += check_headers(P, measured)
+            findings += check_headers(P, measured, isolated)
 
     if args.tier2:
         findings += check_tier2(P, args.tier2_uartlogs)
