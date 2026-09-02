@@ -1,7 +1,14 @@
 #!/usr/bin/env python3
 """Replace ONE kernel's body inside an already-generated kernels.c, in place.
 
-  splice_kernel.py <kernels.c> <algorithm> <curated-source.c>
+  splice_kernel.py <kernels.c> <algorithm> <curated-source.c> [must-contain]
+
+`must-contain` disambiguates when one algorithm name labels several blocks in
+the same file: yolov8_nano's gemmini_q31/kernels.c has THREE
+`gemmini_mvin_scale` blocks (cat2 / cat3 / cat4, three separate curated
+sources that share an algorithm name). Pass the block's own kernel symbol --
+e.g. `kernel_cat3_c1_s8` -- to select one. Without it the tool still refuses
+an ambiguous algorithm, which is the safe default.
 
 WHY THIS EXISTS INSTEAD OF JUST REGENERATING. `generate_kernels` re-runs the
 whole curated selection, and selection is not stable across time: on
@@ -23,8 +30,19 @@ block, and the block count must be unchanged afterwards.
 """
 import re, sys
 
-HDR = re.compile(r"^/\* source: [^\n]*\*/\n/\* algorithm: ([A-Za-z0-9_]+) \*/\n",
-                 re.M)
+# A curated source may put its own prose between the `source:` line and the
+# `algorithm:` line -- gemmini_q31_linear_s8_pc_gemmini_tiled_matmul.c does,
+# and with an adjacency-only pattern its block was invisible: the tool
+# reported `gemmini_tiled_matmul` as ABSENT from vint's kernels.c while the
+# line sat there at 1950, and silently folded those 180 lines into the
+# preceding soft_f16 block, which a splice of THAT algorithm would have
+# deleted. Allow any run of lines between the two, stopping at the next
+# `source:` header so blocks can never merge.
+HDR = re.compile(
+    r"^/\* source: [^\n]*\*/\n"
+    r"(?:(?!/\* source:)(?!/\* algorithm:)[^\n]*\n)*"
+    r"/\* algorithm: ([A-Za-z0-9_]+) \*/\n",
+    re.M)
 
 
 KERNEL_ID = re.compile(r"\bkernel_[A-Za-z0-9_]+")
@@ -67,16 +85,66 @@ def _mangle_like(body: str, old_block: str, path: str) -> str:
                          if m.group(0) + sfx in old_ids else m.group(0), body)
 
 
+DEFN = re.compile(r"^[A-Za-z_][\w \t*]*\b(kernel_[A-Za-z0-9_]+)\s*\(", re.M)
+
+
+def _defined_kernels(text: str) -> set:
+    """Every `kernel_*` function DEFINED at top level in a kernels.c.
+
+    This is the invariant that matters: a splice may change a block's
+    contents, never which kernels the translation unit provides. Checking it
+    turns the reference_impl-tail hazard from a link error 200 build steps
+    later into a refusal here.
+    """
+    out = set()
+    for m in DEFN.finditer(text):
+        # a definition, not a call or a prototype
+        j = text.find("\n", m.end())
+        line = text[m.start():j if j > 0 else len(text)]
+        if line.rstrip().endswith(";"):
+            continue
+        out.add(m.group(1))
+    return out
+
+
+def _foreign_tail(old_block: str, new_body: str) -> str:
+    """Text at the end of `old_block` that the curated source does not own.
+
+    Everything after the closing brace of the LAST function that the
+    replacement body also defines. Empty for a well-formed block.
+    """
+    names = _defined_kernels(new_body)
+    last = -1
+    for n in sorted(names):
+        for m in re.finditer(r"^[A-Za-z_][\w \t*]*\b" + re.escape(n) + r"\s*\(",
+                             old_block, re.M):
+            close = old_block.find("\n}\n", m.end())
+            if close >= 0:
+                last = max(last, close + len("\n}\n"))
+    if last < 0:
+        return ""
+    return old_block[last:]
+
+
 def main():
-    if len(sys.argv) != 4:
+    if len(sys.argv) not in (4, 5):
         sys.exit(__doc__)
     path, algo, src = sys.argv[1:4]
+    need = sys.argv[4] if len(sys.argv) == 5 else None
     text = open(path).read()
     hits = list(HDR.finditer(text))
     if not hits:
         sys.exit(f"[splice] {path}: no '/* algorithm: */' headers -- not a "
                  f"generated kernels.c?")
     idx = [i for i, m in enumerate(hits) if m.group(1) == algo]
+    if need is not None and len(idx) > 1:
+        def _block(i):
+            return text[hits[i].start():
+                        hits[i + 1].start() if i + 1 < len(hits) else len(text)]
+        idx = [i for i in idx if need in _block(i)]
+        if len(idx) != 1:
+            sys.exit(f"[splice] {path}: algorithm {algo!r} + must-contain "
+                     f"{need!r} matched {len(idx)} blocks (need exactly 1).")
     if len(idx) != 1:
         sys.exit(f"[splice] {path}: algorithm {algo!r} matched {len(idx)} "
                  f"blocks (need exactly 1). Present: "
@@ -89,7 +157,25 @@ def main():
     if not body.endswith("\n"):
         body += "\n"
     body = _mangle_like(body, old_block, path)
-    out = text[:start] + body + text[end:]
+
+    # A block does NOT necessarily end where the next `/* source: */` header
+    # begins. `generate_kernels` appends every reference_impl with no header at
+    # all, so those functions trail whichever curated block precedes them --
+    # in vint's gemmini_q31/kernels.c, `kernel_matmul_s8_vint` sits 3 lines
+    # after the curated linear_s8_pc block with nothing between them. Splicing
+    # to the next header DELETED it, and the failure surfaced 200 build steps
+    # later as `undefined reference to kernel_matmul_s8_vint_gemmini_q31`.
+    # So: keep whatever follows the last function the replacement itself
+    # defines.
+    tail = _foreign_tail(old_block, body)
+    out = text[:start] + body + tail + text[end:]
+    before_defs = _defined_kernels(text)
+    after_defs = _defined_kernels(out)
+    if before_defs != after_defs:
+        lost = sorted(before_defs - after_defs)
+        gained = sorted(after_defs - before_defs)
+        sys.exit(f"[splice] {path}: the set of defined kernel_* functions "
+                 f"changed. lost={lost} gained={gained}. Refusing.")
     n_after = len(list(HDR.finditer(out)))
     if n_after != len(hits):
         sys.exit(f"[splice] {path}: block count changed {len(hits)} -> "
