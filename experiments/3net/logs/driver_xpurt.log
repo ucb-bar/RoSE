@@ -5,3 +5,9 @@
 ##### hetero / greedy_periodic #####
   rc=0 Makespan (non-periodic): 66.27 ms all operations: 81.94 ms 
 ##### rvvpair / milp #####
+  rc=124 
+##### rvvpair / greedy #####
+  rc=0 Makespan (non-periodic): 170.61 ms all operations: 170.61 ms 
+##### rvvpair / greedy_periodic #####
+  rc=0 Makespan (non-periodic): 154.35 ms all operations: 154.35 ms 
+##### gempair / milp #####

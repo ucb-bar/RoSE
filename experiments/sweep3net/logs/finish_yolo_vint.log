@@ -1,0 +1,12 @@
+YOLO rvvpair shard build: ABORT build
+YOLO hetero shard build: ABORT build
+PLAN vint rvvpair splits=0 12144156.0us
+  BUILD vint_rvvpair_base: BUILDDONE
+  BUILD vint_rvvpair_shard: 
+PLAN vint gempair splits=0 3948508.1us
+  BUILD vint_gempair_base: ABORT build
+  BUILD vint_gempair_shard: 
+PLAN vint hetero splits=0 4474889.7us
+  BUILD vint_hetero_base: BUILDDONE
+  BUILD vint_hetero_shard: 
+BUILDS_DONE

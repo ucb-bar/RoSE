@@ -1,0 +1,7 @@
+[mk_plan] 605 dispatches, 0 legal (op, axis) splits
+[mk_plan] unsplit predicted makespan 12144156.0 us
+
+[mk_plan] 0 splits, predicted 12144156.0 us
+mk_split args:
+  
+[mk_plan] -> /tmp/plan_vint_rvvpair.json

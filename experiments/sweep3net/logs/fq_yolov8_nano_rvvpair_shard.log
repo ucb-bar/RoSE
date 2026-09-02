@@ -1,3 +1,10 @@
-### submit yolov8_nano_rvvpair_shard 2026-09-02T09:32:06Z
-scp: stat local "/scratch/dima/rose-infra/RoSE/experiments/sweep3net/elf/yolov8_nano_rvvpair_shard.elf": No such file or directory
-ABORT scp
+### submit yolov8_nano_rvvpair_shard 2026-09-02T10:15:54Z
+#### submit: submitted job 530  (completion=exit, timeout=3000s)
+  logs:   fq logs 530 -f
+  status: fq status 530
+#### jid=530
+#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/sweep3net/res_yolov8_nano_rvvpair_shard/2026-09-02--10-17-12-fq-job-530-fq530x40973c46/fq-job-5300/uartlog
+xpurt-runner: schedule=yolov8_nano_rvvpair_shard entries=167 kinds=2 on chipyard_riscv64/rocketchip_virt_riscv64
+=== MODELBLASTER_VERIFY [yolov8_nano] === max_abs_err=1 max_rel_err=0.0185185187 n=75600 instance=0 ready=1
+*** PASSED *** after 13020948677 cycles
+############ FQDONE yolov8_nano_rvvpair_shard ############

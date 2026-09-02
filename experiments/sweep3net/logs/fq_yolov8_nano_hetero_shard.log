@@ -1,3 +1,5 @@
-### submit yolov8_nano_hetero_shard 2026-09-02T09:32:06Z
-scp: stat local "/scratch/dima/rose-infra/RoSE/experiments/sweep3net/elf/yolov8_nano_hetero_shard.elf": No such file or directory
-ABORT scp
+### submit yolov8_nano_hetero_shard 2026-09-02T10:31:46Z
+#### submit: submitted job 540  (completion=exit, timeout=3000s)
+  logs:   fq logs 540 -f
+  status: fq status 540
+#### jid=540

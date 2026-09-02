@@ -1,0 +1,576 @@
+Script started on 2026-09-02 10:23:04+00:00 [COMMAND="stty intr ^] && sudo LD_LIBRARY_PATH=/scratch/vnikiforov/rose-fsim/lib ./FireSim-f2 +permissive   +macaddr0=00:12:6D:00:00:02 +niclog0=niclog0  +trace-select=1 +trace-start=0 +trace-end=-1 +trace-output-format=0 +dwarf-file-name=fq-job-5340-n3_net3_hetero_greedy.elf-dwarf +autocounter-readrate=0 +autocounter-filename-base=AUTOCOUNTERFILE  +print-start=0 +print-end=-1 +linklatency0=6405 +netbw0=200 +shmemportname0=default +partitioned=1 +slotid=0 +permissive-off +prog0=fq-job-5340-n3_net3_hetero_greedy.elf   && stty intr ^c" TERM="screen" TTY="/dev/pts/6" COLUMNS="80" LINES="24"]
+AFI ID for Slot  0: agfi-0662319f4b07483a7
+AFI PCI  Vendor ID: 0x1d0f, Device ID 0xf002
+Attached to BAR0 (OCL)
+Attached to BAR4 (PCIS)
+widget_registry_t::add_widget(StreamEngine)
+cpu2fpga: 0, fpga2cpu: 4
+UART0 is here (stdin/stdout).
+command line for program 0. argc=19:
++permissive +macaddr0=00:12:6D:00:00:02 +niclog0=niclog0 +trace-select=1 +trace-start=0 +trace-end=-1 +trace-output-format=0 +dwarf-file-name=fq-job-5340-n3_net3_hetero_greedy.elf-dwarf +autocounter-readrate=0 +autocounter-filename-base=AUTOCOUNTERFILE +print-start=0 +print-end=-1 +linklatency0=6405 +netbw0=200 +shmemportname0=default +partitioned=1 +slotid=0 +permissive-off fq-job-5340-n3_net3_hetero_greedy.elf 
+entered simulation flow execution
+finished waiting
+FireSim fingerprint: 0x46697265
+Commencing simulation.
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+*** Booting Zephyr OS build c93d5bdb6078 ***
+xpurt-runner: schedule=net3_hetero_greedy entries=295 kinds=2 on chipyard_riscv64/rocketchip_virt_riscv64
+xpurt: worker[0] kind=gemmini_q31 pinned_hart=0 observed_cpu=-1 claims_unbound=0 entries_done=146
+xpurt: worker[1] kind=rvv pinned_hart=2 observed_cpu=-1 claims_unbound=0 entries_done=149
+=== MODELBLASTER_HART_ACC_BEGIN ===
+worker_idx,kind_idx,kind,hart,kernel_us,dep_wait_us,sync_overhead_us,target_gate_spin_us,hart_idle_us,gemmini_cfg_emit_us,entries_done,wall_total_us
+0,0,gemmini_q31,0,48020,15611,347,14596,38,0,146,78816
+1,1,rvv,2,34226,38548,3211,5580,38,0,149,81837
+=== MODELBLASTER_HART_ACC_END ===
+=== MODELBLASTER_XPURT_TRACE_BEGIN ===
+entry_id,network,instance,dispatch_id,op,name,core_kind,hart,predicted_start_ms,predicted_duration_ms,worker_kind_idx,worker_hart,actual_start_cycles,actual_end_cycles
+0,dronet,0,0,conv2d_s8,conv_modules.0,rvv,2,0.000000,1.495032,1,2,21,1558
+1,mlp_control,0,0,linear,mlp.0,gemmini_q31,0,0.000000,0.050170,0,0,22,74
+2,mlp_control,0,1,elu,mlp.1,gemmini_q31,0,0.050170,0.025003,0,0,78,104
+3,mlp_control,0,2,linear,mlp.2,gemmini_q31,0,0.075173,0.341696,0,0,107,456
+4,mlp_control,0,3,elu,mlp.3,gemmini_q31,0,0.416869,0.015066,0,0,459,475
+5,mlp_control,0,4,linear,mlp.4,gemmini_q31,0,0.431935,0.086760,0,0,477,566
+6,mlp_control,0,5,elu,mlp.5,gemmini_q31,0,0.518695,0.006353,0,0,569,576
+7,mlp_control,0,6,linear,mlp.6,gemmini_q31,0,0.525048,0.002814,0,0,579,582
+8,dronet,0,1,maxpool2d_s8,maxpool1,rvv,2,1.495032,0.218024,1,2,1563,1803
+9,dronet,0,2,batchnorm2d_s8,bn_modules.0,rvv,2,1.713056,0.031082,1,2,1805,1835
+10,dronet,0,3,conv2d_s8,conv_modules.1,gemmini_q31,0,1.744138,0.673936,0,0,1844,2117
+11,dronet,0,5,conv2d_s8,conv_modules.3,rvv,2,1.744138,0.177518,1,2,1842,2023
+12,dronet,0,4,conv2d_s8,conv_modules.2,gemmini_q31,0,2.418074,0.520618,0,0,2419,2527
+13,dronet,0,6,add_s8,add,rvv,2,2.938692,0.011577,1,2,2939,3135
+14,dronet,0,7,batchnorm2d_s8,bn_modules.2,rvv,2,2.950269,0.009146,1,2,3137,3147
+15,dronet,0,10,conv2d_s8,conv_modules.6,rvv,2,2.959415,0.112011,1,2,3152,3266
+16,dronet,0,8,conv2d_s8,conv_modules.4,gemmini_q31,0,2.959415,0.242144,0,0,3154,3241
+17,dronet,0,9,conv2d_s8,conv_modules.5,gemmini_q31,0,3.201559,0.240469,0,0,3245,3312
+18,dronet,0,11,add_s8,add_1,rvv,2,3.442028,0.005781,1,2,3443,3542
+19,dronet,0,12,batchnorm2d_s8,bn_modules.4,rvv,2,3.447809,0.005419,1,2,3544,3550
+20,dronet,0,13,conv2d_s8,conv_modules.7,gemmini_q31,0,3.453228,0.143299,0,0,3557,3631
+21,dronet,0,15,conv2d_s8,conv_modules.9,rvv,2,3.453228,0.090931,1,2,3555,3651
+22,dronet,0,14,conv2d_s8,conv_modules.8,gemmini_q31,0,3.596527,0.160929,0,0,3635,3734
+23,dronet,0,16,add_s8,add_2,rvv,2,3.757456,0.003916,1,2,3758,3822
+24,dronet,0,17,relu_s8,relu_modules.6,rvv,2,3.761372,0.000407,1,2,3825,3826
+25,dronet,0,19,linear_s8,linear2,rvv,2,3.761779,0.002167,1,2,3828,3831
+26,dronet,0,18,linear_s8,linear1,rvv,2,3.763946,0.002529,1,2,3836,3839
+27,dronet,0,20,sigmoid_s8,sigmoid1,gemmini_q31,0,3.763946,0.000655,0,0,3838,3840
+28,yolov8_nano,0,0,conv2d_s8,l0.conv,rvv,2,3.766475,2.582709,1,2,3842,6437
+29,yolov8_nano,0,1,silu_s8,l0.act,rvv,2,6.349184,0.162342,1,2,6443,6604
+30,yolov8_nano,0,2,conv2d_s8,l1.conv,rvv,2,6.511526,2.737774,1,2,6609,9353
+31,yolov8_nano,0,3,silu_s8,l1.act,rvv,2,9.249300,0.094797,1,2,9358,9454
+32,yolov8_nano,0,4,conv2d_s8,l2.cv1.conv,rvv,2,9.344097,1.286908,1,2,9458,10751
+33,mlp_control,1,0,linear,mlp.0,gemmini_q31,0,10.000000,0.050170,0,0,10001,10052
+34,mlp_control,1,1,elu,mlp.1,gemmini_q31,0,10.050170,0.025003,0,0,10055,10081
+35,mlp_control,1,2,linear,mlp.2,gemmini_q31,0,10.075173,0.341696,0,0,10083,10425
+36,mlp_control,1,3,elu,mlp.3,gemmini_q31,0,10.416869,0.015066,0,0,10428,10445
+37,mlp_control,1,4,linear,mlp.4,gemmini_q31,0,10.431935,0.086760,0,0,10447,10535
+38,mlp_control,1,5,elu,mlp.5,gemmini_q31,0,10.518695,0.006353,0,0,10538,10545
+39,mlp_control,1,6,linear,mlp.6,gemmini_q31,0,10.525048,0.002814,0,0,10547,10550
+40,yolov8_nano,0,5,silu_s8,l2.cv1.act,rvv,2,10.631005,0.099061,1,2,10755,10856
+41,yolov8_nano,0,-1,chunk2_c1,chunk,gemmini_q31,0,10.730066,0.000000,-1,-1,0,0
+42,yolov8_nano,0,6,conv2d_s8,l2.m0.cv1.conv,gemmini_q31,0,10.730066,2.782299,0,0,10867,12363
+43,yolov8_nano,0,7,silu_s8,l2.m0.cv1.act,rvv,2,13.512365,0.096212,1,2,13513,13611
+44,yolov8_nano,0,8,conv2d_s8,l2.m0.cv2.conv,gemmini_q31,0,13.608577,2.768733,0,0,13618,15073
+45,yolov8_nano,0,9,silu_s8,l2.m0.cv2.act,rvv,2,16.377310,0.096222,1,2,16378,16476
+46,yolov8_nano,0,10,add_s8,add,rvv,2,16.473532,0.046891,1,2,16481,16528
+47,yolov8_nano,0,11,cat3_c1_s8,cat,rvv,2,16.520424,0.124282,1,2,16532,16657
+48,yolov8_nano,0,12,conv2d_s8,l2.cv2.conv,rvv,2,16.644705,1.764984,1,2,16661,18428
+49,yolov8_nano,0,13,silu_s8,l2.cv2.act,rvv,2,18.409689,0.122103,1,2,18433,18556
+50,yolov8_nano,0,14,conv2d_s8,l3.conv,rvv,2,18.531792,2.787949,1,2,18561,21358
+51,mlp_control,2,0,linear,mlp.0,gemmini_q31,0,20.000000,0.050170,0,0,20001,20050
+52,mlp_control,2,1,elu,mlp.1,gemmini_q31,0,20.050171,0.025003,0,0,20053,20079
+53,mlp_control,2,2,linear,mlp.2,gemmini_q31,0,20.075172,0.341696,0,0,20082,20409
+54,mlp_control,2,3,elu,mlp.3,gemmini_q31,0,20.416868,0.015066,0,0,20417,20432
+55,mlp_control,2,4,linear,mlp.4,gemmini_q31,0,20.431934,0.086760,0,0,20435,20518
+56,mlp_control,2,5,elu,mlp.5,gemmini_q31,0,20.518696,0.006353,0,0,20521,20528
+57,mlp_control,2,6,linear,mlp.6,gemmini_q31,0,20.525047,0.002814,0,0,20530,20534
+58,yolov8_nano,0,15,silu_s8,l3.act,rvv,2,21.319740,0.096546,1,2,21362,21460
+59,yolov8_nano,0,16,conv2d_s8,l4.cv1.conv,rvv,2,21.416286,1.120145,1,2,21463,22584
+60,yolov8_nano,0,17,silu_s8,l4.cv1.act,rvv,2,22.536432,0.096232,1,2,22587,22684
+61,yolov8_nano,0,-1,chunk2_c1,chunk_1,gemmini_q31,0,22.632664,0.000000,-1,-1,0,0
+62,yolov8_nano,0,18,conv2d_s8,l4.m0.cv1.conv,gemmini_q31,0,22.632664,1.059718,0,0,22695,23363
+63,yolov8_nano,0,19,silu_s8,l4.m0.cv1.act,rvv,2,23.692383,0.083170,1,2,23694,23778
+64,yolov8_nano,0,20,conv2d_s8,l4.m0.cv2.conv,gemmini_q31,0,23.775553,1.056169,0,0,23785,24440
+65,yolov8_nano,0,21,silu_s8,l4.m0.cv2.act,rvv,2,24.831720,0.082582,1,2,24832,24916
+66,yolov8_nano,0,22,add_s8,add_1,rvv,2,24.914303,0.023759,1,2,24918,24942
+67,yolov8_nano,0,23,conv2d_s8,l4.m1.cv1.conv,gemmini_q31,0,24.938063,1.074589,0,0,24949,25624
+68,yolov8_nano,0,24,silu_s8,l4.m1.cv1.act,rvv,2,26.012651,0.082838,1,2,26013,26097
+69,yolov8_nano,0,25,conv2d_s8,l4.m1.cv2.conv,gemmini_q31,0,26.095490,1.051248,0,0,26104,26752
+70,yolov8_nano,0,26,silu_s8,l4.m1.cv2.act,rvv,2,27.146736,0.082898,1,2,27147,27231
+71,yolov8_nano,0,27,add_s8,add_2,rvv,2,27.229635,0.023693,1,2,27234,27258
+72,yolov8_nano,0,28,cat4_c1_s8,cat_1,rvv,2,27.253328,0.095172,1,2,27261,27352
+73,dronet,1,0,conv2d_s8,conv_modules.0,rvv,2,27.348499,1.495032,1,2,27358,28913
+74,yolov8_nano,0,29,conv2d_s8,l4.cv2.conv,gemmini_q31,0,27.348499,1.529018,0,0,27359,29945
+75,yolov8_nano,0,30,silu_s8,l4.cv2.act,rvv,2,28.877518,0.096164,1,2,29956,30054
+76,dronet,1,1,maxpool2d_s8,maxpool1,rvv,2,28.973682,0.218024,1,2,30059,30299
+77,yolov8_nano,0,31,conv2d_s8,l5.conv,gemmini_q31,0,28.973682,0.919516,0,0,30061,31311
+78,dronet,1,2,batchnorm2d_s8,bn_modules.0,rvv,2,29.191706,0.031082,1,2,30303,30333
+79,dronet,1,5,conv2d_s8,conv_modules.3,rvv,2,29.222788,0.177518,1,2,30335,30518
+80,yolov8_nano,0,32,silu_s8,l5.act,rvv,2,29.893198,0.083402,1,2,31321,31406
+81,dronet,1,3,conv2d_s8,conv_modules.1,rvv,2,29.976601,0.838614,1,2,31409,32271
+82,mlp_control,3,0,linear,mlp.0,gemmini_q31,0,30.000000,0.050170,0,0,31319,31370
+83,mlp_control,3,1,elu,mlp.1,gemmini_q31,0,30.050171,0.025003,0,0,31374,31400
+84,mlp_control,3,2,linear,mlp.2,gemmini_q31,0,30.075172,0.341696,0,0,31403,31742
+85,mlp_control,3,3,elu,mlp.3,gemmini_q31,0,30.416868,0.015066,0,0,31745,31761
+86,mlp_control,3,4,linear,mlp.4,gemmini_q31,0,30.431934,0.086760,0,0,31764,31851
+87,mlp_control,3,5,elu,mlp.5,gemmini_q31,0,30.518696,0.006353,0,0,31854,31861
+88,mlp_control,3,6,linear,mlp.6,gemmini_q31,0,30.525047,0.002814,0,0,31863,31867
+89,yolov8_nano,0,33,conv2d_s8,l6.cv1.conv,gemmini_q31,0,30.527863,0.655861,0,0,31869,32430
+90,yolov8_nano,0,34,silu_s8,l6.cv1.act,rvv,2,31.183723,0.083323,1,2,32441,32525
+91,yolov8_nano,0,-1,chunk2_c1,chunk_2,gemmini_q31,0,31.267046,0.000000,-1,-1,0,0
+92,yolov8_nano,0,35,conv2d_s8,l6.m0.cv1.conv,gemmini_q31,0,31.267046,0.479556,0,0,32534,32899
+93,dronet,1,4,conv2d_s8,conv_modules.2,gemmini_q31,0,31.746601,0.520618,0,0,32905,33025
+94,yolov8_nano,0,36,silu_s8,l6.m0.cv1.act,rvv,2,31.746601,0.076809,1,2,32907,32985
+95,dronet,1,6,add_s8,add,rvv,2,32.267220,0.011577,1,2,33033,33229
+96,dronet,1,7,batchnorm2d_s8,bn_modules.2,rvv,2,32.278797,0.009146,1,2,33231,33241
+97,dronet,1,10,conv2d_s8,conv_modules.6,rvv,2,32.287945,0.112011,1,2,33246,33360
+98,dronet,1,8,conv2d_s8,conv_modules.4,gemmini_q31,0,32.287945,0.242144,0,0,33248,33336
+99,dronet,1,9,conv2d_s8,conv_modules.5,gemmini_q31,0,32.530087,0.240469,0,0,33340,33407
+100,dronet,1,11,add_s8,add_1,rvv,2,32.770557,0.005781,1,2,33416,33514
+101,dronet,1,12,batchnorm2d_s8,bn_modules.4,rvv,2,32.776337,0.005419,1,2,33517,33522
+102,dronet,1,13,conv2d_s8,conv_modules.7,gemmini_q31,0,32.781757,0.143299,0,0,33529,33603
+103,dronet,1,15,conv2d_s8,conv_modules.9,rvv,2,32.781757,0.090931,1,2,33528,33624
+104,dronet,1,14,conv2d_s8,conv_modules.8,gemmini_q31,0,32.925056,0.160929,0,0,33606,33705
+105,dronet,1,16,add_s8,add_2,rvv,2,33.085983,0.003916,1,2,33713,33778
+106,dronet,1,17,relu_s8,relu_modules.6,rvv,2,33.089901,0.000407,1,2,33780,33781
+107,dronet,1,19,linear_s8,linear2,rvv,2,33.090305,0.002167,1,2,33783,33786
+108,dronet,1,18,linear_s8,linear1,rvv,2,33.092476,0.002529,1,2,33792,33795
+109,dronet,1,20,sigmoid_s8,sigmoid1,gemmini_q31,0,33.092476,0.000655,0,0,33794,33796
+110,yolov8_nano,0,37,conv2d_s8,l6.m0.cv2.conv,gemmini_q31,0,33.093128,0.467556,0,0,33799,34160
+111,yolov8_nano,0,38,silu_s8,l6.m0.cv2.act,rvv,2,33.560684,0.075692,1,2,34168,34246
+112,yolov8_nano,0,39,add_s8,add_3,rvv,2,33.636375,0.011903,1,2,34249,34261
+113,yolov8_nano,0,40,conv2d_s8,l6.m1.cv1.conv,gemmini_q31,0,33.648281,0.478718,0,0,34268,34631
+114,yolov8_nano,0,41,silu_s8,l6.m1.cv1.act,rvv,2,34.126999,0.076198,1,2,34639,34717
+115,yolov8_nano,0,42,conv2d_s8,l6.m1.cv2.conv,gemmini_q31,0,34.203197,0.465075,0,0,34723,35074
+116,yolov8_nano,0,43,silu_s8,l6.m1.cv2.act,rvv,2,34.668270,0.076203,1,2,35082,35159
+117,yolov8_nano,0,44,add_s8,add_4,rvv,2,34.744473,0.012084,1,2,35162,35174
+118,yolov8_nano,0,45,cat4_c1_s8,cat_2,rvv,2,34.756557,0.045407,1,2,35177,35223
+119,yolov8_nano,0,46,conv2d_s8,l6.cv2.conv,gemmini_q31,0,34.801964,0.940338,0,0,35230,36354
+120,yolov8_nano,0,47,silu_s8,l6.cv2.act,rvv,2,35.742302,0.083020,1,2,36363,36447
+121,yolov8_nano,0,48,conv2d_s8,l7.conv,gemmini_q31,0,35.825321,0.494493,0,0,36455,37030
+122,yolov8_nano,0,49,silu_s8,l7.act,rvv,2,36.319817,0.077286,1,2,37042,37120
+123,yolov8_nano,0,50,conv2d_s8,l8.cv1.conv,gemmini_q31,0,36.397102,0.327022,0,0,37128,37422
+124,yolov8_nano,0,51,silu_s8,l8.cv1.act,rvv,2,36.724125,0.076722,1,2,37430,37508
+125,yolov8_nano,0,-1,chunk2_c1,chunk_3,gemmini_q31,0,36.800846,0.000000,-1,-1,0,0
+126,yolov8_nano,0,52,conv2d_s8,l8.m0.cv1.conv,gemmini_q31,0,36.800846,0.246736,0,0,37516,37790
+127,yolov8_nano,0,53,silu_s8,l8.m0.cv1.act,rvv,2,37.047581,0.073455,1,2,37800,37874
+128,yolov8_nano,0,54,conv2d_s8,l8.m0.cv2.conv,gemmini_q31,0,37.121037,0.233418,0,0,37881,38147
+129,yolov8_nano,0,55,silu_s8,l8.m0.cv2.act,rvv,2,37.354454,0.073760,1,2,38155,38230
+130,yolov8_nano,0,56,add_s8,add_5,rvv,2,37.428215,0.006074,1,2,38233,38240
+131,yolov8_nano,0,57,cat3_c1_s8,cat_3,rvv,2,37.434288,0.020439,1,2,38242,38263
+132,yolov8_nano,0,58,conv2d_s8,l8.cv2.conv,gemmini_q31,0,37.454727,0.360450,0,0,38271,38604
+133,yolov8_nano,0,59,silu_s8,l8.cv2.act,rvv,2,37.815178,0.076646,1,2,38613,38691
+134,yolov8_nano,0,60,conv2d_s8,l9.cv1.conv,gemmini_q31,0,37.891823,0.177341,0,0,38698,38868
+135,yolov8_nano,0,61,silu_s8,l9.cv1.act,rvv,2,38.069164,0.073345,1,2,38875,38950
+136,yolov8_nano,0,62,maxpool2d_s8,l9.m1,rvv,2,38.142509,1.245771,1,2,38954,40210
+137,yolov8_nano,0,63,maxpool2d_s8,l9.m2,rvv,2,39.388283,1.221340,1,2,40213,41442
+138,mlp_control,4,0,linear,mlp.0,gemmini_q31,0,40.000000,0.050170,0,0,40001,40052
+139,mlp_control,4,1,elu,mlp.1,gemmini_q31,0,40.050171,0.025003,0,0,40055,40081
+140,mlp_control,4,2,linear,mlp.2,gemmini_q31,0,40.075172,0.341696,0,0,40084,40429
+141,mlp_control,4,3,elu,mlp.3,gemmini_q31,0,40.416870,0.015066,0,0,40433,40449
+142,mlp_control,4,4,linear,mlp.4,gemmini_q31,0,40.431934,0.086760,0,0,40452,40540
+143,mlp_control,4,5,elu,mlp.5,gemmini_q31,0,40.518696,0.006353,0,0,40543,40550
+144,mlp_control,4,6,linear,mlp.6,gemmini_q31,0,40.525047,0.002814,0,0,40552,40555
+145,yolov8_nano,0,64,maxpool2d_s8,l9.m3,gemmini_q31,0,40.609619,1.155260,0,0,41450,42608
+146,yolov8_nano,0,65,cat4_c1_s8,cat_4,rvv,2,41.764881,0.022758,1,2,42617,42640
+147,yolov8_nano,0,66,conv2d_s8,l9.cv2.conv,gemmini_q31,0,41.787640,0.397999,0,0,42647,43031
+148,yolov8_nano,0,67,silu_s8,l9.cv2.act,rvv,2,42.185638,0.076780,1,2,43039,43117
+149,yolov8_nano,0,68,upsample_nearest_s8,l10,rvv,2,42.262417,0.158105,1,2,43120,43279
+150,yolov8_nano,0,69,cat2_c1_s8,cat_5,rvv,2,42.420525,0.060791,1,2,43281,43343
+151,yolov8_nano,0,70,conv2d_s8,l12.cv1.conv,gemmini_q31,0,42.481316,1.220380,0,0,43352,44201
+152,yolov8_nano,0,71,silu_s8,l12.cv1.act,rvv,2,43.701694,0.082990,1,2,44212,44296
+153,yolov8_nano,0,-1,chunk2_c1,chunk_4,gemmini_q31,0,43.784683,0.000000,-1,-1,0,0
+154,yolov8_nano,0,72,conv2d_s8,l12.m0.cv1.conv,gemmini_q31,0,43.784683,0.480515,0,0,44305,44669
+155,yolov8_nano,0,73,silu_s8,l12.m0.cv1.act,rvv,2,44.265198,0.076793,1,2,44676,44754
+156,yolov8_nano,0,74,conv2d_s8,l12.m0.cv2.conv,gemmini_q31,0,44.341991,0.475043,0,0,44761,45119
+157,yolov8_nano,0,75,silu_s8,l12.m0.cv2.act,rvv,2,44.817036,0.075615,1,2,45126,45203
+158,yolov8_nano,0,76,cat3_c1_s8,cat_6,rvv,2,44.892651,0.032673,1,2,45206,45239
+159,yolov8_nano,0,77,conv2d_s8,l12.cv2.conv,gemmini_q31,0,44.925323,0.770361,0,0,45246,45860
+160,yolov8_nano,0,78,silu_s8,l12.cv2.act,rvv,2,45.695683,0.082716,1,2,45867,45952
+161,yolov8_nano,0,79,upsample_nearest_s8,l13,rvv,2,45.778400,0.273337,1,2,45955,46228
+162,yolov8_nano,0,80,cat2_c1_s8,cat_7,rvv,2,46.051739,0.118408,1,2,46231,46350
+163,dronet,2,0,conv2d_s8,conv_modules.0,rvv,2,46.170143,1.495032,1,2,46356,47913
+164,yolov8_nano,0,81,conv2d_s8,l15.cv1.conv,gemmini_q31,0,46.170143,1.762569,0,0,46358,49246
+165,dronet,2,1,maxpool2d_s8,maxpool1,rvv,2,47.665176,0.218024,1,2,47917,48157
+166,dronet,2,2,batchnorm2d_s8,bn_modules.0,rvv,2,47.883202,0.031082,1,2,48160,48190
+167,yolov8_nano,0,82,silu_s8,l15.cv1.act,rvv,2,47.932713,0.096061,1,2,49256,49354
+168,dronet,2,3,conv2d_s8,conv_modules.1,gemmini_q31,0,48.028774,0.673936,0,0,49254,49531
+169,dronet,2,5,conv2d_s8,conv_modules.3,rvv,2,48.028774,0.177518,1,2,49357,49544
+170,yolov8_nano,0,-1,chunk2_c1,chunk_5,gemmini_q31,0,48.028774,0.000000,-1,-1,0,0
+171,dronet,2,4,conv2d_s8,conv_modules.2,gemmini_q31,0,48.702709,0.520618,0,0,49537,49647
+172,dronet,2,6,add_s8,add,rvv,2,49.223328,0.011577,1,2,49655,49850
+173,dronet,2,7,batchnorm2d_s8,bn_modules.2,rvv,2,49.234905,0.009146,1,2,49853,49863
+174,dronet,2,10,conv2d_s8,conv_modules.6,rvv,2,49.244053,0.112011,1,2,49868,49982
+175,dronet,2,8,conv2d_s8,conv_modules.4,gemmini_q31,0,49.244053,0.242144,0,0,49870,49957
+176,dronet,2,9,conv2d_s8,conv_modules.5,gemmini_q31,0,49.486195,0.240469,0,0,49960,50027
+177,dronet,2,11,add_s8,add_1,rvv,2,49.726665,0.005781,1,2,50035,50134
+178,dronet,2,12,batchnorm2d_s8,bn_modules.4,rvv,2,49.732445,0.005419,1,2,50136,50142
+179,dronet,2,13,conv2d_s8,conv_modules.7,gemmini_q31,0,49.737865,0.143299,0,0,50149,50223
+180,dronet,2,15,conv2d_s8,conv_modules.9,rvv,2,49.737865,0.090931,1,2,50147,50244
+181,dronet,2,14,conv2d_s8,conv_modules.8,gemmini_q31,0,49.881165,0.160929,0,0,50227,50329
+182,dronet,2,16,add_s8,add_2,rvv,2,50.042091,0.003916,1,2,50338,50402
+183,dronet,2,17,relu_s8,relu_modules.6,rvv,2,50.046009,0.000407,1,2,50404,50405
+184,dronet,2,19,linear_s8,linear2,rvv,2,50.046417,0.002167,1,2,50408,50411
+185,dronet,2,18,linear_s8,linear1,rvv,2,50.048584,0.002529,1,2,50416,50419
+186,dronet,2,20,sigmoid_s8,sigmoid1,gemmini_q31,0,50.048584,0.000655,0,0,50418,50420
+187,mlp_control,5,0,linear,mlp.0,gemmini_q31,0,50.049236,0.050170,0,0,50424,50475
+188,mlp_control,5,1,elu,mlp.1,gemmini_q31,0,50.099407,0.025003,0,0,50478,50504
+189,mlp_control,5,2,linear,mlp.2,gemmini_q31,0,50.124413,0.341696,0,0,50507,50852
+190,mlp_control,5,3,elu,mlp.3,gemmini_q31,0,50.466106,0.015066,0,0,50855,50871
+191,mlp_control,5,4,linear,mlp.4,gemmini_q31,0,50.481174,0.086760,0,0,50874,50962
+192,mlp_control,5,5,elu,mlp.5,gemmini_q31,0,50.567932,0.006353,0,0,50965,50972
+193,mlp_control,5,6,linear,mlp.6,gemmini_q31,0,50.574287,0.002814,0,0,50974,50978
+194,yolov8_nano,0,83,conv2d_s8,l15.m0.cv1.conv,gemmini_q31,0,50.577099,1.074332,0,0,50980,51671
+195,yolov8_nano,0,84,silu_s8,l15.m0.cv1.act,rvv,2,51.651432,0.082742,1,2,51680,51764
+196,yolov8_nano,0,85,conv2d_s8,l15.m0.cv2.conv,gemmini_q31,0,51.734173,1.054123,0,0,51773,52424
+197,yolov8_nano,0,86,silu_s8,l15.m0.cv2.act,rvv,2,52.788296,0.082611,1,2,52789,52873
+198,yolov8_nano,0,87,cat3_c1_s8,cat_8,rvv,2,52.870907,0.063580,1,2,52876,52941
+199,yolov8_nano,0,88,conv2d_s8,l15.cv2.conv,gemmini_q31,0,52.934486,1.401777,0,0,52949,54777
+200,yolov8_nano,0,89,silu_s8,l15.cv2.act,rvv,2,54.336266,0.095936,1,2,54787,54884
+201,yolov8_nano,0,90,conv2d_s8,l16.conv,gemmini_q31,0,54.432201,0.606874,0,0,54891,55850
+202,yolov8_nano,0,91,silu_s8,l16.act,rvv,2,55.039074,0.076351,1,2,55858,55936
+203,yolov8_nano,0,92,cat2_c1_s8,cat_9,rvv,2,55.115425,0.031015,1,2,55938,55971
+204,yolov8_nano,0,93,conv2d_s8,l18.cv1.conv,gemmini_q31,0,55.146442,0.772744,0,0,55979,56594
+205,yolov8_nano,0,94,silu_s8,l18.cv1.act,rvv,2,55.919186,0.082964,1,2,56602,56687
+206,yolov8_nano,0,-1,chunk2_c1,chunk_6,gemmini_q31,0,56.002148,0.000000,-1,-1,0,0
+207,yolov8_nano,0,95,conv2d_s8,l18.m0.cv1.conv,gemmini_q31,0,56.002148,0.480120,0,0,56695,57060
+208,yolov8_nano,0,96,silu_s8,l18.m0.cv1.act,rvv,2,56.482269,0.076480,1,2,57068,57146
+209,yolov8_nano,0,97,conv2d_s8,l18.m0.cv2.conv,gemmini_q31,0,56.558750,0.470148,0,0,57152,57506
+210,yolov8_nano,0,98,silu_s8,l18.m0.cv2.act,rvv,2,57.028896,0.076656,1,2,57513,57591
+211,yolov8_nano,0,99,cat3_c1_s8,cat_10,rvv,2,57.105553,0.032741,1,2,57594,57627
+212,yolov8_nano,0,100,conv2d_s8,l18.cv2.conv,gemmini_q31,0,57.138294,0.783642,0,0,57635,58254
+213,yolov8_nano,0,101,silu_s8,l18.cv2.act,rvv,2,57.921936,0.083583,1,2,58263,58348
+214,yolov8_nano,0,102,conv2d_s8,l19.conv,gemmini_q31,0,58.005520,0.313435,0,0,58355,58723
+215,yolov8_nano,0,103,silu_s8,l19.act,rvv,2,58.318954,0.074080,1,2,58733,58808
+216,yolov8_nano,0,104,cat2_c1_s8,cat_11,rvv,2,58.393036,0.020905,1,2,58811,58832
+217,yolov8_nano,0,105,conv2d_s8,l21.cv1.conv,gemmini_q31,0,58.413940,0.355468,0,0,58840,59168
+218,yolov8_nano,0,106,silu_s8,l21.cv1.act,rvv,2,58.769405,0.076770,1,2,59177,59255
+219,yolov8_nano,0,-1,chunk2_c1,chunk_7,gemmini_q31,0,58.846176,0.000000,-1,-1,0,0
+220,yolov8_nano,0,107,conv2d_s8,l21.m0.cv1.conv,gemmini_q31,0,58.846176,0.246127,0,0,59263,59537
+221,yolov8_nano,0,108,silu_s8,l21.m0.cv1.act,rvv,2,59.092304,0.073933,1,2,59548,59623
+222,yolov8_nano,0,109,conv2d_s8,l21.m0.cv2.conv,gemmini_q31,0,59.166237,0.240414,0,0,59630,59902
+223,yolov8_nano,0,110,silu_s8,l21.m0.cv2.act,rvv,2,59.406651,0.074016,1,2,59911,59986
+224,yolov8_nano,0,111,cat3_c1_s8,cat_12,rvv,2,59.480667,0.020280,1,2,59988,60010
+225,yolov8_nano,0,112,conv2d_s8,l21.cv2.conv,gemmini_q31,0,59.500946,0.359489,0,0,60018,60351
+226,yolov8_nano,0,113,silu_s8,l21.cv2.act,rvv,2,59.860435,0.076953,1,2,60360,60439
+227,mlp_control,6,0,linear,mlp.0,gemmini_q31,0,60.000000,0.050170,0,0,60359,60410
+228,mlp_control,6,1,elu,mlp.1,gemmini_q31,0,60.050171,0.025003,0,0,60413,60439
+229,yolov8_nano,0,136,conv2d_s8,detect.cv2_2_0.conv,gemmini_q31,0,60.075172,0.243619,0,0,60444,60702
+230,yolov8_nano,0,137,silu_s8,detect.cv2_2_0.act,rvv,2,60.318790,0.072145,1,2,60713,60786
+231,yolov8_nano,0,138,conv2d_s8,detect.cv2_2_1.conv,gemmini_q31,0,60.390938,0.119603,0,0,60794,60906
+232,yolov8_nano,0,139,silu_s8,detect.cv2_2_1.act,rvv,2,60.510540,0.072163,1,2,60913,60987
+233,mlp_control,6,2,linear,mlp.2,rvv,2,60.582703,0.376602,1,2,60992,61390
+234,yolov8_nano,0,140,conv2d_s8,detect.cv2_2_2,gemmini_q31,0,60.582703,0.083068,0,0,60993,61065
+235,yolov8_nano,0,141,conv2d_s8,detect.cv3_2_0.conv,gemmini_q31,0,60.665771,0.261161,0,0,61068,61373
+236,mlp_control,6,3,elu,mlp.3,gemmini_q31,0,60.959305,0.015066,0,0,61399,61415
+237,yolov8_nano,0,142,silu_s8,detect.cv3_2_0.act,rvv,2,60.959305,0.072741,1,2,61397,61471
+238,mlp_control,6,4,linear,mlp.4,gemmini_q31,0,60.974373,0.086760,0,0,61418,61507
+239,mlp_control,6,5,elu,mlp.5,gemmini_q31,0,61.061131,0.006353,0,0,61510,61517
+240,mlp_control,6,6,linear,mlp.6,gemmini_q31,0,61.067486,0.002814,0,0,61519,61522
+241,yolov8_nano,0,143,conv2d_s8,detect.cv3_2_1.conv,gemmini_q31,0,61.070297,0.140810,0,0,61525,61670
+242,yolov8_nano,0,144,silu_s8,detect.cv3_2_1.act,rvv,2,61.211109,0.071735,1,2,61679,61752
+243,yolov8_nano,0,145,conv2d_s8,detect.cv3_2_2,gemmini_q31,0,61.282845,0.105554,0,0,61759,61852
+244,yolov8_nano,0,125,conv2d_s8,detect.cv2_1_0.conv,gemmini_q31,0,61.388397,0.613481,0,0,61858,62358
+245,yolov8_nano,0,146,cat2_c1_s8,cat_15,rvv,2,61.388397,0.007240,1,2,61859,61867
+246,yolov8_nano,0,126,silu_s8,detect.cv2_1_0.act,rvv,2,62.001877,0.076926,1,2,62366,62445
+247,yolov8_nano,0,127,conv2d_s8,detect.cv2_1_1.conv,gemmini_q31,0,62.078804,0.466344,0,0,62453,62805
+248,yolov8_nano,0,128,silu_s8,detect.cv2_1_1.act,rvv,2,62.545147,0.076798,1,2,62812,62890
+249,yolov8_nano,0,130,conv2d_s8,detect.cv3_1_0.conv,gemmini_q31,0,62.545147,0.682024,0,0,62811,63379
+250,yolov8_nano,0,129,conv2d_s8,detect.cv2_1_2,rvv,2,62.621944,0.316722,1,2,62893,63224
+251,yolov8_nano,0,131,silu_s8,detect.cv3_1_0.act,rvv,2,63.227173,0.078881,1,2,63388,63468
+252,yolov8_nano,0,132,conv2d_s8,detect.cv3_1_1.conv,gemmini_q31,0,63.306053,0.541131,0,0,63476,63921
+253,yolov8_nano,0,133,silu_s8,detect.cv3_1_1.act,rvv,2,63.847183,0.078006,1,2,63929,64008
+254,yolov8_nano,0,134,conv2d_s8,detect.cv3_1_2,gemmini_q31,0,63.925190,0.424782,0,0,64015,64370
+255,yolov8_nano,0,114,conv2d_s8,detect.cv2_0_0.conv,gemmini_q31,0,64.349976,1.892723,0,0,64376,66145
+256,yolov8_nano,0,135,cat2_c1_s8,cat_14,rvv,2,64.349976,0.022623,1,2,64378,64401
+257,dronet,3,0,conv2d_s8,conv_modules.0,rvv,2,64.372597,1.495032,1,2,64404,66000
+258,dronet,3,1,maxpool2d_s8,maxpool1,rvv,2,65.867630,0.218024,1,2,66004,66249
+259,dronet,3,2,batchnorm2d_s8,bn_modules.0,rvv,2,66.085648,0.031082,1,2,66252,66282
+260,dronet,3,5,conv2d_s8,conv_modules.3,rvv,2,66.116730,0.177518,1,2,66288,66469
+261,dronet,3,3,conv2d_s8,conv_modules.1,gemmini_q31,0,66.242699,0.673936,0,0,66291,66564
+262,yolov8_nano,0,115,silu_s8,detect.cv2_0_0.act,rvv,2,66.294250,0.096295,1,2,66473,66571
+263,dronet,3,4,conv2d_s8,conv_modules.2,gemmini_q31,0,66.916634,0.520618,0,0,66918,67026
+264,dronet,3,6,add_s8,add,rvv,2,67.437248,0.011577,1,2,67438,67633
+265,dronet,3,7,batchnorm2d_s8,bn_modules.2,rvv,2,67.448830,0.009146,1,2,67636,67646
+266,dronet,3,10,conv2d_s8,conv_modules.6,rvv,2,67.457970,0.112011,1,2,67651,67765
+267,dronet,3,8,conv2d_s8,conv_modules.4,gemmini_q31,0,67.457970,0.242144,0,0,67652,67739
+268,dronet,3,9,conv2d_s8,conv_modules.5,gemmini_q31,0,67.700119,0.240469,0,0,67743,67810
+269,dronet,3,11,add_s8,add_1,rvv,2,67.940582,0.005781,1,2,67941,68039
+270,dronet,3,12,batchnorm2d_s8,bn_modules.4,rvv,2,67.946365,0.005419,1,2,68041,68047
+271,dronet,3,13,conv2d_s8,conv_modules.7,gemmini_q31,0,67.951782,0.143299,0,0,68054,68127
+272,dronet,3,15,conv2d_s8,conv_modules.9,rvv,2,67.951782,0.090931,1,2,68053,68149
+273,dronet,3,14,conv2d_s8,conv_modules.8,gemmini_q31,0,68.095085,0.160929,0,0,68131,68230
+274,dronet,3,16,add_s8,add_2,rvv,2,68.256012,0.003916,1,2,68257,68321
+275,dronet,3,17,relu_s8,relu_modules.6,rvv,2,68.259926,0.000407,1,2,68324,68325
+276,dronet,3,19,linear_s8,linear2,rvv,2,68.260338,0.002167,1,2,68327,68330
+277,dronet,3,18,linear_s8,linear1,rvv,2,68.262505,0.002529,1,2,68335,68338
+278,dronet,3,20,sigmoid_s8,sigmoid1,gemmini_q31,0,68.262505,0.000655,0,0,68337,68339
+279,mlp_control,7,0,linear,mlp.0,gemmini_q31,0,70.000000,0.050170,0,0,70001,70052
+280,mlp_control,7,1,elu,mlp.1,gemmini_q31,0,70.050171,0.025003,0,0,70055,70081
+281,mlp_control,7,2,linear,mlp.2,gemmini_q31,0,70.075172,0.341696,0,0,70083,70429
+282,mlp_control,7,3,elu,mlp.3,gemmini_q31,0,70.416870,0.015066,0,0,70433,70449
+283,mlp_control,7,4,linear,mlp.4,gemmini_q31,0,70.431938,0.086760,0,0,70451,70539
+284,mlp_control,7,5,elu,mlp.5,gemmini_q31,0,70.518692,0.006353,0,0,70542,70548
+285,mlp_control,7,6,linear,mlp.6,gemmini_q31,0,70.525047,0.002814,0,0,70551,70554
+286,yolov8_nano,0,116,conv2d_s8,detect.cv2_0_1.conv,gemmini_q31,0,70.527863,1.838253,0,0,70557,72284
+287,yolov8_nano,0,117,silu_s8,detect.cv2_0_1.act,rvv,2,72.366112,0.096094,1,2,72370,72468
+288,yolov8_nano,0,119,conv2d_s8,detect.cv3_0_0.conv,gemmini_q31,0,72.366112,2.156500,0,0,72374,74370
+289,yolov8_nano,0,118,conv2d_s8,detect.cv2_0_2,rvv,2,72.462212,1.121203,1,2,72472,73612
+290,yolov8_nano,0,120,silu_s8,detect.cv3_0_0.act,rvv,2,74.522614,0.102303,1,2,74523,74627
+291,yolov8_nano,0,121,conv2d_s8,detect.cv3_0_1.conv,gemmini_q31,0,74.624916,2.128469,0,0,74635,76769
+292,yolov8_nano,0,122,silu_s8,detect.cv3_0_1.act,rvv,2,76.753387,0.102837,1,2,76778,76882
+293,yolov8_nano,0,123,conv2d_s8,detect.cv3_0_2,gemmini_q31,0,76.856224,1.686528,0,0,76890,78831
+294,yolov8_nano,0,124,cat2_c1_s8,cat_13,rvv,2,78.542755,0.088146,1,2,78846,78936
+=== MODELBLASTER_XPURT_TRACE_END ===
+=== MODELBLASTER_VERIFY [mlp_control] === max_abs_err=6.67572021e-06 max_rel_err=3.7000018e-06 n=4 instance=0 ready=1
+=== MODELBLASTER_OUTPUT_BEGIN [mlp_control] ===
+14.5770216
+-2.32976532
+2.5671916
+-0.0226536971
+=== MODELBLASTER_OUTPUT_END [mlp_control] ===
+=== MODELBLASTER_PROFILE_BEGIN [mlp_control] ===
+backend,dispatch_id,name,op,shape,cycles
+gemmini_q31,0,mlp.0,linear,M=1;K=16;N=256,50230
+gemmini_q31,1,mlp.1,elu,n=256,25733
+gemmini_q31,2,mlp.2,linear,M=1;K=256;N=128,345925
+gemmini_q31,3,mlp.3,elu,n=128,15508
+gemmini_q31,4,mlp.4,linear,M=1;K=128;N=64,87426
+gemmini_q31,5,mlp.5,elu,n=64,6527
+gemmini_q31,6,mlp.6,linear,M=1;K=64;N=4,3078
+=== MODELBLASTER_PROFILE_END [mlp_control] ===
+=== MODELBLASTER_WALL_CYCLES_INST [mlp_control#0] === 563
+=== MODELBLASTER_WALL_CYCLES_INST [mlp_control#1] === 551
+=== MODELBLASTER_WALL_CYCLES_INST [mlp_control#2] === 534
+=== MODELBLASTER_WALL_CYCLES_INST [mlp_control#3] === 551
+=== MODELBLASTER_WALL_CYCLES_INST [mlp_control#4] === 556
+=== MODELBLASTER_WALL_CYCLES_INST [mlp_control#5] === 555
+=== MODELBLASTER_WALL_CYCLES_INST [mlp_control#6] === 1166
+=== MODELBLASTER_WALL_CYCLES_INST [mlp_control#7] === 555
+=== MODELBLASTER_WALL_CYCLES [mlp_control] === 1166
+=== MODELBLASTER_VERIFY [dronet] === max_abs_err=2 max_rel_err=0.0357142873 n=2 instance=0 ready=1
+=== MODELBLASTER_OUTPUT_BEGIN [dronet] ===
+-58
+127
+=== MODELBLASTER_OUTPUT_END [dronet] ===
+=== MODELBLASTER_PROFILE_BEGIN [dronet] ===
+backend,dispatch_id,name,op,shape,cycles
+gemmini_q31,3,conv_modules.1,conv2d_s8,N=1;IC=32;IH=27;IW=27;OC=32;OH=14;OW=14;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,272553
+gemmini_q31,4,conv_modules.2,conv2d_s8,N=1;IC=32;IH=14;IW=14;OC=32;OH=14;OW=14;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,108557
+gemmini_q31,8,conv_modules.4,conv2d_s8,N=1;IC=32;IH=14;IW=14;OC=64;OH=7;OW=7;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,86833
+gemmini_q31,9,conv_modules.5,conv2d_s8,N=1;IC=64;IH=7;IW=7;OC=64;OH=7;OW=7;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,66636
+gemmini_q31,13,conv_modules.7,conv2d_s8,N=1;IC=64;IH=7;IW=7;OC=128;OH=4;OW=4;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,72979
+gemmini_q31,14,conv_modules.8,conv2d_s8,N=1;IC=128;IH=4;IW=4;OC=128;OH=4;OW=4;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,98525
+gemmini_q31,20,sigmoid1,sigmoid_s8,n=1,1443
+rvv,0,conv_modules.0,conv2d_s8,N=1;IC=3;IH=112;IW=112;OC=32;OH=56;OW=56;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,1595290
+rvv,1,maxpool1,maxpool2d_s8,N=1;C=32;IH=56;IW=56;OH=27;OW=27;KH=3;KW=3;SH=2;SW=2;PH=0;PW=0;DH=1;DW=1,244451
+rvv,2,bn_modules.0,batchnorm2d_s8,N=1;C=32;H=27;W=27,29858
+rvv,5,conv_modules.3,conv2d_s8,N=1;IC=32;IH=27;IW=27;OC=32;OH=14;OW=14;KH=1;KW=1;SH=2;SW=2;PH=0;PW=0,180079
+rvv,6,add,add_s8,n=6272,194160
+rvv,7,bn_modules.2,batchnorm2d_s8,N=1;C=32;H=14;W=14,9305
+rvv,10,conv_modules.6,conv2d_s8,N=1;IC=32;IH=14;IW=14;OC=64;OH=7;OW=7;KH=1;KW=1;SH=2;SW=2;PH=0;PW=0,113823
+rvv,11,add_1,add_s8,n=3136,96910
+rvv,12,bn_modules.4,batchnorm2d_s8,N=1;C=64;H=7;W=7,5519
+rvv,15,conv_modules.9,conv2d_s8,N=1;IC=64;IH=7;IW=7;OC=128;OH=4;OW=4;KH=1;KW=1;SH=2;SW=2;PH=0;PW=0,96200
+rvv,16,add_2,add_s8,n=2048,62999
+rvv,17,relu_modules.6,relu_s8,n=2048,462
+rvv,19,linear2,linear_s8,M=1;K=2048;N=1,2646
+rvv,18,linear1,linear_s8,M=1;K=2048;N=1,2393
+=== MODELBLASTER_PROFILE_END [dronet] ===
+=== MODELBLASTER_WALL_CYCLES_INST [dronet#0] === 3823
+=== MODELBLASTER_WALL_CYCLES_INST [dronet#1] === 6442
+=== MODELBLASTER_WALL_CYCLES_INST [dronet#2] === 4067
+=== MODELBLASTER_WALL_CYCLES_INST [dronet#3] === 3937
+=== MODELBLASTER_WALL_CYCLES [dronet] === 6442
+=== MODELBLASTER_VERIFY [yolov8_nano] === max_abs_err=0 max_rel_err=0 n=75600 instance=0 ready=1
+=== MODELBLASTER_OUTPUT_BEGIN [yolov8_nano] ===
+OUTPUT_SAMPLED size=75600 head=8 tail=8
+  [0] 44
+  [1] 17
+  [2] 13
+  [3] 8
+  [4] 4
+  [5] 2
+  [6] 2
+  [7] 2
+  [75592] -36
+  [75593] -36
+  [75594] -53
+  [75595] -49
+  [75596] -55
+  [75597] -38
+  [75598] -56
+  [75599] -50
+OUTPUT_SUMMARY sum=-3.66936e+06 abs_sum=4.25976e+06 min=-123 max=60
+=== MODELBLASTER_OUTPUT_END [yolov8_nano] ===
+=== MODELBLASTER_PROFILE_BEGIN [yolov8_nano] ===
+backend,dispatch_id,name,op,shape,cycles
+gemmini_q31,7,l2.m0.cv1.conv,conv2d_s8,N=1;IC=16;IH=40;IW=40;OC=16;OH=40;OW=40;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1494811
+gemmini_q31,9,l2.m0.cv2.conv,conv2d_s8,N=1;IC=16;IH=40;IW=40;OC=16;OH=40;OW=40;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1454098
+gemmini_q31,20,l4.m0.cv1.conv,conv2d_s8,N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,666913
+gemmini_q31,22,l4.m0.cv2.conv,conv2d_s8,N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,653940
+gemmini_q31,25,l4.m1.cv1.conv,conv2d_s8,N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,674798
+gemmini_q31,27,l4.m1.cv2.conv,conv2d_s8,N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,647704
+gemmini_q31,31,l4.cv2.conv,conv2d_s8,N=1;IC=128;IH=20;IW=20;OC=64;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,2586038
+gemmini_q31,33,l5.conv,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=128;OH=10;OW=10;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,1249942
+gemmini_q31,35,l6.cv1.conv,conv2d_s8,N=1;IC=128;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,560546
+gemmini_q31,38,l6.m0.cv1.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,364091
+gemmini_q31,40,l6.m0.cv2.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,360816
+gemmini_q31,43,l6.m1.cv1.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,362546
+gemmini_q31,45,l6.m1.cv2.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,350130
+gemmini_q31,49,l6.cv2.conv,conv2d_s8,N=1;IC=256;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1123380
+gemmini_q31,51,l7.conv,conv2d_s8,N=1;IC=128;IH=10;IW=10;OC=256;OH=5;OW=5;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,574126
+gemmini_q31,53,l8.cv1.conv,conv2d_s8,N=1;IC=256;IH=5;IW=5;OC=256;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,292808
+gemmini_q31,56,l8.m0.cv1.conv,conv2d_s8,N=1;IC=128;IH=5;IW=5;OC=128;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,273363
+gemmini_q31,58,l8.m0.cv2.conv,conv2d_s8,N=1;IC=128;IH=5;IW=5;OC=128;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,265650
+gemmini_q31,62,l8.cv2.conv,conv2d_s8,N=1;IC=384;IH=5;IW=5;OC=256;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,332674
+gemmini_q31,64,l9.cv1.conv,conv2d_s8,N=1;IC=256;IH=5;IW=5;OC=128;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,169023
+gemmini_q31,68,l9.m3,maxpool2d_s8,N=1;C=128;IH=5;IW=5;OH=5;OW=5;KH=5;KW=5;SH=1;SW=1;PH=2;PW=2;DH=1;DW=1,1157898
+gemmini_q31,70,l9.cv2.conv,conv2d_s8,N=1;IC=512;IH=5;IW=5;OC=256;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,383228
+gemmini_q31,74,l12.cv1.conv,conv2d_s8,N=1;IC=384;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,848678
+gemmini_q31,77,l12.m0.cv1.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,363565
+gemmini_q31,79,l12.m0.cv2.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,357344
+gemmini_q31,82,l12.cv2.conv,conv2d_s8,N=1;IC=192;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,613577
+gemmini_q31,86,l15.cv1.conv,conv2d_s8,N=1;IC=192;IH=20;IW=20;OC=64;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,2887697
+gemmini_q31,89,l15.m0.cv1.conv,conv2d_s8,N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,690071
+gemmini_q31,91,l15.m0.cv2.conv,conv2d_s8,N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,650751
+gemmini_q31,94,l15.cv2.conv,conv2d_s8,N=1;IC=96;IH=20;IW=20;OC=64;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1827285
+gemmini_q31,96,l16.conv,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=64;OH=10;OW=10;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,957968
+gemmini_q31,99,l18.cv1.conv,conv2d_s8,N=1;IC=192;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,614541
+gemmini_q31,102,l18.m0.cv1.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,364791
+gemmini_q31,104,l18.m0.cv2.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,353309
+gemmini_q31,107,l18.cv2.conv,conv2d_s8,N=1;IC=192;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,618975
+gemmini_q31,109,l19.conv,conv2d_s8,N=1;IC=128;IH=10;IW=10;OC=128;OH=5;OW=5;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,367488
+gemmini_q31,112,l21.cv1.conv,conv2d_s8,N=1;IC=384;IH=5;IW=5;OC=256;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,327371
+gemmini_q31,115,l21.m0.cv1.conv,conv2d_s8,N=1;IC=128;IH=5;IW=5;OC=128;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,273422
+gemmini_q31,117,l21.m0.cv2.conv,conv2d_s8,N=1;IC=128;IH=5;IW=5;OC=128;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,271697
+gemmini_q31,120,l21.cv2.conv,conv2d_s8,N=1;IC=384;IH=5;IW=5;OC=256;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,333288
+gemmini_q31,144,detect.cv2_2_0.conv,conv2d_s8,N=1;IC=256;IH=5;IW=5;OC=64;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,258133
+gemmini_q31,146,detect.cv2_2_1.conv,conv2d_s8,N=1;IC=64;IH=5;IW=5;OC=64;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,111684
+gemmini_q31,148,detect.cv2_2_2,conv2d_s8,N=1;IC=64;IH=5;IW=5;OC=64;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,71673
+gemmini_q31,149,detect.cv3_2_0.conv,conv2d_s8,N=1;IC=256;IH=5;IW=5;OC=80;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,303757
+gemmini_q31,151,detect.cv3_2_1.conv,conv2d_s8,N=1;IC=80;IH=5;IW=5;OC=80;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,145237
+gemmini_q31,153,detect.cv3_2_2,conv2d_s8,N=1;IC=80;IH=5;IW=5;OC=80;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,92694
+gemmini_q31,133,detect.cv2_1_0.conv,conv2d_s8,N=1;IC=128;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,499905
+gemmini_q31,135,detect.cv2_1_1.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,351805
+gemmini_q31,138,detect.cv3_1_0.conv,conv2d_s8,N=1;IC=128;IH=10;IW=10;OC=80;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,567781
+gemmini_q31,140,detect.cv3_1_1.conv,conv2d_s8,N=1;IC=80;IH=10;IW=10;OC=80;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,444401
+gemmini_q31,142,detect.cv3_1_2,conv2d_s8,N=1;IC=80;IH=10;IW=10;OC=80;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,355003
+gemmini_q31,122,detect.cv2_0_0.conv,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=64;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1768560
+gemmini_q31,124,detect.cv2_0_1.conv,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=64;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1726467
+gemmini_q31,127,detect.cv3_0_0.conv,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=80;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1995776
+gemmini_q31,129,detect.cv3_0_1.conv,conv2d_s8,N=1;IC=80;IH=20;IW=20;OC=80;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,2133310
+gemmini_q31,131,detect.cv3_0_2,conv2d_s8,N=1;IC=80;IH=20;IW=20;OC=80;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1940915
+rvv,0,l0.conv,conv2d_s8,N=1;IC=3;IH=160;IW=160;OC=16;OH=80;OW=80;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,2594143
+rvv,1,l0.act,silu_s8,n=102400,160843
+rvv,2,l1.conv,conv2d_s8,N=1;IC=16;IH=80;IW=80;OC=32;OH=40;OW=40;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,2743733
+rvv,3,l1.act,silu_s8,n=51200,94990
+rvv,4,l2.cv1.conv,conv2d_s8,N=1;IC=32;IH=40;IW=40;OC=32;OH=40;OW=40;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1293158
+rvv,5,l2.cv1.act,silu_s8,n=51200,99389
+rvv,8,l2.m0.cv1.act,silu_s8,n=25600,96783
+rvv,10,l2.m0.cv2.act,silu_s8,n=25600,96589
+rvv,11,add,add_s8,n=25600,46779
+rvv,12,cat,cat3_c1_s8,N=1;H=40;W=40;C_inputs=16|16|16;C_total=48,124345
+rvv,13,l2.cv2.conv,conv2d_s8,N=1;IC=48;IH=40;IW=40;OC=32;OH=40;OW=40;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1766805
+rvv,14,l2.cv2.act,silu_s8,n=51200,122334
+rvv,15,l3.conv,conv2d_s8,N=1;IC=32;IH=40;IW=40;OC=64;OH=20;OW=20;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,2797401
+rvv,16,l3.act,silu_s8,n=25600,96706
+rvv,17,l4.cv1.conv,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=64;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1121156
+rvv,18,l4.cv1.act,silu_s8,n=25600,96381
+rvv,21,l4.m0.cv1.act,silu_s8,n=12800,83646
+rvv,23,l4.m0.cv2.act,silu_s8,n=12800,82897
+rvv,24,add_1,add_s8,n=12800,23403
+rvv,26,l4.m1.cv1.act,silu_s8,n=12800,83098
+rvv,28,l4.m1.cv2.act,silu_s8,n=12800,83365
+rvv,29,add_2,add_s8,n=12800,23317
+rvv,30,cat_1,cat4_c1_s8,N=1;H=20;W=20;C_inputs=32|32|32|32;C_total=128,90878
+rvv,32,l4.cv2.act,silu_s8,n=25600,96747
+rvv,34,l5.act,silu_s8,n=12800,84081
+rvv,36,l6.cv1.act,silu_s8,n=12800,83784
+rvv,39,l6.m0.cv1.act,silu_s8,n=6400,77517
+rvv,41,l6.m0.cv2.act,silu_s8,n=6400,76786
+rvv,42,add_3,add_s8,n=6400,11897
+rvv,44,l6.m1.cv1.act,silu_s8,n=6400,76284
+rvv,46,l6.m1.cv2.act,silu_s8,n=6400,76379
+rvv,47,add_4,add_s8,n=6400,11733
+rvv,48,cat_2,cat4_c1_s8,N=1;H=10;W=10;C_inputs=64|64|64|64;C_total=256,45696
+rvv,50,l6.cv2.act,silu_s8,n=12800,83453
+rvv,52,l7.act,silu_s8,n=6400,77413
+rvv,54,l8.cv1.act,silu_s8,n=6400,77100
+rvv,57,l8.m0.cv1.act,silu_s8,n=3200,73672
+rvv,59,l8.m0.cv2.act,silu_s8,n=3200,74051
+rvv,60,add_5,add_s8,n=3200,6081
+rvv,61,cat_3,cat3_c1_s8,N=1;H=5;W=5;C_inputs=128|128|128;C_total=384,20455
+rvv,63,l8.cv2.act,silu_s8,n=6400,76912
+rvv,65,l9.cv1.act,silu_s8,n=3200,73646
+rvv,66,l9.m1,maxpool2d_s8,N=1;C=128;IH=5;IW=5;OH=5;OW=5;KH=5;KW=5;SH=1;SW=1;PH=2;PW=2;DH=1;DW=1,1255305
+rvv,67,l9.m2,maxpool2d_s8,N=1;C=128;IH=5;IW=5;OH=5;OW=5;KH=5;KW=5;SH=1;SW=1;PH=2;PW=2;DH=1;DW=1,1229004
+rvv,69,cat_4,cat4_c1_s8,N=1;H=5;W=5;C_inputs=128|128|128|128;C_total=512,22884
+rvv,71,l9.cv2.act,silu_s8,n=6400,77335
+rvv,72,l10,upsample_nearest_s8,N=1;C=256;IH=5;IW=5;scale=2,158216
+rvv,73,cat_5,cat2_c1_s8,N=1;H=10;W=10;C_inputs=256|128;C_total=384,61369
+rvv,75,l12.cv1.act,silu_s8,n=12800,83261
+rvv,78,l12.m0.cv1.act,silu_s8,n=6400,76971
+rvv,80,l12.m0.cv2.act,silu_s8,n=6400,76158
+rvv,81,cat_6,cat3_c1_s8,N=1;H=10;W=10;C_inputs=64|64|64;C_total=192,32785
+rvv,83,l12.cv2.act,silu_s8,n=12800,83067
+rvv,84,l13,upsample_nearest_s8,N=1;C=128;IH=10;IW=10;scale=2,273202
+rvv,85,cat_7,cat2_c1_s8,N=1;H=20;W=20;C_inputs=128|64;C_total=192,118414
+rvv,87,l15.cv1.act,silu_s8,n=25600,96925
+rvv,90,l15.m0.cv1.act,silu_s8,n=12800,83788
+rvv,92,l15.m0.cv2.act,silu_s8,n=12800,82998
+rvv,93,cat_8,cat3_c1_s8,N=1;H=20;W=20;C_inputs=32|32|32;C_total=96,64668
+rvv,95,l15.cv2.act,silu_s8,n=25600,96430
+rvv,97,l16.act,silu_s8,n=6400,76756
+rvv,98,cat_9,cat2_c1_s8,N=1;H=10;W=10;C_inputs=64|128;C_total=192,32336
+rvv,100,l18.cv1.act,silu_s8,n=12800,83317
+rvv,103,l18.m0.cv1.act,silu_s8,n=6400,76783
+rvv,105,l18.m0.cv2.act,silu_s8,n=6400,76832
+rvv,106,cat_10,cat3_c1_s8,N=1;H=10;W=10;C_inputs=64|64|64;C_total=192,32809
+rvv,108,l18.cv2.act,silu_s8,n=12800,83717
+rvv,110,l19.act,silu_s8,n=3200,74236
+rvv,111,cat_11,cat2_c1_s8,N=1;H=5;W=5;C_inputs=128|256;C_total=384,21229
+rvv,113,l21.cv1.act,silu_s8,n=6400,77193
+rvv,116,l21.m0.cv1.act,silu_s8,n=3200,74215
+rvv,118,l21.m0.cv2.act,silu_s8,n=3200,74215
+rvv,119,cat_12,cat3_c1_s8,N=1;H=5;W=5;C_inputs=128|128|128;C_total=384,20833
+rvv,121,l21.cv2.act,silu_s8,n=6400,77515
+rvv,145,detect.cv2_2_0.act,silu_s8,n=1600,72630
+rvv,147,detect.cv2_2_1.act,silu_s8,n=1600,72616
+rvv,150,detect.cv3_2_0.act,silu_s8,n=2000,73129
+rvv,152,detect.cv3_2_1.act,silu_s8,n=2000,72271
+rvv,154,cat_15,cat2_c1_s8,N=1;H=5;W=5;C_inputs=64|80;C_total=144,7821
+rvv,134,detect.cv2_1_0.act,silu_s8,n=6400,77371
+rvv,136,detect.cv2_1_1.act,silu_s8,n=6400,77039
+rvv,137,detect.cv2_1_2,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,330592
+rvv,139,detect.cv3_1_0.act,silu_s8,n=8000,79153
+rvv,141,detect.cv3_1_1.act,silu_s8,n=8000,78386
+rvv,143,cat_14,cat2_c1_s8,N=1;H=10;W=10;C_inputs=64|80;C_total=144,22725
+rvv,123,detect.cv2_0_0.act,silu_s8,n=25600,97264
+rvv,125,detect.cv2_0_1.act,silu_s8,n=25600,97010
+rvv,126,detect.cv2_0_2,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=64;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1139841
+rvv,128,detect.cv3_0_0.act,silu_s8,n=32000,102509
+rvv,130,detect.cv3_0_1.act,silu_s8,n=32000,103115
+rvv,132,cat_13,cat2_c1_s8,N=1;H=20;W=20;C_inputs=64|80;C_total=144,89786
+=== MODELBLASTER_PROFILE_END [yolov8_nano] ===
+=== MODELBLASTER_WALL_CYCLES_INST [yolov8_nano#0] === 75097
+=== MODELBLASTER_WALL_CYCLES [yolov8_nano] === 75097
+
+Simulation complete.
+*** PASSED *** after 19165553402 cycles
+
+Emulation Performance Summary
+------------------------------
+Wallclock Time Elapsed: 327.4 s
+Host Frequency: 60.000 MHz
+Target Cycles Emulated: 19165553402
+Effective Target Frequency: 58.531 MHz
+FMR: 1.03
+Note: The latter three figures are based on the fastest target clock.
+
+Script done on 2026-09-02 10:28:33+00:00 [COMMAND_EXIT_CODE="0"]

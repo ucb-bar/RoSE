@@ -1,11 +1,3 @@
-/scratch2/dima/miniforge3/envs/xpurt/lib/python3.11/site-packages/mosek/__init__.py:11539: UserWarning: Argument subi in putaijlist64: Incorrect array format causing data to be copied
-  warnings.warn("Argument subi in putaijlist64: Incorrect array format causing data to be copied");
-/scratch2/dima/miniforge3/envs/xpurt/lib/python3.11/site-packages/mosek/__init__.py:11568: UserWarning: Argument subj in putaijlist64: Incorrect array format causing data to be copied
-  warnings.warn("Argument subj in putaijlist64: Incorrect array format causing data to be copied");
-/scratch2/dima/miniforge3/envs/xpurt/lib/python3.11/site-packages/cvxpy/reductions/solvers/conic_solvers/mosek_conif.py:306: UserWarning: Optimization terminated by time limit; solution may be imprecise or absent.
-  warnings.warn(
-/scratch2/dima/miniforge3/envs/xpurt/lib/python3.11/site-packages/cvxpy/problems/problem.py:1539: UserWarning: Solution may be inaccurate. Try another solver, adjusting the solver settings, or solve with verbose=True for more information.
-  warnings.warn(
 ============================================================
 Loading network hierarchy from JSON...
 ============================================================
@@ -34,35 +26,31 @@ Resolved runtime configuration:
   enforce_same_processor_combinations: True
 
 Using profiled runtimes where available...
+  Workload declares horizon 0 ms and 2 explicit periodic instance counts; those counts are used as given. Networks without one are still sized by the refinement loop below.
 
-Creating workload from network hierarchy...
-
-Workload created successfully!
+--- greedy iteration 1 ---
   Total operations: 190
-  Scheduler machines (2 cores): ['CPU_P#0', 'CPU_E#0']
-  Machine combination options: 2 (mode=singletons)
   Job names: ['mlp_control0', 'dronet0', 'yolov8_nano', 'mlp_control1']
-  Operations with multiple predecessors: 25
-  Independent jobs (can run in parallel): 4
+  Makespan: 68.89 ms
+  Periodic 'mlp_control': the schedule runs to 69 ms, which would take 7 instances, but the workload asks for 2 — keeping 2
+  Periodic 'mlp_control': period=10ms current=2 needed=2
+  Periodic 'dronet': the schedule runs to 69 ms, which would take 4 instances, but the workload asks for 1 — keeping 1
+  Periodic 'dronet': period=20ms current=1 needed=1
+  All periodic counts cover makespan — converged.
 
-============================================================
-Scheduling combined workload (MILP)...
-============================================================
-Status:  optimal_inaccurate
-Optimal value:  64.44726800001222
-Validation: All 190 operations have been scheduled.
+Final greedy makespan: 68.89 ms (after 1 iteration)
 
 Scheduling completed!
-Makespan (non-periodic): 64.45 ms (all operations: 64.45 ms)
+Makespan (non-periodic): 68.89 ms (all operations: 68.89 ms)
 
 Combination assignments:
   1xCPU_P: 87 operations
   1xCPU_E: 103 operations
 
 Per-network combination assignments:
-  Mlp_control0: 1xCPU_P=6, 1xCPU_E=1
-  Dronet0: 1xCPU_P=18, 1xCPU_E=3
-  Yolov8_nano: 1xCPU_P=56, 1xCPU_E=99
+  Mlp_control0: 1xCPU_P=7
+  Dronet0: 1xCPU_P=7, 1xCPU_E=14
+  Yolov8_nano: 1xCPU_P=66, 1xCPU_E=89
   Mlp_control1: 1xCPU_P=7
 Job ID to color index mapping: {0: 0, 1: 1, 2: 2, 3: 3}
 Job ID distribution: {0: 7, 3: 7, 1: 21, 2: 155}
@@ -79,10 +67,10 @@ DEBUG BEFORE LEGEND: op=63, op_color_index=2, original=2, job_index=3, legend_ke
 DEBUG IMMEDIATE: op=64, job_id=2, lookup=2, op_color_index=2, base_colors[2]=(0.8871510957324106, 0.3320876585928489, 0.03104959630911188)
 DEBUG AFTER MODULO: op=64, original=2, after_modulo=2, len(base_colors)=4
 DEBUG BEFORE LEGEND: op=64, op_color_index=2, original=2, job_index=3, legend_key=kind_yolov8_nano, in_legend=True
-Saving plot to plots/networks_3net_small_hetero_profiled.png...
+Saving plot to plots/networks_3net_small_hetero_greedy_profiled.png...
 
-Plot saved to plots/networks_3net_small_hetero_profiled.png
+Plot saved to plots/networks_3net_small_hetero_greedy_profiled.png
 
 Outputting scheduled JSON...
 
-Scheduled JSON saved to: schedules/scheduled_networks_3net_small_hetero_profiled.json
+Scheduled JSON saved to: schedules/scheduled_networks_3net_small_hetero_greedy_profiled.json
