@@ -1,0 +1,86 @@
+Cross-arm consistency, relayout microbench on AWS F2
+  A = fq 480, harts 0+2, warm          (primary)
+  B = fq 481, byte-identical ELF to A, different FPGA/lane
+  C = fq 482, harts 1+3                 (tile-symmetry gate)
+  D = fq 483, 512 KB cache flush before every timed call, spec shapes only
+
+Correctness: rows / max_abs_err!=0 per arm
+  A:  204 rows, 0 with max_abs_err != 0
+  B:  204 rows, 0 with max_abs_err != 0
+  C:  204 rows, 0 with max_abs_err != 0
+  D:  204 rows, 0 with max_abs_err != 0
+
+== A vs B: reproducibility across two FPGAs ==
+  variant/dir               A c/B    B c/B    delta
+  ref_scalar/n2h           12.249   12.249    0.00%
+  ref_scalar/h2n            8.437    8.437    0.00%
+  gem_tb32/n2h              8.034    8.034    0.00%
+  gem_tb32/h2n              6.025    6.025    0.00%
+  rvv_strided/n2h           4.139    4.139    0.00%
+  rvv_strided/h2n           2.856    2.856    0.00%
+  rvv_seg/n2h               0.853    0.853    0.00%
+  rvv_seg/h2n               0.900    0.900    0.00%
+
+== A (harts 0,2) vs C (harts 1,3): the tiles are supposed to be identical ==
+  variant/dir               A c/B    C c/B    delta
+  gem_tb32/n2h              8.034    8.034   -0.00%
+  gem_tb32/h2n              6.025    6.026    0.01%
+  rvv_strided/n2h           4.139    4.139    0.00%
+  rvv_strided/h2n           2.856    2.860    0.13%
+  rvv_seg/n2h               0.853    0.854    0.03%
+  rvv_seg/h2n               0.900    0.900   -0.02%
+  harts present: A=[0, 2]  C=[1, 3]
+
+== A (warm) vs D (512 KB flushed), spec shapes only: the cold penalty ==
+  variant/dir              A warm  D flush   ratio
+  gem_tb32/n2h              8.044    7.692   0.96x
+  gem_tb32/h2n              6.026    7.724   1.28x
+  rvv_strided/n2h           4.132    4.564   1.10x
+  rvv_strided/h2n           2.854    3.123   1.09x
+  rvv_seg/n2h               0.964    1.224   1.27x
+  rvv_seg/h2n               1.007    1.208   1.20x
+
+  The design doc (section 1.1) attributes 30-43 c/B on the 512 B - 1.5 KB tail
+  layers to 'fixed loop/cold-miss overhead'. A standalone relayout with 512 KB
+  flushed before EVERY call does not get close to that: the worst real shape is
+  105 B at 10.10 c/B. The blowup is not in the transpose loop.
+
+==========================================================================
+ARM E (fq 484) -- rebuilt with the sys_reboot exit fix, so a DIFFERENT binary
+(buffers shifted +256 B in BSS). It is the accidental repeatability experiment
+that arms A/B/C could not be, because A and B ran byte-identical ELFs.
+==========================================================================
+
+POOLED cycles/byte (both directions, all 17 shapes) -- STABLE
+         variant  hart        A       B       C       E
+      ref_scalar     0    10.35   10.35   10.34   11.32
+        gem_tb32     0     7.03    7.03    7.03    7.05
+     rvv_strided     2     3.50    3.50    3.50    3.50
+         rvv_seg     2     0.88    0.88    0.88    0.87
+
+SPLIT BY DIRECTION -- UNSTABLE, but only for the SCALAR kernel
+           variant/dir        A       B       C       E
+          gem_tb32/n2h     8.04    8.04    8.03    7.04
+          gem_tb32/h2n     6.02    6.02    6.03    7.06
+       rvv_strided/n2h     4.14    4.14    4.14    4.15
+       rvv_strided/h2n     2.86    2.86    2.86    2.86
+           rvv_seg/n2h     0.85    0.85    0.85    0.85
+           rvv_seg/h2n     0.90    0.90    0.90    0.90
+
+  gem_tb32 shifts -12.4% on n2h and +17.2% on h2n between arm A and arm E,
+  UNIFORMLY across every shape and every C -- a constant factor on the inner
+  loop, not a cache-set effect (that would be shape-dependent). Its POOLED cost
+  is unchanged (7.03 -> 7.05). The RVV kernels do not move at all: their
+  per-direction values are identical to two decimals in all four arms.
+
+  Consequence for the report: quote the scalar floor as a POOLED 7.03-7.05 c/B.
+  Do NOT quote the scalar n2h-vs-h2n asymmetry as a property of the transpose;
+  it is a property of the binary. The RVV asymmetry (n2h 4.14 vs h2n 2.86
+  strided; 0.85 vs 0.90 segment) IS reproducible and can be quoted.
+
+SPEEDUP vs the gemmini-hart scalar floor, recomputed independently per arm
+   arm  floor c/B  rvv_strided    rvv_seg
+     A       7.03        2.01x      8.02x
+     B       7.03        2.01x      8.02x
+     C       7.03        2.01x      8.02x
+     E       7.05        2.01x      8.06x

@@ -765,3 +765,68 @@ NHWC (§6 — the existing best-axis result does not carry over); investigate th
   more risk for a faster answer, stages 1 and 3 can be merged and stage 2's gate written afterwards — but
   then the first NHWC build lands without the `SystemExit` tripwire that stage 2 exists to provide, and
   §2.3c says what that costs.
+
+---
+
+## 11. Stage 1 results (measured 2026-09-02, fq 480-484)
+
+Stage 1 landed: six curated relayout kernels, `max_abs_err = 0` on every row, profiled on F2.
+Artefacts `experiments/relayout/`; log entries 390-391. **Four things below change decisions made
+earlier in this document.**
+
+### 11.1 The prize is 7.0x, not 3.53x
+
+§1 computed 3.53x on the assumption that the two surviving conversions — conv0's NCHW input and the
+return to NCHW before flatten/linear — still cost what they cost *inside* the conv. They do not. As a
+relayout dispatch on a Saturn hart using segment ops they run ~11x cheaper per byte:
+
+| | scalar (in-conv) | rvv_seg relayout |
+|---|---:|---:|
+| gemmini compute (unchanged) | 318,487 | 318,487 |
+| conv0 input conversion | 364,810 | 33,096 |
+| tail output conversion | 21,700 | 1,969 |
+| **post-chaining total** | **704,997** | **353,552** |
+
+Against today's 2,488,855 cycles that is **3.53x → 7.04x**, and the conversion share of what remains
+falls from 55% to 10%. The residue becomes gemmini compute, which is the thing worth paying for.
+
+### 11.2 §5.2a was half right — it is segments, not vectors
+
+The doubt in §10 said the ISA advantage might be illusory. For plain strided access it largely **is**:
+`vlse8`/`vsse8` buy only ~2x over the scalar loop. The win is the **segment** family:
+
+| variant | c/B (n2h / h2n) | vs scalar |
+|---|---|---|
+| `ref_scalar` | 12.25 / 8.44 | — |
+| `gem_tb32` (the lifted blocked nest) | 8.03 / 6.03 | 1.5x |
+| `rvv_strided` | 4.14 / 2.86 | 2.0x |
+| **`rvv_seg`** | **0.85 / 0.90** | **8.0x** |
+
+`vsseg`/`vlseg` were unused anywhere in this tree before stage 1. The advantage is a step function in
+C — 7-15x where C <= 8, 3.0x where C >= 16 — because NF is legal for every value 2..8, so **conv0's
+C=3 is a single `vsseg3e8` on the fast path**, not a fallback. The layer that matters most is the one
+the ISA suits best.
+
+### 11.3 Two cost-model assumptions here were wrong
+
+* **There is no ~20 kcycle fixed per-relayout term.** Least squares over 17 shapes puts the intercept
+  under 600 cycles — two orders of magnitude smaller. A cost model carrying the larger figure would
+  refuse to split a relayout that splits perfectly well.
+* **The 30-43 c/B measured on small tensors is NOT in the transpose.** A standalone relayout with 512 KB
+  flushed before every timed call peaks at 10.1 c/B on the worst real shape. That blowup belongs to
+  something else inside `conv2d_s8` and should not be attributed to layout conversion.
+
+### 11.4 §9's stage-1 recipe cites code that no longer exists
+
+It points at a `mb_gem_put4` packed-store path and a comment about blocking removal costing conv0 46%.
+Both were reverted before this document was written — the packed-store experiments measured 0.99x and
+0.76x and were backed out (log entry `gemmini_transpose_phase_attribution`). The lift itself is
+unaffected; the blocked `TB=32` nests are at `gemmini_conv2d_s8_gemmini_tiled_conv.c:307` and `:450`.
+
+### 11.5 Caveat on the scalar baseline
+
+Arms A and B ran byte-identical ELFs and agreed to 0.00%, which measures FPGA determinism, not
+robustness. A rebuilt arm (buffers +256 B in BSS) shifted the *scalar* kernel by -12.4%/+17.2%
+uniformly across shapes while leaving its **pooled** cost unchanged (7.03 → 7.05) and every ratio above
+intact. So quote the scalar floor pooled; the scalar per-direction asymmetry is a property of the
+binary, not the algorithm. The RVV direction asymmetry is stable to two decimals.

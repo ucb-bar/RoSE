@@ -1,0 +1,100 @@
+rows: 204 timing, 102 round-trip
+correctness gate: PASS (max_abs_err=0 on every row, every round-trip bit-exact)
+wrote /scratch/dima/rose-infra/RoSE/experiments/relayout/relayout_f2.csv
+
+AGGREGATE cycles/byte, all shapes pooled (bytes-weighted)
+  key                                           warm c/B  cold c/B      bytes
+  hart0 gem_tb32 h2n                                6.02      6.07     285658
+  hart0 gem_tb32 n2h                                8.04      8.17     285658
+  hart0 ref_scalar h2n                              8.44      8.48     285658
+  hart0 ref_scalar n2h                             12.26     12.52     285658
+  hart2 gem_tb32 h2n                                6.03      6.07     285658
+  hart2 gem_tb32 n2h                                8.03      8.16     285658
+  hart2 ref_scalar h2n                              8.44      8.48     285658
+  hart2 ref_scalar n2h                             12.24     12.49     285658
+  hart2 rvv_seg h2n                                 0.90      0.91     285658
+  hart2 rvv_seg n2h                                 0.85      0.89     285658
+  hart2 rvv_strided h2n                             2.86      2.88     285658
+  hart2 rvv_strided n2h                             4.14      4.18     285658
+
+cycles/byte (warm), direction n2h
+  group      C   H   W   bytes      gem_tb32    ref_scalar       rvv_seg   rvv_strided
+  csweep     2 112  56   12544          8.24          6.80          0.50          4.22
+  csweep     4  56  56   12544          8.00          6.91          0.25          4.16
+  csweep     7  56  32   12544          7.90          7.21          0.26          4.13
+  csweep     8  56  28   12544          7.89          7.30          0.18          4.13
+  csweep    16  28  28   12544          7.84          7.34          1.18          4.11
+  csweep    32  28  14   12544          7.92          7.90          1.14          4.12
+  csweep    64  14  14   12544          8.09          7.98          1.14          4.15
+  csweep   128  14   7   12544          8.17          8.49          1.14          4.16
+  csweep     3 112  37   12432          8.12          7.06          0.36          4.18
+  spec      32  56  56  100352          8.03         19.43          1.13          4.10
+  spec       3 112 112   37632          8.23          7.43          0.36          4.18
+  spec      32  27  27   23328          8.01         14.55          1.15          4.12
+  spec      32  14  14    6272          7.49          7.18          1.17          4.14
+  spec      64   7   7    3136          7.55          7.76          1.17          4.36
+  spec     128   4   4    2048          7.83          9.78          1.19          4.40
+  spec       7   5   3     105          8.67         12.17          0.75          4.75
+  spec       1   1   1       1        103.00         81.00        101.00         48.00
+
+cycles/byte (warm), direction h2n
+  group      C   H   W   bytes      gem_tb32    ref_scalar       rvv_seg   rvv_strided
+  csweep     2 112  56   12544          6.24          5.74          0.50          2.92
+  csweep     4  56  56   12544          6.00          5.84          0.31          2.85
+  csweep     7  56  32   12544          5.90          6.07          0.35          2.81
+  csweep     8  56  28   12544          5.88          6.14          0.28          2.85
+  csweep    16  28  28   12544          5.85          6.18          1.20          2.83
+  csweep    32  28  14   12544          5.92          6.70          1.19          2.85
+  csweep    64  14  14   12544          6.11          6.73          1.21          2.84
+  csweep   128  14   7   12544          6.19          7.26          1.20          2.87
+  csweep     3 112  37   12432          6.12          5.92          0.38          2.92
+  spec      32  56  56  100352          6.01         11.69          1.17          2.83
+  spec       3 112 112   37632          6.23          6.04          0.38          2.93
+  spec      32  27  27   23328          5.99          9.56          1.19          2.83
+  spec      32  14  14    6272          5.51          6.11          1.23          2.85
+  spec      64   7   7    3136          5.55          6.62          1.25          2.88
+  spec     128   4   4    2048          5.83          8.78          1.23          3.14
+  spec       7   5   3     105          6.69         10.83          0.94          3.59
+  spec       1   1   1       1         97.00         74.00        102.00         48.00
+
+==============================================================================
+VERDICTS  (bytes-weighted cycles/byte, warm)
+==============================================================================
+
+Q1  Does Saturn RVV beat the gemmini hart's scalar floor?
+      scalar floor, hart 0 (no vector unit)
+        gem_tb32 (the lifted blocked kernel)     7.03 c/B
+        ref_scalar (naive 4-deep nest)          10.35 c/B
+      SAME scalar kernel on hart 2 (Saturn tile)     7.03 c/B   <- controls for tile differences
+      rvv_strided    on hart 2              3.50 c/B    2.01x vs the floor
+      rvv_seg        on hart 2              0.88 c/B    8.02x vs the floor
+
+Q2  Does vsseg beat the strided version?
+      pooled: strided   3.50 c/B, seg   0.88 c/B -> 3.99x
+      n2h: strided   4.14 c/B, seg   0.85 c/B -> 4.85x
+      h2n: strided   2.86 c/B, seg   0.90 c/B -> 3.17x
+      by C (n2h, warm c/B):
+           C   strided       seg  seg gain
+           1     48.00    101.00     0.48x
+           2      4.22      0.50     8.46x
+           3      4.18      0.36    11.75x
+           4      4.16      0.25    16.60x
+           7      4.14      0.26    15.63x
+           8      4.13      0.18    23.03x
+          16      4.11      1.18     3.48x
+          32      4.11      1.13     3.63x
+          64      4.19      1.15     3.66x
+         128      4.19      1.15     3.65x
+
+Q3  cycles/byte vs tensor size (warm), per variant
+         bytes      gem_tb32    ref_scalar       rvv_seg   rvv_strided
+             1           98.50         77.50        101.50         48.00
+           105            7.69         11.50          0.85          4.17
+          2048            6.83          9.28          1.21          3.77
+          3136            6.55          7.19          1.21          3.62
+          6272            6.50          6.65          1.20          3.49
+         12432            7.12          6.50          0.37          3.55
+         12544            7.01          6.91          0.75          3.50
+         23328            7.00         12.06          1.17          3.48
+         37632            7.24          6.74          0.37          3.55
+        100352            7.02         15.56          1.15          3.46
