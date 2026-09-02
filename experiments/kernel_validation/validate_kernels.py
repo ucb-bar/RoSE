@@ -1191,6 +1191,17 @@ def _prep_scratch(P, net, exdir, quant, backend) -> dict:
     if os.path.isdir(src_gen):
         for p in glob.glob(os.path.join(src_gen, "*")):
             shutil.copy2(p, os.path.join(gen, os.path.basename(p)))
+    # DELETE the copied selection outputs. generate_kernels regenerates
+    # kernels.c/.h and writes kernel_picks.json itself, so removing them
+    # makes the PRESENCE of kernel_picks.json in the scratch tree proof
+    # that the regen actually completed. Without this a run that was
+    # killed part-way leaves the SHIPPED picks sitting in the scratch dir,
+    # and --reuse-regen then compares the shipped picks against themselves
+    # and reports a clean bill of health for a cell it never measured.
+    for stale_out in ("kernel_picks.json", "kernels.c", "kernels.h"):
+        q = os.path.join(gen, stale_out)
+        if os.path.exists(q):
+            os.remove(q)
     if os.path.isdir(src_cache):
         for p in glob.glob(os.path.join(src_cache, "*")):
             shutil.copy2(p, os.path.join(cache, os.path.basename(p)))
@@ -1261,6 +1272,13 @@ def load_regen(P: dict, net, exdir, quant, backend, drift) -> Optional[dict]:
     shipped = os.path.join(P["examples"], exdir, quant, "generated",
                            backend, "kernel_picks.json")
     if not os.path.exists(logp):
+        return None
+    if not os.path.exists(newp):
+        # The regen did not finish (killed, timed out, crashed). Reporting
+        # it would be worse than reporting nothing.
+        print(f"  [stale] {net}/{backend}: regen log present but no "
+              f"regenerated kernel_picks.json -- run did not complete; "
+              f"skipping this cell", flush=True)
         return None
     return {
         "net": net, "backend": backend,
