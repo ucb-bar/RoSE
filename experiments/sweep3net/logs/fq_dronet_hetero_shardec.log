@@ -1,0 +1,10 @@
+### submit dronet_hetero_shardec 2026-09-02T18:03:45Z
+#### submit: submitted job 564  (completion=exit, timeout=3000s)
+  logs:   fq logs 564 -f
+  status: fq status 564
+#### jid=564
+#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/sweep3net/res_dronet_hetero_shardec/2026-09-02--18-09-01-fq-job-564-fq564x332212fe/fq-job-5640/uartlog
+xpurt-runner: schedule=dronet_hetero_shardec entries=29 kinds=2 on chipyard_riscv64/rocketchip_virt_riscv64
+=== MODELBLASTER_VERIFY [dronet] === max_abs_err=2 max_rel_err=0.0357142873 n=2 instance=0 ready=1
+*** PASSED *** after 2850775832 cycles
+############ FQDONE dronet_hetero_shardec ############

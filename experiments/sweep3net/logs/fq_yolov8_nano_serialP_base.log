@@ -1,8 +1,8 @@
-### submit yolov8_nano_serialP_base 2026-09-02T09:11:32Z
-#### submit: submitted job 511  (completion=exit, timeout=3000s)
-  logs:   fq logs 511 -f
-  status: fq status 511
-#### jid=511
+### submit yolov8_nano_serialP_base 2026-09-02T19:09:26Z
+#### submit: submitted job 582  (completion=exit, timeout=3000s)
+  logs:   fq logs 582 -f
+  status: fq status 582
+#### jid=582
 #### uartlog=/scratch/dima/rose-infra/RoSE/experiments/sweep3net/res_yolov8_nano_serialP_base/2026-09-02--09-13-52-fq-job-511-fq511x21612a7b/fq-job-5110/uartlog
 xpurt-runner: schedule=yolov8_nano_serialP_base entries=155 kinds=2 on chipyard_riscv64/rocketchip_virt_riscv64
 === MODELBLASTER_VERIFY [yolov8_nano] === max_abs_err=0 max_rel_err=0 n=75600 instance=0 ready=1

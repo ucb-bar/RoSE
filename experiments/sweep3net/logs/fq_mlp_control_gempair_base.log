@@ -1,9 +1,10 @@
-### submit mlp_control_gempair_base 2026-09-02T08:03:01Z
-#### submit: submitted job 507  (completion=exit, timeout=3000s)
-  logs:   fq logs 507 -f
-  status: fq status 507
-#### jid=507
-#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/sweep3net/res_mlp_control_gempair_base/2026-09-02--08-00-57-fq-job-505-fq505xd1011b25/fq-job-5050/uartlog
-=== MODELBLASTER_VERIFY === max_abs_err=0.327884674 max_rel_err=0.187136054 n=21
-*** PASSED *** after 89554857317 cycles
+### submit mlp_control_gempair_base 2026-09-02T19:15:01Z
+#### submit: submitted job 585  (completion=exit, timeout=3000s)
+  logs:   fq logs 585 -f
+  status: fq status 585
+#### jid=585
+#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/sweep3net/res_mlp_control_gempair_base/2026-09-02--17-19-15-fq-job-556-fq556x86f9a04e/fq-job-5560/uartlog
+xpurt-runner: schedule=mlp_control_gempair_base entries=7 kinds=2 on chipyard_riscv64/rocketchip_virt_riscv64
+=== MODELBLASTER_VERIFY [mlp_control] === max_abs_err=6.67572021e-06 max_rel_err=3.7000018e-06 n=4 instance=0 ready=1
+*** PASSED *** after 1293073427 cycles
 ############ FQDONE mlp_control_gempair_base ############

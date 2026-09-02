@@ -1,10 +1,10 @@
-### submit mlp_control_serialP_base 2026-09-02T07:02:16Z
-#### submit: submitted job 491  (completion=exit, timeout=3000s)
-  logs:   fq logs 491 -f
-  status: fq status 491
-#### jid=491
-#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/sweep3net/res_mlp_control_serialP_base/uartlog
-xpurt-runner: schedule=mlp_control_serialP_base entries=7 kinds=2 on chipyard_riscv64/rocketchip_virt_riscv64
-=== MODELBLASTER_VERIFY [mlp_control] === max_abs_err=6.67572021e-06 max_rel_err=3.7000018e-06 n=4 instance=0 ready=1
+### submit mlp_control_serialP_base 2026-09-02T19:15:01Z
+#### submit: submitted job 586  (completion=exit, timeout=3000s)
+  logs:   fq logs 586 -f
+  status: fq status 586
+#### jid=586
+#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/sweep3net/res_mlp_control_serialP_base/2026-09-02--19-20-29-fq-job-586-fq586x8aa22e63/fq-job-5860/uartlog
+xpurt-runner: schedule=mlp_control_serialP_base entries=7 kinds=2 on chipyard_riscv64/rocketchip_virt_riscv64
+=== MODELBLASTER_VERIFY [mlp_control] === max_abs_err=6.67572021e-06 max_rel_err=3.7000018e-06 n=4 instance=0 ready=1
 *** PASSED *** after 1293073427 cycles
 ############ FQDONE mlp_control_serialP_base ############

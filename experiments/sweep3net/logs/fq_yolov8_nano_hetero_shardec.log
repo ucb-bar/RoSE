@@ -1,0 +1,10 @@
+### submit yolov8_nano_hetero_shardec 2026-09-02T18:03:53Z
+#### submit: submitted job 567  (completion=exit, timeout=3000s)
+  logs:   fq logs 567 -f
+  status: fq status 567
+#### jid=567
+#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/sweep3net/res_yolov8_nano_hetero_shardec/uartlog
+xpurt-runner: schedule=yolov8_nano_hetero_shardec entries=233 kinds=2 on chipyard_riscv64/rocketchip_virt_riscv64
+=== MODELBLASTER_VERIFY [yolov8_nano] === max_abs_err=0 max_rel_err=0 n=75600 instance=0 ready=1
+*** PASSED *** after 17547708047 cycles
+############ FQDONE yolov8_nano_hetero_shardec ############

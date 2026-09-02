@@ -1,0 +1,10 @@
+### submit vint_gempair_shard 2026-09-02T19:15:01Z
+#### submit: submitted job 587  (completion=exit, timeout=3000s)
+  logs:   fq logs 587 -f
+  status: fq status 587
+#### jid=587
+#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/sweep3net/res_vint_gempair_shard/2026-09-02--19-21-31-fq-job-587-fq587x2cb2c0b5/fq-job-5870/uartlog
+xpurt-runner: schedule=vint_gempair_shard entries=613 kinds=2 on chipyard_riscv64/rocketchip_virt_riscv64
+=== MODELBLASTER_VERIFY [vint] === max_abs_err=0.327884674 max_rel_err=0.187136054 n=21 instance=0 ready=1
+*** PASSED *** after 48024145577 cycles
+############ FQDONE vint_gempair_shard ############

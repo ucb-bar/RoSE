@@ -1,0 +1,10 @@
+### submit dronet_rvvpair_shardec 2026-09-02T18:03:41Z
+#### submit: submitted job 563  (completion=exit, timeout=3000s)
+  logs:   fq logs 563 -f
+  status: fq status 563
+#### jid=563
+#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/sweep3net/res_dronet_rvvpair_shardec/uartlog
+xpurt-runner: schedule=dronet_rvvpair_shardec entries=36 kinds=2 on chipyard_riscv64/rocketchip_virt_riscv64
+=== MODELBLASTER_VERIFY [dronet] === max_abs_err=0 max_rel_err=0 n=2 instance=0 ready=1
+*** PASSED *** after 3317886077 cycles
+############ FQDONE dronet_rvvpair_shardec ############

@@ -1,10 +1,10 @@
-### submit yolov8_nano_gempair_base 2026-09-02T09:32:06Z
-#### submit: submitted job 520  (completion=exit, timeout=3000s)
-  logs:   fq logs 520 -f
-  status: fq status 520
-#### jid=520
+### submit yolov8_nano_gempair_base 2026-09-02T19:09:26Z
+#### submit: submitted job 579  (completion=exit, timeout=3000s)
+  logs:   fq logs 579 -f
+  status: fq status 579
+#### jid=579
 #### uartlog=/scratch/dima/rose-infra/RoSE/experiments/sweep3net/res_yolov8_nano_gempair_base/uartlog
 xpurt-runner: schedule=yolov8_nano_gempair_base entries=155 kinds=2 on chipyard_riscv64/rocketchip_virt_riscv64
-=== MODELBLASTER_VERIFY [yolov8_nano] === max_abs_err=89 max_rel_err=4.19999986e+13 n=75600 instance=0 ready=1
-*** PASSED *** after 12118804427 cycles
+=== MODELBLASTER_VERIFY [yolov8_nano] === max_abs_err=0 max_rel_err=0 n=75600 instance=0 ready=1
+*** PASSED *** after 12116799662 cycles
 ############ FQDONE yolov8_nano_gempair_base ############

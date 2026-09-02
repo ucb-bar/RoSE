@@ -1,10 +1,10 @@
-### submit vint_rvvpair_shard 2026-09-02T11:51:28Z
-#### submit: submitted job 549  (completion=exit, timeout=3000s)
-  logs:   fq logs 549 -f
-  status: fq status 549
-#### jid=549
+### submit vint_rvvpair_shard 2026-09-02T13:00:58Z
+#### submit: submitted job 555  (completion=exit, timeout=3000s)
+  logs:   fq logs 555 -f
+  status: fq status 555
+#### jid=555
 #### uartlog=/scratch/dima/rose-infra/RoSE/experiments/sweep3net/res_vint_rvvpair_shard/uartlog
 xpurt-runner: schedule=vint_rvvpair_shard entries=613 kinds=2 on chipyard_riscv64/rocketchip_virt_riscv64
-=== MODELBLASTER_VERIFY [vint] === max_abs_err=13.1152906 max_rel_err=3 n=21 instance=0 ready=1
-*** PASSED *** after 56103348527 cycles
+=== MODELBLASTER_VERIFY [vint] === max_abs_err=7.04946899 max_rel_err=0.620676994 n=21 instance=0 ready=1
+*** PASSED *** after 56125400942 cycles
 ############ FQDONE vint_rvvpair_shard ############

@@ -1,0 +1,10 @@
+### submit dronet_gempair_shardec 2026-09-02T19:09:26Z
+#### submit: submitted job 581  (completion=exit, timeout=3000s)
+  logs:   fq logs 581 -f
+  status: fq status 581
+#### jid=581
+#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/sweep3net/res_dronet_gempair_shardec/2026-09-02--19-12-45-fq-job-581-fq581x0d199093/fq-job-5810/uartlog
+xpurt-runner: schedule=dronet_gempair_shardec entries=33 kinds=2 on chipyard_riscv64/rocketchip_virt_riscv64
+=== MODELBLASTER_VERIFY [dronet] === max_abs_err=2 max_rel_err=0.0357142873 n=2 instance=0 ready=1
+*** PASSED *** after 3095357162 cycles
+############ FQDONE dronet_gempair_shardec ############

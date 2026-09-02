@@ -1,0 +1,532 @@
+Script started on 2026-09-02 19:16:07+00:00 [COMMAND="stty intr ^] && sudo LD_LIBRARY_PATH=/scratch/vnikiforov/rose-fsim/lib ./FireSim-f2 +permissive   +macaddr0=00:12:6D:00:00:02 +niclog0=niclog0  +trace-select=1 +trace-start=0 +trace-end=-1 +trace-output-format=0 +dwarf-file-name=fq-job-5830-sw_yolov8_nano_gempair_shardec.elf-dwarf +autocounter-readrate=0 +autocounter-filename-base=AUTOCOUNTERFILE  +print-start=0 +print-end=-1 +linklatency0=6405 +netbw0=200 +shmemportname0=default +partitioned=1 +slotid=0 +permissive-off +prog0=fq-job-5830-sw_yolov8_nano_gempair_shardec.elf   && stty intr ^c" TERM="screen" TTY="/dev/pts/6" COLUMNS="80" LINES="24"]
+AFI ID for Slot  0: agfi-0662319f4b07483a7
+AFI PCI  Vendor ID: 0x1d0f, Device ID 0xf002
+Attached to BAR0 (OCL)
+Attached to BAR4 (PCIS)
+widget_registry_t::add_widget(StreamEngine)
+cpu2fpga: 0, fpga2cpu: 4
+UART0 is here (stdin/stdout).
+command line for program 0. argc=19:
++permissive +macaddr0=00:12:6D:00:00:02 +niclog0=niclog0 +trace-select=1 +trace-start=0 +trace-end=-1 +trace-output-format=0 +dwarf-file-name=fq-job-5830-sw_yolov8_nano_gempair_shardec.elf-dwarf +autocounter-readrate=0 +autocounter-filename-base=AUTOCOUNTERFILE +print-start=0 +print-end=-1 +linklatency0=6405 +netbw0=200 +shmemportname0=default +partitioned=1 +slotid=0 +permissive-off fq-job-5830-sw_yolov8_nano_gempair_shardec.elf 
+entered simulation flow execution
+finished waiting
+FireSim fingerprint: 0x46697265
+Commencing simulation.
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+*** Booting Zephyr OS build c93d5bdb6078 ***
+xpurt-runner: schedule=yolov8_nano_gempair_shardec entries=233 kinds=2 on chipyard_riscv64/rocketchip_virt_riscv64
+xpurt: worker[0] kind=gemmini_q31 pinned_hart=0 observed_cpu=-1 claims_unbound=0 entries_done=148
+xpurt: worker[1] kind=gemmini_q31 pinned_hart=1 observed_cpu=-1 claims_unbound=0 entries_done=85
+=== MODELBLASTER_HART_ACC_BEGIN ===
+worker_idx,kind_idx,kind,hart,kernel_us,dep_wait_us,sync_overhead_us,target_gate_spin_us,hart_idle_us,gemmini_cfg_emit_us,entries_done,wall_total_us
+0,0,gemmini_q31,0,66466,3487,3148,7,44,0,148,73423
+1,0,gemmini_q31,1,42414,27174,232,2,28,0,85,69993
+=== MODELBLASTER_HART_ACC_END ===
+=== MODELBLASTER_XPURT_TRACE_BEGIN ===
+entry_id,network,instance,dispatch_id,op,name,core_kind,hart,predicted_start_ms,predicted_duration_ms,worker_kind_idx,worker_hart,actual_start_cycles,actual_end_cycles
+0,yolov8_nano,0,0,conv2d_s8,l0.conv.tile_0,gemmini_q31,0,0.000000,0.002489,0,0,22,3428
+1,yolov8_nano,0,1,conv2d_s8,l0.conv.tile_1,gemmini_q31,1,0.000000,0.002489,0,1,20,3460
+2,yolov8_nano,0,2,silu_s8,l0.act.tile_0,gemmini_q31,0,0.002489,0.000858,0,0,3470,4353
+3,yolov8_nano,0,3,silu_s8,l0.act.tile_1,gemmini_q31,1,0.002489,0.000858,0,1,3468,4363
+4,yolov8_nano,0,4,conv2d_s8,l1.conv.tile_0,gemmini_q31,0,0.003347,0.001702,0,0,4370,7027
+5,yolov8_nano,0,5,conv2d_s8,l1.conv.tile_1,gemmini_q31,1,0.003347,0.001702,0,1,4369,7019
+6,yolov8_nano,0,6,silu_s8,l1.act.tile_0,gemmini_q31,0,0.005049,0.000436,0,0,7035,7495
+7,yolov8_nano,0,7,silu_s8,l1.act.tile_1,gemmini_q31,1,0.005049,0.000436,0,1,7036,7496
+8,yolov8_nano,0,8,conv2d_s8,l2.cv1.conv.tile_0,gemmini_q31,0,0.005485,0.001412,0,0,7505,9587
+9,yolov8_nano,0,9,conv2d_s8,l2.cv1.conv.tile_1,gemmini_q31,1,0.005485,0.001412,0,1,7504,9552
+10,yolov8_nano,0,10,silu_s8,l2.cv1.act.tile_0,gemmini_q31,0,0.006897,0.000431,0,0,9595,10045
+11,yolov8_nano,0,11,silu_s8,l2.cv1.act.tile_1,gemmini_q31,1,0.006897,0.000431,0,1,9596,10036
+12,yolov8_nano,0,-1,chunk2_c1,chunk,gemmini_q31,0,0.007328,0.000000,-1,-1,0,0
+13,yolov8_nano,0,12,conv2d_s8,l2.m0.cv1.conv,gemmini_q31,0,0.007328,0.001473,0,0,10050,11520
+14,yolov8_nano,0,13,silu_s8,l2.m0.cv1.act.tile_0,gemmini_q31,0,0.008801,0.000220,0,0,11526,11758
+15,yolov8_nano,0,14,silu_s8,l2.m0.cv1.act.tile_1,gemmini_q31,1,0.008801,0.000220,0,1,11527,11758
+16,yolov8_nano,0,15,conv2d_s8,l2.m0.cv2.conv,gemmini_q31,0,0.009021,0.001456,0,0,11763,13211
+17,yolov8_nano,0,16,silu_s8,l2.m0.cv2.act.tile_0,gemmini_q31,0,0.010477,0.000222,0,0,13217,13454
+18,yolov8_nano,0,17,silu_s8,l2.m0.cv2.act.tile_1,gemmini_q31,1,0.010477,0.000222,0,1,13218,13454
+19,yolov8_nano,0,18,add_s8,add.tile_0,gemmini_q31,0,0.010699,0.000451,0,0,13466,13857
+20,yolov8_nano,0,19,add_s8,add.tile_1,gemmini_q31,1,0.010699,0.000451,0,1,13462,13856
+21,yolov8_nano,0,20,cat3_c1_s8,cat,gemmini_q31,0,0.011150,0.000842,0,0,13861,14699
+22,yolov8_nano,0,21,conv2d_s8,l2.cv2.conv.tile_0,gemmini_q31,0,0.011992,0.001928,0,0,14706,17861
+23,yolov8_nano,0,22,conv2d_s8,l2.cv2.conv.tile_1,gemmini_q31,1,0.011992,0.001928,0,1,14707,17865
+24,yolov8_nano,0,23,silu_s8,l2.cv2.act.tile_0,gemmini_q31,0,0.013920,0.000434,0,0,17875,18322
+25,yolov8_nano,0,24,silu_s8,l2.cv2.act.tile_1,gemmini_q31,1,0.013920,0.000434,0,1,17873,18326
+26,yolov8_nano,0,25,conv2d_s8,l3.conv.tile_0,gemmini_q31,0,0.014354,0.001023,0,0,18333,19973
+27,yolov8_nano,0,26,conv2d_s8,l3.conv.tile_1,gemmini_q31,1,0.014354,0.001023,0,1,18332,19975
+28,yolov8_nano,0,27,silu_s8,l3.act.tile_0,gemmini_q31,0,0.015377,0.000227,0,0,19984,20230
+29,yolov8_nano,0,28,silu_s8,l3.act.tile_1,gemmini_q31,1,0.015377,0.000227,0,1,19983,20226
+30,yolov8_nano,0,29,conv2d_s8,l4.cv1.conv.tile_0,gemmini_q31,0,0.015605,0.000741,0,0,20237,21355
+31,yolov8_nano,0,30,conv2d_s8,l4.cv1.conv.tile_1,gemmini_q31,1,0.015605,0.000741,0,1,20238,21338
+32,yolov8_nano,0,31,silu_s8,l4.cv1.act.tile_0,gemmini_q31,0,0.016346,0.000226,0,0,21361,21607
+33,yolov8_nano,0,32,silu_s8,l4.cv1.act.tile_1,gemmini_q31,1,0.016346,0.000226,0,1,21362,21596
+34,yolov8_nano,0,-1,chunk2_c1,chunk_1,gemmini_q31,0,0.016572,0.000000,-1,-1,0,0
+35,yolov8_nano,0,33,conv2d_s8,l4.m0.cv1.conv,gemmini_q31,0,0.016572,0.000661,0,0,21611,22272
+36,yolov8_nano,0,34,silu_s8,l4.m0.cv1.act.tile_0,gemmini_q31,0,0.017233,0.000124,0,0,22278,22407
+37,yolov8_nano,0,35,silu_s8,l4.m0.cv1.act.tile_1,gemmini_q31,1,0.017233,0.000124,0,1,22279,22424
+38,yolov8_nano,0,36,conv2d_s8,l4.m0.cv2.conv,gemmini_q31,0,0.017357,0.000655,0,0,22433,23090
+39,yolov8_nano,0,37,silu_s8,l4.m0.cv2.act.tile_0,gemmini_q31,0,0.018012,0.000134,0,0,23096,23262
+40,yolov8_nano,0,38,silu_s8,l4.m0.cv2.act.tile_1,gemmini_q31,1,0.018012,0.000134,0,1,23097,23254
+41,yolov8_nano,0,39,add_s8,add_1.tile_0,gemmini_q31,0,0.018146,0.000228,0,0,23268,23469
+42,yolov8_nano,0,40,add_s8,add_1.tile_1,gemmini_q31,1,0.018146,0.000228,0,1,23269,23472
+43,yolov8_nano,0,41,conv2d_s8,l4.m1.cv1.conv,gemmini_q31,0,0.018374,0.000673,0,0,23480,24157
+44,yolov8_nano,0,42,silu_s8,l4.m1.cv1.act.tile_0,gemmini_q31,0,0.019047,0.000129,0,0,24163,24311
+45,yolov8_nano,0,43,silu_s8,l4.m1.cv1.act.tile_1,gemmini_q31,1,0.019047,0.000129,0,1,24164,24316
+46,yolov8_nano,0,44,conv2d_s8,l4.m1.cv2.conv,gemmini_q31,0,0.019176,0.000651,0,0,24323,24975
+47,yolov8_nano,0,45,silu_s8,l4.m1.cv2.act.tile_0,gemmini_q31,0,0.019827,0.000137,0,0,24981,25145
+48,yolov8_nano,0,46,silu_s8,l4.m1.cv2.act.tile_1,gemmini_q31,1,0.019827,0.000137,0,1,24982,25151
+49,yolov8_nano,0,47,add_s8,add_2.tile_0,gemmini_q31,0,0.019964,0.000227,0,0,25158,25357
+50,yolov8_nano,0,48,add_s8,add_2.tile_1,gemmini_q31,1,0.019964,0.000227,0,1,25157,25355
+51,yolov8_nano,0,49,cat4_c1_s8,cat_1,gemmini_q31,0,0.020191,0.000574,0,0,25361,25935
+52,yolov8_nano,0,50,conv2d_s8,l4.cv2.conv.tile_0,gemmini_q31,0,0.020765,0.001274,0,0,25942,28125
+53,yolov8_nano,0,51,conv2d_s8,l4.cv2.conv.tile_1,gemmini_q31,1,0.020765,0.001274,0,1,25943,28128
+54,yolov8_nano,0,52,silu_s8,l4.cv2.act.tile_0,gemmini_q31,0,0.022038,0.000234,0,0,28138,28395
+55,yolov8_nano,0,53,silu_s8,l4.cv2.act.tile_1,gemmini_q31,1,0.022038,0.000234,0,1,28136,28395
+56,yolov8_nano,0,54,conv2d_s8,l5.conv,gemmini_q31,0,0.022272,0.001243,0,0,28400,29653
+57,yolov8_nano,0,55,silu_s8,l5.act.tile_0,gemmini_q31,0,0.023515,0.000133,0,0,29660,29812
+58,yolov8_nano,0,56,silu_s8,l5.act.tile_1,gemmini_q31,1,0.023515,0.000133,0,1,29661,29824
+59,yolov8_nano,0,57,conv2d_s8,l6.cv1.conv,gemmini_q31,0,0.023648,0.000558,0,0,29833,30390
+60,yolov8_nano,0,58,silu_s8,l6.cv1.act.tile_0,gemmini_q31,0,0.024205,0.000125,0,0,30397,30545
+61,yolov8_nano,0,59,silu_s8,l6.cv1.act.tile_1,gemmini_q31,1,0.024205,0.000125,0,1,30397,30530
+62,yolov8_nano,0,-1,chunk2_c1,chunk_2,gemmini_q31,0,0.024331,0.000000,-1,-1,0,0
+63,yolov8_nano,0,60,conv2d_s8,l6.m0.cv1.conv,gemmini_q31,0,0.024331,0.000362,0,0,30549,30916
+64,yolov8_nano,0,61,silu_s8,l6.m0.cv1.act.tile_0,gemmini_q31,0,0.024693,0.000066,0,0,30922,31004
+65,yolov8_nano,0,62,silu_s8,l6.m0.cv1.act.tile_1,gemmini_q31,1,0.024693,0.000066,0,1,30922,30998
+66,yolov8_nano,0,63,conv2d_s8,l6.m0.cv2.conv,gemmini_q31,0,0.024759,0.000352,0,0,31007,31361
+67,yolov8_nano,0,64,silu_s8,l6.m0.cv2.act.tile_0,gemmini_q31,0,0.025112,0.000077,0,0,31367,31466
+68,yolov8_nano,0,65,silu_s8,l6.m0.cv2.act.tile_1,gemmini_q31,1,0.025112,0.000077,0,1,31368,31467
+69,yolov8_nano,0,66,add_s8,add_3.tile_0,gemmini_q31,0,0.025189,0.000115,0,0,31471,31575
+70,yolov8_nano,0,67,add_s8,add_3.tile_1,gemmini_q31,1,0.025189,0.000115,0,1,31472,31575
+71,yolov8_nano,0,68,conv2d_s8,l6.m1.cv1.conv,gemmini_q31,0,0.025304,0.000366,0,0,31581,31945
+72,yolov8_nano,0,69,silu_s8,l6.m1.cv1.act.tile_0,gemmini_q31,0,0.025670,0.000079,0,0,31951,32048
+73,yolov8_nano,0,70,silu_s8,l6.m1.cv1.act.tile_1,gemmini_q31,1,0.025670,0.000079,0,1,31951,32053
+74,yolov8_nano,0,71,conv2d_s8,l6.m1.cv2.conv,gemmini_q31,0,0.025749,0.000350,0,0,32060,32411
+75,yolov8_nano,0,72,silu_s8,l6.m1.cv2.act.tile_0,gemmini_q31,0,0.026099,0.000083,0,0,32418,32529
+76,yolov8_nano,0,73,silu_s8,l6.m1.cv2.act.tile_1,gemmini_q31,1,0.026099,0.000083,0,1,32419,32528
+77,yolov8_nano,0,74,add_s8,add_4.tile_0,gemmini_q31,0,0.026182,0.000114,0,0,32536,32638
+78,yolov8_nano,0,75,add_s8,add_4.tile_1,gemmini_q31,1,0.026182,0.000114,0,1,32537,32639
+79,yolov8_nano,0,76,cat4_c1_s8,cat_2,gemmini_q31,0,0.026296,0.000286,0,0,32644,32933
+80,yolov8_nano,0,77,conv2d_s8,l6.cv2.conv,gemmini_q31,0,0.026583,0.001123,0,0,32936,34064
+81,yolov8_nano,0,78,silu_s8,l6.cv2.act.tile_0,gemmini_q31,0,0.027705,0.000131,0,0,34071,34229
+82,yolov8_nano,0,79,silu_s8,l6.cv2.act.tile_1,gemmini_q31,1,0.027705,0.000131,0,1,34071,34225
+83,yolov8_nano,0,80,conv2d_s8,l7.conv,gemmini_q31,0,0.027836,0.000601,0,0,34233,34812
+84,yolov8_nano,0,81,silu_s8,l7.act.tile_0,gemmini_q31,0,0.028436,0.000081,0,0,34820,34922
+85,yolov8_nano,0,82,silu_s8,l7.act.tile_1,gemmini_q31,1,0.028436,0.000081,0,1,34821,34928
+86,yolov8_nano,0,83,conv2d_s8,l8.cv1.conv,gemmini_q31,0,0.028517,0.000293,0,0,34937,35232
+87,yolov8_nano,0,84,silu_s8,l8.cv1.act.tile_0,gemmini_q31,0,0.028810,0.000081,0,0,35239,35349
+88,yolov8_nano,0,85,silu_s8,l8.cv1.act.tile_1,gemmini_q31,1,0.028810,0.000081,0,1,35240,35331
+89,yolov8_nano,0,-1,chunk2_c1,chunk_3,gemmini_q31,0,0.028891,0.000000,-1,-1,0,0
+90,yolov8_nano,0,86,conv2d_s8,l8.m0.cv1.conv,gemmini_q31,0,0.028891,0.000275,0,0,35353,35629
+91,yolov8_nano,0,87,silu_s8,l8.m0.cv1.act.tile_0,gemmini_q31,0,0.029165,0.000042,0,0,35636,35692
+92,yolov8_nano,0,88,silu_s8,l8.m0.cv1.act.tile_1,gemmini_q31,1,0.029165,0.000042,0,1,35637,35695
+93,yolov8_nano,0,89,conv2d_s8,l8.m0.cv2.conv,gemmini_q31,0,0.029207,0.000266,0,0,35702,35969
+94,yolov8_nano,0,90,silu_s8,l8.m0.cv2.act.tile_0,gemmini_q31,0,0.029473,0.000040,0,0,35976,36029
+95,yolov8_nano,0,91,silu_s8,l8.m0.cv2.act.tile_1,gemmini_q31,1,0.029473,0.000040,0,1,35977,36026
+96,yolov8_nano,0,92,add_s8,add_5.tile_0,gemmini_q31,0,0.029513,0.000060,0,0,36035,36091
+97,yolov8_nano,0,93,add_s8,add_5.tile_1,gemmini_q31,1,0.029513,0.000060,0,1,36036,36092
+98,yolov8_nano,0,94,cat3_c1_s8,cat_3,gemmini_q31,0,0.029573,0.000110,0,0,36096,36206
+99,yolov8_nano,0,95,conv2d_s8,l8.cv2.conv,gemmini_q31,0,0.029682,0.000333,0,0,36209,36543
+100,yolov8_nano,0,96,silu_s8,l8.cv2.act.tile_0,gemmini_q31,0,0.030016,0.000079,0,0,36550,36650
+101,yolov8_nano,0,97,silu_s8,l8.cv2.act.tile_1,gemmini_q31,1,0.030016,0.000079,0,1,36551,36656
+102,yolov8_nano,0,98,conv2d_s8,l9.cv1.conv,gemmini_q31,0,0.030095,0.000168,0,0,36664,36835
+103,yolov8_nano,0,99,silu_s8,l9.cv1.act.tile_0,gemmini_q31,0,0.030263,0.000045,0,0,36841,36903
+104,yolov8_nano,0,100,silu_s8,l9.cv1.act.tile_1,gemmini_q31,1,0.030263,0.000045,0,1,36842,36903
+105,yolov8_nano,0,101,maxpool2d_s8,l9.m1.tile_0,gemmini_q31,0,0.030308,0.000624,0,0,36907,37553
+106,yolov8_nano,0,102,maxpool2d_s8,l9.m1.tile_1,gemmini_q31,1,0.030308,0.000624,0,1,36907,37555
+107,yolov8_nano,0,103,maxpool2d_s8,l9.m2.tile_0,gemmini_q31,0,0.030932,0.000602,0,0,37563,38199
+108,yolov8_nano,0,104,maxpool2d_s8,l9.m2.tile_1,gemmini_q31,1,0.030932,0.000602,0,1,37562,38196
+109,yolov8_nano,0,105,maxpool2d_s8,l9.m3.tile_0,gemmini_q31,0,0.031534,0.000578,0,0,38205,38822
+110,yolov8_nano,0,106,maxpool2d_s8,l9.m3.tile_1,gemmini_q31,1,0.031534,0.000578,0,1,38206,38823
+111,yolov8_nano,0,107,cat4_c1_s8,cat_4,gemmini_q31,0,0.032112,0.000128,0,0,38827,38957
+112,yolov8_nano,0,108,conv2d_s8,l9.cv2.conv,gemmini_q31,0,0.032240,0.000382,0,0,38960,39344
+113,yolov8_nano,0,109,silu_s8,l9.cv2.act.tile_0,gemmini_q31,0,0.032622,0.000072,0,0,39350,39443
+114,yolov8_nano,0,110,silu_s8,l9.cv2.act.tile_1,gemmini_q31,1,0.032622,0.000072,0,1,39351,39442
+115,yolov8_nano,0,111,upsample_nearest_s8,l10,gemmini_q31,0,0.032694,0.000312,0,0,39447,39766
+116,yolov8_nano,0,112,cat2_c1_s8,cat_5,gemmini_q31,0,0.033006,0.000397,0,0,39769,40168
+117,yolov8_nano,0,113,conv2d_s8,l12.cv1.conv,gemmini_q31,0,0.033403,0.000847,0,0,40171,41030
+118,yolov8_nano,0,114,silu_s8,l12.cv1.act.tile_0,gemmini_q31,0,0.034250,0.000131,0,0,41037,41182
+119,yolov8_nano,0,115,silu_s8,l12.cv1.act.tile_1,gemmini_q31,1,0.034250,0.000131,0,1,41038,41198
+120,yolov8_nano,0,-1,chunk2_c1,chunk_4,gemmini_q31,0,0.034381,0.000000,-1,-1,0,0
+121,yolov8_nano,0,116,conv2d_s8,l12.m0.cv1.conv,gemmini_q31,0,0.034381,0.000364,0,0,41207,41570
+122,yolov8_nano,0,117,silu_s8,l12.m0.cv1.act.tile_0,gemmini_q31,0,0.034745,0.000072,0,0,41576,41664
+123,yolov8_nano,0,118,silu_s8,l12.m0.cv1.act.tile_1,gemmini_q31,1,0.034745,0.000072,0,1,41577,41670
+124,yolov8_nano,0,119,conv2d_s8,l12.m0.cv2.conv,gemmini_q31,0,0.034817,0.000357,0,0,41677,42035
+125,yolov8_nano,0,120,silu_s8,l12.m0.cv2.act.tile_0,gemmini_q31,0,0.035174,0.000080,0,0,42041,42147
+126,yolov8_nano,0,121,silu_s8,l12.m0.cv2.act.tile_1,gemmini_q31,1,0.035174,0.000080,0,1,42043,42144
+127,yolov8_nano,0,122,cat3_c1_s8,cat_6,gemmini_q31,0,0.035253,0.000210,0,0,42150,42361
+128,yolov8_nano,0,123,conv2d_s8,l12.cv2.conv,gemmini_q31,0,0.035463,0.000612,0,0,42364,42982
+129,yolov8_nano,0,124,silu_s8,l12.cv2.act.tile_0,gemmini_q31,0,0.036075,0.000126,0,0,42988,43133
+130,yolov8_nano,0,125,silu_s8,l12.cv2.act.tile_1,gemmini_q31,1,0.036075,0.000126,0,1,42989,43136
+131,yolov8_nano,0,126,upsample_nearest_s8,l13,gemmini_q31,0,0.036200,0.000545,0,0,43145,43715
+132,yolov8_nano,0,127,cat2_c1_s8,cat_7,gemmini_q31,0,0.036746,0.000836,0,0,43718,44555
+133,yolov8_nano,0,128,conv2d_s8,l15.cv1.conv.tile_0,gemmini_q31,0,0.037582,0.001419,0,0,44562,47063
+134,yolov8_nano,0,129,conv2d_s8,l15.cv1.conv.tile_1,gemmini_q31,1,0.037582,0.001419,0,1,44564,47079
+135,yolov8_nano,0,130,silu_s8,l15.cv1.act.tile_0,gemmini_q31,0,0.039001,0.000229,0,0,47087,47334
+136,yolov8_nano,0,131,silu_s8,l15.cv1.act.tile_1,gemmini_q31,1,0.039001,0.000229,0,1,47086,47337
+137,yolov8_nano,0,-1,chunk2_c1,chunk_5,gemmini_q31,0,0.039230,0.000000,-1,-1,0,0
+138,yolov8_nano,0,132,conv2d_s8,l15.m0.cv1.conv,gemmini_q31,0,0.039230,0.000677,0,0,47347,48026
+139,yolov8_nano,0,133,silu_s8,l15.m0.cv1.act.tile_0,gemmini_q31,0,0.039907,0.000129,0,0,48032,48187
+140,yolov8_nano,0,134,silu_s8,l15.m0.cv1.act.tile_1,gemmini_q31,1,0.039907,0.000129,0,1,48033,48183
+141,yolov8_nano,0,135,conv2d_s8,l15.m0.cv2.conv,gemmini_q31,0,0.040037,0.000654,0,0,48190,48844
+142,yolov8_nano,0,136,silu_s8,l15.m0.cv2.act.tile_0,gemmini_q31,0,0.040691,0.000134,0,0,48850,49008
+143,yolov8_nano,0,137,silu_s8,l15.m0.cv2.act.tile_1,gemmini_q31,1,0.040691,0.000134,0,1,48851,49015
+144,yolov8_nano,0,138,cat3_c1_s8,cat_8,gemmini_q31,0,0.040825,0.000417,0,0,49023,49442
+145,yolov8_nano,0,139,conv2d_s8,l15.cv2.conv.tile_0,gemmini_q31,0,0.041242,0.000910,0,0,49448,50907
+146,yolov8_nano,0,140,conv2d_s8,l15.cv2.conv.tile_1,gemmini_q31,1,0.041242,0.000910,0,1,49449,50901
+147,yolov8_nano,0,141,silu_s8,l15.cv2.act.tile_0,gemmini_q31,0,0.042152,0.000236,0,0,50913,51174
+148,yolov8_nano,0,142,silu_s8,l15.cv2.act.tile_1,gemmini_q31,1,0.042152,0.000236,0,1,50914,51176
+149,yolov8_nano,0,143,conv2d_s8,l16.conv,gemmini_q31,0,0.042388,0.000957,0,0,51185,52173
+150,yolov8_nano,0,185,conv2d_s8,detect.cv3_0_0.conv.tile_0,gemmini_q31,1,0.042388,0.000990,0,1,51183,52583
+151,yolov8_nano,0,144,silu_s8,l16.act.tile_0,gemmini_q31,0,0.043345,0.000082,0,0,52176,52285
+152,yolov8_nano,0,145,silu_s8,l16.act.tile_1,gemmini_q31,1,0.043378,0.000082,0,1,52587,52694
+153,yolov8_nano,0,146,cat2_c1_s8,cat_9,gemmini_q31,0,0.043460,0.000214,0,0,52702,52920
+154,yolov8_nano,0,147,conv2d_s8,l18.cv1.conv,gemmini_q31,0,0.043674,0.000616,0,0,52924,53548
+155,yolov8_nano,0,148,silu_s8,l18.cv1.act.tile_0,gemmini_q31,0,0.044290,0.000133,0,0,53554,53691
+156,yolov8_nano,0,149,silu_s8,l18.cv1.act.tile_1,gemmini_q31,1,0.044290,0.000133,0,1,53556,53720
+157,yolov8_nano,0,-1,chunk2_c1,chunk_6,gemmini_q31,0,0.044423,0.000000,-1,-1,0,0
+158,yolov8_nano,0,150,conv2d_s8,l18.m0.cv1.conv,gemmini_q31,0,0.044423,0.000364,0,0,53729,54094
+159,yolov8_nano,0,151,silu_s8,l18.m0.cv1.act.tile_0,gemmini_q31,0,0.044787,0.000074,0,0,54101,54198
+160,yolov8_nano,0,152,silu_s8,l18.m0.cv1.act.tile_1,gemmini_q31,1,0.044787,0.000074,0,1,54102,54190
+161,yolov8_nano,0,153,conv2d_s8,l18.m0.cv2.conv,gemmini_q31,0,0.044862,0.000355,0,0,54201,54557
+162,yolov8_nano,0,154,silu_s8,l18.m0.cv2.act.tile_0,gemmini_q31,0,0.045217,0.000074,0,0,54563,54658
+163,yolov8_nano,0,155,silu_s8,l18.m0.cv2.act.tile_1,gemmini_q31,1,0.045217,0.000074,0,1,54564,54660
+164,yolov8_nano,0,156,cat3_c1_s8,cat_10,gemmini_q31,0,0.045290,0.000210,0,0,54668,54879
+165,yolov8_nano,0,157,conv2d_s8,l18.cv2.conv,gemmini_q31,0,0.045500,0.000618,0,0,54882,55507
+166,yolov8_nano,0,158,silu_s8,l18.cv2.act.tile_0,gemmini_q31,0,0.046118,0.000122,0,0,55513,55653
+167,yolov8_nano,0,159,silu_s8,l18.cv2.act.tile_1,gemmini_q31,1,0.046118,0.000122,0,1,55514,55655
+168,yolov8_nano,0,160,conv2d_s8,l19.conv,gemmini_q31,0,0.046241,0.000373,0,0,55664,56035
+169,yolov8_nano,0,161,silu_s8,l19.act.tile_0,gemmini_q31,0,0.046614,0.000042,0,0,56042,56097
+170,yolov8_nano,0,162,silu_s8,l19.act.tile_1,gemmini_q31,1,0.046614,0.000042,0,1,56043,56099
+171,yolov8_nano,0,163,cat2_c1_s8,cat_11,gemmini_q31,0,0.046656,0.000108,0,0,56107,56218
+172,yolov8_nano,0,195,conv2d_s8,detect.cv2_1_0.conv,gemmini_q31,1,0.046656,0.000497,0,1,56106,56626
+173,yolov8_nano,0,164,conv2d_s8,l21.cv1.conv,gemmini_q31,0,0.046764,0.000327,0,0,56222,56570
+174,yolov8_nano,0,165,silu_s8,l21.cv1.act.tile_0,gemmini_q31,0,0.047091,0.000074,0,0,56574,56668
+175,yolov8_nano,0,166,silu_s8,l21.cv1.act.tile_1,gemmini_q31,1,0.047154,0.000074,0,1,56630,56727
+176,yolov8_nano,0,-1,chunk2_c1,chunk_7,gemmini_q31,0,0.047228,0.000000,-1,-1,0,0
+177,yolov8_nano,0,196,silu_s8,detect.cv2_1_0.act.tile_0,gemmini_q31,0,0.047228,0.000076,0,0,56736,56832
+178,yolov8_nano,0,197,silu_s8,detect.cv2_1_0.act.tile_1,gemmini_q31,1,0.047228,0.000076,0,1,56734,56835
+179,yolov8_nano,0,167,conv2d_s8,l21.m0.cv1.conv,gemmini_q31,0,0.047304,0.000277,0,0,56835,57111
+180,yolov8_nano,0,168,silu_s8,l21.m0.cv1.act.tile_0,gemmini_q31,0,0.047580,0.000047,0,0,57118,57180
+181,yolov8_nano,0,169,silu_s8,l21.m0.cv1.act.tile_1,gemmini_q31,1,0.047580,0.000047,0,1,57119,57187
+182,yolov8_nano,0,170,conv2d_s8,l21.m0.cv2.conv,gemmini_q31,0,0.047628,0.000272,0,0,57195,57468
+183,yolov8_nano,0,171,silu_s8,l21.m0.cv2.act.tile_0,gemmini_q31,0,0.047900,0.000052,0,0,57475,57550
+184,yolov8_nano,0,172,silu_s8,l21.m0.cv2.act.tile_1,gemmini_q31,1,0.047900,0.000052,0,1,57476,57553
+185,yolov8_nano,0,173,cat3_c1_s8,cat_12,gemmini_q31,0,0.047953,0.000106,0,0,57561,57672
+186,yolov8_nano,0,198,conv2d_s8,detect.cv2_1_1.conv,gemmini_q31,1,0.047953,0.000354,0,1,57559,57924
+187,yolov8_nano,0,199,silu_s8,detect.cv2_1_1.act.tile_0,gemmini_q31,0,0.048307,0.000080,0,0,57931,58036
+188,yolov8_nano,0,200,silu_s8,detect.cv2_1_1.act.tile_1,gemmini_q31,1,0.048307,0.000080,0,1,57930,58033
+189,yolov8_nano,0,174,conv2d_s8,l21.cv2.conv,gemmini_q31,1,0.048387,0.000332,0,1,58036,58372
+190,yolov8_nano,0,201,conv2d_s8,detect.cv2_1_2,gemmini_q31,0,0.048387,0.000268,0,0,58039,58318
+191,yolov8_nano,0,175,silu_s8,l21.cv2.act.tile_0,gemmini_q31,0,0.048719,0.000066,0,0,58380,58460
+192,yolov8_nano,0,176,silu_s8,l21.cv2.act.tile_1,gemmini_q31,1,0.048719,0.000066,0,1,58378,58457
+193,yolov8_nano,0,210,conv2d_s8,detect.cv2_2_0.conv,gemmini_q31,0,0.048785,0.000256,0,0,58464,58726
+194,yolov8_nano,0,211,silu_s8,detect.cv2_2_0.act.tile_0,gemmini_q31,0,0.049041,0.000039,0,0,58733,58790
+195,yolov8_nano,0,212,silu_s8,detect.cv2_2_0.act.tile_1,gemmini_q31,1,0.049041,0.000039,0,1,58734,58797
+196,yolov8_nano,0,213,conv2d_s8,detect.cv2_2_1.conv,gemmini_q31,0,0.049080,0.000110,0,0,58805,58918
+197,yolov8_nano,0,214,silu_s8,detect.cv2_2_1.act.tile_0,gemmini_q31,0,0.049191,0.000039,0,0,58924,58985
+198,yolov8_nano,0,215,silu_s8,detect.cv2_2_1.act.tile_1,gemmini_q31,1,0.049191,0.000039,0,1,58925,58983
+199,yolov8_nano,0,216,conv2d_s8,detect.cv2_2_2,gemmini_q31,0,0.049230,0.000070,0,0,58989,59060
+200,yolov8_nano,0,217,conv2d_s8,detect.cv3_2_0.conv,gemmini_q31,1,0.049230,0.000300,0,1,58987,59296
+201,yolov8_nano,0,218,silu_s8,detect.cv3_2_0.act.tile_0,gemmini_q31,0,0.049530,0.000030,0,0,59304,59344
+202,yolov8_nano,0,219,silu_s8,detect.cv3_2_0.act.tile_1,gemmini_q31,1,0.049530,0.000030,0,1,59303,59345
+203,yolov8_nano,0,220,conv2d_s8,detect.cv3_2_1.conv,gemmini_q31,0,0.049561,0.000142,0,0,59348,59493
+204,yolov8_nano,0,221,silu_s8,detect.cv3_2_1.act.tile_0,gemmini_q31,0,0.049702,0.000027,0,0,59499,59532
+205,yolov8_nano,0,222,silu_s8,detect.cv3_2_1.act.tile_1,gemmini_q31,1,0.049702,0.000027,0,1,59501,59538
+206,yolov8_nano,0,202,conv2d_s8,detect.cv3_1_0.conv,gemmini_q31,1,0.049729,0.000571,0,1,59543,60126
+207,yolov8_nano,0,223,conv2d_s8,detect.cv3_2_2,gemmini_q31,0,0.049729,0.000093,0,0,59545,59639
+208,yolov8_nano,0,224,cat2_c1_s8,cat_15,gemmini_q31,0,0.049822,0.000041,0,0,59642,59683
+209,yolov8_nano,0,203,silu_s8,detect.cv3_1_0.act.tile_0,gemmini_q31,0,0.050300,0.000085,0,0,60135,60239
+210,yolov8_nano,0,204,silu_s8,detect.cv3_1_0.act.tile_1,gemmini_q31,1,0.050300,0.000085,0,1,60133,60236
+211,yolov8_nano,0,205,conv2d_s8,detect.cv3_1_1.conv,gemmini_q31,0,0.050385,0.000445,0,0,60243,60695
+212,yolov8_nano,0,206,silu_s8,detect.cv3_1_1.act.tile_0,gemmini_q31,0,0.050831,0.000078,0,0,60702,60777
+213,yolov8_nano,0,207,silu_s8,detect.cv3_1_1.act.tile_1,gemmini_q31,1,0.050831,0.000078,0,1,60703,60797
+214,yolov8_nano,0,186,conv2d_s8,detect.cv3_0_0.conv.tile_1,gemmini_q31,1,0.050909,0.000990,0,1,60803,62217
+215,yolov8_nano,0,208,conv2d_s8,detect.cv3_1_2,gemmini_q31,0,0.050909,0.000358,0,0,60804,61164
+216,yolov8_nano,0,209,cat2_c1_s8,cat_14,gemmini_q31,0,0.051267,0.000150,0,0,61168,61326
+217,yolov8_nano,0,187,silu_s8,detect.cv3_0_0.act.tile_0,gemmini_q31,0,0.051900,0.000283,0,0,62225,62538
+218,yolov8_nano,0,188,silu_s8,detect.cv3_0_0.act.tile_1,gemmini_q31,1,0.051900,0.000283,0,1,62224,62530
+219,yolov8_nano,0,177,conv2d_s8,detect.cv2_0_0.conv,gemmini_q31,0,0.052182,0.001751,0,0,62541,64290
+220,yolov8_nano,0,178,silu_s8,detect.cv2_0_0.act.tile_0,gemmini_q31,0,0.053934,0.000233,0,0,64297,64557
+221,yolov8_nano,0,179,silu_s8,detect.cv2_0_0.act.tile_1,gemmini_q31,1,0.053934,0.000233,0,1,64299,64551
+222,yolov8_nano,0,180,conv2d_s8,detect.cv2_0_1.conv.tile_0,gemmini_q31,0,0.054167,0.000846,0,0,64563,65833
+223,yolov8_nano,0,181,conv2d_s8,detect.cv2_0_1.conv.tile_1,gemmini_q31,1,0.054167,0.000846,0,1,64565,65827
+224,yolov8_nano,0,182,silu_s8,detect.cv2_0_1.act.tile_0,gemmini_q31,0,0.055012,0.000235,0,0,65839,66097
+225,yolov8_nano,0,183,silu_s8,detect.cv2_0_1.act.tile_1,gemmini_q31,1,0.055012,0.000235,0,1,65840,66098
+226,yolov8_nano,0,184,conv2d_s8,detect.cv2_0_2,gemmini_q31,0,0.055248,0.001475,0,0,66107,67609
+227,yolov8_nano,0,189,conv2d_s8,detect.cv3_0_1.conv,gemmini_q31,1,0.055248,0.002131,0,1,66106,68269
+228,yolov8_nano,0,190,silu_s8,detect.cv3_0_1.act.tile_0,gemmini_q31,0,0.057379,0.000282,0,0,68277,68575
+229,yolov8_nano,0,191,silu_s8,detect.cv3_0_1.act.tile_1,gemmini_q31,1,0.057379,0.000282,0,1,68276,68582
+230,yolov8_nano,0,192,conv2d_s8,detect.cv3_0_2.tile_0,gemmini_q31,0,0.057661,0.000971,0,0,68589,70020
+231,yolov8_nano,0,193,conv2d_s8,detect.cv3_0_2.tile_1,gemmini_q31,1,0.057661,0.000971,0,1,68588,70008
+232,yolov8_nano,0,194,cat2_c1_s8,cat_13,gemmini_q31,0,0.058632,0.000599,0,0,70024,70624
+=== MODELBLASTER_XPURT_TRACE_END ===
+=== MODELBLASTER_VERIFY [yolov8_nano] === max_abs_err=0 max_rel_err=0 n=75600 instance=0 ready=1
+=== MODELBLASTER_OUTPUT_BEGIN [yolov8_nano] ===
+OUTPUT_SAMPLED size=75600 head=8 tail=8
+  [0] 44
+  [1] 17
+  [2] 13
+  [3] 8
+  [4] 4
+  [5] 2
+  [6] 2
+  [7] 2
+  [75592] -36
+  [75593] -36
+  [75594] -53
+  [75595] -49
+  [75596] -55
+  [75597] -38
+  [75598] -56
+  [75599] -50
+OUTPUT_SUMMARY sum=-3.66936e+06 abs_sum=4.25976e+06 min=-123 max=60
+=== MODELBLASTER_OUTPUT_END [yolov8_nano] ===
+=== MODELBLASTER_PROFILE_BEGIN [yolov8_nano] ===
+backend,dispatch_id,name,op,shape,cycles
+gemmini_q31,0,l0.conv.tile_0,conv2d_s8,N=1;IC=3;IH=160;IW=160;OC=8;OH=80;OW=80;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,3405973
+gemmini_q31,1,l0.conv.tile_1,conv2d_s8,N=1;IC=3;IH=160;IW=160;OC=8;OH=80;OW=80;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,3439150
+gemmini_q31,2,l0.act.tile_0,silu_s8,n=51200,881861
+gemmini_q31,3,l0.act.tile_1,silu_s8,n=51200,893981
+gemmini_q31,5,l1.conv.tile_1,conv2d_s8,N=1;IC=16;IH=80;IW=80;OC=16;OH=40;OW=40;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,2649109
+gemmini_q31,4,l1.conv.tile_0,conv2d_s8,N=1;IC=16;IH=80;IW=80;OC=16;OH=40;OW=40;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,2656086
+gemmini_q31,6,l1.act.tile_0,silu_s8,n=25600,459343
+gemmini_q31,7,l1.act.tile_1,silu_s8,n=25600,459550
+gemmini_q31,9,l2.cv1.conv.tile_1,conv2d_s8,N=1;IC=32;IH=40;IW=40;OC=16;OH=40;OW=40;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,2047493
+gemmini_q31,8,l2.cv1.conv.tile_0,conv2d_s8,N=1;IC=32;IH=40;IW=40;OC=16;OH=40;OW=40;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,2081252
+gemmini_q31,11,l2.cv1.act.tile_1,silu_s8,n=25600,439996
+gemmini_q31,10,l2.cv1.act.tile_0,silu_s8,n=25600,450295
+gemmini_q31,13,l2.m0.cv1.conv,conv2d_s8,N=1;IC=16;IH=40;IW=40;OC=16;OH=40;OW=40;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1469859
+gemmini_q31,14,l2.m0.cv1.act.tile_0,silu_s8,n=12800,231872
+gemmini_q31,15,l2.m0.cv1.act.tile_1,silu_s8,n=12800,231154
+gemmini_q31,16,l2.m0.cv2.conv,conv2d_s8,N=1;IC=16;IH=40;IW=40;OC=16;OH=40;OW=40;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1448022
+gemmini_q31,18,l2.m0.cv2.act.tile_1,silu_s8,n=12800,234997
+gemmini_q31,17,l2.m0.cv2.act.tile_0,silu_s8,n=12800,236141
+gemmini_q31,20,add.tile_1,add_s8,n=12800,393427
+gemmini_q31,19,add.tile_0,add_s8,n=12800,390571
+gemmini_q31,21,cat,cat3_c1_s8,N=1;H=40;W=40;C_inputs=16|16|16;C_total=48,837397
+gemmini_q31,22,l2.cv2.conv.tile_0,conv2d_s8,N=1;IC=48;IH=40;IW=40;OC=16;OH=40;OW=40;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,3154866
+gemmini_q31,23,l2.cv2.conv.tile_1,conv2d_s8,N=1;IC=48;IH=40;IW=40;OC=16;OH=40;OW=40;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,3157627
+gemmini_q31,24,l2.cv2.act.tile_0,silu_s8,n=25600,446749
+gemmini_q31,25,l2.cv2.act.tile_1,silu_s8,n=25600,451799
+gemmini_q31,26,l3.conv.tile_0,conv2d_s8,N=1;IC=32;IH=40;IW=40;OC=32;OH=20;OW=20;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,1639642
+gemmini_q31,27,l3.conv.tile_1,conv2d_s8,N=1;IC=32;IH=40;IW=40;OC=32;OH=20;OW=20;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,1642449
+gemmini_q31,29,l3.act.tile_1,silu_s8,n=12800,243165
+gemmini_q31,28,l3.act.tile_0,silu_s8,n=12800,245138
+gemmini_q31,31,l4.cv1.conv.tile_1,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=32;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1099152
+gemmini_q31,30,l4.cv1.conv.tile_0,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=32;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1117580
+gemmini_q31,33,l4.cv1.act.tile_1,silu_s8,n=12800,233214
+gemmini_q31,32,l4.cv1.act.tile_0,silu_s8,n=12800,245375
+gemmini_q31,35,l4.m0.cv1.conv,conv2d_s8,N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,660776
+gemmini_q31,36,l4.m0.cv1.act.tile_0,silu_s8,n=6400,128455
+gemmini_q31,37,l4.m0.cv1.act.tile_1,silu_s8,n=6400,145064
+gemmini_q31,38,l4.m0.cv2.conv,conv2d_s8,N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,656373
+gemmini_q31,40,l4.m0.cv2.act.tile_1,silu_s8,n=6400,155720
+gemmini_q31,39,l4.m0.cv2.act.tile_0,silu_s8,n=6400,165375
+gemmini_q31,41,add_1.tile_0,add_s8,n=6400,199839
+gemmini_q31,42,add_1.tile_1,add_s8,n=6400,201766
+gemmini_q31,43,l4.m1.cv1.conv,conv2d_s8,N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,676627
+gemmini_q31,44,l4.m1.cv1.act.tile_0,silu_s8,n=6400,147079
+gemmini_q31,45,l4.m1.cv1.act.tile_1,silu_s8,n=6400,151178
+gemmini_q31,46,l4.m1.cv2.conv,conv2d_s8,N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,651528
+gemmini_q31,47,l4.m1.cv2.act.tile_0,silu_s8,n=6400,164236
+gemmini_q31,48,l4.m1.cv2.act.tile_1,silu_s8,n=6400,168864
+gemmini_q31,50,add_2.tile_1,add_s8,n=6400,197276
+gemmini_q31,49,add_2.tile_0,add_s8,n=6400,197810
+gemmini_q31,51,cat_1,cat4_c1_s8,N=1;H=20;W=20;C_inputs=32|32|32|32;C_total=128,573920
+gemmini_q31,52,l4.cv2.conv.tile_0,conv2d_s8,N=1;IC=128;IH=20;IW=20;OC=32;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,2183157
+gemmini_q31,53,l4.cv2.conv.tile_1,conv2d_s8,N=1;IC=128;IH=20;IW=20;OC=32;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,2184510
+gemmini_q31,54,l4.cv2.act.tile_0,silu_s8,n=12800,256590
+gemmini_q31,55,l4.cv2.act.tile_1,silu_s8,n=12800,258185
+gemmini_q31,56,l5.conv,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=128;OH=10;OW=10;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,1252335
+gemmini_q31,57,l5.act.tile_0,silu_s8,n=6400,151730
+gemmini_q31,58,l5.act.tile_1,silu_s8,n=6400,162514
+gemmini_q31,59,l6.cv1.conv,conv2d_s8,N=1;IC=128;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,557129
+gemmini_q31,61,l6.cv1.act.tile_1,silu_s8,n=6400,132235
+gemmini_q31,60,l6.cv1.act.tile_0,silu_s8,n=6400,147931
+gemmini_q31,63,l6.m0.cv1.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,366013
+gemmini_q31,65,l6.m0.cv1.act.tile_1,silu_s8,n=3200,75412
+gemmini_q31,64,l6.m0.cv1.act.tile_0,silu_s8,n=3200,82215
+gemmini_q31,66,l6.m0.cv2.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,353876
+gemmini_q31,67,l6.m0.cv2.act.tile_0,silu_s8,n=3200,98662
+gemmini_q31,68,l6.m0.cv2.act.tile_1,silu_s8,n=3200,98566
+gemmini_q31,70,add_3.tile_1,add_s8,n=3200,102809
+gemmini_q31,69,add_3.tile_0,add_s8,n=3200,103462
+gemmini_q31,71,l6.m1.cv1.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,363433
+gemmini_q31,72,l6.m1.cv1.act.tile_0,silu_s8,n=3200,96300
+gemmini_q31,73,l6.m1.cv1.act.tile_1,silu_s8,n=3200,100935
+gemmini_q31,74,l6.m1.cv2.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,350762
+gemmini_q31,76,l6.m1.cv2.act.tile_1,silu_s8,n=3200,108800
+gemmini_q31,75,l6.m1.cv2.act.tile_0,silu_s8,n=3200,111306
+gemmini_q31,77,add_4.tile_0,add_s8,n=3200,102127
+gemmini_q31,78,add_4.tile_1,add_s8,n=3200,101276
+gemmini_q31,79,cat_2,cat4_c1_s8,N=1;H=10;W=10;C_inputs=64|64|64|64;C_total=256,288911
+gemmini_q31,80,l6.cv2.conv,conv2d_s8,N=1;IC=256;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1127479
+gemmini_q31,82,l6.cv2.act.tile_1,silu_s8,n=6400,152624
+gemmini_q31,81,l6.cv2.act.tile_0,silu_s8,n=6400,158086
+gemmini_q31,83,l7.conv,conv2d_s8,N=1;IC=128;IH=10;IW=10;OC=256;OH=5;OW=5;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,579325
+gemmini_q31,84,l7.act.tile_0,silu_s8,n=3200,101686
+gemmini_q31,85,l7.act.tile_1,silu_s8,n=3200,106587
+gemmini_q31,86,l8.cv1.conv,conv2d_s8,N=1;IC=256;IH=5;IW=5;OC=256;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,294125
+gemmini_q31,88,l8.cv1.act.tile_1,silu_s8,n=3200,90720
+gemmini_q31,87,l8.cv1.act.tile_0,silu_s8,n=3200,110097
+gemmini_q31,90,l8.m0.cv1.conv,conv2d_s8,N=1;IC=128;IH=5;IW=5;OC=128;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,275243
+gemmini_q31,91,l8.m0.cv1.act.tile_0,silu_s8,n=1600,54979
+gemmini_q31,92,l8.m0.cv1.act.tile_1,silu_s8,n=1600,57394
+gemmini_q31,93,l8.m0.cv2.conv,conv2d_s8,N=1;IC=128;IH=5;IW=5;OC=128;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,266212
+gemmini_q31,95,l8.m0.cv2.act.tile_1,silu_s8,n=1600,48411
+gemmini_q31,94,l8.m0.cv2.act.tile_0,silu_s8,n=1600,53122
+gemmini_q31,96,add_5.tile_0,add_s8,n=1600,55957
+gemmini_q31,97,add_5.tile_1,add_s8,n=1600,55636
+gemmini_q31,98,cat_3,cat3_c1_s8,N=1;H=5;W=5;C_inputs=128|128|128;C_total=384,109508
+gemmini_q31,99,l8.cv2.conv,conv2d_s8,N=1;IC=384;IH=5;IW=5;OC=256;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,334147
+gemmini_q31,100,l8.cv2.act.tile_0,silu_s8,n=3200,99495
+gemmini_q31,101,l8.cv2.act.tile_1,silu_s8,n=3200,104503
+gemmini_q31,102,l9.cv1.conv,conv2d_s8,N=1;IC=256;IH=5;IW=5;OC=128;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,169616
+gemmini_q31,104,l9.cv1.act.tile_1,silu_s8,n=1600,60559
+gemmini_q31,103,l9.cv1.act.tile_0,silu_s8,n=1600,62315
+gemmini_q31,105,l9.m1.tile_0,maxpool2d_s8,N=1;C=64;IH=5;IW=5;OH=5;OW=5;KH=5;KW=5;SH=1;SW=1;PH=2;PW=2;DH=1;DW=1,645219
+gemmini_q31,106,l9.m1.tile_1,maxpool2d_s8,N=1;C=64;IH=5;IW=5;OH=5;OW=5;KH=5;KW=5;SH=1;SW=1;PH=2;PW=2;DH=1;DW=1,648018
+gemmini_q31,108,l9.m2.tile_1,maxpool2d_s8,N=1;C=64;IH=5;IW=5;OH=5;OW=5;KH=5;KW=5;SH=1;SW=1;PH=2;PW=2;DH=1;DW=1,633613
+gemmini_q31,107,l9.m2.tile_0,maxpool2d_s8,N=1;C=64;IH=5;IW=5;OH=5;OW=5;KH=5;KW=5;SH=1;SW=1;PH=2;PW=2;DH=1;DW=1,635777
+gemmini_q31,109,l9.m3.tile_0,maxpool2d_s8,N=1;C=64;IH=5;IW=5;OH=5;OW=5;KH=5;KW=5;SH=1;SW=1;PH=2;PW=2;DH=1;DW=1,616272
+gemmini_q31,110,l9.m3.tile_1,maxpool2d_s8,N=1;C=64;IH=5;IW=5;OH=5;OW=5;KH=5;KW=5;SH=1;SW=1;PH=2;PW=2;DH=1;DW=1,616205
+gemmini_q31,111,cat_4,cat4_c1_s8,N=1;H=5;W=5;C_inputs=128|128|128|128;C_total=512,129281
+gemmini_q31,112,l9.cv2.conv,conv2d_s8,N=1;IC=512;IH=5;IW=5;OC=256;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,383120
+gemmini_q31,114,l9.cv2.act.tile_1,silu_s8,n=3200,90780
+gemmini_q31,113,l9.cv2.act.tile_0,silu_s8,n=3200,92610
+gemmini_q31,115,l10,upsample_nearest_s8,N=1;C=256;IH=5;IW=5;scale=2,318176
+gemmini_q31,116,cat_5,cat2_c1_s8,N=1;H=10;W=10;C_inputs=256|128;C_total=384,398816
+gemmini_q31,117,l12.cv1.conv,conv2d_s8,N=1;IC=384;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,858676
+gemmini_q31,118,l12.cv1.act.tile_0,silu_s8,n=6400,144586
+gemmini_q31,119,l12.cv1.act.tile_1,silu_s8,n=6400,158840
+gemmini_q31,121,l12.m0.cv1.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,361997
+gemmini_q31,122,l12.m0.cv1.act.tile_0,silu_s8,n=3200,87734
+gemmini_q31,123,l12.m0.cv1.act.tile_1,silu_s8,n=3200,92470
+gemmini_q31,124,l12.m0.cv2.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,358063
+gemmini_q31,126,l12.m0.cv2.act.tile_1,silu_s8,n=3200,100850
+gemmini_q31,125,l12.m0.cv2.act.tile_0,silu_s8,n=3200,105416
+gemmini_q31,127,cat_6,cat3_c1_s8,N=1;H=10;W=10;C_inputs=64|64|64;C_total=192,210006
+gemmini_q31,128,l12.cv2.conv,conv2d_s8,N=1;IC=192;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,617226
+gemmini_q31,129,l12.cv2.act.tile_0,silu_s8,n=6400,144243
+gemmini_q31,130,l12.cv2.act.tile_1,silu_s8,n=6400,146473
+gemmini_q31,131,l13,upsample_nearest_s8,N=1;C=128;IH=10;IW=10;scale=2,569453
+gemmini_q31,132,cat_7,cat2_c1_s8,N=1;H=20;W=20;C_inputs=128|64;C_total=192,836653
+gemmini_q31,133,l15.cv1.conv.tile_0,conv2d_s8,N=1;IC=192;IH=20;IW=20;OC=32;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,2500910
+gemmini_q31,134,l15.cv1.conv.tile_1,conv2d_s8,N=1;IC=192;IH=20;IW=20;OC=32;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,2514333
+gemmini_q31,135,l15.cv1.act.tile_0,silu_s8,n=12800,246777
+gemmini_q31,136,l15.cv1.act.tile_1,silu_s8,n=12800,250757
+gemmini_q31,138,l15.m0.cv1.conv,conv2d_s8,N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,678355
+gemmini_q31,140,l15.m0.cv1.act.tile_1,silu_s8,n=6400,148864
+gemmini_q31,139,l15.m0.cv1.act.tile_0,silu_s8,n=6400,154309
+gemmini_q31,141,l15.m0.cv2.conv,conv2d_s8,N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,653079
+gemmini_q31,142,l15.m0.cv2.act.tile_0,silu_s8,n=6400,157994
+gemmini_q31,143,l15.m0.cv2.act.tile_1,silu_s8,n=6400,164045
+gemmini_q31,144,cat_8,cat3_c1_s8,N=1;H=20;W=20;C_inputs=32|32|32;C_total=96,418730
+gemmini_q31,146,l15.cv2.conv.tile_1,conv2d_s8,N=1;IC=96;IH=20;IW=20;OC=32;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1451408
+gemmini_q31,145,l15.cv2.conv.tile_0,conv2d_s8,N=1;IC=96;IH=20;IW=20;OC=32;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1458314
+gemmini_q31,147,l15.cv2.act.tile_0,silu_s8,n=12800,260690
+gemmini_q31,148,l15.cv2.act.tile_1,silu_s8,n=12800,260973
+gemmini_q31,149,l16.conv,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=64;OH=10;OW=10;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,987272
+gemmini_q31,150,l16.act.tile_0,silu_s8,n=3200,108436
+gemmini_q31,193,detect.cv3_0_0.conv.tile_0,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=40;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1398957
+gemmini_q31,151,l16.act.tile_1,silu_s8,n=3200,107463
+gemmini_q31,152,cat_9,cat2_c1_s8,N=1;H=10;W=10;C_inputs=64|128;C_total=192,217704
+gemmini_q31,153,l18.cv1.conv,conv2d_s8,N=1;IC=192;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,623688
+gemmini_q31,154,l18.cv1.act.tile_0,silu_s8,n=6400,136832
+gemmini_q31,155,l18.cv1.act.tile_1,silu_s8,n=6400,163402
+gemmini_q31,157,l18.m0.cv1.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,365431
+gemmini_q31,159,l18.m0.cv1.act.tile_1,silu_s8,n=3200,87991
+gemmini_q31,158,l18.m0.cv1.act.tile_0,silu_s8,n=3200,97195
+gemmini_q31,160,l18.m0.cv2.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,355182
+gemmini_q31,161,l18.m0.cv2.act.tile_0,silu_s8,n=3200,94004
+gemmini_q31,162,l18.m0.cv2.act.tile_1,silu_s8,n=3200,95468
+gemmini_q31,163,cat_10,cat3_c1_s8,N=1;H=10;W=10;C_inputs=64|64|64;C_total=192,210060
+gemmini_q31,164,l18.cv2.conv,conv2d_s8,N=1;IC=192;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,624234
+gemmini_q31,165,l18.cv2.act.tile_0,silu_s8,n=6400,139051
+gemmini_q31,166,l18.cv2.act.tile_1,silu_s8,n=6400,141053
+gemmini_q31,167,l19.conv,conv2d_s8,N=1;IC=128;IH=10;IW=10;OC=128;OH=5;OW=5;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,370263
+gemmini_q31,168,l19.act.tile_0,silu_s8,n=1600,54880
+gemmini_q31,169,l19.act.tile_1,silu_s8,n=1600,55748
+gemmini_q31,170,cat_11,cat2_c1_s8,N=1;H=5;W=5;C_inputs=128|256;C_total=384,110484
+gemmini_q31,171,l21.cv1.conv,conv2d_s8,N=1;IC=384;IH=5;IW=5;OC=256;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,347357
+gemmini_q31,203,detect.cv2_1_0.conv,conv2d_s8,N=1;IC=128;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,519002
+gemmini_q31,172,l21.cv1.act.tile_0,silu_s8,n=3200,93308
+gemmini_q31,173,l21.cv1.act.tile_1,silu_s8,n=3200,97131
+gemmini_q31,204,detect.cv2_1_0.act.tile_0,silu_s8,n=3200,94951
+gemmini_q31,205,detect.cv2_1_0.act.tile_1,silu_s8,n=3200,100525
+gemmini_q31,175,l21.m0.cv1.conv,conv2d_s8,N=1;IC=128;IH=5;IW=5;OC=128;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,275582
+gemmini_q31,176,l21.m0.cv1.act.tile_0,silu_s8,n=1600,62083
+gemmini_q31,177,l21.m0.cv1.act.tile_1,silu_s8,n=1600,67272
+gemmini_q31,178,l21.m0.cv2.conv,conv2d_s8,N=1;IC=128;IH=5;IW=5;OC=128;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,272187
+gemmini_q31,179,l21.m0.cv2.act.tile_0,silu_s8,n=1600,74741
+gemmini_q31,180,l21.m0.cv2.act.tile_1,silu_s8,n=1600,76201
+gemmini_q31,181,cat_12,cat3_c1_s8,N=1;H=5;W=5;C_inputs=128|128|128;C_total=384,111255
+gemmini_q31,206,detect.cv2_1_1.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,364043
+gemmini_q31,208,detect.cv2_1_1.act.tile_1,silu_s8,n=3200,101938
+gemmini_q31,207,detect.cv2_1_1.act.tile_0,silu_s8,n=3200,103897
+gemmini_q31,209,detect.cv2_1_2,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,278854
+gemmini_q31,182,l21.cv2.conv,conv2d_s8,N=1;IC=384;IH=5;IW=5;OC=256;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,335394
+gemmini_q31,184,l21.cv2.act.tile_1,silu_s8,n=3200,77809
+gemmini_q31,183,l21.cv2.act.tile_0,silu_s8,n=3200,79413
+gemmini_q31,218,detect.cv2_2_0.conv,conv2d_s8,N=1;IC=256;IH=5;IW=5;OC=64;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,261384
+gemmini_q31,219,detect.cv2_2_0.act.tile_0,silu_s8,n=800,56664
+gemmini_q31,220,detect.cv2_2_0.act.tile_1,silu_s8,n=800,62664
+gemmini_q31,221,detect.cv2_2_1.conv,conv2d_s8,N=1;IC=64;IH=5;IW=5;OC=64;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,112286
+gemmini_q31,223,detect.cv2_2_1.act.tile_1,silu_s8,n=800,58370
+gemmini_q31,222,detect.cv2_2_1.act.tile_0,silu_s8,n=800,60776
+gemmini_q31,224,detect.cv2_2_2,conv2d_s8,N=1;IC=64;IH=5;IW=5;OC=64;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,71119
+gemmini_q31,225,detect.cv3_2_0.conv,conv2d_s8,N=1;IC=256;IH=5;IW=5;OC=80;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,308021
+gemmini_q31,226,detect.cv3_2_0.act.tile_0,silu_s8,n=1000,39372
+gemmini_q31,227,detect.cv3_2_0.act.tile_1,silu_s8,n=1000,41598
+gemmini_q31,228,detect.cv3_2_1.conv,conv2d_s8,N=1;IC=80;IH=5;IW=5;OC=80;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,144453
+gemmini_q31,229,detect.cv3_2_1.act.tile_0,silu_s8,n=1000,31852
+gemmini_q31,230,detect.cv3_2_1.act.tile_1,silu_s8,n=1000,36749
+gemmini_q31,231,detect.cv3_2_2,conv2d_s8,N=1;IC=80;IH=5;IW=5;OC=80;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,93735
+gemmini_q31,232,cat_15,cat2_c1_s8,N=1;H=5;W=5;C_inputs=64|80;C_total=144,41265
+gemmini_q31,210,detect.cv3_1_0.conv,conv2d_s8,N=1;IC=128;IH=10;IW=10;OC=80;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,582425
+gemmini_q31,212,detect.cv3_1_0.act.tile_1,silu_s8,n=4000,102761
+gemmini_q31,211,detect.cv3_1_0.act.tile_0,silu_s8,n=4000,104053
+gemmini_q31,213,detect.cv3_1_1.conv,conv2d_s8,N=1;IC=80;IH=10;IW=10;OC=80;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,451792
+gemmini_q31,214,detect.cv3_1_1.act.tile_0,silu_s8,n=4000,75012
+gemmini_q31,215,detect.cv3_1_1.act.tile_1,silu_s8,n=4000,93174
+gemmini_q31,216,detect.cv3_1_2,conv2d_s8,N=1;IC=80;IH=10;IW=10;OC=80;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,360216
+gemmini_q31,217,cat_14,cat2_c1_s8,N=1;H=10;W=10;C_inputs=64|80;C_total=144,157756
+gemmini_q31,194,detect.cv3_0_0.conv.tile_1,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=40;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1414120
+gemmini_q31,196,detect.cv3_0_0.act.tile_1,silu_s8,n=16000,305274
+gemmini_q31,195,detect.cv3_0_0.act.tile_0,silu_s8,n=16000,311870
+gemmini_q31,185,detect.cv2_0_0.conv,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=64;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1748428
+gemmini_q31,187,detect.cv2_0_0.act.tile_1,silu_s8,n=12800,251799
+gemmini_q31,186,detect.cv2_0_0.act.tile_0,silu_s8,n=12800,259503
+gemmini_q31,189,detect.cv2_0_1.conv.tile_1,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1261663
+gemmini_q31,188,detect.cv2_0_1.conv.tile_0,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1268665
+gemmini_q31,190,detect.cv2_0_1.act.tile_0,silu_s8,n=12800,257502
+gemmini_q31,191,detect.cv2_0_1.act.tile_1,silu_s8,n=12800,257835
+gemmini_q31,192,detect.cv2_0_2,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=64;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1500621
+gemmini_q31,197,detect.cv3_0_1.conv,conv2d_s8,N=1;IC=80;IH=20;IW=20;OC=80;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,2162600
+gemmini_q31,198,detect.cv3_0_1.act.tile_0,silu_s8,n=16000,297892
+gemmini_q31,199,detect.cv3_0_1.act.tile_1,silu_s8,n=16000,305015
+gemmini_q31,201,detect.cv3_0_2.tile_1,conv2d_s8,N=1;IC=80;IH=20;IW=20;OC=40;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1419148
+gemmini_q31,200,detect.cv3_0_2.tile_0,conv2d_s8,N=1;IC=80;IH=20;IW=20;OC=40;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1430695
+gemmini_q31,202,cat_13,cat2_c1_s8,N=1;H=20;W=20;C_inputs=64|80;C_total=144,599819
+=== MODELBLASTER_PROFILE_END [yolov8_nano] ===
+=== MODELBLASTER_WALL_CYCLES_INST [yolov8_nano#0] === 70605
+=== MODELBLASTER_WALL_CYCLES [yolov8_nano] === 70605
+
+Simulation complete.
+*** PASSED *** after 17605846232 cycles
+
+Emulation Performance Summary
+------------------------------
+Wallclock Time Elapsed: 301.2 s
+Host Frequency: 60.000 MHz
+Target Cycles Emulated: 17605846232
+Effective Target Frequency: 58.445 MHz
+FMR: 1.03
+Note: The latter three figures are based on the fastest target clock.
+
+Script done on 2026-09-02 19:21:10+00:00 [COMMAND_EXIT_CODE="0"]
