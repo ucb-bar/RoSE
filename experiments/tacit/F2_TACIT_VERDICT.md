@@ -189,3 +189,194 @@ per kernel and only sees phases you thought to bracket).
 
 **Not yet verified** — no F2 trace has been captured with this branch. The
 symptom/commit correspondence is strong but circumstantial until one is.
+
+*(Superseded by the section below: it has now been captured, and the fix works.)*
+
+---
+
+# UPDATE 2026-09-02 — adopted, rebuilt, verified. **TACIT on F2 works.**
+
+The heading of this document is now wrong for the PCIM bitstreams. On
+`f2_dual_small_norose_tacit_q31_60mhz_pcim`, running the **byte-identical ELF**
+that produced run 1 above (`md5 f5304dc0436741d2298068ac228ecfc0`), all three
+section-2d checks pass and a full basic-block attribution — the thing this
+document was written to say was impossible — was produced.
+
+## 1. The result
+
+| check | F2 BAR4 (run 1, recorded above) | **F2 PCIM (new)** | U250 reference |
+|---|---|---|---|
+| trace bytes, same workload | 59,520 | **951,488** (16.0x) | 72,180,864 |
+| **(2d.1) sync-packet start PC** | `0x1ec0056a` ❌ | **`0x8000056a`** ✅ | `0x80000202` ✅ |
+| **(2d.2) windowed timestamp sum** | 57,740,605 vs 7,543,000 = 765% ❌ | **7,543,572 vs 7,543,000 = 100.0%** ✅ | 216,597,098 vs 216,597,443 = 100.0% ✅ |
+| **(2d.3) zero bytes** | 473 / 59,520 = **0.79%**, incl. **92 runs of exactly 4** | **13 / 951,488 = 0.00%**, longest run 2 | 8 / 72,180,864 = 0.00% |
+| framing breaks | 1 resync + **47 runaway timestamps** | **0 and 0** over 947,372 packets | 0 and 0 |
+| full decode | died within 1–2 packets | **951,475 / 951,488 bytes consumed, 5,664,864 insns, 1.3437 bits/insn** | (reference) |
+
+The 4-byte zero-block injection is **gone**, not reduced: the run-length
+histogram has no 4-byte entries at all, only five 2-byte and three 1-byte runs,
+which is the same character as the known-good U250 trace.
+
+`0x8000056a` is the `sw a5,0(s0)` that is `l_trace_encoder_start` in `main` —
+the address section 2b said was provably correct in the low 21 bits and lost
+above them. All five varint bytes now arrive.
+
+### The attribution that could not be produced before
+
+414 basic blocks, totalling **7,543,572 cycles**, against a guest that
+independently reported `MODELBLASTER_WALL_CYCLES === 7543` (thousands) and a
+per-op `rdcycle` profile summing to 7,539,118. Three independent counters
+agreeing to 0.06%:
+
+```
+        cycles      count      mean  basic block
+        851430      35679      23.9  0x80001d6a-0x80001da8
+        643183       1000     643.2  0x80001a1a-0x80001aca
+        629778      23266      27.1  0x80001c48-0x80001c9a
+        454211      43359      10.5  0x80001d34-0x80001d48
+```
+
+The model itself was unaffected: `max_abs_err=0`, identical per-op profile,
+`*** PASSED ***`.
+
+### Section 4 (bandwidth throttling) also resolved
+
+`FMR: 1.01`, effective target frequency **59.665 MHz** against a 60 MHz host
+clock — i.e. tracing no longer throttles the simulation at all. Section 4
+blamed the 1-lane `TraceSinkRawByte` egress; it was the 4-byte BAR4 drain.
+**The sink does not need widening.**
+
+## 2. Why `integrity.py` reports two timestamp numbers
+
+The FSync packet's timestamp is **not** a delta within the traced window — it is
+the encoder's free-running cycle count at the moment tracing was enabled. It is
+invisible on a trace enabled at reset (the U250 reference's FSync ts is 346) and
+dominant on one enabled from C (**68,162,537** here, i.e. Zephyr boot). Summing
+it in inflates the window by 10x. `experiments/tacit/integrity.py` excludes it
+and reports it separately; with that fix it reproduces this document's recorded
+U250 number, 216,597,098, to the digit.
+
+That number is also a free cross-check: the quad bitstream, a *different* FPGA
+running the *same* ELF, reports **68,162,560** — 23 cycles apart.
+
+## 3. The quad (`SatGemQuadHeteroTacitConfig`)
+
+`f2_quad_hetero_norose_tacit_q31_60mhz_pcim` = **`agfi-010049831c489a814`**.
+
+The PCIM datapath is proven on it: **four** hugepage stream buffers at four
+distinct physical addresses, four `PCIM Peer Base Addr` programmed, and
+**228,126,720 bytes** of trace delivered off tile 0 — against 59,520 bytes on
+BAR4, and against run 3's 25 MB of *pure zeros*.
+
+* zero bytes: **10 in 228,126,720 = 0.0000044%**
+* framing breaks: **0**, runaway timestamps **0** (first 8 MB, 7,999,803 packets)
+* start PC: **`0x8000056a`** ✅
+* full decode of all 228 MB: **456,296,821 instructions, 228,126,710 / 228,126,720
+  bytes consumed**
+
+**Caveat, stated plainly:** check 2d.2 was *not* obtained on the quad. The ELF
+used is the dual-built dronet, and the quad hetero's harts 0–1 are Rocket+Gemmini
+with **no** Saturn vector unit, so the RVV kernels trap (`mcause: 2, Illegal
+instruction` at `mepc 0x8000170c`) and fq kills the sim, leaving no clean
+`Target Cycles Emulated` to compare against. That is an ELF/tile-mix mismatch,
+not a bitstream defect — the stream itself is clean over 228 MB. Getting 2d.2
+on the quad needs a `harness_tacit` build pinned to hart 2 or 3 (or a
+Gemmini-dispatched model). Small, separate job.
+
+## 4. What was adopted, and the one thing upstream gets wrong for us
+
+Seven commits from `firesim/firesim` `f2-pcim-host-dma`, cherry-picked onto our
+`15d6ffc41` (preserved, and still the base of branch `rose-f2-pcim`):
+`2c9fcee30`, `b41eb50dc`, **`3bcdb00f4`** (the fix), `8164a9881`, `b006d39e2`,
+`db7a301c8`, `cb0f400ab`; plus the `aws-fpga-firesim-f2` shell pointer
+`80b34d3c2` → `5e4c3c2`, which carries `83d6a5c` "connect PCIM to the FireSim
+FPGA-managed stream port" — without it the shim emits `io_pcim_*` and the CL
+leaves them tied off, so the bitstream elaborates and never DMAs.
+
+**Deliberately NOT taken: `d85e8c3cb`** (forward `--strategy` to the bitstream
+build). Our recipes say `build_strategy: TIMING`, which F2 has always silently
+dropped; forwarding it would change the synth directive relative to every AGFI
+already in `config_hwdb.yaml`, putting a synthesis variable into an experiment
+whose only intended variable is the stream transport. The shell bump still
+contains the plumbing, but it is inert because `build-bitstream.sh` never passes
+the flag.
+
+### `3bcdb00f4`'s bus-master check must be made lazy
+
+It calls `check_bus_master_enabled()` unconditionally in `fpga_setup()` and
+`exit(1)`s if PCIe Bus Master Enable is clear. On the F2 run hosts it *is*
+clear, and stays clear with an AGFI loaded:
+
+```
+AFI 0  agfi-0662319f4b07483a7  loaded ...   AFIDEVICE 0  0x1d0f 0xf002  0000:34:00.0
+$ sudo setpci -s 0000:34:00.0 COMMAND
+0002                    # memory space enabled, bus master CLEAR
+```
+
+Taken as written it aborts **every** F2 run from this tree, including every
+CPU-managed-stream bitstream in `config_hwdb.yaml` that never masters the bus
+and is healthy without BME. This was not hypothetical: fq job 478 was in
+`INFRASETUP` against this tree during the adoption and its driver was rebuilt
+from it. It ran clean only because the check had already been moved.
+
+Fix: remember the app PF in `fpga_setup()`, run the check at the first
+`allocate_to_cpu_buffer()` — fatal exactly where PCIM is relied on, a no-op
+otherwise.
+
+## 5. Running a PCIM bitstream: two host-side prerequisites
+
+Neither is needed by the BAR4 path, and both fail silently-ish if missed.
+
+1. **Hugepages.** One 2 MiB hugepage per to-host stream; the FPGA masters PCIM
+   writes with *physical* addresses and only a hugepage guarantees contiguity.
+   `HugePages_Total` is 0 by default → `sudo sysctl -w vm.nr_hugepages=64`.
+2. **Bus Master Enable** → `sudo setpci -s <bdf> COMMAND=0x0006`. Programming
+   the AFI rescans the app PFs and clears it again, and there is no seam between
+   fq's `infrasetup` and its `runworkload`, so
+   `experiments/tacit/f2_pcim_tacit_run.sh` holds the bit with a watcher for the
+   duration. That script also **pins the lane** and applies both prerequisites
+   to that lane's host only — the pool is shared, and reserving hugepages on or
+   touching the PCI COMMAND register of someone else's running job is not ours
+   to do.
+
+Without BME the run does not error; the trace file is created and stays empty.
+
+## 6. Registration and cost
+
+NEW entries, `_pcim`-suffixed. **The pre-existing AGFIs were not repointed** —
+verified by diffing `config_hwdb.yaml` before/after.
+
+| hwdb entry | AGFI |
+|---|---|
+| `f2_quad_hetero_norose_tacit_q31_60mhz_pcim` | `agfi-010049831c489a814` |
+| `f2_dual_small_norose_tacit_q31_60mhz_pcim`  | `agfi-0d79cabf8816f6517` |
+
+Both built in one `firesim buildbitstream -b config_build_f2_pcim.yaml`,
+03:13:33 → 07:53:17 UTC = **4 h 40 m**, exit 0, on two `z1d.2xlarge`
+(`i-0dd223ef088621b6f`, `i-0a76a545f7811c54d`, tag `rosepcim`) — **both
+terminated by buildbitstream**, ≈ **$7** of on-demand build-host time.
+
+### Timing: the quad closed, the dual did not — read this before relying on it
+
+| build | post-route WNS | baseline (`BaseF2Config`) |
+|---|---|---|
+| quad hetero PCIM | **+0.082 ns (MET)** | +0.019 ns, 84.63% CL LUT |
+| dual small PCIM | **−0.045 ns (VIOLATED)** | +0.136 ns, 58.25% CL LUT |
+
+The quad — the one that was expected to be tight — closed, and with more margin
+than its own baseline. The dual has **one** violated path, and it is entirely
+inside the AWS DDR4 shell IP:
+
+```
+Source:      WRAPPER/CL/SH_DDR/.../u_ddr4_mem_intfc/u_ddr_mc_pi/u_ddr_mc_write/...
+Destination: WRAPPER/CL/SH_DDR/.../u_mig_ddr4_phy/.../RXTX_BITSLICE
+Path Group:  pll_clk[2]_DIV          Data Path Delay: 2.965ns (route 97.3%)
+```
+
+Not the FireSim design clock, not the PCIM datapath, and the same shell block
+that holds the *baseline* quad's worst path (+0.019 ns) — a route-dominated,
+placement-luck path in this shell/Vivado 2025.2 combination. Every number in
+section 1 was measured on this bitstream and it ran a full dronet inference to
+`max_abs_err=0`, so the result stands. But **−45 ps is still a violation**: if
+`..._dual_small_..._pcim` is going to be leaned on for real measurement rather
+than this one A/B, rebuild it and take a run that closes.
