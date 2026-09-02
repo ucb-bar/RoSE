@@ -1,2 +1,8 @@
 scratch/
 results/*.log
+# every findings file EXCEPT the committed authoritative one: earlier runs
+# carry findings later runs refuted (findings_full.json held 20 spurious
+# "bit_exact violated" FAILs from before isolation landed), and a stale
+# findings file on disk reads as evidence.
+results/findings*.json
+!results/findings_final.json
