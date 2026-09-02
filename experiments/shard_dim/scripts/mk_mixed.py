@@ -36,6 +36,15 @@ SRC = {"OC": {**{f"conv_modules.{i}": "oc:ocA" for i in range(4)},
               **{f"conv_modules.{i}": "oc:ohB" for i in range(4, 10)}}}
 
 
+#: gemmini's OH tiles were re-measured after the ZERO-COPY kernel landed (fq
+#: 470/471), which removed the gather/scatter the OH wrapper used to need. That
+#: moved gemmini OH from losing all 10 cells to winning 6, so planning against
+#: the pre-zero-copy ohAP/ohBP runs picks all-OC for a reason that no longer
+#: exists. Those runs carry the SAME partitions, so the substitution is exact.
+#: rvv is unaffected -- it still uses the portable gather/scatter path.
+SRC_ZEROCOPY_P = {**{f"conv_modules.{i}": "oc:zc2A" for i in range(4)},
+                  **{f"conv_modules.{i}": "oc:zc2B" for i in range(4, 10)}}
+
 def load(kind_tag, arm):
     kind, tag = kind_tag.split(":")
     d = (f"{RES}/aln/res_aln{tag}{arm}" if kind == "aln" else f"{RES}/oh/res_{tag}{arm}")
@@ -57,6 +66,8 @@ def cost_table():
     for axis in ("OC", "OH"):
         for nm, src in SRC[axis].items():
             for arm, be in (("E", "rvv"), ("P", "gemmini_q31")):
+                if axis == "OH" and be == "gemmini_q31":
+                    src, arm = SRC_ZEROCOPY_P[nm], ""   # zc2* are P-arm only
                 if (src, arm) not in cache:
                     cache[(src, arm)] = conv_rows(load(src, arm))
                 r = cache[(src, arm)].get(nm)

@@ -1,0 +1,10 @@
+### submit dronet_gempair_shard 2026-09-02T06:27:43Z
+#### submit: submitted job 489  (completion=exit, timeout=3000s)
+  logs:   fq logs 489 -f
+  status: fq status 489
+#### jid=489
+#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/sweep3net/res_dronet_gempair_shard/uartlog
+xpurt-runner: schedule=dronet_gempair_shard entries=28 kinds=2 on chipyard_riscv64/rocketchip_virt_riscv64
+=== MODELBLASTER_VERIFY [dronet] === max_abs_err=2 max_rel_err=0.0357142873 n=2 instance=0 ready=1
+*** PASSED *** after 2784618587 cycles
+############ FQDONE dronet_gempair_shard ############

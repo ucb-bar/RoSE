@@ -1,0 +1,10 @@
+### submit dronet_hetero_shard 2026-09-02T06:27:43Z
+#### submit: submitted job 485  (completion=exit, timeout=3000s)
+  logs:   fq logs 485 -f
+  status: fq status 485
+#### jid=485
+#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/sweep3net/res_dronet_hetero_shard/2026-09-02--06-28-57-fq-job-485-fq485xf5235dc2/fq-job-4850/uartlog
+xpurt-runner: schedule=dronet_hetero_shard entries=24 kinds=2 on chipyard_riscv64/rocketchip_virt_riscv64
+=== MODELBLASTER_VERIFY [dronet] === max_abs_err=2 max_rel_err=0.0357142873 n=2 instance=0 ready=1
+*** PASSED *** after 2493927662 cycles
+############ FQDONE dronet_hetero_shard ############

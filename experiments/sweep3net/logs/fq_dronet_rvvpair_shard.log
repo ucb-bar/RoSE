@@ -1,0 +1,10 @@
+### submit dronet_rvvpair_shard 2026-09-02T06:27:43Z
+#### submit: submitted job 488  (completion=exit, timeout=3000s)
+  logs:   fq logs 488 -f
+  status: fq status 488
+#### jid=488
+#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/sweep3net/res_dronet_rvvpair_shard/uartlog
+xpurt-runner: schedule=dronet_rvvpair_shard entries=30 kinds=2 on chipyard_riscv64/rocketchip_virt_riscv64
+=== MODELBLASTER_VERIFY [dronet] === max_abs_err=0 max_rel_err=0 n=2 instance=0 ready=1
+*** PASSED *** after 2928961667 cycles
+############ FQDONE dronet_rvvpair_shard ############
