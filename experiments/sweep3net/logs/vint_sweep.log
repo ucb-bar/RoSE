@@ -1,0 +1,11 @@
+PLAN vint hetero splits=8
+  BUILD vint_hetero_shard: ABORT build
+PLAN vint rvvpair splits=8
+  BUILD vint_rvvpair_shard: ABORT build
+VINT_DONE
+  network      machine pair           unsplit   sharded  speedup   pred us   err%  gates
+  --------------------------------------------------------------------------------------------
+  vint         rvv + rvv            12146.828         -        -         -      -  base:PASS/err=0.327884674
+  vint         rvv + gemmini         4478.598         -        -         -      -  base:PASS/err=0.327884674
+
+  speedup = unsplit / sharded on the SAME machine pair; pred/err% are the schedule's prediction vs measurement.

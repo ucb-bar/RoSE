@@ -1,7 +1,15 @@
-[mk_plan] 605 dispatches, 0 legal (op, axis) splits
+[mk_plan] 605 dispatches, 70 legal (op, axis) splits
 [mk_plan] unsplit predicted makespan 12144156.0 us
+  + conv2d_50                    did=183  OC [336, 336]   -> 12036212.1 us
+  + conv2d_54                    did=198  OC [56, 56]   -> 11918973.4 us
+  + conv2d_64                    did=234  OC [96, 96]   -> 11845456.3 us
+  + conv2d_24                    did=91   OC [20, 20]   -> 11789610.6 us
+  + conv2d_30                    did=112  OC [240, 240]   -> 11687004.9 us
+  + conv2d_59                    did=217  OC [96, 96]   -> 11650099.1 us
+  + conv2d_10                    did=40   OC [72, 72]   -> 11628977.4 us
+  + linear_19                    did=593  N [128, 128]   -> 11622458.5 us
 
-[mk_plan] 0 splits, predicted 12144156.0 us
+[mk_plan] 8 splits, predicted 11622458.5 us
 mk_split args:
-  
+  183:OC:336,336 198:OC:56,56 234:OC:96,96 91:OC:20,20 112:OC:240,240 217:OC:96,96 40:OC:72,72 593:N:128,128
 [mk_plan] -> /tmp/plan_vint_rvvpair.json

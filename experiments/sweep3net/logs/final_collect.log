@@ -1,0 +1,34 @@
+===== SWEEP MATRIX (dronet / mlp / yolo) =====
+  network      machine pair           unsplit   sharded  speedup   pred us   err%  gates
+  --------------------------------------------------------------------------------------------
+  dronet       rvv + rvv                7.523     4.446    1.69x      3894  +14.2  base:PASS/err=0 shard:PASS/err=0
+  dronet       gemmini + gemmini        4.741     4.294    1.10x      3713  +15.6  base:PASS/err=2 shard:PASS/err=2
+  dronet       rvv + gemmini            2.677     2.491    1.07x      2009  +24.0  base:PASS/err=2 shard:PASS/err=2
+  mlp_control  rvv + rvv                0.605     0.383    1.58x       313  +22.4  base:PASS/err=6.67572021e-06 shard:PASS/err=6.67572021e-06
+  mlp_control  gemmini + gemmini            -     0.377        -       289  +30.6  shard:PASS/err=6.67572021e-06
+  mlp_control  rvv + gemmini            0.556     0.378    1.47x       312  +21.0  base:PASS/err=6.67572021e-06 shard:PASS/err=6.67572021e-06
+  yolov8_nano  rvv + rvv              146.843   120.272    1.22x    112229   +7.2  base:PASS/err=0 shard:PASS/err=1
+  yolov8_nano  gemmini + gemmini       85.642    83.271    1.03x     64377  +29.3  base:PASS/err=89 shard:PASS/err=96
+  yolov8_nano  rvv + gemmini           64.663         -        -         -      -  base:PASS/err=0
+
+  speedup = unsplit / sharded on the SAME machine pair; pred/err% are the schedule's prediction vs measurement.
+
+===== 3NET SOLVER COMPARISON =====
+##### hetero / milp #####
+  rc=0 Makespan (non-periodic): 126.72 ms all operations: 126.72 ms 
+##### hetero / greedy #####
+  rc=0 Makespan (non-periodic): 78.63 ms all operations: 78.63 ms 
+##### hetero / greedy_periodic #####
+  rc=0 Makespan (non-periodic): 66.27 ms all operations: 81.94 ms 
+##### rvvpair / milp #####
+  rc=124 
+##### rvvpair / greedy #####
+  rc=0 Makespan (non-periodic): 170.61 ms all operations: 170.61 ms 
+##### rvvpair / greedy_periodic #####
+  rc=0 Makespan (non-periodic): 154.35 ms all operations: 154.35 ms 
+##### gempair / milp #####
+  rc=124 
+##### gempair / greedy #####
+  rc=0 Makespan (non-periodic): 353.22 ms all operations: 353.22 ms 
+##### gempair / greedy_periodic #####
+  rc=0 Makespan (non-periodic): 353.22 ms all operations: 353.22 ms 

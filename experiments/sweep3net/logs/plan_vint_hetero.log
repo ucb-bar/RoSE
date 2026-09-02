@@ -1,7 +1,15 @@
-[mk_plan] 605 dispatches, 0 legal (op, axis) splits
+[mk_plan] 605 dispatches, 70 legal (op, axis) splits
 [mk_plan] unsplit predicted makespan 4474889.7 us
+  + conv2d_15                    did=58   OC [72, 72]   -> 4420695.0 us
+  + conv2d_5                     did=22   OC [48, 48]   -> 4371500.4 us
+  + conv2d_49                    did=180  OC [56, 56]   -> 4338999.5 us
+  + conv2d_80                    did=290  OC [640, 640]   -> 4307418.0 us
+  + conv2d_54                    did=198  OC [56, 56]   -> 4277715.4 us
+  + conv2d_45                    did=165  OC [336, 336]   -> 4248834.0 us
+  + conv2d_55                    did=201  OC [336, 336]   -> 4219957.2 us
+  + conv2d_50                    did=183  OC [336, 336]   -> 4191080.8 us
 
-[mk_plan] 0 splits, predicted 4474889.7 us
+[mk_plan] 8 splits, predicted 4191080.8 us
 mk_split args:
-  
+  58:OC:72,72 22:OC:48,48 180:OC:56,56 290:OC:640,640 198:OC:56,56 165:OC:336,336 201:OC:336,336 183:OC:336,336
 [mk_plan] -> /tmp/plan_vint_hetero.json

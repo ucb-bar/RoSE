@@ -3,3 +3,8 @@
   logs:   fq logs 532 -f
   status: fq status 532
 #### jid=532
+#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/sweep3net/res_vint_rvvpair_base/uartlog
+xpurt-runner: schedule=vint_rvvpair_base entries=605 kinds=2 on chipyard_riscv64/rocketchip_virt_riscv64
+=== MODELBLASTER_VERIFY [vint] === max_abs_err=0.327884674 max_rel_err=0.187136054 n=21 instance=0 ready=1
+*** PASSED *** after 56117381882 cycles
+############ FQDONE vint_rvvpair_base ############

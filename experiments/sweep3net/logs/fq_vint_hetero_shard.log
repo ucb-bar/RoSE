@@ -1,0 +1,10 @@
+### submit vint_hetero_shard 2026-09-02T11:00:44Z
+#### submit: submitted job 542  (completion=exit, timeout=3000s)
+  logs:   fq logs 542 -f
+  status: fq status 542
+#### jid=542
+#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/sweep3net/res_vint_hetero_shard/2026-09-02--10-57-23-fq-job-541-fq541x5599997c/fq-job-5410/uartlog
+xpurt-runner: schedule=vint_hetero_shard entries=613 kinds=2 on chipyard_riscv64/rocketchip_virt_riscv64
+=== MODELBLASTER_VERIFY [vint] === max_abs_err=8.85282135 max_rel_err=0.907822251 n=21 instance=0 ready=1
+*** PASSED *** after 48753880037 cycles
+############ FQDONE vint_hetero_shard ############
