@@ -1,0 +1,5 @@
+BISECT b1 (58:OC:72,72): BUILDDONE
+BISECT b2 (22:OC:48,48): BUILDDONE
+BISECT_DONE
+  b1: max_abs_err=2.78700066  (unsplit baseline 0.327884674)
+  b2: max_abs_err=1.24603844  (unsplit baseline 0.327884674)

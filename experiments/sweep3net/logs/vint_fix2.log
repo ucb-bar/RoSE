@@ -1,0 +1,3 @@
+BUILD vint_hetero_shard: BUILDDONE elf=yes
+BUILD vint_rvvpair_shard: BUILDDONE elf=yes
+VINTFIX2_DONE

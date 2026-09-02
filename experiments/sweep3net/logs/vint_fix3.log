@@ -1,0 +1,17 @@
+BUILD vint_hetero_shard: BUILDDONE
+BUILD vint_rvvpair_shard: BUILDDONE
+EMITTED OFFSETS (want 48384 / 13440 / 2240):
+  buf_vint_conv2d_15 + 48384
+  buf_vint_conv2d_45 + 13440
+  buf_vint_conv2d_49 + 2240
+GUARD dronet_rvvpair_shard: BUILDDONE
+VINTFIX3_DONE
+  network      machine pair           unsplit   sharded  speedup   pred us   err%  gates
+  --------------------------------------------------------------------------------------------
+  dronet       rvv + rvv                7.523     4.464    1.69x      3894  +14.6  base:PASS/err=0 shard:PASS/err=0
+  dronet       gemmini + gemmini        4.741     4.294    1.10x      3713  +15.6  base:PASS/err=2 shard:PASS/err=2
+  dronet       rvv + gemmini            2.677     2.491    1.07x      2009  +24.0  base:PASS/err=2 shard:PASS/err=2
+  vint         rvv + rvv            12146.828 11608.333    1.05x  11622459   -0.1  base:PASS/err=0.327884674 shard:PASS/err=13.1152906
+  vint         rvv + gemmini         4478.598  4230.124    1.06x   4191081   +0.9  base:PASS/err=0.327884674 shard:PASS/err=16.558054
+
+  speedup = unsplit / sharded on the SAME machine pair; pred/err% are the schedule's prediction vs measurement.

@@ -1,10 +1,10 @@
-### submit dronet_rvvpair_shard 2026-09-02T09:21:51Z
-#### submit: submitted job 513  (completion=exit, timeout=3000s)
-  logs:   fq logs 513 -f
-  status: fq status 513
-#### jid=513
-#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/sweep3net/res_dronet_rvvpair_shard/uartlog
-xpurt-runner: schedule=dronet_rvvpair_shard entries=31 kinds=2 on chipyard_riscv64/rocketchip_virt_riscv64
-=== MODELBLASTER_VERIFY [dronet] === max_abs_err=0 max_rel_err=0 n=2 instance=0 ready=1
-*** PASSED *** after 3003137972 cycles
+### submit dronet_rvvpair_shard 2026-09-02T11:51:28Z
+#### submit: submitted job 548  (completion=exit, timeout=3000s)
+  logs:   fq logs 548 -f
+  status: fq status 548
+#### jid=548
+#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/sweep3net/res_dronet_rvvpair_shard/2026-09-02--11-52-42-fq-job-548-fq548xb844e54c/fq-job-5480/uartlog
+xpurt-runner: schedule=dronet_rvvpair_shard entries=31 kinds=2 on chipyard_riscv64/rocketchip_virt_riscv64
+=== MODELBLASTER_VERIFY [dronet] === max_abs_err=0 max_rel_err=0 n=2 instance=0 ready=1
+*** PASSED *** after 2967052202 cycles
 ############ FQDONE dronet_rvvpair_shard ############
