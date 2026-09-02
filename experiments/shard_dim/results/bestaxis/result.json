@@ -1,0 +1,69 @@
+{
+ "platform": "AWS F2 f2.6xlarge, f2_quad_hetero_norose_tacit_q31_60mhz (agfi-0662319f4b07483a7)",
+ "machine": "2 rvv harts (CPU_E#0=hart2, CPU_E#1=hart3)",
+ "model": "dronet int8",
+ "jobs": {
+  "bx": 466,
+  "ocall": 467
+ },
+ "e2e_ms": {
+  "unsplit_1hart": 7.899,
+  "all_OC": 5.777,
+  "best_axis": 4.192
+ },
+ "axis": {
+  "conv_modules.0": "OH",
+  "conv_modules.1": "OH",
+  "conv_modules.2": "OH",
+  "conv_modules.3": "none",
+  "conv_modules.4": "OC",
+  "conv_modules.5": "OH",
+  "conv_modules.6": "OC",
+  "conv_modules.7": "OH",
+  "conv_modules.8": "OH",
+  "conv_modules.9": "OC"
+ },
+ "per_conv_speedup": {
+  "conv_modules.0": {
+   "all_OC": 1.16,
+   "best_axis": 1.642
+  },
+  "conv_modules.1": {
+   "all_OC": 0.978,
+   "best_axis": 1.448
+  },
+  "conv_modules.2": {
+   "all_OC": 1.015,
+   "best_axis": 2.206
+  },
+  "conv_modules.3": {
+   "all_OC": 0.904,
+   "best_axis": 0.983
+  },
+  "conv_modules.4": {
+   "all_OC": 1.905,
+   "best_axis": 1.905
+  },
+  "conv_modules.5": {
+   "all_OC": 1.989,
+   "best_axis": 2.095
+  },
+  "conv_modules.6": {
+   "all_OC": 1.6,
+   "best_axis": 1.6
+  },
+  "conv_modules.7": {
+   "all_OC": 1.946,
+   "best_axis": 2.843
+  },
+  "conv_modules.8": {
+   "all_OC": 1.988,
+   "best_axis": 3.042
+  },
+  "conv_modules.9": {
+   "all_OC": 1.704,
+   "best_axis": 1.673
+  }
+ },
+ "accuracy": "both arms max_abs_err=0 (bit-exact)"
+}

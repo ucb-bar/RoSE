@@ -140,3 +140,52 @@ widen the sink egress first.
   actionable `[MISS]` diagnostics replacing two bare `unwrap()` panics.
 * `modelblaster/harness_tacit/` + `modelblaster/examples/dronet_tacit/` — isolated TACIT
   harness and model tree; shares nothing writable with the shared example trees.
+
+---
+
+## UPDATE 2026-09-02 — root cause identified upstream, fix exists
+
+`firesim/firesim` branch **`f2-pcim-host-dma`** (2026-08-30/31) contains what looks
+like the fix for both symptoms above. Two commits, and each matches a measurement
+in this document from the other end:
+
+**`3bcdb00f4` "midas: DMA F2 bridge streams into host memory over PCIM"**
+> The F2 Small Shell has no DMA engine and the XDMA shell is unsupported
+> (aws-fpga ERRATA), so simif_f2 drains FPGA-to-CPU streams with a loop of
+> **4-byte `fpga_pci_peek` calls over BAR4**. Each is a non-posted PCIe read the
+> core stalls on, and they cannot pipeline, which caps that path at
+> **4 bytes per round trip.**
+
+That is section 2a from the other side. We measured "**92 runs of exactly 4 bytes**
+... quantised 32-bit lane-fill" and ~50 KB/s off-FPGA throughput; the drain is a
+4-byte-at-a-time BAR4 peek loop that returns zeros rather than gating on valid.
+The 4-byte quantum was never a TACIT property at all.
+
+**`cb0f400ab` "midas: clamp FPGA-managed pull() to the destination buffer size"**
+> `pull()` read how many bytes the FPGA had queued and copied all of them into
+> dest, which the caller sized at `num_bytes`. Nothing bounded the copy by that
+> size... The `assert(num_bytes >= required_bytes)` at the top looks like it
+> guards this but does not: it compares the two arguments to each other, not the
+> amount copied against the buffer it is copied into.
+
+**Both are present in our tree** (firesim `15d6ffc41`, detached from `da2a1cbce`):
+* `sim/midas/src/main/cc/bridges/fpga_managed_stream.cc:31` is that exact
+  non-guarding assert, followed by an unbounded `memcpy` of `bytes_in_buffer`.
+* `sim/midas/src/main/cc/simif_f2.cc:208` — `/* rh: attach to BAR4 (for now to do
+  a PCIS cuz no XDMA) */`.
+
+This also explains section 4 (trace bandwidth throttles the simulation) without
+needing the 1-lane `TraceSinkRawByte` to be the cause: 4 bytes per non-posted
+PCIe round trip *is* ~50 KB/s.
+
+### What adopting it costs
+Our firesim is ~3 weeks behind the branch, and the change touches
+`CompilerConfigs.scala` / `Config.scala`, so it is **a bitstream rebuild**, not a
+driver-only bump. Worth it — it unblocks TACIT on F2 permanently, and TACIT is
+the right instrument for per-component kernel attribution (the alternative,
+`-DMB_GEM_PHASE_TRACE` rdcycle brackets in
+`kernels/gemmini/gemmini_conv2d_s8_gemmini_tiled_conv.c`, needs a source change
+per kernel and only sees phases you thought to bracket).
+
+**Not yet verified** — no F2 trace has been captured with this branch. The
+symptom/commit correspondence is strong but circumstantial until one is.

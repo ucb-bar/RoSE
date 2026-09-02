@@ -1,0 +1,92 @@
+{
+ "conv_modules.0": {
+  "unsplit_us": 1033.9,
+  "copies_max_us": 858,
+  "zc_v1_max_us": 783,
+  "zc_v2_max_us": 578,
+  "oh_speedup": 1.79,
+  "best_oc_speedup": 1.47,
+  "winner": "OH"
+ },
+ "conv_modules.1": {
+  "unsplit_us": 232.5,
+  "copies_max_us": 292,
+  "zc_v1_max_us": 248,
+  "zc_v2_max_us": 149,
+  "oh_speedup": 1.56,
+  "best_oc_speedup": 1.1,
+  "winner": "OH"
+ },
+ "conv_modules.2": {
+  "unsplit_us": 95.0,
+  "copies_max_us": 137,
+  "zc_v1_max_us": 104,
+  "zc_v2_max_us": 74,
+  "oh_speedup": 1.28,
+  "best_oc_speedup": 1.29,
+  "winner": "OC"
+ },
+ "conv_modules.3": {
+  "unsplit_us": 217.3,
+  "copies_max_us": 247,
+  "zc_v1_max_us": 211,
+  "zc_v2_max_us": 121,
+  "oh_speedup": 1.8,
+  "best_oc_speedup": 1.09,
+  "winner": "OH"
+ },
+ "conv_modules.4": {
+  "unsplit_us": 85.7,
+  "copies_max_us": 109,
+  "zc_v1_max_us": 95,
+  "zc_v2_max_us": 64,
+  "oh_speedup": 1.34,
+  "best_oc_speedup": 1.21,
+  "winner": "OH"
+ },
+ "conv_modules.5": {
+  "unsplit_us": 66.4,
+  "copies_max_us": 99,
+  "zc_v1_max_us": 82,
+  "zc_v2_max_us": 61,
+  "oh_speedup": 1.09,
+  "best_oc_speedup": 1.4,
+  "winner": "OC"
+ },
+ "conv_modules.6": {
+  "unsplit_us": 78.1,
+  "copies_max_us": 84,
+  "zc_v1_max_us": 74,
+  "zc_v2_max_us": 48,
+  "oh_speedup": 1.63,
+  "best_oc_speedup": 1.19,
+  "winner": "OH"
+ },
+ "conv_modules.7": {
+  "unsplit_us": 69.0,
+  "copies_max_us": 90,
+  "zc_v1_max_us": 82,
+  "zc_v2_max_us": 65,
+  "oh_speedup": 1.06,
+  "best_oc_speedup": 1.42,
+  "winner": "OC"
+ },
+ "conv_modules.8": {
+  "unsplit_us": 91.4,
+  "copies_max_us": 125,
+  "zc_v1_max_us": 114,
+  "zc_v2_max_us": 97,
+  "oh_speedup": 0.94,
+  "best_oc_speedup": 1.79,
+  "winner": "OC"
+ },
+ "conv_modules.9": {
+  "unsplit_us": 49.0,
+  "copies_max_us": 50,
+  "zc_v1_max_us": 44,
+  "zc_v2_max_us": 34,
+  "oh_speedup": 1.44,
+  "best_oc_speedup": 1.27,
+  "winner": "OH"
+ }
+}
