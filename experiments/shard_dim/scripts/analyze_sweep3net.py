@@ -63,27 +63,41 @@ def cell(tag):
 def main():
     nets = sys.argv[1:] or sorted({os.path.basename(d).split("_")[0]
                                    for d in glob.glob(f"{OUT}/res_*")})
-    print(f"  {'network':<13}{'machine pair':<20}{'unsplit':>10}{'sharded':>10}"
-          f"{'speedup':>9}{'pred us':>10}{'err%':>7}  gates")
-    print("  " + "-" * 92)
+    # Three arms, not two. `shard` splits only the conv/linear ops -- the ones
+    # that were split-capable before the pointwise (E) and pool-channel (C)
+    # axes existed -- and `shardec` adds those. Reporting them side by side is
+    # the point: the gap between the two columns is what registering the
+    # elementwise and pooling kinds actually bought, on the same machine pair
+    # and against the same baseline.
+    print(f"  {'network':<13}{'machine pair':<19}{'unsplit':>9}{'conv':>9}"
+          f"{'+eltwise':>9}{'  conv':>8}{'  both':>8}{'   +E/C':>8}"
+          f"{'  err%':>7}  gates")
+    print("  " + "-" * 108)
     for net in nets:
         for pair in PAIRS:
-            b, s = cell(f"{net}_{pair}_base"), cell(f"{net}_{pair}_shard")
-            if not b and not s:
+            b = cell(f"{net}_{pair}_base")
+            s_ = cell(f"{net}_{pair}_shard")
+            e = cell(f"{net}_{pair}_shardec")
+            if not any((b, s_, e)):
                 continue
-            bm = f"{b['ms']:.3f}" if b else "-"
-            sm = f"{s['ms']:.3f}" if s else "-"
-            sp = f"{b['ms']/s['ms']:.2f}x" if (b and s) else "-"
-            pe = (f"{100*(s['ms']-s['pred'])/s['pred']:+.1f}"
-                  if (s and s.get("pred")) else "-")
-            pr = f"{s['pred']*1000:.0f}" if (s and s.get("pred")) else "-"
+            f3 = lambda c: f"{c['ms']:.3f}" if c else "-"
+            sp = lambda c: f"{b['ms']/c['ms']:.2f}x" if (b and c) else "-"
+            # What the new axes added ON TOP of the conv split, which is the
+            # number this work is answerable for.
+            inc = f"{s_['ms']/e['ms']:.2f}x" if (s_ and e) else "-"
+            pe = (f"{100*(e['ms']-e['pred'])/e['pred']:+.1f}"
+                  if (e and e.get("pred")) else "-")
             g = []
-            for nm, c in (("base", b), ("shard", s)):
+            for nm, c in (("base", b), ("shard", s_), ("shardec", e)):
                 if c:
                     g.append(f"{nm}:{'PASS' if c['passed'] else 'FAIL'}/err={c['err']}")
-            print(f"  {net:<13}{LABEL[pair]:<20}{bm:>10}{sm:>10}{sp:>9}{pr:>10}{pe:>7}  {' '.join(g)}")
-    print("\n  speedup = unsplit / sharded on the SAME machine pair;"
-          " pred/err% are the schedule's prediction vs measurement.")
+            print(f"  {net:<13}{LABEL[pair]:<19}{f3(b):>9}{f3(s_):>9}{f3(e):>9}"
+                  f"{sp(s_):>8}{sp(e):>8}{inc:>8}{pe:>7}  {' '.join(g)}")
+    print("\n  ms are wall spans from the uartlog dispatch rows."
+          "\n  conv/both = unsplit / that arm on the SAME pair; +E/C = conv arm"
+          " / both arms, i.e. what the"
+          "\n  pointwise and pool axes added on top of the conv split."
+          " err% is the shardec arm's prediction error.")
 
 
 main()

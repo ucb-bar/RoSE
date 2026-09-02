@@ -7,6 +7,11 @@
 #     pair = rvvpair | gempair | hetero
 #     arm  = base   -> the UNSPLIT tree, same slots (the honest baseline)
 #            shard  -> apply the split args, then schedule over the same slots
+#            <other> -> same as shard, into its own exdir. Added so a second
+#                       partition of the SAME network and pair can be measured
+#                       against the first without either overwriting the
+#                       other's tree: `shardec` is `shard` plus the pointwise
+#                       (E) and pool-channel (C) splits.
 #
 # Both arms of a pair run the SAME schedule slots, so the only difference is the
 # partition. That matters: a sharded number is only meaningful against a baseline
@@ -43,8 +48,9 @@ esac
 echo "### tag=$TAG net=$NET src=$SRC quant=$QUANT pair=$PAIR arm=$ARM"
 echo "### slots=$SLOTS  split_args=$*  $(date -u +%FT%TZ)"
 
-if [ "$ARM" = "shard" ] && [ $# -gt 0 ]; then
+if [ "$ARM" != "base" ] && [ $# -gt 0 ]; then
     EX="${NET}_sw_${PAIR}"
+    [ "$ARM" != "shard" ] && EX="${EX}_${ARM}"
     python3 $S/mk_split.py "$SRC" "$QUANT" "$EX" "$@" || { echo "### ABORT mk_split"; exit 1; }
 else
     EX="$SRC"          # baseline runs the source tree untouched

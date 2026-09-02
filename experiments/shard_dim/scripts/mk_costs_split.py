@@ -86,8 +86,11 @@ for o in g["ops"]:
             kh = int((o.get("shape") or {}).get("KH", 0) or 0)
             v = c * (sf["window_rows"] / pih) * PL._oh_copy_tax(be, kh > 1)
         else:
-            w = sf.get("tile_oc", sf.get("tile_n"))
-            tot = sf.get("parent_OC", sf.get("parent_N"))
+            w = next((sf[k] for k in ("tile_oc", "tile_n", "tile_c")
+                      if sf.get(k) is not None), None)
+            tot = next((sf[k] for k in ("parent_OC", "parent_N", "parent_n",
+                                        "parent_C") if sf.get(k) is not None),
+                       None)
             if w and tot:
                 q = PL._quantum_for(be) if ax == "OC" else None
                 v = (c * (-(-w // q)) / max(1, -(-int(tot) // q))) if q else c * w / int(tot)

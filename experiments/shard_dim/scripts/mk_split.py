@@ -7,6 +7,9 @@ Generalises mk_align.py (which only knew OC) to the spatial axis:
 
     axis = OC  -> output-channel tiles (the existing splitter)
     axis = OH  -> output-ROW tiles (spatial); widths are output row counts
+    axis = N   -> linear output-feature tiles
+    axis = E   -> pointwise flat ELEMENT tiles; widths are element counts
+    axis = C   -> pool channel tiles; widths are channel counts
 
 Kernels are COPIED from the source tree, never regenerated: generate_skeleton
 does not emit kernels.c, and a regenerated kernel_picks.json would silently
@@ -30,6 +33,12 @@ def axis_total(op, axis):
         # conv study, this function knew only OC and OH, so an N request fell
         # through to the OH branch and died on a missing IH.
         return int(sh["N"])
+    if axis == "E":
+        # Pointwise ops carry a single flat element count and no geometry.
+        return int(sh["n"])
+    if axis == "C":
+        # Pools name their channel count once -- there is no separate IC/OC.
+        return int(sh["C"])
     OH = sh.get("OH")
     if OH is None:
         OH = (int(sh["IH"]) + 2 * int(sh["PH"]) - int(sh["KH"])) // int(sh["SH"]) + 1
@@ -72,9 +81,13 @@ def main():
             rv = sum(-(-w // 32) for w in ws); rv0 = -(-tot // 32)
             gm = sum(-(-w // 16) for w in ws); gm0 = -(-tot // 16)
             extra = (f"rvv_slabs={rv}/{rv0} gem_blocks={gm}/{gm0}")
-        elif axis == "N":
-            # linear output-feature split: no quantum, no halo, nothing to
-            # report but the partition itself.
+        elif axis in ("N", "E", "C"):
+            # Output-feature, flat-element and pool-channel splits: no quantum,
+            # no halo, nothing to report but the partition itself. (The
+            # quantum lines under OC are a property of the CONV inner loop's
+            # blocking; printing them for these axes would suggest a cost they
+            # do not pay -- which is the same mistake the cost model would make
+            # if "C" were folded into "OC".)
             extra = f"even={'yes' if len(set(ws)) == 1 else 'no'}"
         else:
             KH, SH, IH = int(sh["KH"]), int(sh["SH"]), int(sh["IH"])

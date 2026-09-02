@@ -491,6 +491,21 @@ special-case code the layout work adds on top of the current alias mechanism.
 
 **The relayout op is itself shardable**, which partially compensates: see §5 Option 2.
 
+**The E axis is the exception that proves the framing (added 2026-09-02).** Everything above is about
+*which* axis a layout taxes, and both of the axes it discusses are geometric: `OC` names a channel, `OH`
+names a row, and a layout decides whether either is contiguous. The pointwise split axis `E` names neither
+— it is a flat range of elements out of the tensor's storage — and a contiguous byte range stays contiguous
+under **every** permutation of the axes, because permuting axes changes which logical coordinates the
+elements carry, not which elements a `[lo, hi)` range covers. A pointwise op does not read coordinates, so
+the tile is correct in nchw, nhwc, or anything else. It is the only axis in `apply_split_hint` that carries
+no layout guard, and `act_layout.LAYOUT_AGNOSTIC_OPS` is the same fact arrived at from the other direction
+— the ops that need no relayout are exactly the ops whose split needs no layout.
+
+This matters for staging: the pointwise and pool splits (which cover `silu_s8` ×57 in yolov8n and
+`maxpool2d_s8` at 28.9% of DroNet's gemmini time) can be taken *before* the NHWC migration without
+inheriting any of the axis-flip risk above. The pool's `C` axis is not exempt — it is a channel range with
+exactly the conv's `OC` contiguity claim, and it carries the same guard by name.
+
 ---
 
 ## 7. Verification — a first-class constraint, not an afterthought
