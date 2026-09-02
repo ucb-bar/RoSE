@@ -1,0 +1,5 @@
+### submit net3_hetero_milp 2026-09-02T10:19:46Z
+#### submit: submitted job 535  (completion=exit, timeout=5400s)
+  logs:   fq logs 535 -f
+  status: fq status 535
+#### jid=535

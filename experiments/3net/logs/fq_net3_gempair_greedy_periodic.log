@@ -1,0 +1,5 @@
+### submit net3_gempair_greedy_periodic 2026-09-02T10:20:30Z
+#### submit: submitted job 539  (completion=exit, timeout=5400s)
+  logs:   fq logs 539 -f
+  status: fq status 539
+#### jid=539

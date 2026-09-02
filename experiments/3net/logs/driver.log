@@ -1,0 +1,19 @@
+✓ Conda environment 'zephyr' activated successfully
+##### rvvpair / milp #####
+  rc=1 
+##### rvvpair / greedy #####
+  rc=0 makespan: 170.61 ms (after 1 Makespan (non-periodic): 170.61 ms (all operations: 170.61 
+##### rvvpair / greedy_periodic #####
+  rc=0 makespan: 154.35 ms (after 1 Makespan (non-periodic): 154.35 ms (all operations: 154.35 
+##### gempair / milp #####
+  rc=1 
+##### gempair / greedy #####
+  rc=0 makespan: 353.22 ms (after 1 Makespan (non-periodic): 353.22 ms (all operations: 353.22 
+##### gempair / greedy_periodic #####
+  rc=0 makespan: 353.22 ms (after 1 Makespan (non-periodic): 353.22 ms (all operations: 353.22 
+##### hetero / milp #####
+  rc=1 
+##### hetero / greedy #####
+  rc=0 makespan: 78.63 ms (after 1 Makespan (non-periodic): 78.63 ms (all operations: 78.63 
+##### hetero / greedy_periodic #####
+  rc=0 makespan: 81.94 ms (after 1 Makespan (non-periodic): 66.27 ms (all operations: 81.94 

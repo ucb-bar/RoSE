@@ -1,0 +1,5 @@
+### submit net3_rvvpair_greedy_periodic 2026-09-02T10:19:46Z
+#### submit: submitted job 536  (completion=exit, timeout=5400s)
+  logs:   fq logs 536 -f
+  status: fq status 536
+#### jid=536

@@ -1,0 +1,5 @@
+### submit net3_hetero_greedy 2026-09-02T10:19:46Z
+#### submit: submitted job 534  (completion=exit, timeout=5400s)
+  logs:   fq logs 534 -f
+  status: fq status 534
+#### jid=534

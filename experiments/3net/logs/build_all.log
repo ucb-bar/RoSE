@@ -1,0 +1,10 @@
+BUILD net3_hetero_greedy: predicted_ms=78.631 BUILDDONE 
+BUILD net3_hetero_greedy_periodic: predicted_ms=81.94 BUILDDONE 
+BUILD net3_hetero_milp: predicted_ms=126.716 BUILDDONE 
+BUILD net3_rvvpair_greedy: predicted_ms=170.606 BUILDDONE 
+BUILD net3_rvvpair_greedy_periodic: predicted_ms=154.348 BUILDDONE 
+SKIP rvvpair/milp (no schedule yet)
+BUILD net3_gempair_greedy: predicted_ms=353.221 BUILDDONE 
+BUILD net3_gempair_greedy_periodic: predicted_ms=353.221 BUILDDONE 
+SKIP gempair/milp (no schedule yet)
+BUILDS_DONE

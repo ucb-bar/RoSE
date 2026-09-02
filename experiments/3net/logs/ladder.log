@@ -1,0 +1,7 @@
+LADDER tiny milp rc=0 Status:  optimal  wall=1.92s
+LADDER tiny greedy rc=0   wall=1.18s
+LADDER tiny greedy_periodic rc=0   wall=1.27s
+LADDER smallb milp rc=0 Status:  optimal  wall=4.93s
+LADDER smallb greedy rc=0   wall=1.32s
+LADDER smallb greedy_periodic rc=0   wall=1.36s
+LADDER_DONE

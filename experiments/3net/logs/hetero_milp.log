@@ -1,0 +1,50 @@
+============================================================
+Loading network hierarchy from JSON...
+============================================================
+
+Loading networks from: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/data/toplevel/3net_pairs/networks_3net_hetero.json
+
+Found 3 networks:
+  - mlp_control (id: 0, identifier: mlp_control)
+  - dronet (id: 1, identifier: dronet)
+  - yolov8_nano (id: 2, identifier: yolov8_nano)
+
+Found 0 network-level dependencies:
+
+Resolved runtime configuration:
+  Machine core counts: {'CPU_P': 1, 'CPU_E': 1}
+  Profile HW mapping: CPU_P->gemmini_q31, CPU_E->V256D128_rvv
+  Profile target/topology: target=firesim_f2_rocket_saturn, topo_tag=topo_0
+  p_core_speedup: 1.0
+  random_seed: 42
+  solver_verbosity: 0
+  time_limit: 600.0
+  use_profiled: True
+  prune_periodic: True
+  restrict_makespan_to_nonperiodic: False
+  machine_combination_mode: singletons
+  enforce_same_processor_combinations: True
+
+Using profiled runtimes where available...
+
+Creating workload from network hierarchy...
+
+Workload created successfully!
+  Total operations: 295
+  Scheduler machines (2 cores): ['CPU_P#0', 'CPU_E#0']
+  Machine combination options: 2 (mode=singletons)
+  Job names: ['mlp_control0', 'dronet0', 'yolov8_nano', 'mlp_control1', 'mlp_control2', 'mlp_control3', 'mlp_control4', 'mlp_control5', 'mlp_control6', 'mlp_control7', 'dronet1', 'dronet2', 'dronet3']
+  Operations with multiple predecessors: 34
+  Independent jobs (can run in parallel): 13
+
+============================================================
+Scheduling combined workload (MILP)...
+============================================================
+Traceback (most recent call last):
+  File "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/scripts/run_xpurt_schedule.py", line 799, in <module>
+    schedule_iree_networks(
+  File "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/scripts/run_xpurt_schedule.py", line 344, in schedule_iree_networks
+    from scheduler import schedule as milp_schedule
+  File "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/xpu-rt/scheduler.py", line 5, in <module>
+    import cvxpy as cp
+ModuleNotFoundError: No module named 'cvxpy'

@@ -1,0 +1,85 @@
+============================================================
+Loading network hierarchy from JSON...
+============================================================
+
+Loading networks from: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/data/toplevel/3net_pairs/networks_3net_gempair.json
+
+Found 3 networks:
+  - mlp_control (id: 0, identifier: mlp_control)
+  - dronet (id: 1, identifier: dronet)
+  - yolov8_nano (id: 2, identifier: yolov8_nano)
+
+Found 0 network-level dependencies:
+
+Resolved runtime configuration:
+  Machine core counts: {'CPU_P': 2}
+  Profile HW mapping: CPU_P->gemmini_q31, CPU_E->V256D128_rvv
+  Profile target/topology: target=firesim_f2_rocket_saturn, topo_tag=topo_0
+  p_core_speedup: 1.0
+  random_seed: 42
+  solver_verbosity: 0
+  time_limit: 600.0
+  use_profiled: True
+  prune_periodic: True
+  restrict_makespan_to_nonperiodic: False
+  machine_combination_mode: singletons
+  enforce_same_processor_combinations: True
+
+Using profiled runtimes where available...
+  Workload declares horizon 0 ms and 2 explicit periodic instance counts; those counts are used as given. Networks without one are still sized by the refinement loop below.
+
+--- greedy_periodic iteration 1 ---
+  Total operations: 295
+  Job names: ['mlp_control0', 'dronet0', 'yolov8_nano', 'mlp_control1', 'mlp_control2', 'mlp_control3', 'mlp_control4', 'mlp_control5', 'mlp_control6', 'mlp_control7', 'dronet1', 'dronet2', 'dronet3']
+  Makespan: 353.22 ms
+  Periodic 'mlp_control': the schedule runs to 353 ms, which would take 36 instances, but the workload asks for 8 — keeping 8
+  Periodic 'mlp_control': period=10ms current=8 needed=8
+  Periodic 'dronet': the schedule runs to 353 ms, which would take 18 instances, but the workload asks for 4 — keeping 4
+  Periodic 'dronet': period=20ms current=4 needed=4
+  All periodic counts cover makespan — converged.
+
+Final greedy makespan: 353.22 ms (after 1 iteration)
+
+Scheduling completed!
+Makespan (non-periodic): 353.22 ms (all operations: 353.22 ms)
+
+Combination assignments:
+  1xCPU_P: 295 operations
+  2xCPU_P: 0 operations
+  1xCPU_P: 295 operations
+
+Per-network combination assignments:
+  Mlp_control0: 1xCPU_P=7, 1xCPU_P=7
+  Dronet0: 1xCPU_P=21, 1xCPU_P=21
+  Yolov8_nano: 1xCPU_P=155, 1xCPU_P=155
+  Mlp_control1: 1xCPU_P=7, 1xCPU_P=7
+  Mlp_control2: 1xCPU_P=7, 1xCPU_P=7
+  Mlp_control3: 1xCPU_P=7, 1xCPU_P=7
+  Mlp_control4: 1xCPU_P=7, 1xCPU_P=7
+  Mlp_control5: 1xCPU_P=7, 1xCPU_P=7
+  Mlp_control6: 1xCPU_P=7, 1xCPU_P=7
+  Mlp_control7: 1xCPU_P=7, 1xCPU_P=7
+  Dronet1: 1xCPU_P=21, 1xCPU_P=21
+  Dronet2: 1xCPU_P=21, 1xCPU_P=21
+  Dronet3: 1xCPU_P=21, 1xCPU_P=21
+Job 'mlp_control0' (job_id=0, color_index=0) -> color RGB=[0.59607843 0.8345098  0.57882353]
+DEBUG TRANSFER: alpha_shape=(295, 3), num_actual_machines=2, len(machines)=2, alpha_cols=3, is_using_combos=True, prev_machine=0, machine=0, transfer_times_shape=(2, 2), machine_combinations=True
+Job 'dronet0' (job_id=1, color_index=1) -> color RGB=[0.57960784 0.77019608 0.87372549]
+DEBUG IMMEDIATE: op=62, job_id=1, lookup=1, op_color_index=1, base_colors[1]=(np.float64(0.5796078431372549), np.float64(0.7701960784313725), np.float64(0.8737254901960784))
+DEBUG AFTER MODULO: op=62, original=1, after_modulo=1, len(base_colors)=13
+DEBUG BEFORE LEGEND: op=62, op_color_index=1, original=1, job_index=8, legend_key=kind_dronet, in_legend=True
+DEBUG IMMEDIATE: op=63, job_id=1, lookup=1, op_color_index=1, base_colors[1]=(np.float64(0.5796078431372549), np.float64(0.7701960784313725), np.float64(0.8737254901960784))
+DEBUG AFTER MODULO: op=63, original=1, after_modulo=1, len(base_colors)=13
+DEBUG BEFORE LEGEND: op=63, op_color_index=1, original=1, job_index=8, legend_key=kind_dronet, in_legend=True
+DEBUG IMMEDIATE: op=64, job_id=1, lookup=1, op_color_index=1, base_colors[1]=(np.float64(0.5796078431372549), np.float64(0.7701960784313725), np.float64(0.8737254901960784))
+DEBUG AFTER MODULO: op=64, original=1, after_modulo=1, len(base_colors)=13
+DEBUG BEFORE LEGEND: op=64, op_color_index=1, original=1, job_index=8, legend_key=kind_dronet, in_legend=True
+Job 'yolov8_nano' (job_id=2, color_index=2) -> color RGB=[0.8871511  0.33208766 0.0310496 ]
+Saving plot to plots/networks_3net_gempair_greedy_periodic_profiled.png...
+
+Plot saved to plots/networks_3net_gempair_greedy_periodic_profiled.png
+
+Outputting scheduled JSON...
+
+Scheduled JSON saved to: schedules/scheduled_networks_3net_gempair_greedy_periodic_profiled.json
+WARN: granularity advisor -- the desired granularity for yolov8_nano's dispatches should be finer: its largest dispatch (28.27 ms) exceeds dronet's available free slot (6.65 ms) (period 20.00 ms, free slot 6.65 ms after dronet's own utilization) -- it would overrun dronet's cadence if they shared a core

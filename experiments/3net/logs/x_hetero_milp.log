@@ -1,0 +1,96 @@
+/scratch2/dima/miniforge3/envs/xpurt/lib/python3.11/site-packages/mosek/__init__.py:11539: UserWarning: Argument subi in putaijlist64: Incorrect array format causing data to be copied
+  warnings.warn("Argument subi in putaijlist64: Incorrect array format causing data to be copied");
+/scratch2/dima/miniforge3/envs/xpurt/lib/python3.11/site-packages/mosek/__init__.py:11568: UserWarning: Argument subj in putaijlist64: Incorrect array format causing data to be copied
+  warnings.warn("Argument subj in putaijlist64: Incorrect array format causing data to be copied");
+/scratch2/dima/miniforge3/envs/xpurt/lib/python3.11/site-packages/cvxpy/reductions/solvers/conic_solvers/mosek_conif.py:306: UserWarning: Optimization terminated by time limit; solution may be imprecise or absent.
+  warnings.warn(
+/scratch2/dima/miniforge3/envs/xpurt/lib/python3.11/site-packages/cvxpy/problems/problem.py:1539: UserWarning: Solution may be inaccurate. Try another solver, adjusting the solver settings, or solve with verbose=True for more information.
+  warnings.warn(
+============================================================
+Loading network hierarchy from JSON...
+============================================================
+
+Loading networks from: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/data/toplevel/3net_pairs/networks_3net_hetero.json
+
+Found 3 networks:
+  - mlp_control (id: 0, identifier: mlp_control)
+  - dronet (id: 1, identifier: dronet)
+  - yolov8_nano (id: 2, identifier: yolov8_nano)
+
+Found 0 network-level dependencies:
+
+Resolved runtime configuration:
+  Machine core counts: {'CPU_P': 1, 'CPU_E': 1}
+  Profile HW mapping: CPU_P->gemmini_q31, CPU_E->V256D128_rvv
+  Profile target/topology: target=firesim_f2_rocket_saturn, topo_tag=topo_0
+  p_core_speedup: 1.0
+  random_seed: 42
+  solver_verbosity: 0
+  time_limit: 900.0
+  use_profiled: True
+  prune_periodic: True
+  restrict_makespan_to_nonperiodic: False
+  machine_combination_mode: singletons
+  enforce_same_processor_combinations: True
+
+Using profiled runtimes where available...
+
+Creating workload from network hierarchy...
+
+Workload created successfully!
+  Total operations: 295
+  Scheduler machines (2 cores): ['CPU_P#0', 'CPU_E#0']
+  Machine combination options: 2 (mode=singletons)
+  Job names: ['mlp_control0', 'dronet0', 'yolov8_nano', 'mlp_control1', 'mlp_control2', 'mlp_control3', 'mlp_control4', 'mlp_control5', 'mlp_control6', 'mlp_control7', 'dronet1', 'dronet2', 'dronet3']
+  Operations with multiple predecessors: 34
+  Independent jobs (can run in parallel): 13
+
+============================================================
+Scheduling combined workload (MILP)...
+============================================================
+Status:  optimal_inaccurate
+Optimal value:  126.71564400000011
+Validation: All 295 operations have been scheduled.
+
+Scheduling completed!
+Makespan (non-periodic): 126.72 ms (all operations: 126.72 ms)
+
+Combination assignments:
+  1xCPU_P: 139 operations
+  1xCPU_E: 156 operations
+
+Per-network combination assignments:
+  Mlp_control0: 1xCPU_P=1, 1xCPU_E=6
+  Dronet0: 1xCPU_P=4, 1xCPU_E=17
+  Yolov8_nano: 1xCPU_P=77, 1xCPU_E=78
+  Mlp_control1: 1xCPU_P=2, 1xCPU_E=5
+  Mlp_control2: 1xCPU_P=1, 1xCPU_E=6
+  Mlp_control3: 1xCPU_P=1, 1xCPU_E=6
+  Mlp_control4: 1xCPU_P=2, 1xCPU_E=5
+  Mlp_control5: 1xCPU_P=7
+  Mlp_control6: 1xCPU_P=7
+  Mlp_control7: 1xCPU_P=7
+  Dronet1: 1xCPU_P=7, 1xCPU_E=14
+  Dronet2: 1xCPU_P=10, 1xCPU_E=11
+  Dronet3: 1xCPU_P=13, 1xCPU_E=8
+Job 'mlp_control0' (job_id=0, color_index=0) -> color RGB=[0.59607843 0.8345098  0.57882353]
+DEBUG TRANSFER: alpha_shape=(295, 2), num_actual_machines=2, len(machines)=2, alpha_cols=2, is_using_combos=False, prev_machine=1, machine=1, transfer_times_shape=(2, 2), machine_combinations=True
+Job 'dronet0' (job_id=1, color_index=1) -> color RGB=[0.57960784 0.77019608 0.87372549]
+DEBUG IMMEDIATE: op=62, job_id=1, lookup=1, op_color_index=1, base_colors[1]=(0.5796078431372549, 0.7701960784313725, 0.8737254901960784)
+DEBUG AFTER MODULO: op=62, original=1, after_modulo=1, len(base_colors)=13
+DEBUG BEFORE LEGEND: op=62, op_color_index=1, original=1, job_index=8, legend_key=kind_dronet, in_legend=True
+DEBUG IMMEDIATE: op=63, job_id=1, lookup=1, op_color_index=1, base_colors[1]=(0.5796078431372549, 0.7701960784313725, 0.8737254901960784)
+DEBUG AFTER MODULO: op=63, original=1, after_modulo=1, len(base_colors)=13
+DEBUG BEFORE LEGEND: op=63, op_color_index=1, original=1, job_index=8, legend_key=kind_dronet, in_legend=True
+DEBUG IMMEDIATE: op=64, job_id=1, lookup=1, op_color_index=1, base_colors[1]=(0.5796078431372549, 0.7701960784313725, 0.8737254901960784)
+DEBUG AFTER MODULO: op=64, original=1, after_modulo=1, len(base_colors)=13
+DEBUG BEFORE LEGEND: op=64, op_color_index=1, original=1, job_index=8, legend_key=kind_dronet, in_legend=True
+Job 'yolov8_nano' (job_id=2, color_index=2) -> color RGB=[0.8871511  0.33208766 0.0310496 ]
+Saving plot to plots/networks_3net_hetero_profiled.png...
+
+Plot saved to plots/networks_3net_hetero_profiled.png
+
+Outputting scheduled JSON...
+
+Scheduled JSON saved to: schedules/scheduled_networks_3net_hetero_profiled.json
+  wall=1645.46s
