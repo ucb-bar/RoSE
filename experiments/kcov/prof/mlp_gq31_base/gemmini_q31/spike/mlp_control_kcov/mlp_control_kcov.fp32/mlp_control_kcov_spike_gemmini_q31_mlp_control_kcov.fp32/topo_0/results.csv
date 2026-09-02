@@ -1,0 +1,8 @@
+dispatch_id,module_name,vmfb_path,mlir_path,mean_time,mean_unit,mean_time_ns,returncode,log_path,source,op,shape,cycles,cycles_n,cycles_cv_pct,implementation
+0,mlp_control_kcov$dispatch_0_gemmini_q31_linear_M1xK16xN256,,,0.037051,ms,37051.000000,0,,spike,linear,M=1;K=16;N=256,37051,1,,
+1,mlp_control_kcov$dispatch_1_gemmini_q31_elu_n256,,,0.012518,ms,12518.000000,0,,spike,elu,n=256,12518,1,,
+2,mlp_control_kcov$dispatch_2_gemmini_q31_linear_M1xK256xN128,,,0.264229,ms,264229.000000,0,,spike,linear,M=1;K=256;N=128,264229,1,,
+3,mlp_control_kcov$dispatch_3_gemmini_q31_elu_n128,,,0.007565,ms,7565.000000,0,,spike,elu,n=128,7565,1,,
+4,mlp_control_kcov$dispatch_4_gemmini_q31_linear_M1xK128xN64,,,0.066597,ms,66597.000000,0,,spike,linear,M=1;K=128;N=64,66597,1,,
+5,mlp_control_kcov$dispatch_5_gemmini_q31_elu_n64,,,0.003251,ms,3251.000000,0,,spike,elu,n=64,3251,1,,
+6,mlp_control_kcov$dispatch_6_gemmini_q31_linear_M1xK64xN4,,,0.002148,ms,2148.000000,0,,spike,linear,M=1;K=64;N=4,2148,1,,

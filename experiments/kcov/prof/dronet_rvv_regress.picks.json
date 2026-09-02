@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "target": "rvv",
+  "picks": {
+    "add_s8": {
+      "source": "curated",
+      "algorithm": "rvv_frm_rmm",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv/rvv_add_s8_rvv_frm_rmm.c"
+    },
+    "batchnorm2d_s8": {
+      "source": "curated",
+      "algorithm": "direct",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv/rvv_batchnorm2d_s8_direct.c"
+    },
+    "conv2d_s8": {
+      "source": "curated",
+      "algorithm": "rvv_vsmul_vnclip",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv/rvv_conv2d_s8_rvv_vsmul_vnclip.c"
+    },
+    "linear_s8": {
+      "source": "curated",
+      "algorithm": "direct",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv/rvv_linear_s8_direct.c"
+    },
+    "maxpool2d_s8": {
+      "source": "curated",
+      "algorithm": "direct",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv/rvv_maxpool2d_s8_direct.c"
+    },
+    "relu_s8": {
+      "source": "curated",
+      "algorithm": "direct",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv/rvv_relu_s8_direct.c"
+    },
+    "sigmoid_s8": {
+      "source": "curated",
+      "algorithm": "rvv_memo_lut_gather",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv/rvv_sigmoid_s8_rvv_memo_lut_gather.c"
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "benchmark_name": "fq-job-499",
+  "common_bootbinary": "kcov_yoloA_ref.elf",
+  "common_rootfs": null,
+  "common_simulation_outputs": [
+    "uartlog"
+  ],
+  "no_post_run_hook": true
+}

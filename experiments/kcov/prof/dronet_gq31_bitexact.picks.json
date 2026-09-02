@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "target": "gemmini_q31",
+  "picks": {
+    "add_s8": {
+      "source": "curated",
+      "algorithm": "gemmini_resadd",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/gemmini_q31/gemmini_q31_add_s8_gemmini_resadd.c"
+    },
+    "batchnorm2d_s8": {
+      "source": "curated",
+      "algorithm": "scalar_chan_lut",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/gemmini_q31/gemmini_q31_batchnorm2d_s8_scalar_chan_lut.c"
+    },
+    "conv2d_s8": {
+      "source": "curated",
+      "algorithm": "gemmini_im2col_full_C",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/gemmini_q31/gemmini_q31_conv2d_s8_gemmini_im2col_full_C.c"
+    },
+    "linear_s8": {
+      "source": "curated",
+      "algorithm": "gemmini_tiled_matmul",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/gemmini_q31/gemmini_q31_linear_s8_gemmini_tiled_matmul.c"
+    },
+    "maxpool2d_s8": {
+      "source": "curated",
+      "algorithm": "gemmini_tiled_conv_pool",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/gemmini_q31/gemmini_q31_maxpool2d_s8_gemmini_tiled_conv_pool.c"
+    },
+    "relu_s8": {
+      "source": "curated",
+      "algorithm": "swar",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/gemmini_q31/gemmini_q31_relu_s8_swar.c"
+    },
+    "sigmoid_s8": {
+      "source": "curated",
+      "algorithm": "scalar_lut",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/gemmini_q31/gemmini_q31_sigmoid_s8_scalar_lut.c"
+    }
+  }
+}

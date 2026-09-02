@@ -1,0 +1,7 @@
+### submit yoloB_kcov 2026-09-02T07:10:43Z
+#### submit: submitted job 500  (completion=exit, timeout=3000s)
+  logs:   fq logs 500 -f
+  status: fq status 500
+#### jid=500
+#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/kcov/res_yoloB_kcov/uartlog
+############ FQDONE yoloB_kcov jid=500 ############

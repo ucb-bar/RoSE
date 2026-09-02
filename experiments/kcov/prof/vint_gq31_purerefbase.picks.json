@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "target": "gemmini_q31",
+  "picks": {
+    "adaptive_avg_pool2d_f16": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "adaptive_avg_pool2d_s8": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "add_f16": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "add_s8": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "batchnorm2d_f16": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "cast_f16_to_i8": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "cast_i8_to_f16": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "cat2_c1_f16": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "cat2_c1_s8": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "conv2d_f16": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "conv2d_s8_pc": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "depthwise_conv2d_f16": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "depthwise_conv2d_s8": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "gelu_s8": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "layer_norm_s8": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "linear_f16": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "linear_s8_pc": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "matmul_s8": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "mul_c1_f16": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "mul_c1_s8": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "mul_f16": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "mul_s8": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "pad_f16": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "pad_s8": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "relu_f16": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "sigmoid_f16": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "sigmoid_s8": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "slice_c_f16": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "softmax_s8": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "vint_action_post": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    }
+  }
+}

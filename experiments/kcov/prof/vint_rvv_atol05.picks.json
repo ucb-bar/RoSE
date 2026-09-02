@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "target": "rvv_f16",
+  "picks": {
+    "adaptive_avg_pool2d_f16": {
+      "source": "curated",
+      "algorithm": "direct",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv_f16/rvv_f16_adaptive_avg_pool2d_f16_direct.c"
+    },
+    "adaptive_avg_pool2d_s8": {
+      "source": "curated",
+      "algorithm": "direct",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv_f16/rvv_f16_adaptive_avg_pool2d_s8_direct.c"
+    },
+    "add_f16": {
+      "source": "curated",
+      "algorithm": "direct",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv_f16/rvv_f16_add_f16_direct.c"
+    },
+    "add_s8": {
+      "source": "curated",
+      "algorithm": "direct",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv_f16/rvv_f16_add_s8_direct.c"
+    },
+    "batchnorm2d_f16": {
+      "source": "curated",
+      "algorithm": "direct",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv_f16/rvv_f16_batchnorm2d_f16_direct.c"
+    },
+    "cast_f16_to_i8": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "cast_i8_to_f16": {
+      "source": "curated",
+      "algorithm": "direct",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv_f16/rvv_f16_cast_i8_to_f16_direct.c"
+    },
+    "cat2_c1_f16": {
+      "source": "curated",
+      "algorithm": "direct",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv_f16/rvv_f16_cat2_c1_f16_direct.c"
+    },
+    "cat2_c1_s8": {
+      "source": "curated",
+      "algorithm": "direct",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv_f16/rvv_f16_cat2_c1_s8_direct.c"
+    },
+    "conv2d_f16": {
+      "source": "curated",
+      "algorithm": "oc_blocked",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv_f16/rvv_f16_conv2d_f16_oc_blocked.c"
+    },
+    "conv2d_s8_pc": {
+      "source": "curated",
+      "algorithm": "direct",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv_f16/rvv_f16_conv2d_s8_pc_direct.c"
+    },
+    "depthwise_conv2d_f16": {
+      "source": "curated",
+      "algorithm": "oc_vec",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv_f16/rvv_f16_depthwise_conv2d_f16_oc_vec.c"
+    },
+    "depthwise_conv2d_s8": {
+      "source": "curated",
+      "algorithm": "direct",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv_f16/rvv_f16_depthwise_conv2d_s8_direct.c"
+    },
+    "gelu_s8": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "layer_norm_s8": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "linear_f16": {
+      "source": "curated",
+      "algorithm": "narrow",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv_f16/rvv_f16_linear_f16_narrow.c"
+    },
+    "linear_s8_pc": {
+      "source": "curated",
+      "algorithm": "direct",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv_f16/rvv_f16_linear_s8_pc_direct.c"
+    },
+    "matmul_s8": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "mul_c1_f16": {
+      "source": "curated",
+      "algorithm": "direct",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv_f16/rvv_f16_mul_c1_f16_direct.c"
+    },
+    "mul_c1_s8": {
+      "source": "curated",
+      "algorithm": "direct",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv_f16/rvv_f16_mul_c1_s8_direct.c"
+    },
+    "mul_f16": {
+      "source": "curated",
+      "algorithm": "direct",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv_f16/rvv_f16_mul_f16_direct.c"
+    },
+    "mul_s8": {
+      "source": "curated",
+      "algorithm": "direct",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv_f16/rvv_f16_mul_s8_direct.c"
+    },
+    "pad_f16": {
+      "source": "curated",
+      "algorithm": "direct",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv_f16/rvv_f16_pad_f16_direct.c"
+    },
+    "pad_s8": {
+      "source": "curated",
+      "algorithm": "direct",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv_f16/rvv_f16_pad_s8_direct.c"
+    },
+    "relu_f16": {
+      "source": "curated",
+      "algorithm": "direct",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv_f16/rvv_f16_relu_f16_direct.c"
+    },
+    "sigmoid_f16": {
+      "source": "curated",
+      "algorithm": "direct",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv_f16/rvv_f16_sigmoid_f16_direct.c"
+    },
+    "sigmoid_s8": {
+      "source": "curated",
+      "algorithm": "direct",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv_f16/rvv_f16_sigmoid_s8_direct.c"
+    },
+    "slice_c_f16": {
+      "source": "curated",
+      "algorithm": "direct",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv_f16/rvv_f16_slice_c_f16_direct.c"
+    },
+    "softmax_s8": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    },
+    "vint_action_post": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    }
+  }
+}

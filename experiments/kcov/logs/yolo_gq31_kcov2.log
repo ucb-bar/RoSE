@@ -1,0 +1,1203 @@
+✓ Conda environment 'zephyr' activated successfully
+Zephyr SDK environment variables set:
+  ZEPHYR_BASE=/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr
+  ZEPHYR_SDK_INSTALL_DIR=/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1
+  ZEPHYR_TOOLCHAIN_VARIANT=zephyr
+### tag=yolo_gq31_kcov2 exdir=yolov8_nano_kcov target=gemmini_q31 quant=int8 2026-09-02T06:58:53Z
+### env: MB_DRIFT_ATOL=2 GLOBAL_CURATED_DIR=<default kernels/>
+[1/5] extract_graph (quant=int8) -> /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano_kcov/int8/generated
+MODELBLASTER_STAGE_BEGIN:extract
+  (skipped — IR present at /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano_kcov/int8/generated; set FORCE_EXTRACT=1 to re-run)
+MODELBLASTER_STAGE_END:extract:0.008
+[2/5] generate_skeleton (backend=gemmini_q31) -> /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano_kcov/int8/generated/gemmini_q31
+MODELBLASTER_STAGE_BEGIN:generate_skeleton
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano_kcov/int8/generated/gemmini_q31/weights.h
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano_kcov/int8/generated/gemmini_q31/weights.c
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano_kcov/int8/generated/gemmini_q31/model.h
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano_kcov/int8/generated/gemmini_q31/model.c
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano_kcov/int8/generated/gemmini_q31/buffers.c
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano_kcov/int8/generated/gemmini_q31/test_io.h
+MODELBLASTER_STAGE_END:generate_skeleton:0.749
+[3/5] generate_kernels (backend=reference target=gemmini_q31 quant=int8 optimize=0) -> /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano_kcov/int8/generated/gemmini_q31
+MODELBLASTER_STAGE_BEGIN:generate_kernels
+backend=reference  target=gemmini_q31  ops=['add_s8', 'cat2_c1_s8', 'cat3_c1_s8', 'cat4_c1_s8', 'conv2d_s8', 'maxpool2d_s8', 'silu_s8', 'upsample_nearest_s8']
+  [curated] pre-seeded verify baseline with 8 curated kernel(s): ['add_s8', 'cat2_c1_s8', 'cat3_c1_s8', 'cat4_c1_s8', 'conv2d_s8', 'maxpool2d_s8', 'silu_s8', 'upsample_nearest_s8']
+  [add_s8/gemmini_resadd] reference + curated swap from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/gemmini_q31/gemmini_q31_add_s8_gemmini_resadd.c
+  [add_s8/gemmini_resadd] verify curated at 7 shape(s) vs reference_impl
+  [add_s8/?] MB_DRIFT_ATOL loosens verify atol 1.0 -> 2.0 (accepting up to 2.0 LSB of drift by request)
+  [add_s8/gemmini_resadd] curated verify PASS — spike-harness ok (max_abs_err=0 max_rel_err=0, cycles={'conv2d_s8': 46504004, 'silu_s8': 12423456, 'add_s8': 1770704, 'cat3_c1_s8': 1326990, 'cat4_c1_s8': 689816, 'maxpool2d_s8': 3070241, 'upsample_nearest_s8': 827802, 'cat2_c1_s8': 1681272})
+  [cat2_c1_s8/gemmini_mvin_scale] reference + curated swap from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/gemmini_q31/gemmini_q31_cat2_c1_s8_gemmini_mvin_scale.c
+  [cat2_c1_s8/gemmini_mvin_scale] verify curated at 9 shape(s) vs reference_impl
+  [cat2_c1_s8/?] MB_DRIFT_ATOL loosens verify atol 1.0 -> 2.0 (accepting up to 2.0 LSB of drift by request)
+  [cat2_c1_s8/gemmini_mvin_scale] curated verify PASS — spike-harness ok (max_abs_err=0 max_rel_err=0, cycles={'conv2d_s8': 46504004, 'silu_s8': 12423456, 'add_s8': 1770704, 'cat3_c1_s8': 1326990, 'cat4_c1_s8': 689816, 'maxpool2d_s8': 3070241, 'upsample_nearest_s8': 827802, 'cat2_c1_s8': 1681272})
+  [cat3_c1_s8/gemmini_mvin_scale] reference + curated swap from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/gemmini_q31/gemmini_q31_cat3_c1_s8_gemmini_mvin_scale.c
+  [cat3_c1_s8/gemmini_mvin_scale] verify curated at 6 shape(s) vs reference_impl
+  [cat3_c1_s8/?] MB_DRIFT_ATOL loosens verify atol 1.0 -> 2.0 (accepting up to 2.0 LSB of drift by request)
+  [cat3_c1_s8/gemmini_mvin_scale] curated verify PASS — spike-harness ok (max_abs_err=0 max_rel_err=0, cycles={'conv2d_s8': 46504004, 'silu_s8': 12423456, 'add_s8': 1770704, 'cat3_c1_s8': 1326990, 'cat4_c1_s8': 689816, 'maxpool2d_s8': 3070241, 'upsample_nearest_s8': 827802, 'cat2_c1_s8': 1681272})
+  [cat4_c1_s8/gemmini_mvin_scale] reference + curated swap from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/gemmini_q31/gemmini_q31_cat4_c1_s8_gemmini_mvin_scale.c
+  [cat4_c1_s8/gemmini_mvin_scale] verify curated at 5 shape(s) vs reference_impl
+  [cat4_c1_s8/?] MB_DRIFT_ATOL loosens verify atol 1.0 -> 2.0 (accepting up to 2.0 LSB of drift by request)
+  [cat4_c1_s8/gemmini_mvin_scale] curated verify PASS — spike-harness ok (max_abs_err=0 max_rel_err=0, cycles={'conv2d_s8': 46504004, 'silu_s8': 12423456, 'add_s8': 1770704, 'cat3_c1_s8': 1326990, 'cat4_c1_s8': 689816, 'maxpool2d_s8': 3070241, 'upsample_nearest_s8': 827802, 'cat2_c1_s8': 1681272})
+  [conv2d_s8/gemmini_tiled_conv] reference + curated swap from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/gemmini_q31/gemmini_q31_conv2d_s8_gemmini_tiled_conv.c
+  [conv2d_s8/gemmini_tiled_conv] verify curated at 45 shape(s) vs reference_impl
+  [conv2d_s8/?] MB_DRIFT_ATOL loosens verify atol 1.0 -> 2.0 (accepting up to 2.0 LSB of drift by request)
+  [conv2d_s8/gemmini_tiled_conv] curated verify FAIL — model output diverged from golden (max_abs_err=6, max_rel_err=4e+12); falling back to reference_impl
+  [conv2d_s8/gemmini_im2col_full_C] reference + curated swap from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/gemmini_q31/gemmini_q31_conv2d_s8_gemmini_im2col_full_C.c
+  [conv2d_s8/gemmini_im2col_full_C] verify curated at 45 shape(s) vs reference_impl
+  [conv2d_s8/?] MB_DRIFT_ATOL loosens verify atol 1.0 -> 2.0 (accepting up to 2.0 LSB of drift by request)
+  [conv2d_s8/gemmini_im2col_full_C] curated verify PASS — spike-harness ok (max_abs_err=0 max_rel_err=0, cycles={'conv2d_s8': 46504004, 'silu_s8': 12423456, 'add_s8': 1770704, 'cat3_c1_s8': 1326990, 'cat4_c1_s8': 689816, 'maxpool2d_s8': 3070241, 'upsample_nearest_s8': 827802, 'cat2_c1_s8': 1681272})
+  [maxpool2d_s8/gemmini_tiled_conv_pool] reference + curated swap from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/gemmini_q31/gemmini_q31_maxpool2d_s8_gemmini_tiled_conv_pool.c
+  [maxpool2d_s8/gemmini_tiled_conv_pool] verify curated at 5 shape(s) vs reference_impl
+  [maxpool2d_s8/?] MB_DRIFT_ATOL loosens verify atol 1.0 -> 2.0 (accepting up to 2.0 LSB of drift by request)
+  [maxpool2d_s8/gemmini_tiled_conv_pool] curated verify PASS — spike-harness ok (max_abs_err=0 max_rel_err=0, cycles={'conv2d_s8': 46504004, 'silu_s8': 12423456, 'add_s8': 1770704, 'cat3_c1_s8': 1326990, 'cat4_c1_s8': 689816, 'maxpool2d_s8': 3070241, 'upsample_nearest_s8': 827802, 'cat2_c1_s8': 1681272})
+  [silu_s8/scalar_lut] reference + curated swap from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/gemmini_q31/gemmini_q31_silu_s8_scalar_lut.c
+  [silu_s8/scalar_lut] verify curated at 13 shape(s) vs reference_impl
+  [silu_s8/?] MB_DRIFT_ATOL loosens verify atol 1.0 -> 2.0 (accepting up to 2.0 LSB of drift by request)
+  [silu_s8/scalar_lut] curated verify PASS — spike-harness ok (max_abs_err=0 max_rel_err=0, cycles={'conv2d_s8': 46504004, 'silu_s8': 12423456, 'add_s8': 1770704, 'cat3_c1_s8': 1326990, 'cat4_c1_s8': 689816, 'maxpool2d_s8': 3070241, 'upsample_nearest_s8': 827802, 'cat2_c1_s8': 1681272})
+  [upsample_nearest_s8/row_replicate] reference + curated swap from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/gemmini_q31/gemmini_q31_upsample_nearest_s8_row_replicate.c
+  [upsample_nearest_s8/row_replicate] verify curated at 6 shape(s) vs reference_impl
+  [upsample_nearest_s8/?] MB_DRIFT_ATOL loosens verify atol 1.0 -> 2.0 (accepting up to 2.0 LSB of drift by request)
+  [upsample_nearest_s8/row_replicate] curated verify PASS — spike-harness ok (max_abs_err=0 max_rel_err=0, cycles={'conv2d_s8': 46504004, 'silu_s8': 12423456, 'add_s8': 1770704, 'cat3_c1_s8': 1326990, 'cat4_c1_s8': 689816, 'maxpool2d_s8': 3070241, 'upsample_nearest_s8': 827802, 'cat2_c1_s8': 1681272})
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano_kcov/int8/generated/gemmini_q31/kernels.h
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano_kcov/int8/generated/gemmini_q31/kernels.c  (source=reference target=gemmini_q31)
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano_kcov/int8/generated/gemmini_q31/kernel_picks.json
+MODELBLASTER_STAGE_END:generate_kernels:70.758
+[4/5] west build (board=spike_riscv64) -> /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano_kcov/int8/build/gemmini_q31
+MODELBLASTER_STAGE_BEGIN:build
+-- west build: making build dir /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano_kcov/int8/build/gemmini_q31 pristine
+-- west build: generating a build system
+Loading Zephyr default modules (Zephyr base).
+-- Application: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/harness
+-- CMake version: 3.28.3
+-- Found Python3: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools/miniforge3/envs/zephyr/bin/python3.12 (found suitable version "3.12.13", minimum required is "3.10") found components: Interpreter 
+-- Cache files will be written to: /home/dima/.cache/zephyr
+-- Zephyr version: 4.2.99 (/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr)
+-- Found west (found suitable version "1.5.0", minimum required is "0.14.0")
+-- Board: spike_riscv64, qualifiers: rocketchip_virt_riscv64
+-- Found host-tools: zephyr 1.0.0 (/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1)
+-- Found toolchain: zephyr 1.0.0 (/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1)
+-- Found Dtc: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/hosttools/sysroots/x86_64-pokysdk-linux/usr/bin/dtc (found suitable version "1.7.0", minimum required is "1.4.6") 
+-- Found BOARD.dts: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/boards/spike/riscv64/spike_riscv64.dts
+node '/uart' compatible 'ucb,htif' has unknown vendor prefix 'ucb'
+-- Generated zephyr.dts: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano_kcov/int8/build/gemmini_q31/zephyr/zephyr.dts
+-- Generated pickled edt: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano_kcov/int8/build/gemmini_q31/zephyr/edt.pickle
+-- Generated devicetree_generated.h: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano_kcov/int8/build/gemmini_q31/zephyr/include/generated/zephyr/devicetree_generated.h
+
+warning: PRIVILEGED_STACK_SIZE (defined at soc/cdns/sample_controller32/Kconfig.defconfig:8,
+soc/andestech/ae350/Kconfig.defconfig.ae350:15, arch/x86/Kconfig:495, arch/xtensa/Kconfig:250,
+arch/arm64/core/Kconfig:132, arch/Kconfig:340) was assigned the value '2048' but got the value ''.
+Check these unsatisfied dependencies: (SOC_XTENSA_SAMPLE_CONTROLLER32 || ((SOC_ANDES_AE350 ||
+SOC_ANDES_AE350_CLIC) && SOC_SERIES_ANDES_AE350 && SOC_FAMILY_ANDES_V5) || X86 || (XTENSA_MMU &&
+CPU_HAS_MMU && XTENSA) || ARM64 || USERSPACE) (=n). See
+http://docs.zephyrproject.org/latest/kconfig.html#CONFIG_PRIVILEGED_STACK_SIZE and/or look up
+PRIVILEGED_STACK_SIZE in the menuconfig/guiconfig interface. The Application Development Primer,
+Setting Configuration Values, and Kconfig - Tips and Best Practices sections of the manual might be
+helpful too.
+
+Parsing /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/harness/Kconfig
+Loaded configuration '/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/boards/spike/riscv64/spike_riscv64_defconfig'
+Merged configuration '/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/harness/prj.conf'
+Merged configuration '/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/harness/backends/gemmini_q31.conf'
+Merged configuration '/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/harness/backends/spike_single_core.conf'
+Configuration saved to '/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano_kcov/int8/build/gemmini_q31/zephyr/.config'
+Kconfig header saved to '/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano_kcov/int8/build/gemmini_q31/zephyr/include/generated/zephyr/autoconf.h'
+-- Found GnuLd: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/bin/ld.bfd (found version "2.43.1") 
+-- The C compiler identification is GNU 14.3.0
+-- The CXX compiler identification is GNU 14.3.0
+-- The ASM compiler identification is GNU
+-- Found assembler: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/bin/riscv64-zephyr-elf-gcc
+-- Using ccache: /usr/bin/ccache
+-- Found gen_kobject_list: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/scripts/build/gen_kobject_list.py
+-- modelblaster harness MODEL_DIR=/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano_kcov/int8/generated/gemmini_q31  backend=gemmini_q31
+-- modelblaster harness kernel cflags=-march=rv64imafdc;-mabi=lp64d;-isystem/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/modelblaster/cores/gemmini/include/per_config/default16x16;-isystem/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/cores/gemmini/include;-isystem/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/cores/gemmini;-DGEMMINI_ROCC;-DBAREMETAL;-DMODELBLASTER_GEMMINI_HWIO_WEIGHTS=1;-DMODELBLASTER_GEMMINI_Q31_ACC_SCALE=1
+-- Configuring done (4.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano_kcov/int8/build/gemmini_q31
+-- west build: building application
+[1/127] Preparing syscall dependency handling
+
+[2/127] Generating misc/generated/syscalls_subdirs.trigger
+[3/127] Generating misc/generated/syscalls.json, misc/generated/struct_tags.json
+[4/127] Generating include/generated/device-api-sections.ld, include/generated/device-api-sections.cmake
+[5/127] Generating include/generated/zephyr/syscall_dispatch.c, include/generated/zephyr/syscall_exports_llext.c, syscall_weakdefs_llext.c, include/generated/zephyr/syscall_list.h
+[6/127] Generating include/generated/zephyr/kobj-types-enum.h, include/generated/zephyr/otype-to-str.h, include/generated/zephyr/otype-to-size.h
+[7/127] Generating include/generated/zephyr/driver-validation.h
+[8/127] Building C object zephyr/CMakeFiles/offsets.dir/arch/riscv/core/offsets/offsets.c.obj
+[9/127] Generating include/generated/zephyr/offsets.h
+[10/127] Generating include/generated/zephyr/version.h
+-- Zephyr version: 4.2.99 (/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr), build: c93d5bdb6078
+[11/127] Building ASM object CMakeFiles/app.dir/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano_kcov/int8/generated/gemmini_q31/test_io.S.obj
+[12/127] Building C object zephyr/CMakeFiles/zephyr.dir/lib/utils/last_section_id.c.obj
+[13/127] Building ASM object zephyr/CMakeFiles/zephyr.dir/soc/common/riscv-privileged/vector.S.obj
+[14/127] Building C object CMakeFiles/app.dir/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano_kcov/int8/generated/gemmini_q31/buffers.c.obj
+[15/127] Building C object zephyr/CMakeFiles/zephyr.dir/soc/rocketchip/virt_riscv/common/tacit/tacit.c.obj
+In file included from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/soc/rocketchip/virt_riscv/common/tacit/tacit.c:6:
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/soc/rocketchip/virt_riscv/common/tacit/tacit.h: In function 'l_trace_encoder_get':
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/soc/rocketchip/virt_riscv/common/tacit/tacit.h:50:10: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+   50 |   return (LTraceEncoderType *)(L_TRACE_ENCODER_BASE_ADDRESS + hart_id * 0x1000);
+      |          ^
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/soc/rocketchip/virt_riscv/common/tacit/tacit.h: In function 'l_trace_sink_dma_get':
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/soc/rocketchip/virt_riscv/common/tacit/tacit.h:54:10: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+   54 |   return (LTraceSinkDmaType *)(L_TRACE_SINK_DMA_BASE_ADDRESS + hart_id * 0x1000);
+      |          ^
+[16/127] Building ASM object zephyr/arch/arch/riscv/core/CMakeFiles/arch__riscv__core.dir/fpu.S.obj
+[17/127] Generating linker_zephyr_pre0.cmd
+[18/127] Building ASM object zephyr/CMakeFiles/zephyr.dir/soc/common/riscv-privileged/soc_irq.S.obj
+[19/127] Building ASM object zephyr/arch/arch/riscv/core/CMakeFiles/arch__riscv__core.dir/switch.S.obj
+[20/127] Building C object zephyr/CMakeFiles/zephyr.dir/misc/generated/configs.c.obj
+[21/127] Building C object zephyr/CMakeFiles/zephyr.dir/lib/utils/dec.c.obj
+[22/127] Building C object zephyr/CMakeFiles/zephyr.dir/lib/libc/validate_libc.c.obj
+[23/127] Building C object zephyr/arch/common/CMakeFiles/arch__common.dir/sw_isr_common.c.obj
+[24/127] Building C object zephyr/CMakeFiles/zephyr.dir/lib/utils/hex.c.obj
+[25/127] Building C object zephyr/CMakeFiles/zephyr.dir/soc/common/riscv-privileged/soc_common_irq.c.obj
+[26/127] Building C object zephyr/CMakeFiles/zephyr_pre0.dir/misc/empty_file.c.obj
+[27/127] Building C object zephyr/CMakeFiles/zephyr.dir/lib/os/thread_entry.c.obj
+[28/127] Building ASM object zephyr/arch/arch/riscv/core/CMakeFiles/arch__riscv__core.dir/reset.S.obj
+[29/127] Building C object zephyr/CMakeFiles/zephyr.dir/subsys/tracing/tracing_none.c.obj
+[30/127] Building C object zephyr/CMakeFiles/zephyr.dir/lib/os/sem.c.obj
+[31/127] Building C object zephyr/arch/common/CMakeFiles/arch__common.dir/multilevel_irq.c.obj
+[32/127] Building C object zephyr/CMakeFiles/zephyr.dir/lib/utils/bitmask.c.obj
+[33/127] Building C object zephyr/CMakeFiles/zephyr.dir/soc/rocketchip/virt_riscv/common/soc.c.obj
+[34/127] Building C object zephyr/arch/arch/riscv/core/CMakeFiles/arch__riscv__core.dir/cpu_idle.c.obj
+[35/127] Building C object zephyr/CMakeFiles/zephyr.dir/lib/os/reboot.c.obj
+[36/127] Building C object zephyr/arch/common/CMakeFiles/isr_tables.dir/isr_tables.c.obj
+[37/127] Building ASM object zephyr/arch/arch/riscv/core/CMakeFiles/arch__riscv__core.dir/isr.S.obj
+[38/127] Building C object zephyr/CMakeFiles/zephyr.dir/lib/os/assert.c.obj
+[39/127] Building C object zephyr/arch/arch/riscv/core/CMakeFiles/arch__riscv__core.dir/fatal.c.obj
+[40/127] Building C object zephyr/CMakeFiles/zephyr.dir/lib/utils/timeutil.c.obj
+[41/127] Building C object zephyr/CMakeFiles/zephyr.dir/lib/utils/ring_buffer.c.obj
+[42/127] Building C object zephyr/arch/arch/riscv/core/CMakeFiles/arch__riscv__core.dir/irq_manage.c.obj
+[43/127] Building C object zephyr/arch/arch/riscv/core/CMakeFiles/arch__riscv__core.dir/prep_c.c.obj
+[44/127] Building C object zephyr/arch/arch/riscv/core/CMakeFiles/arch__riscv__core.dir/fpu.c.obj
+[45/127] Building C object zephyr/CMakeFiles/zephyr.dir/lib/os/printk.c.obj
+[46/127] Building C object zephyr/arch/common/CMakeFiles/arch__common.dir/init.c.obj
+[47/127] Building C object zephyr/arch/arch/riscv/core/CMakeFiles/arch__riscv__core.dir/thread.c.obj
+[48/127] Building C object zephyr/lib/libc/picolibc/CMakeFiles/lib__libc__picolibc.dir/exit.c.obj
+[49/127] Building C object zephyr/CMakeFiles/zephyr.dir/lib/os/clock.c.obj
+[50/127] Building C object zephyr/lib/libc/picolibc/CMakeFiles/lib__libc__picolibc.dir/chk_fail.c.obj
+[51/127] Linking C static library zephyr/arch/common/libisr_tables.a
+[52/127] Building C object zephyr/arch/arch/riscv/core/CMakeFiles/arch__riscv__core.dir/reboot.c.obj
+[53/127] Building C object CMakeFiles/app.dir/src/main.c.obj
+[54/127] Building C object zephyr/lib/libc/picolibc/CMakeFiles/lib__libc__picolibc.dir/locks.c.obj
+[55/127] Building C object zephyr/lib/libc/common/CMakeFiles/lib__libc__common.dir/source/time/time.c.obj
+[56/127] Building C object zephyr/kernel/CMakeFiles/kernel.dir/version.c.obj
+[57/127] Building C object zephyr/lib/libc/picolibc/CMakeFiles/lib__libc__picolibc.dir/assert.c.obj
+[58/127] Building C object zephyr/lib/libc/picolibc/CMakeFiles/lib__libc__picolibc.dir/errno_wrap.c.obj
+[59/127] Building C object zephyr/CMakeFiles/zephyr.dir/lib/utils/rb.c.obj
+[60/127] Building C object zephyr/lib/libc/common/CMakeFiles/lib__libc__common.dir/source/stdlib/abort.c.obj
+[61/127] Building C object zephyr/arch/arch/riscv/core/CMakeFiles/arch__riscv__core.dir/tls.c.obj
+[62/127] Building C object zephyr/lib/posix/c_lib_ext/CMakeFiles/lib__posix__c_lib_ext.dir/fnmatch.c.obj
+[63/127] Building C object zephyr/drivers/timer/CMakeFiles/drivers__timer.dir/sys_clock_init.c.obj
+[64/127] Building C object zephyr/CMakeFiles/zephyr.dir/lib/heap/heap.c.obj
+[65/127] Linking C static library zephyr/arch/common/libarch__common.a
+[66/127] Building C object zephyr/lib/libc/common/CMakeFiles/lib__libc__common.dir/source/stdlib/malloc.c.obj
+[67/127] Building C object zephyr/lib/posix/c_lib_ext/CMakeFiles/lib__posix__c_lib_ext.dir/getopt/getopt_common.c.obj
+[68/127] Building C object zephyr/lib/posix/c_lib_ext/CMakeFiles/lib__posix__c_lib_ext.dir/getopt/getopt.c.obj
+In file included from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/sys/sysconf.h:11,
+                 from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/unistd.h:18,
+                 from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/lib/posix/c_lib_ext/getopt/getopt.c:36:
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:23:9: warning: "_POSIX_AIO_LISTIO_MAX" redefined
+   23 | #define _POSIX_AIO_LISTIO_MAX               (2)
+      |         ^~~~~~~~~~~~~~~~~~~~~
+In file included from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/limits.h:6,
+                 from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/lib/gcc/riscv64-zephyr-elf/14.3.0/include/limits.h:210,
+                 from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/lib/gcc/riscv64-zephyr-elf/14.3.0/include/syslimits.h:7,
+                 from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/lib/gcc/riscv64-zephyr-elf/14.3.0/include/limits.h:34,
+                 from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/kernel_includes.h:22,
+                 from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/kernel.h:17,
+                 from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_types.h:30,
+                 from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/unistd.h:11:
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:63:9: note: this is the location of the previous definition
+   63 | #define _POSIX_AIO_LISTIO_MAX   2
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:24:9: warning: "_POSIX_AIO_MAX" redefined
+   24 | #define _POSIX_AIO_MAX                      (1)
+      |         ^~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:64:9: note: this is the location of the previous definition
+   64 | #define _POSIX_AIO_MAX          1
+      |         ^~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:25:9: warning: "_POSIX_ARG_MAX" redefined
+   25 | #define _POSIX_ARG_MAX                      (4096)
+      |         ^~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:65:9: note: this is the location of the previous definition
+   65 | #define _POSIX_ARG_MAX          4096
+      |         ^~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:26:9: warning: "_POSIX_CHILD_MAX" redefined
+   26 | #define _POSIX_CHILD_MAX                    (25)
+      |         ^~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:66:9: note: this is the location of the previous definition
+   66 | #define _POSIX_CHILD_MAX        6
+      |         ^~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:27:9: warning: "_POSIX_DELAYTIMER_MAX" redefined
+   27 | #define _POSIX_DELAYTIMER_MAX               (32)
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:67:9: note: this is the location of the previous definition
+   67 | #define _POSIX_DELAYTIMER_MAX   32
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:28:9: warning: "_POSIX_HOST_NAME_MAX" redefined
+   28 | #define _POSIX_HOST_NAME_MAX                (255)
+      |         ^~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:68:9: note: this is the location of the previous definition
+   68 | #define _POSIX_HOST_NAME_MAX    255
+      |         ^~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:29:9: warning: "_POSIX_LINK_MAX" redefined
+   29 | #define _POSIX_LINK_MAX                     (8)
+      |         ^~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:69:9: note: this is the location of the previous definition
+   69 | #define _POSIX_LINK_MAX         8
+      |         ^~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:30:9: warning: "_POSIX_LOGIN_NAME_MAX" redefined
+   30 | #define _POSIX_LOGIN_NAME_MAX               (9)
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:70:9: note: this is the location of the previous definition
+   70 | #define _POSIX_LOGIN_NAME_MAX   9
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:31:9: warning: "_POSIX_MAX_CANON" redefined
+   31 | #define _POSIX_MAX_CANON                    (255)
+      |         ^~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:71:9: note: this is the location of the previous definition
+   71 | #define _POSIX_MAX_CANON        255
+      |         ^~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:32:9: warning: "_POSIX_MAX_INPUT" redefined
+   32 | #define _POSIX_MAX_INPUT                    (255)
+      |         ^~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:72:9: note: this is the location of the previous definition
+   72 | #define _POSIX_MAX_INPUT        255
+      |         ^~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:33:9: warning: "_POSIX_MQ_OPEN_MAX" redefined
+   33 | #define _POSIX_MQ_OPEN_MAX                  (8)
+      |         ^~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:73:9: note: this is the location of the previous definition
+   73 | #define _POSIX_MQ_OPEN_MAX      8
+      |         ^~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:34:9: warning: "_POSIX_MQ_PRIO_MAX" redefined
+   34 | #define _POSIX_MQ_PRIO_MAX                  (32)
+      |         ^~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:74:9: note: this is the location of the previous definition
+   74 | #define _POSIX_MQ_PRIO_MAX      32
+      |         ^~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:35:9: warning: "_POSIX_NAME_MAX" redefined
+   35 | #define _POSIX_NAME_MAX                     (14)
+      |         ^~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:75:9: note: this is the location of the previous definition
+   75 | #define _POSIX_NAME_MAX         14
+      |         ^~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:36:9: warning: "_POSIX_NGROUPS_MAX" redefined
+   36 | #define _POSIX_NGROUPS_MAX                  (8)
+      |         ^~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:76:9: note: this is the location of the previous definition
+   76 | #define _POSIX_NGROUPS_MAX      0
+      |         ^~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:37:9: warning: "_POSIX_OPEN_MAX" redefined
+   37 | #define _POSIX_OPEN_MAX                     (20)
+      |         ^~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:77:9: note: this is the location of the previous definition
+   77 | #define _POSIX_OPEN_MAX         16
+      |         ^~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:38:9: warning: "_POSIX_PATH_MAX" redefined
+   38 | #define _POSIX_PATH_MAX                     (256)
+      |         ^~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:78:9: note: this is the location of the previous definition
+   78 | #define _POSIX_PATH_MAX         255
+      |         ^~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:39:9: warning: "_POSIX_PIPE_BUF" redefined
+   39 | #define _POSIX_PIPE_BUF                     (512)
+      |         ^~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:79:9: note: this is the location of the previous definition
+   79 | #define _POSIX_PIPE_BUF         512
+      |         ^~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:40:9: warning: "_POSIX_RE_DUP_MAX" redefined
+   40 | #define _POSIX_RE_DUP_MAX                   (255)
+      |         ^~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:80:9: note: this is the location of the previous definition
+   80 | #define _POSIX_RE_DUP_MAX       255
+      |         ^~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:41:9: warning: "_POSIX_RTSIG_MAX" redefined
+   41 | #define _POSIX_RTSIG_MAX                    (8)
+      |         ^~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:81:9: note: this is the location of the previous definition
+   81 | #define _POSIX_RTSIG_MAX        8
+      |         ^~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:42:9: warning: "_POSIX_SEM_NSEMS_MAX" redefined
+   42 | #define _POSIX_SEM_NSEMS_MAX                (256)
+      |         ^~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:82:9: note: this is the location of the previous definition
+   82 | #define _POSIX_SEM_NSEMS_MAX    256
+      |         ^~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:43:9: warning: "_POSIX_SEM_VALUE_MAX" redefined
+   43 | #define _POSIX_SEM_VALUE_MAX                (32767)
+      |         ^~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:83:9: note: this is the location of the previous definition
+   83 | #define _POSIX_SEM_VALUE_MAX    32767
+      |         ^~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:44:9: warning: "_POSIX_SIGQUEUE_MAX" redefined
+   44 | #define _POSIX_SIGQUEUE_MAX                 (32)
+      |         ^~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:84:9: note: this is the location of the previous definition
+   84 | #define _POSIX_SIGQUEUE_MAX     32
+      |         ^~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:45:9: warning: "_POSIX_SSIZE_MAX" redefined
+   45 | #define _POSIX_SSIZE_MAX                    (32767)
+      |         ^~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:85:9: note: this is the location of the previous definition
+   85 | #define _POSIX_SSIZE_MAX        32767
+      |         ^~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:46:9: warning: "_POSIX_SS_REPL_MAX" redefined
+   46 | #define _POSIX_SS_REPL_MAX                  (4)
+      |         ^~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:86:9: note: this is the location of the previous definition
+   86 | #define _POSIX_SS_REPL_MAX      4
+      |         ^~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:47:9: warning: "_POSIX_STREAM_MAX" redefined
+   47 | #define _POSIX_STREAM_MAX                   (8)
+      |         ^~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:87:9: note: this is the location of the previous definition
+   87 | #define _POSIX_STREAM_MAX       8
+      |         ^~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:48:9: warning: "_POSIX_SYMLINK_MAX" redefined
+   48 | #define _POSIX_SYMLINK_MAX                  (255)
+      |         ^~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:88:9: note: this is the location of the previous definition
+   88 | #define _POSIX_SYMLINK_MAX      255
+      |         ^~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:49:9: warning: "_POSIX_SYMLOOP_MAX" redefined
+   49 | #define _POSIX_SYMLOOP_MAX                  (8)
+      |         ^~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:89:9: note: this is the location of the previous definition
+   89 | #define _POSIX_SYMLOOP_MAX      8
+      |         ^~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:50:9: warning: "_POSIX_THREAD_DESTRUCTOR_ITERATIONS" redefined
+   50 | #define _POSIX_THREAD_DESTRUCTOR_ITERATIONS (4)
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:90:9: note: this is the location of the previous definition
+   90 | #define _POSIX_THREAD_DESTRUCTOR_ITERATIONS     4
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:51:9: warning: "_POSIX_THREAD_KEYS_MAX" redefined
+   51 | #define _POSIX_THREAD_KEYS_MAX              (128)
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:91:9: note: this is the location of the previous definition
+   91 | #define _POSIX_THREAD_KEYS_MAX  128
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:52:9: warning: "_POSIX_THREAD_THREADS_MAX" redefined
+   52 | #define _POSIX_THREAD_THREADS_MAX           (64)
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:92:9: note: this is the location of the previous definition
+   92 | #define _POSIX_THREAD_THREADS_MAX       64
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:53:9: warning: "_POSIX_TIMER_MAX" redefined
+   53 | #define _POSIX_TIMER_MAX                    (32)
+      |         ^~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:93:9: note: this is the location of the previous definition
+   93 | #define _POSIX_TIMER_MAX        32
+      |         ^~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:54:9: warning: "_POSIX_TRACE_EVENT_NAME_MAX" redefined
+   54 | #define _POSIX_TRACE_EVENT_NAME_MAX         (30)
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:94:9: note: this is the location of the previous definition
+   94 | #define _POSIX_TRACE_EVENT_NAME_MAX     30
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:55:9: warning: "_POSIX_TRACE_NAME_MAX" redefined
+   55 | #define _POSIX_TRACE_NAME_MAX               (8)
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:95:9: note: this is the location of the previous definition
+   95 | #define _POSIX_TRACE_NAME_MAX   8
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:56:9: warning: "_POSIX_TRACE_SYS_MAX" redefined
+   56 | #define _POSIX_TRACE_SYS_MAX                (8)
+      |         ^~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:96:9: note: this is the location of the previous definition
+   96 | #define _POSIX_TRACE_SYS_MAX    8
+      |         ^~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:57:9: warning: "_POSIX_TRACE_USER_EVENT_MAX" redefined
+   57 | #define _POSIX_TRACE_USER_EVENT_MAX         (32)
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:97:9: note: this is the location of the previous definition
+   97 | #define _POSIX_TRACE_USER_EVENT_MAX     32
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:58:9: warning: "_POSIX_TTY_NAME_MAX" redefined
+   58 | #define _POSIX_TTY_NAME_MAX                 (9)
+      |         ^~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:98:9: note: this is the location of the previous definition
+   98 | #define _POSIX_TTY_NAME_MAX     9
+      |         ^~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:59:9: warning: "_POSIX_TZNAME_MAX" redefined
+   59 | #define _POSIX_TZNAME_MAX                   (6)
+      |         ^~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:99:9: note: this is the location of the previous definition
+   99 | #define _POSIX_TZNAME_MAX       3
+      |         ^~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:60:9: warning: "_POSIX2_BC_BASE_MAX" redefined
+   60 | #define _POSIX2_BC_BASE_MAX                 (99)
+      |         ^~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:100:9: note: this is the location of the previous definition
+  100 | #define _POSIX2_BC_BASE_MAX     99
+      |         ^~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:61:9: warning: "_POSIX2_BC_DIM_MAX" redefined
+   61 | #define _POSIX2_BC_DIM_MAX                  (2048)
+      |         ^~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:101:9: note: this is the location of the previous definition
+  101 | #define _POSIX2_BC_DIM_MAX      2048
+      |         ^~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:62:9: warning: "_POSIX2_BC_SCALE_MAX" redefined
+   62 | #define _POSIX2_BC_SCALE_MAX                (99)
+      |         ^~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:102:9: note: this is the location of the previous definition
+  102 | #define _POSIX2_BC_SCALE_MAX    99
+      |         ^~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:63:9: warning: "_POSIX2_BC_STRING_MAX" redefined
+   63 | #define _POSIX2_BC_STRING_MAX               (1000)
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:103:9: note: this is the location of the previous definition
+  103 | #define _POSIX2_BC_STRING_MAX   1000
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:64:9: warning: "_POSIX2_CHARCLASS_NAME_MAX" redefined
+   64 | #define _POSIX2_CHARCLASS_NAME_MAX          (14)
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:104:9: note: this is the location of the previous definition
+  104 | #define _POSIX2_CHARCLASS_NAME_MAX      14
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:65:9: warning: "_POSIX2_COLL_WEIGHTS_MAX" redefined
+   65 | #define _POSIX2_COLL_WEIGHTS_MAX            (2)
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:105:9: note: this is the location of the previous definition
+  105 | #define _POSIX2_COLL_WEIGHTS_MAX        2
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:66:9: warning: "_POSIX2_EXPR_NEST_MAX" redefined
+   66 | #define _POSIX2_EXPR_NEST_MAX               (32)
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:106:9: note: this is the location of the previous definition
+  106 | #define _POSIX2_EXPR_NEST_MAX   32
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:67:9: warning: "_POSIX2_LINE_MAX" redefined
+   67 | #define _POSIX2_LINE_MAX                    (2048)
+      |         ^~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:107:9: note: this is the location of the previous definition
+  107 | #define _POSIX2_LINE_MAX        2048
+      |         ^~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:83:9: warning: "ARG_MAX" redefined
+   83 | #define ARG_MAX                       _POSIX_ARG_MAX
+      |         ^~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:41:9: note: this is the location of the previous definition
+   41 | #define ARG_MAX                 65536   /* max bytes for an exec function */
+      |         ^~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:84:9: warning: "ATEXIT_MAX" redefined
+   84 | #define ATEXIT_MAX                    (32)
+      |         ^~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:42:9: note: this is the location of the previous definition
+   42 | #define ATEXIT_MAX                 32   /* max atexit functions */
+      |         ^~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:93:9: warning: "OPEN_MAX" redefined
+   93 | #define OPEN_MAX                      CONFIG_POSIX_OPEN_MAX
+      |         ^~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:45:9: note: this is the location of the previous definition
+   45 | #define OPEN_MAX                   64   /* max open files per process */
+      |         ^~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:96:9: warning: "PATH_MAX" redefined
+   96 | #define PATH_MAX                      _POSIX_PATH_MAX
+      |         ^~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:53:9: note: this is the location of the previous definition
+   53 | #define PATH_MAX                 1024   /* max bytes in pathname */
+      |         ^~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:114:9: warning: "TZNAME_MAX" redefined
+  114 | #define TZNAME_MAX                    _POSIX_TZNAME_MAX
+      |         ^~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:46:9: note: this is the location of the previous definition
+   46 | #define TZNAME_MAX                 10   /* max time zone name length */
+      |         ^~~~~~~~~~
+[69/127] Building C object zephyr/lib/libc/picolibc/CMakeFiles/lib__libc__picolibc.dir/cbprintf.c.obj
+[70/127] Building C object zephyr/CMakeFiles/zephyr.dir/lib/utils/bitarray.c.obj
+[71/127] Building C object zephyr/lib/libc/picolibc/CMakeFiles/lib__libc__picolibc.dir/stdio.c.obj
+[72/127] Building C object zephyr/lib/posix/c_lib_ext/CMakeFiles/lib__posix__c_lib_ext.dir/getentropy.c.obj
+In file included from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/sys/sysconf.h:11,
+                 from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/unistd.h:18,
+                 from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/lib/posix/c_lib_ext/getentropy.c:11:
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:23:9: warning: "_POSIX_AIO_LISTIO_MAX" redefined
+   23 | #define _POSIX_AIO_LISTIO_MAX               (2)
+      |         ^~~~~~~~~~~~~~~~~~~~~
+In file included from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/limits.h:6,
+                 from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/lib/gcc/riscv64-zephyr-elf/14.3.0/include/limits.h:210,
+                 from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/lib/gcc/riscv64-zephyr-elf/14.3.0/include/syslimits.h:7,
+                 from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/lib/gcc/riscv64-zephyr-elf/14.3.0/include/limits.h:34,
+                 from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/kernel_includes.h:22,
+                 from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/kernel.h:17,
+                 from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/lib/posix/c_lib_ext/getentropy.c:10:
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:63:9: note: this is the location of the previous definition
+   63 | #define _POSIX_AIO_LISTIO_MAX   2
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:24:9: warning: "_POSIX_AIO_MAX" redefined
+   24 | #define _POSIX_AIO_MAX                      (1)
+      |         ^~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:64:9: note: this is the location of the previous definition
+   64 | #define _POSIX_AIO_MAX          1
+      |         ^~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:25:9: warning: "_POSIX_ARG_MAX" redefined
+   25 | #define _POSIX_ARG_MAX                      (4096)
+      |         ^~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:65:9: note: this is the location of the previous definition
+   65 | #define _POSIX_ARG_MAX          4096
+      |         ^~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:26:9: warning: "_POSIX_CHILD_MAX" redefined
+   26 | #define _POSIX_CHILD_MAX                    (25)
+      |         ^~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:66:9: note: this is the location of the previous definition
+   66 | #define _POSIX_CHILD_MAX        6
+      |         ^~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:27:9: warning: "_POSIX_DELAYTIMER_MAX" redefined
+   27 | #define _POSIX_DELAYTIMER_MAX               (32)
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:67:9: note: this is the location of the previous definition
+   67 | #define _POSIX_DELAYTIMER_MAX   32
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:28:9: warning: "_POSIX_HOST_NAME_MAX" redefined
+   28 | #define _POSIX_HOST_NAME_MAX                (255)
+      |         ^~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:68:9: note: this is the location of the previous definition
+   68 | #define _POSIX_HOST_NAME_MAX    255
+      |         ^~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:29:9: warning: "_POSIX_LINK_MAX" redefined
+   29 | #define _POSIX_LINK_MAX                     (8)
+      |         ^~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:69:9: note: this is the location of the previous definition
+   69 | #define _POSIX_LINK_MAX         8
+      |         ^~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:30:9: warning: "_POSIX_LOGIN_NAME_MAX" redefined
+   30 | #define _POSIX_LOGIN_NAME_MAX               (9)
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:70:9: note: this is the location of the previous definition
+   70 | #define _POSIX_LOGIN_NAME_MAX   9
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:31:9: warning: "_POSIX_MAX_CANON" redefined
+   31 | #define _POSIX_MAX_CANON                    (255)
+      |         ^~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:71:9: note: this is the location of the previous definition
+   71 | #define _POSIX_MAX_CANON        255
+      |         ^~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:32:9: warning: "_POSIX_MAX_INPUT" redefined
+   32 | #define _POSIX_MAX_INPUT                    (255)
+      |         ^~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:72:9: note: this is the location of the previous definition
+   72 | #define _POSIX_MAX_INPUT        255
+      |         ^~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:33:9: warning: "_POSIX_MQ_OPEN_MAX" redefined
+   33 | #define _POSIX_MQ_OPEN_MAX                  (8)
+      |         ^~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:73:9: note: this is the location of the previous definition
+   73 | #define _POSIX_MQ_OPEN_MAX      8
+      |         ^~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:34:9: warning: "_POSIX_MQ_PRIO_MAX" redefined
+   34 | #define _POSIX_MQ_PRIO_MAX                  (32)
+      |         ^~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:74:9: note: this is the location of the previous definition
+   74 | #define _POSIX_MQ_PRIO_MAX      32
+      |         ^~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:35:9: warning: "_POSIX_NAME_MAX" redefined
+   35 | #define _POSIX_NAME_MAX                     (14)
+      |         ^~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:75:9: note: this is the location of the previous definition
+   75 | #define _POSIX_NAME_MAX         14
+      |         ^~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:36:9: warning: "_POSIX_NGROUPS_MAX" redefined
+   36 | #define _POSIX_NGROUPS_MAX                  (8)
+      |         ^~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:76:9: note: this is the location of the previous definition
+   76 | #define _POSIX_NGROUPS_MAX      0
+      |         ^~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:37:9: warning: "_POSIX_OPEN_MAX" redefined
+   37 | #define _POSIX_OPEN_MAX                     (20)
+      |         ^~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:77:9: note: this is the location of the previous definition
+   77 | #define _POSIX_OPEN_MAX         16
+      |         ^~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:38:9: warning: "_POSIX_PATH_MAX" redefined
+   38 | #define _POSIX_PATH_MAX                     (256)
+      |         ^~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:78:9: note: this is the location of the previous definition
+   78 | #define _POSIX_PATH_MAX         255
+      |         ^~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:39:9: warning: "_POSIX_PIPE_BUF" redefined
+   39 | #define _POSIX_PIPE_BUF                     (512)
+      |         ^~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:79:9: note: this is the location of the previous definition
+   79 | #define _POSIX_PIPE_BUF         512
+      |         ^~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:40:9: warning: "_POSIX_RE_DUP_MAX" redefined
+   40 | #define _POSIX_RE_DUP_MAX                   (255)
+      |         ^~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:80:9: note: this is the location of the previous definition
+   80 | #define _POSIX_RE_DUP_MAX       255
+      |         ^~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:41:9: warning: "_POSIX_RTSIG_MAX" redefined
+   41 | #define _POSIX_RTSIG_MAX                    (8)
+      |         ^~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:81:9: note: this is the location of the previous definition
+   81 | #define _POSIX_RTSIG_MAX        8
+      |         ^~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:42:9: warning: "_POSIX_SEM_NSEMS_MAX" redefined
+   42 | #define _POSIX_SEM_NSEMS_MAX                (256)
+      |         ^~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:82:9: note: this is the location of the previous definition
+   82 | #define _POSIX_SEM_NSEMS_MAX    256
+      |         ^~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:43:9: warning: "_POSIX_SEM_VALUE_MAX" redefined
+   43 | #define _POSIX_SEM_VALUE_MAX                (32767)
+      |         ^~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:83:9: note: this is the location of the previous definition
+   83 | #define _POSIX_SEM_VALUE_MAX    32767
+      |         ^~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:44:9: warning: "_POSIX_SIGQUEUE_MAX" redefined
+   44 | #define _POSIX_SIGQUEUE_MAX                 (32)
+      |         ^~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:84:9: note: this is the location of the previous definition
+   84 | #define _POSIX_SIGQUEUE_MAX     32
+      |         ^~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:45:9: warning: "_POSIX_SSIZE_MAX" redefined
+   45 | #define _POSIX_SSIZE_MAX                    (32767)
+      |         ^~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:85:9: note: this is the location of the previous definition
+   85 | #define _POSIX_SSIZE_MAX        32767
+      |         ^~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:46:9: warning: "_POSIX_SS_REPL_MAX" redefined
+   46 | #define _POSIX_SS_REPL_MAX                  (4)
+      |         ^~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:86:9: note: this is the location of the previous definition
+   86 | #define _POSIX_SS_REPL_MAX      4
+      |         ^~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:47:9: warning: "_POSIX_STREAM_MAX" redefined
+   47 | #define _POSIX_STREAM_MAX                   (8)
+      |         ^~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:87:9: note: this is the location of the previous definition
+   87 | #define _POSIX_STREAM_MAX       8
+      |         ^~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:48:9: warning: "_POSIX_SYMLINK_MAX" redefined
+   48 | #define _POSIX_SYMLINK_MAX                  (255)
+      |         ^~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:88:9: note: this is the location of the previous definition
+   88 | #define _POSIX_SYMLINK_MAX      255
+      |         ^~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:49:9: warning: "_POSIX_SYMLOOP_MAX" redefined
+   49 | #define _POSIX_SYMLOOP_MAX                  (8)
+      |         ^~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:89:9: note: this is the location of the previous definition
+   89 | #define _POSIX_SYMLOOP_MAX      8
+      |         ^~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:50:9: warning: "_POSIX_THREAD_DESTRUCTOR_ITERATIONS" redefined
+   50 | #define _POSIX_THREAD_DESTRUCTOR_ITERATIONS (4)
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:90:9: note: this is the location of the previous definition
+   90 | #define _POSIX_THREAD_DESTRUCTOR_ITERATIONS     4
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:51:9: warning: "_POSIX_THREAD_KEYS_MAX" redefined
+   51 | #define _POSIX_THREAD_KEYS_MAX              (128)
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:91:9: note: this is the location of the previous definition
+   91 | #define _POSIX_THREAD_KEYS_MAX  128
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:52:9: warning: "_POSIX_THREAD_THREADS_MAX" redefined
+   52 | #define _POSIX_THREAD_THREADS_MAX           (64)
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:92:9: note: this is the location of the previous definition
+   92 | #define _POSIX_THREAD_THREADS_MAX       64
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:53:9: warning: "_POSIX_TIMER_MAX" redefined
+   53 | #define _POSIX_TIMER_MAX                    (32)
+      |         ^~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:93:9: note: this is the location of the previous definition
+   93 | #define _POSIX_TIMER_MAX        32
+      |         ^~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:54:9: warning: "_POSIX_TRACE_EVENT_NAME_MAX" redefined
+   54 | #define _POSIX_TRACE_EVENT_NAME_MAX         (30)
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:94:9: note: this is the location of the previous definition
+   94 | #define _POSIX_TRACE_EVENT_NAME_MAX     30
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:55:9: warning: "_POSIX_TRACE_NAME_MAX" redefined
+   55 | #define _POSIX_TRACE_NAME_MAX               (8)
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:95:9: note: this is the location of the previous definition
+   95 | #define _POSIX_TRACE_NAME_MAX   8
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:56:9: warning: "_POSIX_TRACE_SYS_MAX" redefined
+   56 | #define _POSIX_TRACE_SYS_MAX                (8)
+      |         ^~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:96:9: note: this is the location of the previous definition
+   96 | #define _POSIX_TRACE_SYS_MAX    8
+      |         ^~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:57:9: warning: "_POSIX_TRACE_USER_EVENT_MAX" redefined
+   57 | #define _POSIX_TRACE_USER_EVENT_MAX         (32)
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:97:9: note: this is the location of the previous definition
+   97 | #define _POSIX_TRACE_USER_EVENT_MAX     32
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:58:9: warning: "_POSIX_TTY_NAME_MAX" redefined
+   58 | #define _POSIX_TTY_NAME_MAX                 (9)
+      |         ^~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:98:9: note: this is the location of the previous definition
+   98 | #define _POSIX_TTY_NAME_MAX     9
+      |         ^~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:59:9: warning: "_POSIX_TZNAME_MAX" redefined
+   59 | #define _POSIX_TZNAME_MAX                   (6)
+      |         ^~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:99:9: note: this is the location of the previous definition
+   99 | #define _POSIX_TZNAME_MAX       3
+      |         ^~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:60:9: warning: "_POSIX2_BC_BASE_MAX" redefined
+   60 | #define _POSIX2_BC_BASE_MAX                 (99)
+      |         ^~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:100:9: note: this is the location of the previous definition
+  100 | #define _POSIX2_BC_BASE_MAX     99
+      |         ^~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:61:9: warning: "_POSIX2_BC_DIM_MAX" redefined
+   61 | #define _POSIX2_BC_DIM_MAX                  (2048)
+      |         ^~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:101:9: note: this is the location of the previous definition
+  101 | #define _POSIX2_BC_DIM_MAX      2048
+      |         ^~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:62:9: warning: "_POSIX2_BC_SCALE_MAX" redefined
+   62 | #define _POSIX2_BC_SCALE_MAX                (99)
+      |         ^~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:102:9: note: this is the location of the previous definition
+  102 | #define _POSIX2_BC_SCALE_MAX    99
+      |         ^~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:63:9: warning: "_POSIX2_BC_STRING_MAX" redefined
+   63 | #define _POSIX2_BC_STRING_MAX               (1000)
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:103:9: note: this is the location of the previous definition
+  103 | #define _POSIX2_BC_STRING_MAX   1000
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:64:9: warning: "_POSIX2_CHARCLASS_NAME_MAX" redefined
+   64 | #define _POSIX2_CHARCLASS_NAME_MAX          (14)
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:104:9: note: this is the location of the previous definition
+  104 | #define _POSIX2_CHARCLASS_NAME_MAX      14
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:65:9: warning: "_POSIX2_COLL_WEIGHTS_MAX" redefined
+   65 | #define _POSIX2_COLL_WEIGHTS_MAX            (2)
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:105:9: note: this is the location of the previous definition
+  105 | #define _POSIX2_COLL_WEIGHTS_MAX        2
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:66:9: warning: "_POSIX2_EXPR_NEST_MAX" redefined
+   66 | #define _POSIX2_EXPR_NEST_MAX               (32)
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:106:9: note: this is the location of the previous definition
+  106 | #define _POSIX2_EXPR_NEST_MAX   32
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:67:9: warning: "_POSIX2_LINE_MAX" redefined
+   67 | #define _POSIX2_LINE_MAX                    (2048)
+      |         ^~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:107:9: note: this is the location of the previous definition
+  107 | #define _POSIX2_LINE_MAX        2048
+      |         ^~~~~~~~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:83:9: warning: "ARG_MAX" redefined
+   83 | #define ARG_MAX                       _POSIX_ARG_MAX
+      |         ^~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:41:9: note: this is the location of the previous definition
+   41 | #define ARG_MAX                 65536   /* max bytes for an exec function */
+      |         ^~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:84:9: warning: "ATEXIT_MAX" redefined
+   84 | #define ATEXIT_MAX                    (32)
+      |         ^~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:42:9: note: this is the location of the previous definition
+   42 | #define ATEXIT_MAX                 32   /* max atexit functions */
+      |         ^~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:93:9: warning: "OPEN_MAX" redefined
+   93 | #define OPEN_MAX                      CONFIG_POSIX_OPEN_MAX
+      |         ^~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:45:9: note: this is the location of the previous definition
+   45 | #define OPEN_MAX                   64   /* max open files per process */
+      |         ^~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:96:9: warning: "PATH_MAX" redefined
+   96 | #define PATH_MAX                      _POSIX_PATH_MAX
+      |         ^~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:53:9: note: this is the location of the previous definition
+   53 | #define PATH_MAX                 1024   /* max bytes in pathname */
+      |         ^~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/include/zephyr/posix/posix_limits.h:114:9: warning: "TZNAME_MAX" redefined
+  114 | #define TZNAME_MAX                    _POSIX_TZNAME_MAX
+      |         ^~~~~~~~~~
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/gnu/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/sys/syslimits.h:46:9: note: this is the location of the previous definition
+   46 | #define TZNAME_MAX                 10   /* max time zone name length */
+      |         ^~~~~~~~~~
+[73/127] Building C object zephyr/drivers/console/CMakeFiles/drivers__console.dir/uart_console.c.obj
+[74/127] Building C object zephyr/kernel/CMakeFiles/kernel.dir/banner.c.obj
+[75/127] Building C object zephyr/kernel/CMakeFiles/kernel.dir/main_weak.c.obj
+[76/127] Building C object zephyr/kernel/CMakeFiles/kernel.dir/errno.c.obj
+[77/127] Building C object zephyr/drivers/timer/CMakeFiles/drivers__timer.dir/riscv_machine_timer.c.obj
+[78/127] Building C object zephyr/kernel/CMakeFiles/kernel.dir/float.c.obj
+[79/127] Linking C static library zephyr/lib/libc/common/liblib__libc__common.a
+[80/127] Building C object zephyr/kernel/CMakeFiles/kernel.dir/device.c.obj
+[81/127] Building C object zephyr/drivers/serial/CMakeFiles/drivers__serial.dir/uart_htif.c.obj
+[82/127] Linking C static library zephyr/lib/posix/c_lib_ext/liblib__posix__c_lib_ext.a
+[83/127] Linking C static library zephyr/drivers/console/libdrivers__console.a
+[84/127] Linking C static library zephyr/lib/libc/picolibc/liblib__libc__picolibc.a
+[85/127] Building C object zephyr/kernel/CMakeFiles/kernel.dir/fatal.c.obj
+[86/127] Building C object zephyr/arch/arch/riscv/core/CMakeFiles/arch__riscv__core.dir/stacktrace.c.obj
+[87/127] Linking C static library zephyr/drivers/timer/libdrivers__timer.a
+[88/127] Linking C static library zephyr/drivers/serial/libdrivers__serial.a
+[89/127] Building C object zephyr/kernel/CMakeFiles/kernel.dir/system_work_q.c.obj
+[90/127] Building C object zephyr/kernel/CMakeFiles/kernel.dir/busy_wait.c.obj
+[91/127] Building C object zephyr/drivers/interrupt_controller/CMakeFiles/drivers__interrupt_controller.dir/intc_plic.c.obj
+[92/127] Building C object zephyr/CMakeFiles/zephyr.dir/lib/os/cbprintf_complete.c.obj
+[93/127] Building C object zephyr/kernel/CMakeFiles/kernel.dir/mutex.c.obj
+[94/127] Building C object zephyr/kernel/CMakeFiles/kernel.dir/idle.c.obj
+[95/127] Linking C static library zephyr/arch/arch/riscv/core/libarch__riscv__core.a
+[96/127] Building C object zephyr/kernel/CMakeFiles/kernel.dir/mem_slab.c.obj
+[97/127] Building C object zephyr/CMakeFiles/zephyr.dir/lib/os/cbprintf_packaged.c.obj
+[98/127] Building C object zephyr/kernel/CMakeFiles/kernel.dir/dynamic_disabled.c.obj
+[99/127] Building C object zephyr/kernel/CMakeFiles/kernel.dir/init.c.obj
+[100/127] Building C object zephyr/kernel/CMakeFiles/kernel.dir/kheap.c.obj
+[101/127] Building C object zephyr/kernel/CMakeFiles/kernel.dir/condvar.c.obj
+[102/127] Linking C static library zephyr/drivers/interrupt_controller/libdrivers__interrupt_controller.a
+[103/127] Building C object zephyr/kernel/CMakeFiles/kernel.dir/sem.c.obj
+[104/127] Building C object zephyr/kernel/CMakeFiles/kernel.dir/stack.c.obj
+[105/127] Building C object zephyr/kernel/CMakeFiles/kernel.dir/msg_q.c.obj
+[106/127] Building C object zephyr/kernel/CMakeFiles/kernel.dir/thread.c.obj
+[107/127] Building C object zephyr/kernel/CMakeFiles/kernel.dir/mailbox.c.obj
+[108/127] Building C object zephyr/kernel/CMakeFiles/kernel.dir/queue.c.obj
+[109/127] Building C object zephyr/kernel/CMakeFiles/kernel.dir/timeslicing.c.obj
+[110/127] Linking C static library zephyr/libzephyr.a
+[111/127] Building C object zephyr/kernel/CMakeFiles/kernel.dir/mempool.c.obj
+[112/127] Building C object zephyr/kernel/CMakeFiles/kernel.dir/pipe.c.obj
+[113/127] Building C object zephyr/kernel/CMakeFiles/kernel.dir/timeout.c.obj
+[114/127] Building C object zephyr/kernel/CMakeFiles/kernel.dir/timer.c.obj
+[115/127] Building C object zephyr/kernel/CMakeFiles/kernel.dir/work.c.obj
+[116/127] Building C object zephyr/kernel/CMakeFiles/kernel.dir/sched.c.obj
+[117/127] Linking C static library zephyr/kernel/libkernel.a
+[118/127] Building C object CMakeFiles/app.dir/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano_kcov/int8/generated/gemmini_q31/kernels.c.obj
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano_kcov/int8/generated/gemmini_q31/kernels.c:31:24: warning: "/*" within comment [-Wcomment]
+   31 |  * (kernels/gemmini_q31/*_cat*_gemmini_mvin_scale.c) work around the same
+[119/127] Building C object CMakeFiles/app.dir/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano_kcov/int8/generated/gemmini_q31/model.c.obj
+[120/127] Building C object CMakeFiles/app.dir/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano_kcov/int8/generated/gemmini_q31/weights.c.obj
+[121/127] Linking C static library app/libapp.a
+[122/127] Linking C executable zephyr/zephyr_pre0.elf
+[123/127] Generating linker.cmd
+[124/127] Generating isr_tables.c, isr_tables_vt.ld, isr_tables_swi.ld
+[125/127] Building C object zephyr/CMakeFiles/zephyr_final.dir/misc/empty_file.c.obj
+[126/127] Building C object zephyr/CMakeFiles/zephyr_final.dir/isr_tables.c.obj
+[127/127] Linking C executable zephyr/zephyr.elf
+Memory region         Used Size  Region Size  %age Used
+             RAM:     7879696 B       256 MB      2.94%
+        IDT_LIST:           0 B         4 KB      0.00%
+Generating files from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano_kcov/int8/build/gemmini_q31/zephyr/zephyr.elf for board: spike_riscv64
+MODELBLASTER_STAGE_END:build:8.371
+[5/5] spike + compare
+MODELBLASTER_STAGE_BEGIN:run
+spike: /scratch2/dima/chipyard-fsim/.conda-env/riscv-tools/bin/spike
+=== MODELBLASTER_RAW_SPIKE_BEGIN ===
+*** Booting Zephyr OS build c93d5bdb6078 ***
+modelblaster harness: model=yolov8_nano in=76800 out=75600
+=== MODELBLASTER_VERIFY === max_abs_err=0 max_rel_err=0 n=75600
+=== MODELBLASTER_PROFILE_BEGIN ===
+dispatch_id,name,op,shape,cycles
+0,l0.conv,conv2d_s8,N=1;IC=3;IH=160;IW=160;OC=16;OH=80;OW=80;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,4134878
+1,l0.act,silu_s8,n=102400,1354489
+2,l1.conv,conv2d_s8,N=1;IC=16;IH=80;IW=80;OC=32;OH=40;OW=40;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,2914669
+3,l1.act,silu_s8,n=51200,684514
+4,l2.cv1.conv,conv2d_s8,N=1;IC=32;IH=40;IW=40;OC=32;OH=40;OW=40;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,2157164
+5,l2.cv1.act,silu_s8,n=51200,679711
+7,l2.m0.cv1.conv,conv2d_s8,N=1;IC=16;IH=40;IW=40;OC=16;OH=40;OW=40;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1170027
+8,l2.m0.cv1.act,silu_s8,n=25600,343870
+9,l2.m0.cv2.conv,conv2d_s8,N=1;IC=16;IH=40;IW=40;OC=16;OH=40;OW=40;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1170027
+10,l2.m0.cv2.act,silu_s8,n=25600,345838
+11,add,add_s8,n=25600,669064
+12,cat,cat3_c1_s8,N=1;H=40;W=40;C_inputs=16|16|16;C_total=48,587220
+13,l2.cv2.conv,conv2d_s8,N=1;IC=48;IH=40;IW=40;OC=32;OH=40;OW=40;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,2500333
+14,l2.cv2.act,silu_s8,n=51200,679945
+15,l3.conv,conv2d_s8,N=1;IC=32;IH=40;IW=40;OC=64;OH=20;OW=20;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,1479877
+16,l3.act,silu_s8,n=25600,349299
+17,l4.cv1.conv,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=64;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1080754
+18,l4.cv1.act,silu_s8,n=25600,348838
+20,l4.m0.cv1.conv,conv2d_s8,N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,592835
+21,l4.m0.cv1.act,silu_s8,n=12800,184111
+22,l4.m0.cv2.conv,conv2d_s8,N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,592836
+23,l4.m0.cv2.act,silu_s8,n=12800,192718
+24,add_1,add_s8,n=12800,337498
+25,l4.m1.cv1.conv,conv2d_s8,N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,592836
+26,l4.m1.cv1.act,silu_s8,n=12800,188063
+27,l4.m1.cv2.conv,conv2d_s8,N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,592842
+28,l4.m1.cv2.act,silu_s8,n=12800,195265
+29,add_2,add_s8,n=12800,337090
+30,cat_1,cat4_c1_s8,N=1;H=20;W=20;C_inputs=32|32|32|32;C_total=128,393453
+31,l4.cv2.conv,conv2d_s8,N=1;IC=128;IH=20;IW=20;OC=64;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1434548
+32,l4.cv2.act,silu_s8,n=25600,354619
+33,l5.conv,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=128;OH=10;OW=10;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,772543
+34,l5.act,silu_s8,n=12800,191838
+35,l6.cv1.conv,conv2d_s8,N=1;IC=128;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,549678
+36,l6.cv1.act,silu_s8,n=12800,185459
+38,l6.m0.cv1.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,311931
+39,l6.m0.cv1.act,silu_s8,n=6400,96614
+40,l6.m0.cv2.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,311931
+41,l6.m0.cv2.act,silu_s8,n=6400,105711
+42,add_3,add_s8,n=6400,170593
+43,l6.m1.cv1.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,311943
+44,l6.m1.cv1.act,silu_s8,n=6400,106720
+45,l6.m1.cv2.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,311935
+46,l6.m1.cv2.act,silu_s8,n=6400,110523
+47,add_4,add_s8,n=6400,169912
+48,cat_2,cat4_c1_s8,N=1;H=10;W=10;C_inputs=64|64|64|64;C_total=256,197237
+49,l6.cv2.conv,conv2d_s8,N=1;IC=256;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,737588
+50,l6.cv2.act,silu_s8,n=12800,189701
+51,l7.conv,conv2d_s8,N=1;IC=128;IH=10;IW=10;OC=256;OH=5;OW=5;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,424122
+52,l7.act,silu_s8,n=6400,108581
+53,l8.cv1.conv,conv2d_s8,N=1;IC=256;IH=5;IW=5;OC=256;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,286461
+54,l8.cv1.act,silu_s8,n=6400,108493
+56,l8.m0.cv1.conv,conv2d_s8,N=1;IC=128;IH=5;IW=5;OC=128;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,177023
+57,l8.m0.cv1.act,silu_s8,n=3200,56210
+58,l8.m0.cv2.conv,conv2d_s8,N=1;IC=128;IH=5;IW=5;OC=128;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,177023
+59,l8.m0.cv2.act,silu_s8,n=3200,54614
+60,add_5,add_s8,n=3200,86547
+61,cat_3,cat3_c1_s8,N=1;H=5;W=5;C_inputs=128|128|128;C_total=384,74367
+62,l8.cv2.conv,conv2d_s8,N=1;IC=384;IH=5;IW=5;OC=256;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,339342
+63,l8.cv2.act,silu_s8,n=6400,107041
+64,l9.cv1.conv,conv2d_s8,N=1;IC=256;IH=5;IW=5;OC=128;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,196654
+65,l9.cv1.act,silu_s8,n=3200,58784
+66,l9.m1,maxpool2d_s8,N=1;C=128;IH=5;IW=5;OH=5;OW=5;KH=5;KW=5;SH=1;SW=1;PH=2;PW=2;DH=1;DW=1,1041701
+67,l9.m2,maxpool2d_s8,N=1;C=128;IH=5;IW=5;OH=5;OW=5;KH=5;KW=5;SH=1;SW=1;PH=2;PW=2;DH=1;DW=1,1020790
+68,l9.m3,maxpool2d_s8,N=1;C=128;IH=5;IW=5;OH=5;OW=5;KH=5;KW=5;SH=1;SW=1;PH=2;PW=2;DH=1;DW=1,1007750
+69,cat_4,cat4_c1_s8,N=1;H=5;W=5;C_inputs=128|128|128|128;C_total=512,99126
+70,l9.cv2.conv,conv2d_s8,N=1;IC=512;IH=5;IW=5;OC=256;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,392292
+71,l9.cv2.act,silu_s8,n=6400,101447
+72,l10,upsample_nearest_s8,N=1;C=256;IH=5;IW=5;scale=2,289869
+73,cat_5,cat2_c1_s8,N=1;H=10;W=10;C_inputs=256|128;C_total=384,294139
+74,l12.cv1.conv,conv2d_s8,N=1;IC=384;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,925493
+75,l12.cv1.act,silu_s8,n=12800,190013
+77,l12.m0.cv1.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,311931
+78,l12.m0.cv1.act,silu_s8,n=6400,101011
+79,l12.m0.cv2.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,311931
+80,l12.m0.cv2.act,silu_s8,n=6400,107512
+81,cat_6,cat3_c1_s8,N=1;H=10;W=10;C_inputs=64|64|64;C_total=192,147954
+82,l12.cv2.conv,conv2d_s8,N=1;IC=192;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,643631
+83,l12.cv2.act,silu_s8,n=12800,185732
+84,l13,upsample_nearest_s8,N=1;C=128;IH=10;IW=10;scale=2,537933
+85,cat_7,cat2_c1_s8,N=1;H=20;W=20;C_inputs=128|64;C_total=192,586212
+86,l15.cv1.conv,conv2d_s8,N=1;IC=192;IH=20;IW=20;OC=64;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1788339
+87,l15.cv1.act,silu_s8,n=25600,351409
+89,l15.m0.cv1.conv,conv2d_s8,N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,592835
+90,l15.m0.cv1.act,silu_s8,n=12800,188822
+91,l15.m0.cv2.conv,conv2d_s8,N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,592835
+92,l15.m0.cv2.act,silu_s8,n=12800,192979
+93,cat_8,cat3_c1_s8,N=1;H=20;W=20;C_inputs=32|32|32;C_total=96,295128
+94,l15.cv2.conv,conv2d_s8,N=1;IC=96;IH=20;IW=20;OC=64;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1257653
+95,l15.cv2.act,silu_s8,n=25600,356792
+96,l16.conv,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=64;OH=10;OW=10;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,590973
+97,l16.act,silu_s8,n=6400,109628
+98,cat_9,cat2_c1_s8,N=1;H=10;W=10;C_inputs=64|128;C_total=192,147717
+99,l18.cv1.conv,conv2d_s8,N=1;IC=192;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,643632
+100,l18.cv1.act,silu_s8,n=12800,191587
+102,l18.m0.cv1.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,311931
+103,l18.m0.cv1.act,silu_s8,n=6400,103322
+104,l18.m0.cv2.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,311931
+105,l18.m0.cv2.act,silu_s8,n=6400,102814
+106,cat_10,cat3_c1_s8,N=1;H=10;W=10;C_inputs=64|64|64;C_total=192,147954
+107,l18.cv2.conv,conv2d_s8,N=1;IC=192;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,643631
+108,l18.cv2.act,silu_s8,n=12800,183133
+109,l19.conv,conv2d_s8,N=1;IC=128;IH=10;IW=10;OC=128;OH=5;OW=5;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1,331264
+110,l19.act,silu_s8,n=3200,56104
+111,cat_11,cat2_c1_s8,N=1;H=5;W=5;C_inputs=128|256;C_total=384,74130
+112,l21.cv1.conv,conv2d_s8,N=1;IC=384;IH=5;IW=5;OC=256;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,339325
+113,l21.cv1.act,silu_s8,n=6400,103015
+115,l21.m0.cv1.conv,conv2d_s8,N=1;IC=128;IH=5;IW=5;OC=128;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,177023
+116,l21.m0.cv1.act,silu_s8,n=3200,60562
+117,l21.m0.cv2.conv,conv2d_s8,N=1;IC=128;IH=5;IW=5;OC=128;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,177023
+118,l21.m0.cv2.act,silu_s8,n=3200,64831
+119,cat_12,cat3_c1_s8,N=1;H=5;W=5;C_inputs=128|128|128;C_total=384,74367
+120,l21.cv2.conv,conv2d_s8,N=1;IC=384;IH=5;IW=5;OC=256;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,339325
+121,l21.cv2.act,silu_s8,n=6400,96227
+122,detect.cv2_0_0.conv,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=64;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1148931
+123,detect.cv2_0_0.act,silu_s8,n=25600,354954
+124,detect.cv2_0_1.conv,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=64;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1148932
+125,detect.cv2_0_1.act,silu_s8,n=25600,356301
+126,detect.cv2_0_2,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=64;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1080754
+127,detect.cv3_0_0.conv,conv2d_s8,N=1;IC=64;IH=20;IW=20;OC=80;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1328012
+128,detect.cv3_0_0.act,silu_s8,n=32000,435914
+129,detect.cv3_0_1.conv,conv2d_s8,N=1;IC=80;IH=20;IW=20;OC=80;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,1426859
+130,detect.cv3_0_1.act,silu_s8,n=32000,435309
+131,detect.cv3_0_2,conv2d_s8,N=1;IC=80;IH=20;IW=20;OC=80;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,1348672
+132,cat_13,cat2_c1_s8,N=1;H=20;W=20;C_inputs=64|80;C_total=144,439798
+133,detect.cv2_1_0.conv,conv2d_s8,N=1;IC=128;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,428287
+134,detect.cv2_1_0.act,silu_s8,n=6400,104570
+135,detect.cv2_1_1.conv,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,311933
+136,detect.cv2_1_1.act,silu_s8,n=6400,107611
+137,detect.cv2_1_2,conv2d_s8,N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,276024
+138,detect.cv3_1_0.conv,conv2d_s8,N=1;IC=128;IH=10;IW=10;OC=80;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,473024
+139,detect.cv3_1_0.act,silu_s8,n=8000,121774
+140,detect.cv3_1_1.conv,conv2d_s8,N=1;IC=80;IH=10;IW=10;OC=80;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,385760
+141,detect.cv3_1_1.act,silu_s8,n=8000,116340
+142,detect.cv3_1_2,conv2d_s8,N=1;IC=80;IH=10;IW=10;OC=80;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,344487
+143,cat_14,cat2_c1_s8,N=1;H=10;W=10;C_inputs=64|80;C_total=144,110449
+144,detect.cv2_2_0.conv,conv2d_s8,N=1;IC=256;IH=5;IW=5;OC=64;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,209503
+145,detect.cv2_2_0.act,silu_s8,n=1600,43520
+146,detect.cv2_2_1.conv,conv2d_s8,N=1;IC=64;IH=5;IW=5;OC=64;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,91806
+147,detect.cv2_2_1.act,silu_s8,n=1600,43752
+148,detect.cv2_2_2,conv2d_s8,N=1;IC=64;IH=5;IW=5;OC=64;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,72481
+149,detect.cv3_2_0.conv,conv2d_s8,N=1;IC=256;IH=5;IW=5;OC=80;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,220673
+150,detect.cv3_2_0.act,silu_s8,n=2000,38765
+151,detect.cv3_2_1.conv,conv2d_s8,N=1;IC=80;IH=5;IW=5;OC=80;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1,112784
+152,detect.cv3_2_1.act,silu_s8,n=2000,36137
+153,detect.cv3_2_2,conv2d_s8,N=1;IC=80;IH=5;IW=5;OC=80;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0,90284
+154,cat_15,cat2_c1_s8,N=1;H=5;W=5;C_inputs=64|80;C_total=144,28827
+=== MODELBLASTER_PROFILE_END ===
+=== MODELBLASTER_WALL_CYCLES === 683000
+Gemmini extension configured with:
+    dim = 16
+=== MODELBLASTER_RAW_SPIKE_END ===
+max_abs_err=0 max_rel_err=0 (atol=1 rtol=0, in-binary)
+PASS
+
+profile -> /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/yolov8_nano_kcov/int8/generated/profile.csv
+name                 op                   shape                                                                        cycles      %
+-----------------------------------------------------------------------------------------------------------------------------------
+l0.conv              conv2d_s8            N=1;IC=3;IH=160;IW=160;OC=16;OH=80;OW=80;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1      4134878    6.1
+l0.act               silu_s8              n=102400                                                                    1354489    2.0
+l1.conv              conv2d_s8            N=1;IC=16;IH=80;IW=80;OC=32;OH=40;OW=40;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1       2914669    4.3
+l1.act               silu_s8              n=51200                                                                      684514    1.0
+l2.cv1.conv          conv2d_s8            N=1;IC=32;IH=40;IW=40;OC=32;OH=40;OW=40;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0       2157164    3.2
+l2.cv1.act           silu_s8              n=51200                                                                      679711    1.0
+l2.m0.cv1.conv       conv2d_s8            N=1;IC=16;IH=40;IW=40;OC=16;OH=40;OW=40;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1       1170027    1.7
+l2.m0.cv1.act        silu_s8              n=25600                                                                      343870    0.5
+l2.m0.cv2.conv       conv2d_s8            N=1;IC=16;IH=40;IW=40;OC=16;OH=40;OW=40;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1       1170027    1.7
+l2.m0.cv2.act        silu_s8              n=25600                                                                      345838    0.5
+add                  add_s8               n=25600                                                                      669064    1.0
+cat                  cat3_c1_s8           N=1;H=40;W=40;C_inputs=16|16|16;C_total=48                                   587220    0.9
+l2.cv2.conv          conv2d_s8            N=1;IC=48;IH=40;IW=40;OC=32;OH=40;OW=40;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0       2500333    3.7
+l2.cv2.act           silu_s8              n=51200                                                                      679945    1.0
+l3.conv              conv2d_s8            N=1;IC=32;IH=40;IW=40;OC=64;OH=20;OW=20;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1       1479877    2.2
+l3.act               silu_s8              n=25600                                                                      349299    0.5
+l4.cv1.conv          conv2d_s8            N=1;IC=64;IH=20;IW=20;OC=64;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0       1080754    1.6
+l4.cv1.act           silu_s8              n=25600                                                                      348838    0.5
+l4.m0.cv1.conv       conv2d_s8            N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1        592835    0.9
+l4.m0.cv1.act        silu_s8              n=12800                                                                      184111    0.3
+l4.m0.cv2.conv       conv2d_s8            N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1        592836    0.9
+l4.m0.cv2.act        silu_s8              n=12800                                                                      192718    0.3
+add_1                add_s8               n=12800                                                                      337498    0.5
+l4.m1.cv1.conv       conv2d_s8            N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1        592836    0.9
+l4.m1.cv1.act        silu_s8              n=12800                                                                      188063    0.3
+l4.m1.cv2.conv       conv2d_s8            N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1        592842    0.9
+l4.m1.cv2.act        silu_s8              n=12800                                                                      195265    0.3
+add_2                add_s8               n=12800                                                                      337090    0.5
+cat_1                cat4_c1_s8           N=1;H=20;W=20;C_inputs=32|32|32|32;C_total=128                               393453    0.6
+l4.cv2.conv          conv2d_s8            N=1;IC=128;IH=20;IW=20;OC=64;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0      1434548    2.1
+l4.cv2.act           silu_s8              n=25600                                                                      354619    0.5
+l5.conv              conv2d_s8            N=1;IC=64;IH=20;IW=20;OC=128;OH=10;OW=10;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1       772543    1.1
+l5.act               silu_s8              n=12800                                                                      191838    0.3
+l6.cv1.conv          conv2d_s8            N=1;IC=128;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0      549678    0.8
+l6.cv1.act           silu_s8              n=12800                                                                      185459    0.3
+l6.m0.cv1.conv       conv2d_s8            N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1        311931    0.5
+l6.m0.cv1.act        silu_s8              n=6400                                                                        96614    0.1
+l6.m0.cv2.conv       conv2d_s8            N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1        311931    0.5
+l6.m0.cv2.act        silu_s8              n=6400                                                                       105711    0.2
+add_3                add_s8               n=6400                                                                       170593    0.2
+l6.m1.cv1.conv       conv2d_s8            N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1        311943    0.5
+l6.m1.cv1.act        silu_s8              n=6400                                                                       106720    0.2
+l6.m1.cv2.conv       conv2d_s8            N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1        311935    0.5
+l6.m1.cv2.act        silu_s8              n=6400                                                                       110523    0.2
+add_4                add_s8               n=6400                                                                       169912    0.2
+cat_2                cat4_c1_s8           N=1;H=10;W=10;C_inputs=64|64|64|64;C_total=256                               197237    0.3
+l6.cv2.conv          conv2d_s8            N=1;IC=256;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0      737588    1.1
+l6.cv2.act           silu_s8              n=12800                                                                      189701    0.3
+l7.conv              conv2d_s8            N=1;IC=128;IH=10;IW=10;OC=256;OH=5;OW=5;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1        424122    0.6
+l7.act               silu_s8              n=6400                                                                       108581    0.2
+l8.cv1.conv          conv2d_s8            N=1;IC=256;IH=5;IW=5;OC=256;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0          286461    0.4
+l8.cv1.act           silu_s8              n=6400                                                                       108493    0.2
+l8.m0.cv1.conv       conv2d_s8            N=1;IC=128;IH=5;IW=5;OC=128;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1          177023    0.3
+l8.m0.cv1.act        silu_s8              n=3200                                                                        56210    0.1
+l8.m0.cv2.conv       conv2d_s8            N=1;IC=128;IH=5;IW=5;OC=128;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1          177023    0.3
+l8.m0.cv2.act        silu_s8              n=3200                                                                        54614    0.1
+add_5                add_s8               n=3200                                                                        86547    0.1
+cat_3                cat3_c1_s8           N=1;H=5;W=5;C_inputs=128|128|128;C_total=384                                  74367    0.1
+l8.cv2.conv          conv2d_s8            N=1;IC=384;IH=5;IW=5;OC=256;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0          339342    0.5
+l8.cv2.act           silu_s8              n=6400                                                                       107041    0.2
+l9.cv1.conv          conv2d_s8            N=1;IC=256;IH=5;IW=5;OC=128;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0          196654    0.3
+l9.cv1.act           silu_s8              n=3200                                                                        58784    0.1
+l9.m1                maxpool2d_s8         N=1;C=128;IH=5;IW=5;OH=5;OW=5;KH=5;KW=5;SH=1;SW=1;PH=2;PW=2;DH=1;DW=1       1041701    1.5
+l9.m2                maxpool2d_s8         N=1;C=128;IH=5;IW=5;OH=5;OW=5;KH=5;KW=5;SH=1;SW=1;PH=2;PW=2;DH=1;DW=1       1020790    1.5
+l9.m3                maxpool2d_s8         N=1;C=128;IH=5;IW=5;OH=5;OW=5;KH=5;KW=5;SH=1;SW=1;PH=2;PW=2;DH=1;DW=1       1007750    1.5
+cat_4                cat4_c1_s8           N=1;H=5;W=5;C_inputs=128|128|128|128;C_total=512                              99126    0.1
+l9.cv2.conv          conv2d_s8            N=1;IC=512;IH=5;IW=5;OC=256;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0          392292    0.6
+l9.cv2.act           silu_s8              n=6400                                                                       101447    0.1
+l10                  upsample_nearest_s8  N=1;C=256;IH=5;IW=5;scale=2                                                  289869    0.4
+cat_5                cat2_c1_s8           N=1;H=10;W=10;C_inputs=256|128;C_total=384                                   294139    0.4
+l12.cv1.conv         conv2d_s8            N=1;IC=384;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0      925493    1.4
+l12.cv1.act          silu_s8              n=12800                                                                      190013    0.3
+l12.m0.cv1.conv      conv2d_s8            N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1        311931    0.5
+l12.m0.cv1.act       silu_s8              n=6400                                                                       101011    0.1
+l12.m0.cv2.conv      conv2d_s8            N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1        311931    0.5
+l12.m0.cv2.act       silu_s8              n=6400                                                                       107512    0.2
+cat_6                cat3_c1_s8           N=1;H=10;W=10;C_inputs=64|64|64;C_total=192                                  147954    0.2
+l12.cv2.conv         conv2d_s8            N=1;IC=192;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0      643631    0.9
+l12.cv2.act          silu_s8              n=12800                                                                      185732    0.3
+l13                  upsample_nearest_s8  N=1;C=128;IH=10;IW=10;scale=2                                                537933    0.8
+cat_7                cat2_c1_s8           N=1;H=20;W=20;C_inputs=128|64;C_total=192                                    586212    0.9
+l15.cv1.conv         conv2d_s8            N=1;IC=192;IH=20;IW=20;OC=64;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0      1788339    2.6
+l15.cv1.act          silu_s8              n=25600                                                                      351409    0.5
+l15.m0.cv1.conv      conv2d_s8            N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1        592835    0.9
+l15.m0.cv1.act       silu_s8              n=12800                                                                      188822    0.3
+l15.m0.cv2.conv      conv2d_s8            N=1;IC=32;IH=20;IW=20;OC=32;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1        592835    0.9
+l15.m0.cv2.act       silu_s8              n=12800                                                                      192979    0.3
+cat_8                cat3_c1_s8           N=1;H=20;W=20;C_inputs=32|32|32;C_total=96                                   295128    0.4
+l15.cv2.conv         conv2d_s8            N=1;IC=96;IH=20;IW=20;OC=64;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0       1257653    1.8
+l15.cv2.act          silu_s8              n=25600                                                                      356792    0.5
+l16.conv             conv2d_s8            N=1;IC=64;IH=20;IW=20;OC=64;OH=10;OW=10;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1        590973    0.9
+l16.act              silu_s8              n=6400                                                                       109628    0.2
+cat_9                cat2_c1_s8           N=1;H=10;W=10;C_inputs=64|128;C_total=192                                    147717    0.2
+l18.cv1.conv         conv2d_s8            N=1;IC=192;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0      643632    0.9
+l18.cv1.act          silu_s8              n=12800                                                                      191587    0.3
+l18.m0.cv1.conv      conv2d_s8            N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1        311931    0.5
+l18.m0.cv1.act       silu_s8              n=6400                                                                       103322    0.2
+l18.m0.cv2.conv      conv2d_s8            N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1        311931    0.5
+l18.m0.cv2.act       silu_s8              n=6400                                                                       102814    0.2
+cat_10               cat3_c1_s8           N=1;H=10;W=10;C_inputs=64|64|64;C_total=192                                  147954    0.2
+l18.cv2.conv         conv2d_s8            N=1;IC=192;IH=10;IW=10;OC=128;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0      643631    0.9
+l18.cv2.act          silu_s8              n=12800                                                                      183133    0.3
+l19.conv             conv2d_s8            N=1;IC=128;IH=10;IW=10;OC=128;OH=5;OW=5;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1        331264    0.5
+l19.act              silu_s8              n=3200                                                                        56104    0.1
+cat_11               cat2_c1_s8           N=1;H=5;W=5;C_inputs=128|256;C_total=384                                      74130    0.1
+l21.cv1.conv         conv2d_s8            N=1;IC=384;IH=5;IW=5;OC=256;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0          339325    0.5
+l21.cv1.act          silu_s8              n=6400                                                                       103015    0.2
+l21.m0.cv1.conv      conv2d_s8            N=1;IC=128;IH=5;IW=5;OC=128;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1          177023    0.3
+l21.m0.cv1.act       silu_s8              n=3200                                                                        60562    0.1
+l21.m0.cv2.conv      conv2d_s8            N=1;IC=128;IH=5;IW=5;OC=128;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1          177023    0.3
+l21.m0.cv2.act       silu_s8              n=3200                                                                        64831    0.1
+cat_12               cat3_c1_s8           N=1;H=5;W=5;C_inputs=128|128|128;C_total=384                                  74367    0.1
+l21.cv2.conv         conv2d_s8            N=1;IC=384;IH=5;IW=5;OC=256;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0          339325    0.5
+l21.cv2.act          silu_s8              n=6400                                                                        96227    0.1
+detect.cv2_0_0.conv  conv2d_s8            N=1;IC=64;IH=20;IW=20;OC=64;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1       1148931    1.7
+detect.cv2_0_0.act   silu_s8              n=25600                                                                      354954    0.5
+detect.cv2_0_1.conv  conv2d_s8            N=1;IC=64;IH=20;IW=20;OC=64;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1       1148932    1.7
+detect.cv2_0_1.act   silu_s8              n=25600                                                                      356301    0.5
+detect.cv2_0_2       conv2d_s8            N=1;IC=64;IH=20;IW=20;OC=64;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0       1080754    1.6
+detect.cv3_0_0.conv  conv2d_s8            N=1;IC=64;IH=20;IW=20;OC=80;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1       1328012    1.9
+detect.cv3_0_0.act   silu_s8              n=32000                                                                      435914    0.6
+detect.cv3_0_1.conv  conv2d_s8            N=1;IC=80;IH=20;IW=20;OC=80;OH=20;OW=20;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1       1426859    2.1
+detect.cv3_0_1.act   silu_s8              n=32000                                                                      435309    0.6
+detect.cv3_0_2       conv2d_s8            N=1;IC=80;IH=20;IW=20;OC=80;OH=20;OW=20;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0       1348672    2.0
+cat_13               cat2_c1_s8           N=1;H=20;W=20;C_inputs=64|80;C_total=144                                     439798    0.6
+detect.cv2_1_0.conv  conv2d_s8            N=1;IC=128;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1       428287    0.6
+detect.cv2_1_0.act   silu_s8              n=6400                                                                       104570    0.2
+detect.cv2_1_1.conv  conv2d_s8            N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1        311933    0.5
+detect.cv2_1_1.act   silu_s8              n=6400                                                                       107611    0.2
+detect.cv2_1_2       conv2d_s8            N=1;IC=64;IH=10;IW=10;OC=64;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0        276024    0.4
+detect.cv3_1_0.conv  conv2d_s8            N=1;IC=128;IH=10;IW=10;OC=80;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1       473024    0.7
+detect.cv3_1_0.act   silu_s8              n=8000                                                                       121774    0.2
+detect.cv3_1_1.conv  conv2d_s8            N=1;IC=80;IH=10;IW=10;OC=80;OH=10;OW=10;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1        385760    0.6
+detect.cv3_1_1.act   silu_s8              n=8000                                                                       116340    0.2
+detect.cv3_1_2       conv2d_s8            N=1;IC=80;IH=10;IW=10;OC=80;OH=10;OW=10;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0        344487    0.5
+cat_14               cat2_c1_s8           N=1;H=10;W=10;C_inputs=64|80;C_total=144                                     110449    0.2
+detect.cv2_2_0.conv  conv2d_s8            N=1;IC=256;IH=5;IW=5;OC=64;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1           209503    0.3
+detect.cv2_2_0.act   silu_s8              n=1600                                                                        43520    0.1
+detect.cv2_2_1.conv  conv2d_s8            N=1;IC=64;IH=5;IW=5;OC=64;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1             91806    0.1
+detect.cv2_2_1.act   silu_s8              n=1600                                                                        43752    0.1
+detect.cv2_2_2       conv2d_s8            N=1;IC=64;IH=5;IW=5;OC=64;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0             72481    0.1
+detect.cv3_2_0.conv  conv2d_s8            N=1;IC=256;IH=5;IW=5;OC=80;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1           220673    0.3
+detect.cv3_2_0.act   silu_s8              n=2000                                                                        38765    0.1
+detect.cv3_2_1.conv  conv2d_s8            N=1;IC=80;IH=5;IW=5;OC=80;OH=5;OW=5;KH=3;KW=3;SH=1;SW=1;PH=1;PW=1            112784    0.2
+detect.cv3_2_1.act   silu_s8              n=2000                                                                        36137    0.1
+detect.cv3_2_2       conv2d_s8            N=1;IC=80;IH=5;IW=5;OC=80;OH=5;OW=5;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0             90284    0.1
+cat_15               cat2_c1_s8           N=1;H=5;W=5;C_inputs=64|80;C_total=144                                        28827    0.0
+-----------------------------------------------------------------------------------------------------------------------------------
+TOTAL                                                                                                              68294285
+wall_clock_cycles=683000 (mtime)
+iree_profile -> /scratch/dima/rose-infra/RoSE/experiments/kcov/prof/yolo_gq31_kcov2/gemmini_q31/spike/yolov8_nano_kcov/yolov8_nano_kcov.fp32/yolov8_nano_kcov_spike_gemmini_q31_yolov8_nano_kcov.fp32/topo_0/results.csv
+MODELBLASTER_STAGE_END:run:2.407
+### rc=0 2026-09-02T07:00:16Z
+############ DONE yolo_gq31_kcov2 rc=0 ############

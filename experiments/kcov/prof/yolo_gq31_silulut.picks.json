@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "target": "gemmini_q31",
+  "picks": {
+    "add_s8": {
+      "source": "curated",
+      "algorithm": "gemmini_resadd",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/gemmini_q31/gemmini_q31_add_s8_gemmini_resadd.c"
+    },
+    "cat2_c1_s8": {
+      "source": "curated",
+      "algorithm": "gemmini_mvin_scale",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/gemmini_q31/gemmini_q31_cat2_c1_s8_gemmini_mvin_scale.c"
+    },
+    "cat3_c1_s8": {
+      "source": "curated",
+      "algorithm": "gemmini_mvin_scale",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/gemmini_q31/gemmini_q31_cat3_c1_s8_gemmini_mvin_scale.c"
+    },
+    "cat4_c1_s8": {
+      "source": "curated",
+      "algorithm": "gemmini_mvin_scale",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/gemmini_q31/gemmini_q31_cat4_c1_s8_gemmini_mvin_scale.c"
+    },
+    "conv2d_s8": {
+      "source": "curated",
+      "algorithm": "gemmini_im2col_full_C",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/gemmini_q31/gemmini_q31_conv2d_s8_gemmini_im2col_full_C.c"
+    },
+    "maxpool2d_s8": {
+      "source": "curated",
+      "algorithm": "gemmini_tiled_conv_pool",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/gemmini_q31/gemmini_q31_maxpool2d_s8_gemmini_tiled_conv_pool.c"
+    },
+    "silu_s8": {
+      "source": "curated",
+      "algorithm": "scalar_lut",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/gemmini_q31/gemmini_q31_silu_s8_scalar_lut.c"
+    },
+    "upsample_nearest_s8": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    }
+  }
+}

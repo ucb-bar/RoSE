@@ -1,0 +1,8 @@
+dispatch_id,module_name,vmfb_path,mlir_path,mean_time,mean_unit,mean_time_ns,returncode,log_path,source,op,shape,cycles,cycles_n,cycles_cv_pct,implementation
+0,mlp_control_kcov$dispatch_0_rvv_linear_M1xK16xN256,,,0.009261,ms,9261.000000,0,,spike,linear,M=1;K=16;N=256,9261,1,,
+1,mlp_control_kcov$dispatch_1_rvv_elu_n256,,,0.000591,ms,591.000000,0,,spike,elu,n=256,591,1,,
+2,mlp_control_kcov$dispatch_2_rvv_linear_M1xK256xN128,,,0.017061,ms,17061.000000,0,,spike,linear,M=1;K=256;N=128,17061,1,,
+3,mlp_control_kcov$dispatch_3_rvv_elu_n128,,,0.000319,ms,319.000000,0,,spike,elu,n=128,319,1,,
+4,mlp_control_kcov$dispatch_4_rvv_linear_M1xK128xN64,,,0.004965,ms,4965.000000,0,,spike,linear,M=1;K=128;N=64,4965,1,,
+5,mlp_control_kcov$dispatch_5_rvv_elu_n64,,,0.000183,ms,183.000000,0,,spike,elu,n=64,183,1,,
+6,mlp_control_kcov$dispatch_6_rvv_linear_M1xK64xN4,,,0.000232,ms,232.000000,0,,spike,linear,M=1;K=64;N=4,232,1,,

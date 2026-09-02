@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "target": "gemmini_q31",
+  "picks": {
+    "elu": {
+      "source": "curated",
+      "algorithm": "scalar_cephes_exp",
+      "path": "/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/gemmini_q31/gemmini_q31_elu_scalar_cephes_exp.c"
+    },
+    "linear": {
+      "source": "reference",
+      "algorithm": null,
+      "path": null
+    }
+  }
+}

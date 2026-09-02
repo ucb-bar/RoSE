@@ -1,0 +1,7 @@
+### submit yoloA_ref 2026-09-02T07:10:13Z
+#### submit: submitted job 499  (completion=exit, timeout=3000s)
+  logs:   fq logs 499 -f
+  status: fq status 499
+#### jid=499
+#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/kcov/res_yoloA_ref/uartlog
+############ FQDONE yoloA_ref jid=499 ############

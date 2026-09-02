@@ -1,0 +1,42 @@
+{
+ "add_s8": {
+  "source": "curated",
+  "algorithm": "gemmini_resadd",
+  "path": "/scratch/dima/rose-infra/RoSE/experiments/kcov/kernels_pre_kcov/gemmini_q31/gemmini_q31_add_s8_gemmini_resadd.c"
+ },
+ "cat2_c1_s8": {
+  "source": "curated",
+  "algorithm": "gemmini_mvin_scale",
+  "path": "/scratch/dima/rose-infra/RoSE/experiments/kcov/kernels_pre_kcov/gemmini_q31/gemmini_q31_cat2_c1_s8_gemmini_mvin_scale.c"
+ },
+ "cat3_c1_s8": {
+  "source": "curated",
+  "algorithm": "gemmini_mvin_scale",
+  "path": "/scratch/dima/rose-infra/RoSE/experiments/kcov/kernels_pre_kcov/gemmini_q31/gemmini_q31_cat3_c1_s8_gemmini_mvin_scale.c"
+ },
+ "cat4_c1_s8": {
+  "source": "curated",
+  "algorithm": "gemmini_mvin_scale",
+  "path": "/scratch/dima/rose-infra/RoSE/experiments/kcov/kernels_pre_kcov/gemmini_q31/gemmini_q31_cat4_c1_s8_gemmini_mvin_scale.c"
+ },
+ "conv2d_s8": {
+  "source": "curated",
+  "algorithm": "gemmini_tiled_conv",
+  "path": "/scratch/dima/rose-infra/RoSE/experiments/kcov/kernels_pre_kcov/gemmini_q31/gemmini_q31_conv2d_s8_gemmini_tiled_conv.c"
+ },
+ "maxpool2d_s8": {
+  "source": "curated",
+  "algorithm": "gemmini_tiled_conv_pool",
+  "path": "/scratch/dima/rose-infra/RoSE/experiments/kcov/kernels_pre_kcov/gemmini_q31/gemmini_q31_maxpool2d_s8_gemmini_tiled_conv_pool.c"
+ },
+ "silu_s8": {
+  "source": "reference",
+  "algorithm": null,
+  "path": null
+ },
+ "upsample_nearest_s8": {
+  "source": "reference",
+  "algorithm": null,
+  "path": null
+ }
+}
