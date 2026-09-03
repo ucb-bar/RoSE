@@ -54,6 +54,15 @@ def load(tag):
                 if not re.match(r"^\d+,", l) or len(f) != 14:
                     continue
                 try:
+                    # DROP the kernel-less alias ops. chunk2_c1 and friends set
+                    # up an offset alias at codegen time and emit no kernel
+                    # call, so they trace with dispatch_id=-1, worker_hart=-1
+                    # and duration 0 -- 8 of yolov8_nano's 230 rows. Keeping
+                    # them invented an "h-1 ?" lane in every panel showing 0%
+                    # busy, and reading that row as a real hart is what made me
+                    # report a placement divergence that does not exist.
+                    if int(f[-3]) < 0:
+                        continue
                     # field 1 is the network; a 3net log carries three of them
                     out.append((int(f[-3]), int(f[-2]) / 1000.0,
                                 int(f[-1]) / 1000.0, f[5], f[4], f[1]))
