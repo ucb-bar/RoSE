@@ -1,0 +1,9 @@
+{
+  "benchmark_name": "fq-job-795",
+  "common_bootbinary": "uros_cfgB.elf",
+  "common_rootfs": null,
+  "common_simulation_outputs": [
+    "uartlog"
+  ],
+  "no_post_run_hook": true
+}

@@ -1,0 +1,12 @@
+### submit cfg3x 2026-09-03T23:15:37Z elf_mtime=2026-09-03T23:15:28Z
+#### submit: submitted job 799  (completion=exit, timeout=4000s)
+  logs:   fq logs 799 -f
+  status: fq status 799
+#### jid=799
+#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/microros/res_cfg3x/2026-09-03--23-16-49-fq-job-799-fq799x247eec0b/fq-job-7990/uartlog bytes=11656
+=== MODELBLASTER_ROS_TRACE_END (skipped=0 corrupted) ===
+=== MODELBLASTER_WALL_CYCLES [yolov8_nano] === 318363
+=== MODELBLASTER_WALL_CYCLES [dronet] === 7535
+=== MODELBLASTER_WALL_CYCLES [mlp_control] === 0
+*** PASSED *** after 6681881747 cycles
+############ FQDONE cfg3x ############
