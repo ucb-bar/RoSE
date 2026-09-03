@@ -7,10 +7,11 @@ machine configuration, all six panels on ONE shared time axis.
 A blank tag leaves that half empty rather than dropping the row, so a missing
 cell is visible instead of silently changing the layout.
 """
-import sys, os
+import sys, os, colorsys
 import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
+import matplotlib.colors as mcolors
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import importlib.util
 _sp = importlib.util.spec_from_file_location(
@@ -19,6 +20,14 @@ _g = importlib.util.module_from_spec(_sp)
 _g.__name__ = "g"
 src = open(_sp.origin).read().replace("\nmain()\n", "\n")
 exec(compile(src, _sp.origin, "exec"), _g.__dict__)
+
+def _pale(c, drop=0.68, lift=0.16):
+    """Same HUE, much less saturation. The unsharded panel uses the pale form
+    of whatever colour the op's tiles carry on the sharded side, so one op is
+    followable across the two panels by hue alone."""
+    h, sat, v = colorsys.rgb_to_hsv(*mcolors.to_rgb(c))
+    return colorsys.hsv_to_rgb(h, sat * (1 - drop), min(1.0, v + lift))
+
 
 out, title, specs = sys.argv[1], sys.argv[2], sys.argv[3:]
 rows = []
@@ -38,6 +47,15 @@ nets = sorted({n for _, a, c in rows for d, _ in (a, c) if d for *_, n in d})
 fig, axes = plt.subplots(len(rows), 2, figsize=(15, 1.75 * len(rows) + 1.3),
                          squeeze=False, sharex=True)
 for r, (lab, a, c) in enumerate(rows):
+    # ONE colour map per row, derived from the ops the SHARDED panel splits,
+    # and applied to BOTH panels. That is what makes an op followable: full
+    # saturation for its tiles on the right, the pale form of the same hue for
+    # the single block it was on the left.
+    _sd = c[0] if c else None
+    _parents = sorted({nm.split(".tile_")[0]
+                       for h, t, e, nm, op, net in (_sd or []) if ".tile_" in nm})
+    pcol = {par: _g.TILE_CYCLE[i % len(_g.TILE_CYCLE)]
+            for i, par in enumerate(_parents)}
     for col, (d, expected) in ((0, a), (1, c)):
         ax = axes[r][col]
         if not d:
@@ -53,11 +71,41 @@ for r, (lab, a, c) in enumerate(rows):
         t0 = min(t for _, t, _, _, _, _ in d)
         harts = sorted({h for h, _, _, _, _, _ in d})
         busy = {h: 0.0 for h in harts}
+        # TILES OF ONE OP SHARE A COLOUR, and are joined by a line when they
+        # land on different harts. Without this every block is the same shade
+        # and the chart cannot answer the question it exists to answer -- which
+        # of these bars are the two halves of one split op, running at once?
+        # Unsplit ops stay neutral grey so the split work is what stands out
+        # (on a multi-network chart they keep their network colour instead,
+        # because there identity matters more than splitness).
+        multi_net = len(nets) > 1
+        groups = {}
         for h, t, e, nm, op, net in d:
+            if ".tile_" in nm:
+                groups.setdefault(nm.split(".tile_")[0], []).append(
+                    (harts.index(h), t - t0, e - t0))
+        for h, t, e, nm, op, net in d:
+            par = nm.split(".tile_")[0]
+            if ".tile_" in nm and par in pcol:          # a tile, sharded side
+                bcol, ec, lw = pcol[par], "#1a1a1a", 0.35
+            elif par in pcol:                            # SAME op, unsharded side
+                bcol, ec, lw = _pale(pcol[par]), "white", 0.3
+            else:                                        # never split either side
+                bcol = _g.NET_COL.get(net, _g.FALLBACK) if multi_net else "#C9CED4"
+                ec, lw = "white", 0.25
             ax.barh(harts.index(h), max(e - t, span * 0.0004), left=t - t0,
-                    height=0.62, color=_g.NET_COL.get(net, _g.FALLBACK),
-                    edgecolor="white", linewidth=0.25)
+                    height=0.62, color=bcol, edgecolor=ec, linewidth=lw)
             busy[h] += e - t
+        # Join the tiles of one parent across harts.
+        for par, tiles in groups.items():
+            if len(tiles) < 2 or len({y for y, _, _ in tiles}) < 2:
+                continue
+            tiles = sorted(tiles, key=lambda z: z[0])
+            lcol = pcol[par]
+            for (y0, s0, e0), (y1, s1, e1) in zip(tiles, tiles[1:]):
+                ax.plot([(s0 + e0) / 2, (s1 + e1) / 2], [y0, y1],
+                        color=lcol, lw=0.7, alpha=0.55, zorder=3,
+                        solid_capstyle="round")
         mk = max(e for _, _, e, _, _, _ in d) - t0
         ax.set_yticks(range(len(harts)))
         ax.set_yticklabels([f"h{h} {_g.BE.get(h,'?')}" for h in harts], fontsize=7)
@@ -69,9 +117,20 @@ for r, (lab, a, c) in enumerate(rows):
         ax.grid(axis="x", alpha=0.25, linewidth=0.5)
         for sp2 in ("top", "right", "left"): ax.spines[sp2].set_visible(False)
 for ax in axes[-1]: ax.set_xlabel("ms (all panels share one scale)", fontsize=9)
-fig.legend(handles=[Patch(facecolor=_g.NET_COL.get(n, _g.FALLBACK), label=n)
-                    for n in nets],
-           loc="upper right", fontsize=8, frameon=False, ncol=len(nets))
+if len(nets) > 1:
+    legend = [Patch(facecolor=_g.NET_COL.get(n, _g.FALLBACK), label=n) for n in nets]
+else:
+    legend = [
+        Patch(facecolor="#C9CED4", edgecolor="white",
+              label="op that is never split"),
+        Patch(facecolor=_pale(_g.TILE_CYCLE[0]), edgecolor="white",
+              label="pale = that op UNSHARDED (left)"),
+        Patch(facecolor=_g.TILE_CYCLE[0], edgecolor="#1a1a1a",
+              label="full = its tiles SHARDED (right), joined by a line"),
+        Patch(facecolor=_pale(_g.TILE_CYCLE[1]), edgecolor="white", label=None),
+        Patch(facecolor=_g.TILE_CYCLE[1], edgecolor="#1a1a1a", label=None)]
+fig.legend(handles=legend, loc="upper right", fontsize=8, frameon=False,
+           ncol=len(legend))
 fig.suptitle(title, fontsize=11, x=0.01, ha="left")
 fig.tight_layout(rect=[0, 0, 1, 0.955])
 fig.savefig(out, dpi=140)

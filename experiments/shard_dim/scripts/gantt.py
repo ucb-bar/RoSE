@@ -111,3 +111,8 @@ def main():
 
 
 main()
+
+#: Colours for split-op tile GROUPS. Qualitative and high-contrast: adjacent
+#: groups must be told apart at a glance, so this is not a sequential map.
+TILE_CYCLE = ["#E8590C", "#1971C2", "#2F9E44", "#9C36B5", "#F08C00",
+              "#0C8599", "#C2255C", "#5C7CFA", "#66A80F", "#A61E4D"]
