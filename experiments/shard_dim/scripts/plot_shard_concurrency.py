@@ -273,78 +273,65 @@ BACKEND_PAIR = {"rvv": ("rvvpair", "#1971C2"), "gemmini": ("gempair", "#E8590C")
 def fig_benefit_contended(recs, out):
     """plot_shard_benefit's per-operator view, with concurrency folded in.
 
-    Same two questions -- what does splitting COST, and what does it BUY --
-    but each answered twice: once from the single-hart profiles, and once from
-    the runs where both harts were actually busy.  The distance between the
-    two pairs of numbers is what the isolated profile cannot see.
-    """
-    fig, (a1, a2) = plt.subplots(1, 2, figsize=(15.5, 6.2),
-                                 gridspec_kw={"width_ratios": [1.35, 1]})
-    for bk, (pair, col) in BACKEND_PAIR.items():
-        sub = [r for r in recs if r["pair"] == pair]
-        a1.scatter([r["U_cc"] for r in sub], [r["work_iso"] for r in sub],
-                   s=34, marker="o", facecolors="none", edgecolors=col,
-                   linewidths=1.1, alpha=.75, zorder=3)
-        a1.scatter([r["U_cc"] for r in sub], [r["work_cc"] for r in sub],
-                   s=34, marker="o", c=col, edgecolors="k", linewidths=.35,
-                   alpha=.8, zorder=4)
-        for r in sub:                       # join the two readings of one op
-            a1.plot([r["U_cc"], r["U_cc"]], [r["work_iso"], r["work_cc"]],
-                    c=col, lw=.6, alpha=.35, zorder=2)
-    a1.set_xscale("log")
-    a1.axhline(1.0, ls="--", c="#C92A2A", lw=1.4, zorder=1)
-    a1.set_xlabel("unsharded operator duration on the hart pair (us, log)")
-    a1.set_ylabel("work ratio   sum(tiles) / unsplit\n(>1 = sharding ADDED work)")
-    a1.set_title("The tax, isolated (hollow) against contended (filled)", fontsize=11.5)
-    a1.grid(alpha=.25, zorder=0)
-    a1.legend(handles=[Patch(facecolor=c, label=b) for b, (_p, c) in BACKEND_PAIR.items()]
-              + [plt.Line2D([], [], ls="", marker="o", mfc="none", mec="#495057",
-                            label="one hart at a time"),
-                 plt.Line2D([], [], ls="", marker="o", c="#495057",
-                            label="both harts busy")],
-              fontsize=8.5, loc="upper right")
+    One column per backend, so "rvv" and "gemmini" each mean one thing, and the
+    series coloured by operator kind rather than by backend -- which is the
+    axis that actually explains the spread.  Both rows answer the same question
+    twice: hollow is the single-hart profile's answer, filled is what the pair
+    really did, and the two readings of one operator are joined.
 
-    cnt = collections.Counter(r["kind"] for r in recs
-                              if r["pair"] in ("rvvpair", "gempair"))
-    kinds = [k for k, n in cnt.items() if n >= 8]
-    kinds.sort(key=lambda k: -cnt[k]); kinds = kinds[:8]
-    w, xs = .36, list(range(len(kinds)))
-    for i, (bk, (pair, col)) in enumerate(BACKEND_PAIR.items()):
-        off = (i - .5) * w * 1.06
-        for x, k in zip(xs, kinds):
-            v = [r for r in recs if r["kind"] == k and r["pair"] == pair]
-            if not v:
-                continue
-            ide = statistics.median(r["ideal"] for r in v)
-            ach = statistics.median(r["achieved"] for r in v)
-            # the isolated promise as an outline, the contended result filled
-            # inside it: the exposed hatching IS what concurrency cost.
-            a2.bar(x + off, ide, w, facecolor="none", edgecolor=col,
-                   hatch="///", linewidth=1.2, zorder=3)
-            a2.bar(x + off, ach, w, color=col, edgecolor="k", linewidth=.5, zorder=4)
-            a2.text(x + off, ide + .03, f"{ach:.2f}", ha="center", va="bottom",
-                    fontsize=7.5, rotation=90, color=col, fontweight="bold")
-            if ide - ach > .015:
-                a2.text(x + off, ide + .30, f"\u2212{(1 - ach / ide):.0%}", ha="center",
-                        va="bottom", fontsize=7, rotation=90, color="#C92A2A")
-    a2.axhline(2.0, ls=":", c="#2F9E44", lw=1.6, zorder=1)
-    a2.axhline(1.0, ls="--", c="#C92A2A", lw=1.4, zorder=1)
-    a2.set_xticks(xs)
-    a2.set_xticklabels([f"{k}\n(n={cnt[k]})" for k in kinds], fontsize=8.5)
-    a2.set_xlim(-.7, len(xs) - .3)
-    a2.set_ylim(0, 2.75)
-    a2.set_ylabel("median 2-hart speedup")
-    a2.set_title("The prize: promised (hatched outline) vs delivered (filled)",
-                 fontsize=11.5)
-    a2.legend(handles=[Patch(facecolor=c, label=b) for b, (_p, c) in BACKEND_PAIR.items()]
-              + [Patch(facecolor="none", edgecolor="#495057", hatch="///",
-                       label="ideal, isolated profile"),
-                 Patch(facecolor="#495057", label="achieved, both harts busy")],
-              fontsize=7.8, ncol=2, loc="lower center")
-    a2.grid(axis="y", alpha=.25, zorder=0)
+      top     the tax    sum(tiles) / unsplit, >1 = splitting ADDED work
+      bottom  the prize  ideal U_iso/max(tile) against achieved U_cc/span
+    """
+    order = [k for k, _ in collections.Counter(
+        r["kind"] for r in recs if r["pair"] in ("rvvpair", "gempair")).most_common()]
+    top = order[:11]
+    cmap = plt.get_cmap("tab20")
+    col = {k: cmap(i % 20) for i, k in enumerate(top)}
+    kind_of = lambda k: k if k in col else "other"
+    col["other"] = "#868E96"
+
+    fig, axes = plt.subplots(2, 2, figsize=(15.5, 10.2), sharex=True)
+    for j, (bk, pair) in enumerate([("rvv", "rvvpair"), ("gemmini", "gempair")]):
+        sub = [r for r in recs if r["pair"] == pair]
+        for i, (iso_k, cc_k) in enumerate([("work_iso", "work_cc"),
+                                           ("ideal", "achieved")]):
+            ax = axes[i][j]
+            for r in sub:
+                c = col[kind_of(r["kind"])]
+                ax.plot([r["U_cc"]] * 2, [r[iso_k], r[cc_k]], c=c, lw=.7,
+                        alpha=.45, zorder=2)
+                ax.scatter(r["U_cc"], r[iso_k], s=30, facecolors="none",
+                           edgecolors=c, linewidths=1.1, alpha=.85, zorder=3)
+                ax.scatter(r["U_cc"], r[cc_k], s=30, c=[c], edgecolors="k",
+                           linewidths=.3, alpha=.9, zorder=4)
+            ax.set_xscale("log")
+            ax.grid(alpha=.25, zorder=0)
+            if i == 0:
+                ax.axhline(1.0, ls="--", c="#C92A2A", lw=1.3, zorder=1)
+                ax.set_title(f"{bk}  \u2014  the tax", fontsize=12)
+                ax.set_ylim(.62, 2.18)
+            else:
+                ax.axhline(1.0, ls="--", c="#C92A2A", lw=1.3, zorder=1)
+                ax.axhline(2.0, ls=":", c="#2F9E44", lw=1.5, zorder=1)
+                ax.set_title(f"{bk}  \u2014  the prize", fontsize=12)
+                ax.set_ylim(.45, 2.98)
+                ax.set_xlabel("unsharded operator duration on the hart pair (us, log)")
+            if j == 0:
+                ax.set_ylabel("work ratio   sum(tiles) / unsplit" if i == 0
+                              else "2-hart speedup")
+    seen = sorted({kind_of(r["kind"]) for r in recs
+                   if r["pair"] in ("rvvpair", "gempair")}, key=lambda k: order.index(k)
+                  if k in order else 99)
+    fig.legend(handles=[Patch(facecolor=col[k], label=k) for k in seen]
+               + [plt.Line2D([], [], ls="", marker="o", mfc="none", mec="#495057",
+                             label="one hart at a time"),
+                  plt.Line2D([], [], ls="", marker="o", c="#495057",
+                             label="both harts busy")],
+               fontsize=9, ncol=7, loc="lower center", frameon=False,
+               bbox_to_anchor=(.5, -.005))
     fig.suptitle("Per-operator sharding benefit with contention included \u2014 "
-                 "homogeneous pairs, so a backend means one thing", fontsize=13, y=.985)
-    fig.tight_layout(rect=[0, 0, 1, .95]); fig.savefig(out, dpi=135)
+                 "by backend, coloured by operator kind", fontsize=13.5, y=.985)
+    fig.tight_layout(rect=[0, .062, 1, .96]); fig.savefig(out, dpi=135)
     print("wrote", out)
 
 
