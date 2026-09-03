@@ -124,6 +124,8 @@ def collect():
                     net=net, pair=pair, op=p, kind=e["kind"], n=len(t_cc),
                     U_cc=U_cc, S=S, U_iso=U_iso,
                     max_t_cc=max(t_cc), max_t_iso=max(t_iso),
+                    sum_t_cc=sum(t_cc), sum_t_iso=sum(t_iso),
+                    work_iso=sum(t_iso) / U_iso, work_cc=sum(t_cc) / U_cc,
                     ideal=U_iso / max(t_iso), achieved=U_cc / S,
                     f_base=U_cc / U_iso,
                     f_cont=max(t_iso) / max(t_cc),
@@ -262,6 +264,90 @@ def fig_gap(recs, out):
     print("wrote", out)
 
 
+
+# The homogeneous pairs are the ones that map cleanly onto a single backend,
+# so they are what "rvv" and "gemmini" mean in the contended view.
+BACKEND_PAIR = {"rvv": ("rvvpair", "#1971C2"), "gemmini": ("gempair", "#E8590C")}
+
+
+def fig_benefit_contended(recs, out):
+    """plot_shard_benefit's per-operator view, with concurrency folded in.
+
+    Same two questions -- what does splitting COST, and what does it BUY --
+    but each answered twice: once from the single-hart profiles, and once from
+    the runs where both harts were actually busy.  The distance between the
+    two pairs of numbers is what the isolated profile cannot see.
+    """
+    fig, (a1, a2) = plt.subplots(1, 2, figsize=(15.5, 6.2),
+                                 gridspec_kw={"width_ratios": [1.35, 1]})
+    for bk, (pair, col) in BACKEND_PAIR.items():
+        sub = [r for r in recs if r["pair"] == pair]
+        a1.scatter([r["U_cc"] for r in sub], [r["work_iso"] for r in sub],
+                   s=34, marker="o", facecolors="none", edgecolors=col,
+                   linewidths=1.1, alpha=.75, zorder=3)
+        a1.scatter([r["U_cc"] for r in sub], [r["work_cc"] for r in sub],
+                   s=34, marker="o", c=col, edgecolors="k", linewidths=.35,
+                   alpha=.8, zorder=4)
+        for r in sub:                       # join the two readings of one op
+            a1.plot([r["U_cc"], r["U_cc"]], [r["work_iso"], r["work_cc"]],
+                    c=col, lw=.6, alpha=.35, zorder=2)
+    a1.set_xscale("log")
+    a1.axhline(1.0, ls="--", c="#C92A2A", lw=1.4, zorder=1)
+    a1.set_xlabel("unsharded operator duration on the hart pair (us, log)")
+    a1.set_ylabel("work ratio   sum(tiles) / unsplit\n(>1 = sharding ADDED work)")
+    a1.set_title("The tax, isolated (hollow) against contended (filled)", fontsize=11.5)
+    a1.grid(alpha=.25, zorder=0)
+    a1.legend(handles=[Patch(facecolor=c, label=b) for b, (_p, c) in BACKEND_PAIR.items()]
+              + [plt.Line2D([], [], ls="", marker="o", mfc="none", mec="#495057",
+                            label="one hart at a time"),
+                 plt.Line2D([], [], ls="", marker="o", c="#495057",
+                            label="both harts busy")],
+              fontsize=8.5, loc="upper right")
+
+    cnt = collections.Counter(r["kind"] for r in recs
+                              if r["pair"] in ("rvvpair", "gempair"))
+    kinds = [k for k, n in cnt.items() if n >= 8]
+    kinds.sort(key=lambda k: -cnt[k]); kinds = kinds[:8]
+    w, xs = .36, list(range(len(kinds)))
+    for i, (bk, (pair, col)) in enumerate(BACKEND_PAIR.items()):
+        off = (i - .5) * w * 1.06
+        for x, k in zip(xs, kinds):
+            v = [r for r in recs if r["kind"] == k and r["pair"] == pair]
+            if not v:
+                continue
+            ide = statistics.median(r["ideal"] for r in v)
+            ach = statistics.median(r["achieved"] for r in v)
+            # the isolated promise as an outline, the contended result filled
+            # inside it: the exposed hatching IS what concurrency cost.
+            a2.bar(x + off, ide, w, facecolor="none", edgecolor=col,
+                   hatch="///", linewidth=1.2, zorder=3)
+            a2.bar(x + off, ach, w, color=col, edgecolor="k", linewidth=.5, zorder=4)
+            a2.text(x + off, ide + .03, f"{ach:.2f}", ha="center", va="bottom",
+                    fontsize=7.5, rotation=90, color=col, fontweight="bold")
+            if ide - ach > .015:
+                a2.text(x + off, ide + .30, f"\u2212{(1 - ach / ide):.0%}", ha="center",
+                        va="bottom", fontsize=7, rotation=90, color="#C92A2A")
+    a2.axhline(2.0, ls=":", c="#2F9E44", lw=1.6, zorder=1)
+    a2.axhline(1.0, ls="--", c="#C92A2A", lw=1.4, zorder=1)
+    a2.set_xticks(xs)
+    a2.set_xticklabels([f"{k}\n(n={cnt[k]})" for k in kinds], fontsize=8.5)
+    a2.set_xlim(-.7, len(xs) - .3)
+    a2.set_ylim(0, 2.75)
+    a2.set_ylabel("median 2-hart speedup")
+    a2.set_title("The prize: promised (hatched outline) vs delivered (filled)",
+                 fontsize=11.5)
+    a2.legend(handles=[Patch(facecolor=c, label=b) for b, (_p, c) in BACKEND_PAIR.items()]
+              + [Patch(facecolor="none", edgecolor="#495057", hatch="///",
+                       label="ideal, isolated profile"),
+                 Patch(facecolor="#495057", label="achieved, both harts busy")],
+              fontsize=7.8, ncol=2, loc="lower center")
+    a2.grid(axis="y", alpha=.25, zorder=0)
+    fig.suptitle("Per-operator sharding benefit with contention included \u2014 "
+                 "homogeneous pairs, so a backend means one thing", fontsize=13, y=.985)
+    fig.tight_layout(rect=[0, 0, 1, .95]); fig.savefig(out, dpi=135)
+    print("wrote", out)
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--out-dir", default=f"{ROOT}/plots")
@@ -281,3 +367,4 @@ if __name__ == "__main__":
     os.makedirs(a.out_dir, exist_ok=True)
     fig_concurrency(recs, f"{a.out_dir}/shard_concurrency_perop.png")
     fig_gap(recs, f"{a.out_dir}/shard_concurrency_gap.png")
+    fig_benefit_contended(recs, f"{a.out_dir}/shard_benefit_perop_contended.png")
