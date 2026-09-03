@@ -530,3 +530,29 @@ experiments/tacit/analyze_run.sh <tacit2.out> <zephyr.elf>
 Artifacts: `experiments/tacit/traces/f2_pcim_quad_dronet.*` (four tiles + uartlog +
 `tacit2.vbb.csv`), `qpcim3.elf`, and the two deadlock decodes
 `qpcim2_smpdeadlock_hart{0,1}.vbb.csv`.
+
+## 5. Same-ELF A/B on the quad: PCIM vs BAR4
+
+The 2026-09-02 A/B was done on the dual. Repeating it on the quad with the fixed
+guest — byte-identical ELF (`md5 e7eab165…`), same SoC, same tile (hart 2), only the
+hwdb entry changed — reproduces it and lands on the *degenerate* BAR4 case:
+
+| | `..._pcim` (`agfi-010049831c489a814`) | baseline (`agfi-0662319f4b07483a7`) |
+|---|---|---|
+| zero bytes | **14 / 1,016,192 = 0.00%** | **8,000,000 / 8,000,000 = 100.00%** |
+| longest zero run | 2 | 8,000,000 (the whole sample) |
+| FSync / start PC | `0x800002f6` ✅ | **no FSync packet in the stream at all** ❌ |
+| framing breaks | 0 | 0 |
+| decode | 5,926,490 insns | undecodable — there is nothing there |
+
+The BAR4 column is section 2a's "run 3" failure mode exactly, and it is the concrete
+demonstration of the warning in that section: **framing breaks = 0 on a file that is
+100% zeros.** `0x00` is a legal 1-byte TACIT packet (compressed taken-branch, ts delta
+0), so the walker parses 8,000,000 "CTb" packets and reports a clean stream. Any health
+metric that counts only parse errors calls this file healthy. It is empty.
+
+The *guest* is unaffected by the transport: on the baseline bitstream the same binary
+still boots, still reaches the traced worker on hart 2 and still silences the other
+three encoders (tacit0/1/3 freeze at 45,056 / 12,288 / 131,072 bytes and stop growing),
+while tacit2 keeps being filled with zeros by the BAR4 drain at ~46 KB/s. So the PCIM
+patch changes what reaches the host, not what the target computes.
