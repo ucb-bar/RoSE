@@ -556,3 +556,28 @@ still boots, still reaches the traced worker on hart 2 and still silences the ot
 three encoders (tacit0/1/3 freeze at 45,056 / 12,288 / 131,072 bytes and stop growing),
 while tacit2 keeps being filled with zeros by the BAR4 drain at ~46 KB/s. So the PCIM
 patch changes what reaches the host, not what the target computes.
+
+## 6. Per-function attribution vs the guest's own rdcycle brackets
+
+The point of all this. Mapping the decoded basic blocks through the ELF's symbol table
+gives a per-function cycle profile built entirely from the off-chip instruction trace,
+which can be compared against `MODELBLASTER_PROFILE`'s in-guest `rdcycle` brackets —
+two fully independent measurement paths over the same run:
+
+| kernel | TACIT decode (by symbol) | guest `rdcycle` | delta |
+|---|---|---|---|
+| `conv2d_s8` (`mb_conv2d_s8_tiled_direct`) | 7,221,891 | 7,223,809 | **0.03%** |
+| `maxpool2d_s8` | 239,318 | 239,396 | **0.03%** |
+| `batchnorm2d_s8` | 44,107 | 45,904 | 3.9% |
+| `add_s8` | 20,826 | 21,215 | 1.8% |
+| `linear_s8` | 4,639 | 4,806 | 3.5% |
+
+83 functions in total. The two dominant kernels — 91.5% and 3.0% of the traced window —
+agree to three hundredths of a percent; the small ops differ by a few percent because
+the `rdcycle` bracket includes the dispatch prologue that the symbol split attributes
+elsewhere. The remaining 3.90% of the window is `wait_secondary_wake_flag` (308,042
+cycles), i.e. hart 2 parked in reset.S before it was woken — the same pre-model
+interval the three idle tiles' windows measure independently.
+
+This is the per-component attribution the 2026-08-28 verdict was written to say was
+impossible on F2. It is now routine on the quad.
