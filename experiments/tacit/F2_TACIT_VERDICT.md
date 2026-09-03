@@ -380,3 +380,153 @@ section 1 was measured on this bitstream and it ran a full dronet inference to
 `max_abs_err=0`, so the result stands. But **−45 ps is still a violation**: if
 `..._dual_small_..._pcim` is going to be leaned on for real measurement rather
 than this one A/B, rebuild it and take a run that closes.
+
+---
+
+# UPDATE 2026-09-03 — the quad's missing check (2d.2) obtained. Two guest bugs found first.
+
+The section above closed with one stated gap: *"check 2d.2 was **not** obtained on the
+quad … Getting 2d.2 on the quad needs a `harness_tacit` build pinned to hart 2 or 3.
+Small, separate job."* It was not a small job, because **the pin it prescribes cannot
+work as written** and, underneath that, `harness_tacit` could never boot a 4-hart
+bitstream at all. Both are guest-side defects; neither is a bitstream or bridge fault.
+
+## 1. The result — quad PCIM, full clean capture
+
+`f2_quad_hetero_norose_tacit_q31_60mhz_pcim` (`agfi-010049831c489a814`), fq job 803,
+lane f2-05, guest = `dronet_tacit` int8/RVV on `harness_tacit`, model pinned to hart 2.
+
+| check | quad PCIM (new) | dual PCIM (recorded) | U250 reference |
+|---|---|---|---|
+| trace bytes, model tile | **1,016,192** | 951,488 | 72,180,864 |
+| (2d.1) sync start PC | **`0x800002f6`** ✅ | `0x8000056a` ✅ | `0x80000202` ✅ |
+| (2d.3) zero bytes | **14 / 1,016,192 = 0.00%**, longest run 2 | 0.00%, run 2 | 0.00%, run 2 |
+| framing breaks / runaway ts | **0 / 0** over 1,011,965 packets | 0 / 0 | 0 / 0 |
+| full decode | **1,016,182 / 1,016,192 bytes, 5,926,490 insns, 1.3717 b/insn** | 951,475 / 951,488 | (reference) |
+| FMR | **1.02**, 58.607 MHz effective | 1.01, 59.665 MHz | — |
+
+`0x800002f6` is `j boot_secondary_core` — the instruction a **secondary** hart reaches
+after reset.S's enabling `sw`, which is exactly right for hart 2 and *different from*
+hart 0's `0x800002f2` (`beq a0,t0`) in the same run. The two tiles report individually
+correct, statically verifiable start PCs. All five varint bytes arrive on both.
+
+### (2d.2) — the check that was missing, now obtained
+
+Basic-block attribution over **468 basic blocks** totalling **7,891,599 cycles**, split
+by address:
+
+| region | cycles | share |
+|---|---|---|
+| generated model kernels (≥ `0x80001c00`) | **7,571,956** | 95.9% |
+| boot / Zephyr / thread setup | 319,643 | 4.1% |
+
+against two independent guest-side counters for the same window:
+
+* `MODELBLASTER_WALL_CYCLES` = 7,541 (thousands) → decode is **100.41%**
+* summed per-op `rdcycle` profile = 7,536,560 → decode is **100.47%**
+
+The three agree to under half a percent. The 4.1% boot remainder is corroborated from a
+fourth direction: the three idle tiles' windows close at **338,311 / 347,461 / 339,316**
+cycles — the moment the traced worker's silencing loop stopped them — which is the same
+319,643 cycles of pre-model execution seen from hart 2's own decode.
+
+### The workload result is unchanged by the PCIM patch
+
+| | quad PCIM | dual PCIM |
+|---|---|---|
+| `max_abs_err` / `max_rel_err` | **0 / 0** | 0 / 0 |
+| model output | **`-56`, `127`** | `-56`, `127` |
+| summed per-op profile | 7,536,560 | 7,539,118 (**0.034%**) |
+| `MODELBLASTER_WALL_CYCLES` | 7,541 | 7,543 |
+
+## 2. Guest defect 1 — `k_thread_cpu_pin()` on the running thread is a silent no-op
+
+`harness_tacit/src/main.c` (and `harness/src/main.c`) did:
+
+```c
+k_thread_cpu_pin(k_current_get(), 1);   /* return value discarded */
+```
+
+`kernel/cpu_mask.c::cpu_mask_mod()` modifies the mask **only** for a thread that is
+`z_is_thread_prevented_from_running()`; otherwise it returns `-EINVAL` and changes
+nothing. `main()` is by definition running, so the call never moved anything. The
+recorded dual run proves it from the other end: it pinned to hart 1 and printed
+`=== TACIT === hart=0`. On the dual that is harmless (both tiles carry Saturn); on the
+quad hetero it is fatal, because harts 0,1 have no vector unit.
+
+So the fix the section above prescribes — "a `harness_tacit` build pinned to hart 2 or
+3" — could not have worked through this API. The traced region now runs on a worker
+created `K_FOREVER`, pinned, then started, and the pin's return value is checked:
+
+```
+800005a8: li a5,-1          # K_FOREVER
+800005d6: jalr -> z_impl_k_thread_create
+800005da: li a1,2           # MODELBLASTER_TACIT_PIN_HART
+800005e2: jalr -> k_thread_cpu_pin
+800005f0: jalr -> z_impl_k_wakeup      (k_thread_start)
+800005fc: jalr -> z_impl_k_thread_join
+```
+
+Confirmed on hardware: the run prints `=== TACIT === hart=2`.
+
+## 3. Guest defect 2 — the DT overlay disables the very harts the quad has
+
+This is what actually blocked the quad, and it hid behind defect 1.
+
+`harness_tacit/boards/chipyard_riscv64.overlay` (byte-identical to `harness/boards/`'s,
+md5 `6b4eec15…`) disables **cpu@2 … cpu@7**; it was written for the 2-tile Shuttle SoC.
+Combined with `CONFIG_MP_MAX_NUM_CPUS=4` from the quad overlay, Zephyr tries to start 4
+CPUs while the devicetree exposes 2. The result is a silent SMP-bring-up deadlock with
+**no console output whatsoever** — the guest never reaches `main()`, so none of the
+harness's own diagnostics can fire, and every tile streams trace forever (the run was
+producing ~10 MB/s and had passed 2.4e9 target cycles when it was stopped).
+
+TACIT diagnosed its own harness. Decoding the live `tacit0.out` against the ELF:
+
+```
+11,975,433 iterations   0x800037e6-0x800037ea   = arch_cpu_start+0x4c
+    800037e6: sd   a2,0(a3)      # riscv_cpu_wake_flag = <hartid of cpu N>
+    800037e8: ld   a5,0(a4)
+    800037ea: beqz a5,800037e6   # wait for that CPU to report in
+```
+
+and `tacit1.out` shows hart 1 *did* come up (it left reset.S's `boot_secondary_core`
+spin after 58,888 iterations and reached `arch_secondary_cpu_init`, then parked in
+`smp_init_top`'s start-flag wait) — while harts 2,3 never left the reset spin at all.
+Hart 0 was waiting for a CPU whose DT node is `disabled`.
+
+`harness_xpurt`, `harness_multi` and `harness_microros` carry **no** `boards/` overlay,
+which is the only reason the sweep's and micro-ROS's quad builds ever booted.
+`experiments/shard_dim/scripts/build_one.sh` already gates on the symptom — *"the
+hart-count mismatch hangs in Zephyr's SMP spinwait before the boot banner (no output at
+all)"* — but the gate only checks the Kconfig overlay, not the devicetree.
+
+Fix, additive so the 2-hart builds are untouched:
+`harness_tacit/boards/quad_hetero_4cpu.overlay` re-enables cpu@2, cpu@3 and is applied
+via `-DEXTRA_DTC_OVERLAY_FILE`. Verified in the generated `zephyr.dts`: cpu@0..3 `okay`
+(reg 0..3), cpu@4..7 `disabled`.
+
+**`harness/` has the same latent conflict**: `harness/backends/firesim_chipyard_quad_hetero_q31.conf`
+sets `MP_MAX_NUM_CPUS=4` while `harness/boards/chipyard_riscv64.overlay` disables
+cpu@2-7. Any build combining those two files deadlocks the same way. Not fixed here —
+no current experiment uses that combination — but it should not be trusted as working.
+
+## 4. How to reproduce
+
+```
+west build -p -b chipyard_riscv64/rocketchip_virt_riscv64 harness_tacit \
+  --build-dir <bd> -- \
+  -DMODEL_DIR=examples/dronet_tacit/int8/generated/rvv -DMODELBLASTER_BACKEND=rvv \
+  -DMODELBLASTER_KERNEL_CFLAGS="-march=rv64gcv;-mabi=lp64d;-DMODELBLASTER_RVV_IHWOC_WEIGHTS=1" \
+  -DMODELBLASTER_TACIT_PIN_HART=2 \
+  -DEXTRA_CONF_FILE=harness_tacit/backends/firesim_chipyard_quad_hetero_q31.conf \
+  -DEXTRA_DTC_OVERLAY_FILE=harness_tacit/boards/quad_hetero_4cpu.overlay
+# then, on the AWS manager:
+f2_pcim_tacit_run.sh <tag> <lane> <host> f2_quad_hetero_norose_tacit_q31_60mhz_pcim 2400
+# and locally:
+experiments/tacit/analyze_run.sh <tacit2.out> <zephyr.elf>
+```
+
+Artifacts: `experiments/tacit/traces/f2_pcim_quad_dronet.*` (four tiles + uartlog +
+`tacit2.vbb.csv`), `qpcim3.elf`, and the two deadlock decodes
+`qpcim2_smpdeadlock_hart{0,1}.vbb.csv`.
