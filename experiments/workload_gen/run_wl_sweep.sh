@@ -122,12 +122,17 @@ for ARM in base shard; do
   SUB=$([ $ARM = base ] && echo wl_sweep || echo wl_sweep_shard)
   for WL in $XR/data/toplevel/$SUB/*.json; do
     B=$(basename $WL .json)
+    T=wl_${B#networks_}_${SOLVER}_${ARM}
+    # A sweep this long will lose cells to a build bug or a queue hiccup, and
+    # re-running the ones that already landed costs FPGA hours. WL_RESUME=1
+    # keeps every completed cell and retries only the rest.
+    [ "${WL_RESUME:-0}" = 1 ] && [ -d $OUT/res_$T ] && {
+      printf "  %-52s %s\n" "$T" "kept"; continue; }
     $PY scripts/run_xpurt_schedule.py --networks-json "$WL" --solver $SOLVER \
         > $OUT/logs/sched_${B}_${ARM}.log 2>&1
     SJ=$XR/schedules/scheduled_${B}_${SOLVER}_profiled.json
     [ -f "$SJ" ] || { echo "  ${B}/${ARM}: SCHEDULE FAILED"; continue; }
     bash $W/build_workload.sh "$WL" "$SOLVER" "$ARM"
-    T=wl_${B#networks_}_${SOLVER}_${ARM}
     ST=$(grep -oE 'BUILDDONE|### ABORT.*' $OUT/logs/build_$T.log 2>/dev/null|tail -1)
     if [ "$ST" = BUILDDONE ]; then
       while [ "$(jobs -rp|wc -l)" -ge 4 ]; do sleep 20; done

@@ -36,9 +36,10 @@ ms,ex,qs=[],[],[]
 for n,e in d["networks"].items():
     q="fp32" if "fp32" in e["dispatch_deps_path"] else "int8"
     ms.append(n); qs.append(q)
-    # step 3 already renamed the sharded networks to <net>_wls, and a model with
-    # nothing splittable keeps its unsplit name in BOTH arms -- so only append.
-    ex.append(n if (arm!="shard" or n.endswith("_wls")) else f"{n}_wls")
+    # The network name IS the example dir: step 3 renamed the sharded ones to
+    # <net>_wls and left models with nothing splittable alone, so appending
+    # here would ask for a tree that was deliberately never built.
+    ex.append(n)
 print(",".join(ms), ",".join(ex), ",".join(qs))
 PY
 )
