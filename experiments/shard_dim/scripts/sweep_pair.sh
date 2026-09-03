@@ -69,7 +69,24 @@ else
     # SWEEP_FORCE_SERIAL_COSTS=1 skips the measured-cell table. Needed whenever
     # the kernels have changed under it: dronet's table was captured before the
     # curated-coverage close, and batchnorm2d_s8 alone got 3.28x faster there.
-    if [ "${SWEEP_FORCE_SERIAL_COSTS:-0}" = "1" ] \
+    if [ -n "${SWEEP_TILE_COSTS:-}" ]; then
+        # MEASURED tile costs. SWEEP_TILE_COSTS="<serialE_tag> <serialP_tag>"
+        # names two SINGLE-HART runs of THIS SPLIT TREE, so mk_costs.py yields
+        # per-TILE costs already keyed by the split graph's dispatch ids -- no
+        # projection and no model.
+        #
+        # Everything else here prices tiles by DERIVING them from the unsplit
+        # parent: the OC slab quantum, the OH copy tax, and a flat proportional
+        # rule for N/E/C. Those are assumptions, and the sweep's own prediction
+        # error is how they show up -- +0.1% on vint, where ops are huge and
+        # proportionality nearly holds, against +37.9% on yolov8_nano's gemmini
+        # pair, where the slab model carries small ops. Measuring the tiles
+        # removes the model from the loop entirely.
+        set -- $SWEEP_TILE_COSTS
+        python3 $S/mk_costs.py /tmp/costs_$TAG.json "$OUT/res_$1" "$OUT/res_$2" \
+          || { echo "### ABORT measured tile costs: need $OUT/res_$1 and res_$2"; exit 1; }
+        echo "### costs: MEASURED per-tile from $1 + $2"
+    elif [ "${SWEEP_FORCE_SERIAL_COSTS:-0}" = "1" ] \
        || ! python3 $S/mk_costs_synth.py /tmp/costs_$TAG.json --graph $G 2>/dev/null; then
         echo "### note: no measured-cell table for $NET; using the serial runs"
         python3 $S/mk_costs.py /tmp/unsplit_costs_$NET.json \
