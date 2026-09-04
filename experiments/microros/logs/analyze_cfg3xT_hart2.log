@@ -1,0 +1,28 @@
+############ integrity: cfg3xT.tacit2.bin ############
+bytes: 67108864
+zero bytes: 738 (0.00%)   longest zero run: 2
+zero-run length histogram (top 8): [(1, 508), (2, 115)]
+packets: 42703669   framing breaks: 0
+kinds: [('CTb', 32796842), ('FUj', 6104967), ('CNt', 3717319), ('CIj', 81076), ('FNt', 1614), ('FTb', 1425), ('FTrap', 226), ('FIj', 199), ('FSync', 1)]
+FSync absolute cycle count at trace start: 387
+windowed timestamp sum (deltas, FSync excluded): 177560311
+runaway timestamps (>= 2^32, i.e. varint ran off a truncated packet): 0
+first FSync at byte 0: tgt=0x400001e9 -> pc=0x800003d2
+############ decode ############
+insn_count: 130426009
+file size: 67108864 bytes
+known ctx bytes read: 67108853 bytes
+bits per instruction: 4.1163
+compressed packet count: 36595237
+full packet count: 6108432
+############ hottest basic blocks ############
+1000, 662.966, 39966, 0x8000c164-0x8000c214
+33470, 8.087600836570063, 36402, 0x8000c4f6-0x8000c502
+14449, 25.236486954114472, 32315, 0x8000c396-0x8000c3e4
+14526, 17.20218917802561, 31989, 0x8000c4c4-0x8000c4f2
+12272, 18.335479139504564, 28661, 0x8000c3f6-0x8000c410
+16735, 6.644876008365701, 27527, 0x8000c50e-0x8000c518
+18912, 3.39498730964467, 26382, 0x8000c366-0x8000c368
+35679, 23.641525827517587, 22889, 0x8000c4b4-0x8000c4f2
+43359, 10.497405382965475, 21567, 0x8000c47e-0x8000c492
+3904, 11.640368852459016, 10308, 0x8000c9a2-0x8000c9bc

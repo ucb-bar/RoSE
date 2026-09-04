@@ -25,7 +25,16 @@ export PYTHONPATH=$ZCS MB_DRIFT_ATOL=2
 cd $MB
 echo "### tag=$TAG $(date -u +%FT%TZ)"
 
-find $MB/examples -name zephyr.elf -delete 2>/dev/null
+# SCOPE BOTH THE DELETE AND THE HARVEST TO THIS HARNESS'S OWN EXAMPLE TREE.
+# These used to glob all of $MB/examples. That is a cross-job hazard, not a
+# tidiness issue: any other build running concurrently (the workload sweep's
+# sweep_pair.sh, say) has its in-progress zephyr.elf deleted, and the
+# `-newer $STAMP | head -1` harvest below can pick up ITS output instead of
+# ours. Measured on 2026-09-04: cfg3xF was stashed carrying
+# run_model_yolov8_nano_sh -- a wave-2 rung from the concurrent sweep -- and
+# none of the three micro-ROS graphs.
+EXDIR=$MB/examples/microros_demo
+find $EXDIR -name zephyr.elf -delete 2>/dev/null
 STAMP=$OUT/.stamp_$TAG; : > $STAMP; sleep 1
 
 MODELS=yolov8_nano,dronet,mlp_control \
@@ -49,8 +58,15 @@ RC=$?; echo "#### build rc=$RC"
 grep -q "Merged configuration '.*firesim_chipyard_quad_hetero_q31.conf'" $OUT/logs/build_$TAG.log || {
     echo "#### ABORT wrong Zephyr overlay -- the quad bitstream needs MP_MAX_NUM_CPUS=4"; exit 1; }
 
-ELF=$(find $MB/examples -name zephyr.elf -newer $STAMP 2>/dev/null | head -1)
-[ -z "$ELF" ] && { echo "### ABORT no fresh elf"; exit 1; }
+ELF=$(find $EXDIR -name zephyr.elf -newer $STAMP 2>/dev/null | head -1)
+[ -z "$ELF" ] && { echo "### ABORT no fresh elf under $EXDIR"; exit 1; }
+# Gate on CONTENT, not just freshness: the harness drives its networks through
+# run_graph_a/b/c, so an ELF without them is not this harness's binary at all.
+NM=$(find $ZCS/tools-manual -name "riscv64-zephyr-elf-nm" 2>/dev/null | head -1)
+if [ -n "$NM" ]; then
+  GOT=$($NM "$ELF" 2>/dev/null | grep -cE " run_graph_[abc]$")
+  [ "${GOT:-0}" -lt 2 ] && { echo "### ABORT harvested ELF has $GOT run_graph_* symbols -- wrong binary"; exit 1; }
+fi
 cp "$ELF" $OUT/elf/$TAG.elf
 echo "#### stashed $OUT/elf/$TAG.elf size=$(stat -c%s $OUT/elf/$TAG.elf)"
 echo "############ BUILDDONE $TAG ############"

@@ -63,8 +63,24 @@ echo "== fq submit returned $?"
 echo "== collecting tacit*.out from $HOST =="
 mkdir -p "$R/tacit"
 $RSSH ubuntu@"$HOST" 'ls -l /home/ubuntu/sim_slot_*/tacit*.out 2>/dev/null' </dev/null 2>/dev/null
-scp -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-    -i /home/ubuntu/firesim.pem "ubuntu@$HOST:/home/ubuntu/sim_slot_*/tacit*.out" "$R/tacit/" 2>/dev/null
+# SIZE CAP. A multi-GB trace is the SIGNATURE OF A HUNG GUEST, not a result:
+# a wedged hart emits the same tight loop at ~10 MB/s per tile forever. Copying
+# it back is worse than useless -- on 2026-09-03 two such runs returned 5.8 GB
+# and 12 GB and took this manager's 193 GB root filesystem to ZERO bytes free,
+# killing an unrelated healthy job and orphaning a lane. Both deadlock
+# diagnoses that day came from a 12 MB head slice, so cap the copy and note it.
+CAP=${TACIT_CAP_BYTES:-$((64*1024*1024))}
+for f in $($RSSH ubuntu@"$HOST" 'ls /home/ubuntu/sim_slot_*/tacit*.out 2>/dev/null' </dev/null 2>/dev/null); do
+  b=$(basename "$f")
+  sz=$($RSSH ubuntu@"$HOST" "stat -c %s '$f' 2>/dev/null" </dev/null 2>/dev/null)
+  if [ "${sz:-0}" -gt "$CAP" ]; then
+    echo "   $b is ${sz}B > cap ${CAP}B -- copying the first ${CAP}B only (guest likely hung)"
+    $RSSH ubuntu@"$HOST" "head -c $CAP '$f'" </dev/null > "$R/tacit/${b%.out}.head.bin" 2>/dev/null
+  else
+    scp -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+        -i /home/ubuntu/firesim.pem "ubuntu@$HOST:$f" "$R/tacit/" 2>/dev/null
+  fi
+done
 ls -l "$R/tacit/" 2>/dev/null || echo "NOTHING COLLECTED"
 echo "== uartlog tail =="
 tail -30 "$R/uartlog" 2>/dev/null || echo "no uartlog"
