@@ -19,7 +19,20 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
 
 NET_COLOR = {"yolov8_nano": "#1971C2", "dronet": "#E8590C", "mlp_control": "#2F9E44"}
-MHZ = 60.0                      # f2_quad_hetero_norose_tacit_q31_60mhz
+
+# The trace column is HEADED "start_cycles"/"end_cycles" and does not contain
+# cycles: it is the mtime tick counter, which runs at 1 MHz, so one tick is one
+# MICROSECOND regardless of the 60 MHz core clock. Dividing by 60e3 as if they
+# were core cycles makes every duration 60x too small -- a 319.55 ms run reads
+# as 5.33 ms, which is the give-away that something is wrong, since yolov8_nano
+# alone is known to take ~319 ms here.
+#
+# The check below is not decoration. dronet is launched with a 40 ms period, so
+# its measured inter-iteration spacing pins the unit: 39400/40512/39488/40601
+# ticks is 39-41 ms as microseconds and 0.66 ms as core cycles. The same field
+# name burned this repo once already on the profile CSV, whose "cycles" column
+# holds nanoseconds (uartlog_to_profile.py --clock-mhz 1000).
+US_PER_TICK = 1.0
 
 
 def rows(path):
@@ -47,8 +60,21 @@ def main(path, out, title):
     r = rows(path)
     if not r:
         raise SystemExit(f"{path}: no trace rows between the BEGIN/END markers")
+    # Unit tripwire: recover a periodic network's period from the trace and
+    # refuse to plot if it is not a plausible millisecond-scale period. Getting
+    # this wrong does not look like an error, it looks like a fast run.
+    for net in ("dronet", "mlp_control"):
+        st = sorted({x["t0"] for x in r if x["net"] == net and x["did"] == 0})
+        if len(st) >= 3:
+            med = sorted(st[i + 1] - st[i] for i in range(len(st) - 1))[len(st) // 2]
+            if not (1_000 <= med <= 1_000_000):
+                raise SystemExit(
+                    f"{net}: median inter-iteration spacing {med} ticks is not a "
+                    f"plausible period in microseconds. The tick unit assumption "
+                    f"is wrong -- do not trust the time axis.")
+            break
     base = min(x["t0"] for x in r)
-    span = (max(x["t1"] for x in r) - base) / MHZ / 1000.0        # ms
+    span = (max(x["t1"] for x in r) - base) * US_PER_TICK / 1000.0   # ms
     harts = sorted({x["hart"] for x in r})
     nets = [n for n in NET_COLOR if any(x["net"] == n for x in r)]
 
@@ -58,12 +84,12 @@ def main(path, out, title):
     per_net_hart = collections.defaultdict(float)
     for x in r:
         y = harts.index(x["hart"])
-        a = (x["t0"] - base) / MHZ / 1000.0
-        w = max((x["t1"] - x["t0"]) / MHZ / 1000.0, span * 4e-4)   # keep 1-cycle ops visible
+        a = (x["t0"] - base) * US_PER_TICK / 1000.0
+        w = max((x["t1"] - x["t0"]) * US_PER_TICK / 1000.0, span * 4e-4)  # keep short ops visible
         ax.barh(y, w, left=a, height=.62, color=NET_COLOR[x["net"]],
                 edgecolor="none", zorder=3)
-        busy[x["hart"]] += (x["t1"] - x["t0"]) / MHZ / 1000.0
-        per_net_hart[(x["hart"], x["net"])] += (x["t1"] - x["t0"]) / MHZ / 1000.0
+        busy[x["hart"]] += (x["t1"] - x["t0"]) * US_PER_TICK / 1000.0
+        per_net_hart[(x["hart"], x["net"])] += (x["t1"] - x["t0"]) * US_PER_TICK / 1000.0
     ax.set_yticks(range(len(harts)))
     ax.set_yticklabels([f"hart {h}\n{'gemmini' if h < 2 else 'rvv'}\n{busy[h]/span:.0%} busy"
                         for h in harts], fontsize=9)
