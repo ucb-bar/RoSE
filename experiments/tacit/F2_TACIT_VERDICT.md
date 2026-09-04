@@ -557,6 +557,27 @@ three encoders (tacit0/1/3 freeze at 45,056 / 12,288 / 131,072 bytes and stop gr
 while tacit2 keeps being filled with zeros by the BAR4 drain at ~46 KB/s. So the PCIM
 patch changes what reaches the host, not what the target computes.
 
+The baseline run (fq 804) did **not** reach its own `MODELBLASTER_VERIFY` line: it died
+at 15 minutes with `OSError: [Errno 28] No space left on device` on the *manager*, and
+its `max_abs_err` was never obtained. See the operational note below — the cause was
+this session's own earlier failed runs, not the bitstream.
+
+### Operational hazard: `f2_pcim_tacit_run.sh` can fill the manager's disk
+
+`sim_slot_*/` on a run host is cleared per run, but the script's collection step scp's
+every `tacit<N>.out` back to `/home/ubuntu/r/<tag>/tacit/` on the **manager**, whose
+root filesystem is 193 GB and shared. A guest that hangs while tracing produces roughly
+**10 MB/s across four tiles**, so the two SMP-deadlocked runs above returned 5.8 GB and
+12 GB respectively and took the manager from healthy to `0 bytes available`. That
+failure surfaces as an unrelated-looking `Errno 28` traceback inside fq's logging, and
+it killed a *later, healthy* job and left its lane `ORPHANED` (recovered with
+`fq reclaim f2-05`).
+
+Anyone reviving this path should cap the collection — check the remote size first and
+refuse or truncate above a threshold, since a multi-GB TACIT trace is almost always the
+signature of a hung guest and is worthless anyway. A head slice is enough to diagnose:
+both deadlock decodes in section 3 came from a 12 MB `head -c`.
+
 ## 6. Per-function attribution vs the guest's own rdcycle brackets
 
 The point of all this. Mapping the decoded basic blocks through the ELF's symbol table
