@@ -105,8 +105,8 @@ ET jobs on this bitstream: **fq 850** (first attempt, trapped — §7), **fq 851
 (mlp_control + dronet + yolov8_nano, one boot), **fq 852** (vint), **fq 857**
 (bit-identical repeat of fq 851), **fq 853** and **fq 859** (per-op profiling
 variants of the first three), **fq 861** (per-op rerun with the `printf`
-profiler fix; in flight at the time of writing, and a confirmation of fq 859
-rather than a new result).
+profiler fix, which both confirms fq 859's attribution to ±0.8% and supplies a
+second host-exact yolov8_nano result).
 Cycles are the measured quantity; the ms column assumes the 1 GHz nominal target
 clock implied by `CONFIG_SYS_CLOCK_HW_CYCLES_PER_SEC=1000000` together with the
 observed 1000:1 rdcycle-to-mtime ratio.
@@ -168,6 +168,11 @@ invoke. Two caveats, both important:
   here. Percentages below are stated against the clean total.
 * `XNN_FLAG_BASIC_PROFILING` also changes XNNPACK's execution plan (see §5), so
   this is an attribution of a *closely related* plan, not the exact one timed in §3.
+
+The attribution itself reproduces: **fq 859 and fq 861 are independent builds
+(different log level, different profiler emit path) and their per-op sums agree
+to within ±0.8% in every category** — mlp_control 67,226 vs 67,576, dronet
+8,290,411 vs 8,231,884, yolov8_nano 169,948,067 vs 171,251,378.
 
 **Where the time goes.** "In delegates" is the sum of XNNPACK's own per-op
 timings for one invoke across all delegates; the remainder is ExecuTorch
@@ -307,18 +312,22 @@ Across four runs of the same `.pte` on the same input, `mlp_control` and
 | fq 857 | **same ELF as fq 851** | −448952.978705 | −97813.484649 | −19112.570846 |
 | fq 853 | profiling, `ITERS=2`, sampled output | −449113.776738 | −98100.851909 | −19073.278003 |
 | fq 859 | profiling, `ITERS=2`, `LOG_LEVEL=Info` | **−448818.939519** | **−97843.815654** | **−19133.433173** |
+| fq 861 | profiling, `ITERS=2`, `LOG_LEVEL=Error`, `printf` profiler | **−448818.939519** | **−97843.815654** | **−19133.433173** |
 | — | **x86 host reference** | **−448818.939519** | **−97843.815654** | **−19133.433173** |
 
 Three observations, and together they change the diagnosis:
 
 - **It is deterministic per binary** — fq 857 reproduces fq 851 bit-for-bit,
   cycles included. So this is not a race and not uninitialised *randomness*.
-- **It varies with things that must not affect arithmetic.** fq 853 and fq 859
-  differ only in log level and whether the sampled-output code is compiled in —
-  pure code-size/layout changes — and they give different answers.
-- **fq 859 matches the x86 host to all six printed digits on all three
-  outputs.** So the RVV micro-kernels *can* produce the host-exact result; the
-  hardware and the kernels are not intrinsically wrong.
+- **It varies with things that cannot affect arithmetic.** fq 861 and fq 853
+  differ only in whether the sampled-output code — a `printf` loop that runs
+  *after* `execute()* and only reads output tensors — is compiled in, and they
+  give different answers. So does turning profiling off (fq 851).
+- **Two independent builds match the x86 host to all six printed digits on all
+  three outputs.** fq 859 and fq 861 differ in log level *and* in how the
+  profiler emits its lines, yet both land exactly on the host reference. So the
+  RVV micro-kernels *can* produce the host-exact result; the hardware and the
+  kernels are not intrinsically wrong.
 
 That combination — deterministic per binary, sensitive to memory layout, one
 layout exactly right — is the signature of a **memory bug (an uninitialised or
@@ -472,7 +481,8 @@ Two further traps found and fixed, both of the silent-wrong-artifact kind:
   HTIF at a few KB/s, so the run floods and approaches the queue timeout (fq 859
   took 44 min against a 50 min limit). `XNNProfiler.cpp` now emits those lines
   with `printf`, so they survive at any log level and nothing else comes with
-  them.
+  them. Validated by fq 861: 920 op lines at `LOG_LEVEL=Error`, a 38.6 KB
+  uartlog instead of 84.5 KB, and 1328 s instead of ~2640 s.
 - **Shared ExecuTorch build directory.** The sample defaults `ET_BUILD_DIR_PATH`
   to `third-party/executorch/cmake-out`, *inside the source tree*, so every west
   build dir shares it — a profiling build and a clean build overwrite each

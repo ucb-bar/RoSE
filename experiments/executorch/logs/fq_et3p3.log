@@ -4,3 +4,23 @@
   logs:   fq logs 861 -f
   status: fq status 861
 #### jid=861
+#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/executorch/res/et3p3/uartlog
+MB_ET_THREADPOOL from=4 to=1 ok=1
+MB_ET_HART=2
+MB_INPUT_BAKED=mlp_control_fp32 n=1 bytes0=64
+EXECUTORCH_EXECUTE_CYCLES[mlp_control_fp32][0]=1244963991
+EXECUTORCH_EXECUTE_CYCLES[mlp_control_fp32][1]=1242933009
+Output[0] numel=4 checksum=14.791794
+MB_INPUT_BAKED=dronet_int8 n=1 bytes0=150528
+EXECUTORCH_EXECUTE_CYCLES[dronet_int8][0]=4486673146
+EXECUTORCH_EXECUTE_CYCLES[dronet_int8][1]=4459978556
+Output[0] numel=1 checksum=-0.030273
+Output[1] numel=1 checksum=0.478202
+MB_INPUT_BAKED=yolov8_nano_int8 n=1 bytes0=307200
+EXECUTORCH_EXECUTE_CYCLES[yolov8_nano_int8][0]=26364680236
+EXECUTORCH_EXECUTE_CYCLES[yolov8_nano_int8][1]=26371360814
+Output[0] numel=57600 checksum=-448818.939519
+Output[1] numel=14400 checksum=-97843.815654
+Output[2] numel=3600 checksum=-19133.433173
+*** PASSED *** after 77676624692 cycles
+############ FQDONE et3p3 ############
