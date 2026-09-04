@@ -1,0 +1,13 @@
+# Host-side ExecuTorch env (executorch 1.0.1 / torch 2.9), layered on a separate
+# conda env. The RoSE in-tree zephyr env is torch 2.13 and must not be touched.
+.venv/
+
+# 91-113 MB Zephyr ELFs, almost entirely static XNNPACK. Rebuild with
+# scripts/build_et_elf.sh.
+elf/
+
+# Serialized programs; vint_int8.pte alone is 24 MB. Regenerate with
+# scripts/export_all.sh. The sibling .json (delegate/portable report) and
+# .io.npz (input + torch golden + host reference) ARE tracked -- they are the
+# evidence, and they are small.
+pte/*.pte

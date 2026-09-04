@@ -1,0 +1,45 @@
+Skipping import of cpp extensions due to incompatible torch version 2.9.0+cpu for torchao version 0.14.0         Please see GitHub issue #2919 for more info
+[provenance] dronet <- /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/models/dronet.py
+/scratch/dima/rose-infra/RoSE/experiments/executorch/scripts/export_mb_models.py:111: FutureWarning: `torch.export.export_for_training` is deprecated and will be removed in PyTorch 2.10. Please use `torch.export.export` instead, which is functionally equivalent.
+  cap = _capture(model, args)
+[program.cpp:153] InternalConsistency verification requested but not available
+{
+ "tag": "dronet_int8",
+ "model": "dronet",
+ "quant": "int8",
+ "input_shapes": [
+  [
+   1,
+   3,
+   112,
+   112
+  ]
+ ],
+ "output_shapes": [
+  [
+   1,
+   1
+  ],
+  [
+   1,
+   1
+  ]
+ ],
+ "delegates": 6,
+ "undelegated_aten": 18,
+ "undelegated_ops": {
+  "<built-in function getitem>": 13,
+  "aten._native_batch_norm_legit_no_training.default": 3,
+  "aten.view_copy.default": 1,
+  "dim_order_ops._clone_dim_order.default": 1
+ },
+ "pte_bytes": 349572,
+ "export_secs": 15.3,
+ "host_vs_torch": {
+  "max_abs_err": 0.00659816712141037,
+  "mean_abs_err": 0.003411289304494858,
+  "max_rel_err": 0.1789498230185238,
+  "cosine": 0.9999062381541232,
+  "numel": 2
+ }
+}

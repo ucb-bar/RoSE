@@ -1,0 +1,9 @@
+{
+  "benchmark_name": "et-et3-52159",
+  "common_bootbinary": "et_et3.elf",
+  "common_rootfs": null,
+  "common_simulation_outputs": [
+    "uartlog"
+  ],
+  "no_post_run_hook": true
+}

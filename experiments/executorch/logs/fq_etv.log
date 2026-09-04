@@ -1,0 +1,17 @@
+### submit etv lane=f2-05 stamp=et-etv-52625 2026-09-04T20:10:25Z
+#### elf mtime=2026-09-04T20:03:49Z bytes=112758488
+#### submit: submitted job 852  (completion=exit, timeout=3000s)
+  logs:   fq logs 852 -f
+  status: fq status 852
+#### jid=852
+#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/executorch/res/etv/uartlog
+MB_ET_THREADPOOL from=4 to=1 ok=1
+MB_ET_HART=2
+MB_INPUT_BAKED=vint_int8 n=2 bytes0=391680
+EXECUTORCH_EXECUTE_CYCLES[vint_int8][0]=689050860
+EXECUTORCH_EXECUTE_CYCLES[vint_int8][1]=673136658
+EXECUTORCH_EXECUTE_CYCLES[vint_int8][2]=673232703
+Output[0] numel=1 checksum=8.653941
+Output[1] numel=20 checksum=8.706648
+*** PASSED *** after 9703062602 cycles
+############ FQDONE etv ############

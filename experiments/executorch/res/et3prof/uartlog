@@ -1,0 +1,644 @@
+Script started on 2026-09-04 20:17:56+00:00 [COMMAND="stty intr ^] && sudo LD_LIBRARY_PATH=/scratch/vnikiforov/rose-fsim/lib ./FireSim-f2 +permissive   +macaddr0=00:12:6D:00:00:02 +niclog0=niclog0  +trace-select=1 +trace-start=0 +trace-end=-1 +trace-output-format=0 +dwarf-file-name=et-et3prof-529890-et_et3prof.elf-dwarf +autocounter-readrate=0 +autocounter-filename-base=AUTOCOUNTERFILE  +print-start=0 +print-end=-1 +linklatency0=6405 +netbw0=200 +shmemportname0=default +partitioned=1 +slotid=0 +permissive-off +prog0=et-et3prof-529890-et_et3prof.elf   && stty intr ^c" TERM="screen" TTY="/dev/pts/6" COLUMNS="80" LINES="24"]
+AFI ID for Slot  0: agfi-0662319f4b07483a7
+AFI PCI  Vendor ID: 0x1d0f, Device ID 0xf002
+Attached to BAR0 (OCL)
+Attached to BAR4 (PCIS)
+widget_registry_t::add_widget(StreamEngine)
+cpu2fpga: 0, fpga2cpu: 4
+UART0 is here (stdin/stdout).
+command line for program 0. argc=19:
++permissive +macaddr0=00:12:6D:00:00:02 +niclog0=niclog0 +trace-select=1 +trace-start=0 +trace-end=-1 +trace-output-format=0 +dwarf-file-name=et-et3prof-529890-et_et3prof.elf-dwarf +autocounter-readrate=0 +autocounter-filename-base=AUTOCOUNTERFILE +print-start=0 +print-end=-1 +linklatency0=6405 +netbw0=200 +shmemportname0=default +partitioned=1 +slotid=0 +permissive-off et-et3prof-529890-et_et3prof.elf 
+entered simulation flow execution
+finished waiting
+FireSim fingerprint: 0x46697265
+Commencing simulation.
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+*** Booting Zephyr OS build c93d5bdb6078 ***
+MB_ET_THREADPOOL from=4 to=1 ok=1
+MB_ET_HART=2
+MB_MODEL_BEGIN=mlp_control_fp32
+MB_INPUT_BAKED=mlp_control_fp32 n=1 bytes0=64
+I [executorch:riscv_executor_runner.cpp:341] Model in 0x80f8d340 <
+I [executorch:riscv_executor_runner.cpp:343] Model PTE file loaded. Size: 189328 bytes.
+I [executorch:riscv_executor_runner.cpp:357] Model buffer loaded, has 1 methods
+I [executorch:riscv_executor_runner.cpp:365] Running method forward
+I [executorch:riscv_executor_runner.cpp:373] Setup Method allocator pool. Size: 268435456 bytes.
+I [executorch:riscv_executor_runner.cpp:386] Setting up planned buffer 0, size 2112.
+I [executorch:riscv_executor_runner.cpp:411] Method loaded.
+I [executorch:riscv_executor_runner.cpp:413] Preparing inputs...
+I [executorch:riscv_executor_runner.cpp:260] Copying read input to tensor.
+I [executorch:riscv_executor_runner.cpp:424] Input prepared.
+I [executorch:riscv_executor_runner.cpp:426] Starting the model execution...
+MB_XNN_RESHAPE_CYCLES=30287
+MB_XNN_SETUP_CYCLES=1319
+MB_XNN_INVOKE_CYCLES=16268
+MB_XNN_RESHAPE_CYCLES=26795
+MB_XNN_SETUP_CYCLES=748
+MB_XNN_INVOKE_CYCLES=50225
+MB_XNN_RESHAPE_CYCLES=26450
+MB_XNN_SETUP_CYCLES=804
+MB_XNN_INVOKE_CYCLES=17730
+MB_XNN_RESHAPE_CYCLES=25558
+MB_XNN_SETUP_CYCLES=723
+MB_XNN_INVOKE_CYCLES=12772
+EXECUTORCH_EXECUTE_CYCLES[mlp_control_fp32][0]=659575020
+I [executorch:riscv_executor_runner.cpp:260] Copying read input to tensor.
+MB_XNN_RESHAPE_CYCLES=21440
+MB_XNN_SETUP_CYCLES=799
+MB_XNN_INVOKE_CYCLES=12489
+MB_XNN_RESHAPE_CYCLES=21491
+MB_XNN_SETUP_CYCLES=793
+MB_XNN_INVOKE_CYCLES=29133
+MB_XNN_RESHAPE_CYCLES=20802
+MB_XNN_SETUP_CYCLES=812
+MB_XNN_INVOKE_CYCLES=13828
+MB_XNN_RESHAPE_CYCLES=20049
+MB_XNN_SETUP_CYCLES=760
+MB_XNN_INVOKE_CYCLES=12309
+EXECUTORCH_EXECUTE_CYCLES[mlp_control_fp32][1]=657542014
+I [executorch:riscv_executor_runner.cpp:503] model_pte_loaded_size:     189328 bytes.
+I [executorch:riscv_executor_runner.cpp:508] method_allocator_used:     4905 / 268435456  free: 268430551 ( used: 0 % ) 
+I [executorch:riscv_executor_runner.cpp:511] method_allocator_planned:  2112 bytes
+I [executorch:riscv_executor_runner.cpp:512] method_allocator_loaded:   2649 bytes
+I [executorch:riscv_executor_runner.cpp:513] method_allocator_input:    72 bytes
+I [executorch:riscv_executor_runner.cpp:514] method_allocator_executor: 72 bytes
+I [executorch:riscv_executor_runner.cpp:518] temp_allocator_used:       450 / 1048576 free: 1048126 ( used: 0 % ) 
+I [executorch:riscv_executor_runner.cpp:529] Model executed successfully.
+I [executorch:riscv_executor_runner.cpp:533] 1 outputs: 
+Output[0] numel=4 checksum=14.791794
+O[0][0]=14.577022
+O[0][1]=-2.329765
+O[0][2]=2.567192
+O[0][3]=-0.022654
+MB_MODEL_DONE_OUTPUT=mlp_control_fp32
+MB_MODEL_END=mlp_control_fp32
+MB_MODEL_BEGIN=dronet_int8
+MB_INPUT_BAKED=dronet_int8 n=1 bytes0=150528
+I [executorch:riscv_executor_runner.cpp:341] Model in 0x80f37d70 <
+I [executorch:riscv_executor_runner.cpp:343] Model PTE file loaded. Size: 349572 bytes.
+I [executorch:riscv_executor_runner.cpp:357] Model buffer loaded, has 1 methods
+I [executorch:riscv_executor_runner.cpp:365] Running method forward
+I [executorch:riscv_executor_runner.cpp:373] Setup Method allocator pool. Size: 268435456 bytes.
+I [executorch:riscv_executor_runner.cpp:386] Setting up planned buffer 0, size 267232.
+I [executorch:riscv_executor_runner.cpp:411] Method loaded.
+I [executorch:riscv_executor_runner.cpp:413] Preparing inputs...
+I [executorch:riscv_executor_runner.cpp:260] Copying read input to tensor.
+I [executorch:riscv_executor_runner.cpp:424] Input prepared.
+I [executorch:riscv_executor_runner.cpp:426] Starting the model execution...
+MB_XNN_RESHAPE_CYCLES=1345986
+MB_XNN_SETUP_CYCLES=5368
+MB_XNN_INVOKE_CYCLES=3953368
+MB_XNN_RESHAPE_CYCLES=537934
+MB_XNN_SETUP_CYCLES=6010
+MB_XNN_INVOKE_CYCLES=1861794
+MB_XNN_RESHAPE_CYCLES=214272
+MB_XNN_SETUP_CYCLES=4995
+MB_XNN_INVOKE_CYCLES=1089781
+MB_XNN_RESHAPE_CYCLES=185846
+MB_XNN_SETUP_CYCLES=3756
+MB_XNN_INVOKE_CYCLES=1152595
+MB_XNN_RESHAPE_CYCLES=41107
+MB_XNN_SETUP_CYCLES=1177
+MB_XNN_INVOKE_CYCLES=30315
+MB_XNN_RESHAPE_CYCLES=83698
+MB_XNN_SETUP_CYCLES=2510
+MB_XNN_INVOKE_CYCLES=117147
+EXECUTORCH_EXECUTE_CYCLES[dronet_int8][0]=1070557135
+I [executorch:riscv_executor_runner.cpp:260] Copying read input to tensor.
+MB_XNN_RESHAPE_CYCLES=82969
+MB_XNN_SETUP_CYCLES=3577
+MB_XNN_INVOKE_CYCLES=4010559
+MB_XNN_RESHAPE_CYCLES=136689
+MB_XNN_SETUP_CYCLES=4982
+MB_XNN_INVOKE_CYCLES=1872247
+MB_XNN_RESHAPE_CYCLES=131364
+MB_XNN_SETUP_CYCLES=4401
+MB_XNN_INVOKE_CYCLES=1094716
+MB_XNN_RESHAPE_CYCLES=121491
+MB_XNN_SETUP_CYCLES=3626
+MB_XNN_INVOKE_CYCLES=1154930
+MB_XNN_RESHAPE_CYCLES=24831
+MB_XNN_SETUP_CYCLES=931
+MB_XNN_INVOKE_CYCLES=30263
+MB_XNN_RESHAPE_CYCLES=72690
+MB_XNN_SETUP_CYCLES=2805
+MB_XNN_INVOKE_CYCLES=116505
+EXECUTORCH_EXECUTE_CYCLES[dronet_int8][1]=1085969083
+I [executorch:riscv_executor_runner.cpp:503] model_pte_loaded_size:     349572 bytes.
+I [executorch:riscv_executor_runner.cpp:508] method_allocator_used:     574857 / 268435456  free: 267860599 ( used: 0 % ) 
+I [executorch:riscv_executor_runner.cpp:511] method_allocator_planned:  267232 bytes
+I [executorch:riscv_executor_runner.cpp:512] method_allocator_loaded:   6553 bytes
+I [executorch:riscv_executor_runner.cpp:513] method_allocator_input:    150536 bytes
+I [executorch:riscv_executor_runner.cpp:514] method_allocator_executor: 150536 bytes
+I [executorch:riscv_executor_runner.cpp:518] temp_allocator_used:       960 / 1048576 free: 1047616 ( used: 0 % ) 
+I [executorch:riscv_executor_runner.cpp:529] Model executed successfully.
+I [executorch:riscv_executor_runner.cpp:533] 2 outputs: 
+Output[0] numel=1 checksum=-0.030273
+O[0][0]=-0.030273
+Output[1] numel=1 checksum=0.478202
+O[1][0]=0.478202
+MB_MODEL_DONE_OUTPUT=dronet_int8
+MB_MODEL_END=dronet_int8
+MB_MODEL_BEGIN=yolov8_nano_int8
+MB_INPUT_BAKED=yolov8_nano_int8 n=1 bytes0=307200
+I [executorch:riscv_executor_runner.cpp:341] Model in 0x80be24f0 <
+I [executorch:riscv_executor_runner.cpp:343] Model PTE file loaded. Size: 3345536 bytes.
+I [executorch:riscv_executor_runner.cpp:357] Model buffer loaded, has 1 methods
+I [executorch:riscv_executor_runner.cpp:365] Running method forward
+I [executorch:riscv_executor_runner.cpp:373] Setup Method allocator pool. Size: 268435456 bytes.
+I [executorch:riscv_executor_runner.cpp:386] Setting up planned buffer 0, size 512064.
+I [executorch:riscv_executor_runner.cpp:411] Method loaded.
+I [executorch:riscv_executor_runner.cpp:413] Preparing inputs...
+I [executorch:riscv_executor_runner.cpp:260] Copying read input to tensor.
+I [executorch:riscv_executor_runner.cpp:424] Input prepared.
+I [executorch:riscv_executor_runner.cpp:426] Starting the model execution...
+MB_XNN_RESHAPE_CYCLES=3667002
+MB_XNN_SETUP_CYCLES=10634
+MB_XNN_INVOKE_CYCLES=25768411
+MB_XNN_RESHAPE_CYCLES=1458823
+MB_XNN_SETUP_CYCLES=16454
+MB_XNN_INVOKE_CYCLES=22390854
+MB_XNN_RESHAPE_CYCLES=1112515
+MB_XNN_SETUP_CYCLES=20560
+MB_XNN_INVOKE_CYCLES=17769855
+MB_XNN_RESHAPE_CYCLES=758288
+MB_XNN_SETUP_CYCLES=20223
+MB_XNN_INVOKE_CYCLES=12695598
+MB_XNN_RESHAPE_CYCLES=608004
+MB_XNN_SETUP_CYCLES=19924
+MB_XNN_INVOKE_CYCLES=6707448
+MB_XNN_RESHAPE_CYCLES=112519
+MB_XNN_SETUP_CYCLES=5193
+MB_XNN_INVOKE_CYCLES=2920983
+MB_XNN_RESHAPE_CYCLES=346702
+MB_XNN_SETUP_CYCLES=9498
+MB_XNN_INVOKE_CYCLES=5252396
+MB_XNN_RESHAPE_CYCLES=109121
+MB_XNN_SETUP_CYCLES=4498
+MB_XNN_INVOKE_CYCLES=4453484
+MB_XNN_RESHAPE_CYCLES=724575
+MB_XNN_SETUP_CYCLES=16266
+MB_XNN_INVOKE_CYCLES=11818247
+MB_XNN_RESHAPE_CYCLES=539259
+MB_XNN_SETUP_CYCLES=15554
+MB_XNN_INVOKE_CYCLES=8193576
+MB_XNN_RESHAPE_CYCLES=2106874
+MB_XNN_SETUP_CYCLES=43267
+MB_XNN_INVOKE_CYCLES=51854318
+EXECUTORCH_EXECUTE_CYCLES[yolov8_nano_int8][0]=2550104373
+I [executorch:riscv_executor_runner.cpp:260] Copying read input to tensor.
+MB_XNN_RESHAPE_CYCLES=186524
+MB_XNN_SETUP_CYCLES=7445
+MB_XNN_INVOKE_CYCLES=25716734
+MB_XNN_RESHAPE_CYCLES=339250
+MB_XNN_SETUP_CYCLES=14932
+MB_XNN_INVOKE_CYCLES=22398684
+MB_XNN_RESHAPE_CYCLES=456416
+MB_XNN_SETUP_CYCLES=20035
+MB_XNN_INVOKE_CYCLES=17801347
+MB_XNN_RESHAPE_CYCLES=453966
+MB_XNN_SETUP_CYCLES=20083
+MB_XNN_INVOKE_CYCLES=12712601
+MB_XNN_RESHAPE_CYCLES=393568
+MB_XNN_SETUP_CYCLES=19742
+MB_XNN_INVOKE_CYCLES=6714285
+MB_XNN_RESHAPE_CYCLES=89689
+MB_XNN_SETUP_CYCLES=5135
+MB_XNN_INVOKE_CYCLES=2921571
+MB_XNN_RESHAPE_CYCLES=215030
+MB_XNN_SETUP_CYCLES=9651
+MB_XNN_INVOKE_CYCLES=5256090
+MB_XNN_RESHAPE_CYCLES=87545
+MB_XNN_SETUP_CYCLES=4231
+MB_XNN_INVOKE_CYCLES=4448401
+MB_XNN_RESHAPE_CYCLES=350825
+MB_XNN_SETUP_CYCLES=15811
+MB_XNN_INVOKE_CYCLES=11831520
+MB_XNN_RESHAPE_CYCLES=352366
+MB_XNN_SETUP_CYCLES=15453
+MB_XNN_INVOKE_CYCLES=8198207
+MB_XNN_RESHAPE_CYCLES=1027728
+MB_XNN_SETUP_CYCLES=41775
+MB_XNN_INVOKE_CYCLES=51868715
+EXECUTORCH_EXECUTE_CYCLES[yolov8_nano_int8][1]=2492653353
+I [executorch:riscv_executor_runner.cpp:503] model_pte_loaded_size:     3345536 bytes.
+I [executorch:riscv_executor_runner.cpp:508] method_allocator_used:     1137297 / 268435456  free: 267298159 ( used: 0 % ) 
+I [executorch:riscv_executor_runner.cpp:511] method_allocator_planned:  512064 bytes
+I [executorch:riscv_executor_runner.cpp:512] method_allocator_loaded:   10817 bytes
+I [executorch:riscv_executor_runner.cpp:513] method_allocator_input:    307208 bytes
+I [executorch:riscv_executor_runner.cpp:514] method_allocator_executor: 307208 bytes
+I [executorch:riscv_executor_runner.cpp:518] temp_allocator_used:       1256 / 1048576 free: 1047320 ( used: 0 % ) 
+I [executorch:riscv_executor_runner.cpp:529] Model executed successfully.
+I [executorch:riscv_executor_runner.cpp:533] 3 outputs: 
+Output[0] numel=57600 checksum=-449113.776738
+O[0][0]=6.137329
+O[0][1]=3.068665
+O[0][2]=2.086692
+O[0][3]=1.104719
+O[0][4]=-0.613733
+O[0][5]=1.227466
+O[0][6]=9.205994
+O[0][7]=5.032610
+O[0][8]=3.191411
+O[0][9]=2.454931
+O[0][10]=1.595706
+O[0][11]=1.350212
+O[0][12]=1.718452
+O[0][13]=0.981973
+O[0][14]=0.736479
+O[0][15]=3.436904
+O[0][16]=2.823171
+O[0][17]=1.963945
+O[0][18]=3.191411
+O[0][19]=7.855781
+O[0][20]=9.451487
+O[0][21]=5.891836
+O[0][22]=2.209438
+O[0][23]=0.490986
+O[0][24]=-0.736479
+O[0][25]=5.646343
+O[0][26]=8.346767
+O[0][27]=4.787117
+O[0][28]=3.191411
+O[0][29]=2.086692
+O[0][30]=1.595706
+O[0][31]=1.227466
+O[0][32]=1.595706
+O[0][33]=1.104719
+O[0][34]=2.332185
+O[0][35]=4.664370
+O[0][36]=2.577678
+O[0][37]=1.595706
+O[0][38]=1.718452
+O[0][39]=8.837753
+O[0][40]=10.065220
+O[0][41]=6.260076
+O[0][42]=2.577678
+O[0][43]=0.981973
+O[0][44]=3.682397
+O[0][45]=6.751062
+O[0][46]=6.505569
+O[0][47]=3.559651
+O[0][48]=2.086692
+O[0][49]=1.963945
+O[0][50]=2.332185
+O[0][51]=1.841199
+O[0][52]=2.577678
+O[0][53]=4.296130
+O[0][54]=2.454931
+O[0][55]=3.927891
+O[0][56]=4.787117
+O[0][57]=3.682397
+O[0][58]=0.736479
+O[0][59]=5.891836
+O[0][60]=9.451487
+O[0][61]=5.400849
+O[0][62]=2.454931
+O[0][63]=0.736479
+O[0][64]=3.927891
+O[0][964]=4.296130
+O[0][1864]=3.927891
+O[0][2764]=2.086692
+O[0][3664]=-0.368240
+O[0][4564]=-1.472959
+O[0][5464]=-2.209438
+O[0][6364]=-1.472959
+O[0][7264]=6.873808
+O[0][8164]=5.032610
+O[0][9064]=1.227466
+O[0][9964]=1.718452
+O[0][10864]=-1.595706
+O[0][11764]=-2.086692
+O[0][12664]=-1.718452
+O[0][13564]=4.050637
+O[0][14464]=2.823171
+O[0][15364]=1.718452
+O[0][16264]=-0.368240
+O[0][17164]=-0.736479
+O[0][18064]=-1.963945
+O[0][18964]=-1.841199
+O[0][19864]=0.245493
+O[0][20764]=2.945918
+O[0][21664]=1.350212
+O[0][22564]=0.122747
+O[0][23464]=0.368240
+O[0][24364]=-1.227466
+O[0][25264]=-1.841199
+O[0][26164]=-13.624870
+O[0][27064]=-14.606843
+O[0][27964]=-15.466069
+O[0][28864]=-12.765644
+O[0][29764]=-13.256631
+O[0][30664]=-15.588816
+O[0][31564]=-14.238604
+O[0][32464]=-14.729589
+O[0][33364]=-13.379377
+O[0][34264]=-13.502124
+O[0][35164]=-13.747617
+O[0][36064]=-15.834309
+O[0][36964]=-14.361350
+O[0][37864]=-11.415432
+O[0][38764]=-15.711562
+O[0][39664]=-16.693535
+O[0][40564]=-13.747617
+O[0][41464]=-16.570787
+O[0][42364]=-16.202549
+O[0][43264]=-15.588816
+O[0][44164]=-14.975082
+O[0][45064]=-17.921001
+O[0][45964]=-13.747617
+O[0][46864]=-17.061775
+O[0][47764]=-16.570787
+O[0][48664]=-16.448042
+O[0][49564]=-16.202549
+O[0][50464]=-15.343323
+O[0][51364]=-16.816282
+O[0][52264]=-15.957055
+O[0][53164]=-16.693535
+O[0][54064]=-16.939028
+O[0][54964]=-14.852336
+O[0][55864]=-15.588816
+O[0][56764]=-14.975082
+Output[1] numel=14400 checksum=-98100.851909
+O[1][0]=7.258713
+O[1][1]=3.499736
+O[1][2]=1.814678
+O[1][3]=0.907339
+O[1][4]=2.592397
+O[1][5]=1.944298
+O[1][6]=2.073918
+O[1][7]=2.333158
+O[1][8]=2.981257
+O[1][9]=2.981257
+O[1][10]=7.777192
+O[1][11]=4.407075
+O[1][12]=2.203538
+O[1][13]=0.777719
+O[1][14]=2.203538
+O[1][15]=1.036959
+O[1][16]=0.648099
+O[1][17]=2.981257
+O[1][18]=2.203538
+O[1][19]=3.499736
+O[1][20]=7.906812
+O[1][21]=4.018216
+O[1][22]=1.944298
+O[1][23]=1.944298
+O[1][24]=2.073918
+O[1][25]=0.777719
+O[1][26]=0.648099
+O[1][27]=4.018216
+O[1][28]=0.907339
+O[1][29]=3.110877
+O[1][30]=8.166052
+O[1][31]=3.888596
+O[1][32]=1.814678
+O[1][33]=1.296199
+O[1][34]=1.425819
+O[1][35]=-0.259240
+O[1][36]=6.480993
+O[1][37]=4.018216
+O[1][38]=1.166579
+O[1][39]=1.036959
+O[1][40]=8.554912
+O[1][41]=4.536695
+O[1][42]=2.073918
+O[1][43]=1.036959
+O[1][44]=-0.259240
+O[1][45]=-0.388860
+O[1][46]=6.869853
+O[1][47]=4.147836
+O[1][48]=1.296199
+O[1][49]=-0.907339
+O[1][50]=9.203011
+O[1][51]=4.666315
+O[1][52]=2.203538
+O[1][53]=1.036959
+O[1][54]=-0.648099
+O[1][55]=-0.648099
+O[1][56]=5.832894
+O[1][57]=4.277456
+O[1][58]=1.555438
+O[1][59]=-0.907339
+O[1][60]=9.203011
+O[1][61]=4.795935
+O[1][62]=2.592397
+O[1][63]=1.555438
+O[1][64]=-0.388860
+O[1][289]=5.962514
+O[1][514]=3.240497
+O[1][739]=0.259240
+O[1][964]=0.259240
+O[1][1189]=-1.425819
+O[1][1414]=-1.944298
+O[1][1639]=0.648099
+O[1][1864]=2.981257
+O[1][2089]=2.073918
+O[1][2314]=0.259240
+O[1][2539]=-0.518479
+O[1][2764]=-1.036959
+O[1][2989]=-0.907339
+O[1][3214]=0.648099
+O[1][3439]=3.758976
+O[1][3664]=4.666315
+O[1][3889]=0.777719
+O[1][4114]=0.518479
+O[1][4339]=-1.166579
+O[1][4564]=-1.814678
+O[1][4789]=-1.944298
+O[1][5014]=4.407075
+O[1][5239]=2.073918
+O[1][5464]=0.648099
+O[1][5689]=0.129620
+O[1][5914]=-1.425819
+O[1][6139]=-0.907339
+O[1][6364]=-2.592397
+O[1][6589]=-12.961987
+O[1][6814]=-11.276928
+O[1][7039]=-11.795408
+O[1][7264]=-12.573127
+O[1][7489]=-12.961987
+O[1][7714]=-11.147308
+O[1][7939]=-14.128566
+O[1][8164]=-9.721490
+O[1][8389]=-11.017689
+O[1][8614]=-11.276928
+O[1][8839]=-12.961987
+O[1][9064]=-13.869326
+O[1][9289]=-12.313888
+O[1][9514]=-13.091606
+O[1][9739]=-12.961987
+O[1][9964]=-13.869326
+O[1][10189]=-13.221227
+O[1][10414]=-14.517426
+O[1][10639]=-17.369062
+O[1][10864]=-14.258185
+O[1][11089]=-15.295144
+O[1][11314]=-13.869326
+O[1][11539]=-15.943244
+O[1][11764]=-13.610086
+O[1][11989]=-16.850582
+O[1][12214]=-11.795408
+O[1][12439]=-16.072863
+O[1][12664]=-11.795408
+O[1][12889]=-16.072863
+O[1][13114]=-15.295144
+O[1][13339]=-16.202484
+O[1][13564]=-14.128566
+O[1][13789]=-16.332104
+O[1][14014]=-14.128566
+O[1][14239]=-15.035905
+Output[2] numel=3600 checksum=-19073.278003
+O[2][0]=7.423401
+O[2][1]=3.839690
+O[2][2]=1.535876
+O[2][3]=4.735618
+O[2][4]=3.199742
+O[2][5]=8.063350
+O[2][6]=3.967680
+O[2][7]=1.407887
+O[2][8]=7.295412
+O[2][9]=3.583711
+O[2][10]=8.191339
+O[2][11]=4.095670
+O[2][12]=1.663866
+O[2][13]=8.575309
+O[2][14]=3.711701
+O[2][15]=8.319329
+O[2][16]=4.095670
+O[2][17]=1.919845
+O[2][18]=8.703299
+O[2][19]=3.839690
+O[2][20]=7.423401
+O[2][21]=3.583711
+O[2][22]=1.919845
+O[2][23]=0.767938
+O[2][24]=3.839690
+O[2][25]=7.167422
+O[2][26]=7.295412
+O[2][27]=3.455721
+O[2][28]=5.631546
+O[2][29]=6.783453
+O[2][30]=7.935360
+O[2][31]=8.063350
+O[2][32]=3.711701
+O[2][33]=7.679381
+O[2][34]=7.679381
+O[2][35]=8.063350
+O[2][36]=8.447319
+O[2][37]=3.711701
+O[2][38]=8.959277
+O[2][39]=8.063350
+O[2][40]=8.191339
+O[2][41]=8.447319
+O[2][42]=3.967680
+O[2][43]=9.215257
+O[2][44]=8.191339
+O[2][45]=7.295412
+O[2][46]=7.679381
+O[2][47]=3.967680
+O[2][48]=2.175825
+O[2][49]=7.679381
+O[2][50]=3.199742
+O[2][51]=7.039433
+O[2][52]=6.015515
+O[2][53]=5.247577
+O[2][54]=7.167422
+O[2][55]=3.199742
+O[2][56]=8.063350
+O[2][57]=6.911443
+O[2][58]=4.991598
+O[2][59]=8.191339
+O[2][60]=3.199742
+O[2][61]=8.319329
+O[2][62]=7.167422
+O[2][63]=5.247577
+O[2][64]=8.447319
+O[2][120]=0.895928
+O[2][176]=-0.255979
+O[2][232]=-1.023917
+O[2][288]=-2.047835
+O[2][344]=-2.047835
+O[2][400]=7.679381
+O[2][456]=8.063350
+O[2][512]=3.071752
+O[2][568]=1.407887
+O[2][624]=0.383969
+O[2][680]=-1.023917
+O[2][736]=-1.791856
+O[2][792]=-2.303814
+O[2][848]=8.063350
+O[2][904]=0.767938
+O[2][960]=2.687783
+O[2][1016]=-0.383969
+O[2][1072]=-1.535876
+O[2][1128]=-1.663866
+O[2][1184]=-1.663866
+O[2][1240]=7.679381
+O[2][1296]=1.791856
+O[2][1352]=2.175825
+O[2][1408]=0.511959
+O[2][1464]=-1.279897
+O[2][1520]=-1.279897
+O[2][1576]=-1.791856
+O[2][1632]=-8.063350
+O[2][1688]=-9.215257
+O[2][1744]=-9.471236
+O[2][1800]=-12.159019
+O[2][1856]=-9.471236
+O[2][1912]=-9.855206
+O[2][1968]=-8.703299
+O[2][2024]=-6.911443
+O[2][2080]=-11.263092
+O[2][2136]=-7.295412
+O[2][2192]=-7.807371
+O[2][2248]=-11.775050
+O[2][2304]=-10.367164
+O[2][2360]=-9.727216
+O[2][2416]=-11.391082
+O[2][2472]=-11.647060
+O[2][2528]=-11.007113
+O[2][2584]=-10.111185
+O[2][2640]=-11.391082
+O[2][2696]=-10.751133
+O[2][2752]=-11.775050
+O[2][2808]=-11.903040
+O[2][2864]=-10.111185
+O[2][2920]=-12.287009
+O[2][2976]=-11.007113
+O[2][3032]=-9.087267
+O[2][3088]=-8.319329
+O[2][3144]=-10.239174
+O[2][3200]=-13.566906
+O[2][3256]=-9.983195
+O[2][3312]=-11.263092
+O[2][3368]=-12.926958
+O[2][3424]=-11.135102
+O[2][3480]=-13.054947
+O[2][3536]=-9.471236
+O[2][3592]=-11.263092
+MB_MODEL_DONE_OUTPUT=yolov8_nano_int8
+MB_MODEL_END=yolov8_nano_int8
+I [executorch:riscv_executor_runner.cpp:703] Program complete, exiting.
+I [executorch:riscv_executor_runner.cpp:704] 
+
+Simulation complete.
+*** PASSED *** after 38178744662 cycles
+
+Emulation Performance Summary
+------------------------------
+Wallclock Time Elapsed: 669.1 s
+Host Frequency: 60.000 MHz
+Target Cycles Emulated: 38178744662
+Effective Target Frequency: 57.063 MHz
+FMR: 1.05
+Note: The latter three figures are based on the fastest target clock.
+
+Script done on 2026-09-04 20:29:07+00:00 [COMMAND_EXIT_CODE="0"]

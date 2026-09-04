@@ -1,0 +1,55 @@
+Skipping import of cpp extensions due to incompatible torch version 2.9.0+cpu for torchao version 0.14.0         Please see GitHub issue #2919 for more info
+[provenance] yolov8_nano <- /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/models/yolov8_nano.py
+/scratch/dima/rose-infra/RoSE/experiments/executorch/scripts/export_mb_models.py:111: FutureWarning: `torch.export.export_for_training` is deprecated and will be removed in PyTorch 2.10. Please use `torch.export.export` instead, which is functionally equivalent.
+  cap = _capture(model, args)
+[program.cpp:153] InternalConsistency verification requested but not available
+yolov8_nano: loaded 354 pretrained tensors from yolov8n.pt (nc=80)
+{
+ "tag": "yolov8_nano_int8",
+ "model": "yolov8_nano",
+ "quant": "int8",
+ "input_shapes": [
+  [
+   1,
+   3,
+   160,
+   160
+  ]
+ ],
+ "output_shapes": [
+  [
+   1,
+   144,
+   20,
+   20
+  ],
+  [
+   1,
+   144,
+   10,
+   10
+  ],
+  [
+   1,
+   144,
+   5,
+   5
+  ]
+ ],
+ "delegates": 11,
+ "undelegated_aten": 43,
+ "undelegated_ops": {
+  "<built-in function getitem>": 33,
+  "aten.split_with_sizes_copy.default": 8,
+  "aten.upsample_nearest2d.vec": 2
+ },
+ "pte_bytes": 3345536,
+ "export_secs": 26.7,
+ "host_vs_torch": {
+  "max_abs_err": 3.06900691986084,
+  "mean_abs_err": 0.20698938953413976,
+  "max_rel_err": 501.88131132619867,
+  "cosine": 0.9996204316129057,
+  "numel": 75600
+ }
+}

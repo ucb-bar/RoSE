@@ -1,0 +1,9 @@
+{
+  "benchmark_name": "et-etv-52625",
+  "common_bootbinary": "et_etv.elf",
+  "common_rootfs": null,
+  "common_simulation_outputs": [
+    "uartlog"
+  ],
+  "no_post_run_hook": true
+}

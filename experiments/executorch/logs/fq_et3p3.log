@@ -1,0 +1,6 @@
+### submit et3p3 lane=f2-05 stamp=et-et3p3-57323 2026-09-04T21:28:43Z
+#### elf mtime=2026-09-04T21:14:03Z bytes=91637976
+#### submit: submitted job 861  (completion=exit, timeout=3000s)
+  logs:   fq logs 861 -f
+  status: fq status 861
+#### jid=861

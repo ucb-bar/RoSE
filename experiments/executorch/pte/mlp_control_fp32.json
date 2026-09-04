@@ -1,0 +1,32 @@
+{
+ "tag": "mlp_control_fp32",
+ "model": "mlp_control",
+ "quant": "fp32",
+ "input_shapes": [
+  [
+   1,
+   16
+  ]
+ ],
+ "output_shapes": [
+  [
+   1,
+   4
+  ]
+ ],
+ "delegates": 4,
+ "undelegated_aten": 7,
+ "undelegated_ops": {
+  "<built-in function getitem>": 4,
+  "aten.elu.default": 3
+ },
+ "pte_bytes": 189328,
+ "export_secs": 4.9,
+ "host_vs_torch": {
+  "max_abs_err": 6.67572021484375e-06,
+  "mean_abs_err": 1.8686987459659576e-06,
+  "max_rel_err": 3.7000018746676165e-06,
+  "cosine": 0.9999999999999903,
+  "numel": 4
+ }
+}

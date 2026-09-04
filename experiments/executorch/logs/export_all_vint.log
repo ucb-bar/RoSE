@@ -1,0 +1,2 @@
+=== export vint (int8) ===
+  rc=0  [provenance] vint <- /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/models/vint.py

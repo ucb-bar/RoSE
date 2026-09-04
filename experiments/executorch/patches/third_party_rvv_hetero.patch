@@ -1,0 +1,86 @@
+--- a/third-party/executorch/backends/xnnpack/third-party/XNNPACK/CMakeLists.txt	2026-07-28 23:18:02.325535217 -0700
++++ b/third-party/executorch/backends/xnnpack/third-party/XNNPACK/CMakeLists.txt	2026-09-04 12:51:36.598727991 -0700
+@@ -999,6 +999,15 @@
+ IF(XNNPACK_TARGET_PROCESSOR MATCHES "^riscv")
+   IF(XNNPACK_ENABLE_RISCV_VECTOR)
+     SET_PROPERTY(SOURCE ${ALL_RVV_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " -march=rv64gcv -mabi=lp64d ")
++    # hardware-config.c is NOT a micro-kernel source, but under
++    # XNN_ENABLE_RISCV_VECTOR it probes VLEN with a raw `vsetvli`, so it needs
++    # the V extension in its -march too. This only surfaced on a Zephyr whose
++    # global RISC-V march omits `v` (RoSE's CONFIG_RISCV_V_KERNEL_ONLY=y strips
++    # it so no user-thread code is auto-vectorised on the Gemmini-only harts of
++    # the hetero bitstream); on a target whose global march already carries `v`
++    # it assembles by accident. Per-source COMPILE_FLAGS land LAST on the
++    # command line, so this wins over Zephyr's global -march.
++    SET_PROPERTY(SOURCE src/configs/hardware-config.c APPEND_STRING PROPERTY COMPILE_FLAGS " -march=rv64gcv -mabi=lp64d ")
+   ENDIF()
+   SET_PROPERTY(SOURCE ${ALL_RVVFP16ARITH_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " -march=rv64gc_zvfh -mabi=lp64d ")
+ ENDIF()
+--- a/third-party/executorch/backends/xnnpack/third-party/XNNPACK/src/configs/hardware-config.c	2026-07-28 23:18:02.374536153 -0700
++++ b/third-party/executorch/backends/xnnpack/third-party/XNNPACK/src/configs/hardware-config.c	2026-09-04 12:59:16.082967818 -0700
+@@ -259,9 +259,33 @@
+ 
+     if (use_riscv_vector) {
+       uint32_t vlenb;
++#if defined(XNN_RISCV_VLENB)
++      /* Build-time VLENB instead of a runtime probe.
++       *
++       * Needed on a HETEROGENEOUS RISC-V SoC. ExecuTorch constructs its
++       * XnnpackBackend in a C++ static initializer
++       * (backends/xnnpack/runtime/XNNPACKBackend.cpp: `auto cls =
++       * XnnpackBackend();`), whose constructor calls xnn_initialize() -> this
++       * function. Static initializers run before main() on the BOOT hart, and
++       * on e.g. f2_quad_hetero_norose_tacit_q31_60mhz the boot hart (0) is a
++       * Rocket+Gemmini tile elaborated as rv64imafdc with NO vector unit -- so
++       * the `vsetvli` below takes an illegal-instruction trap (mcause 2,
++       * mtval 0x0c0075d7) right after the Zephyr boot banner, before any
++       * application code can pin work to a Saturn hart.
++       *
++       * This is the ONLY vector instruction on the xnn_initialize() path; the
++       * rest of config init just selects function pointers. Setting VLENB at
++       * build time removes it, and the RVV micro-kernels themselves still run
++       * (on whichever hart the caller is pinned to).
++       *
++       * Pass -DXNN_RISCV_VLENB=<VLEN_bits/8>, e.g. 32 for Saturn VLEN=256.
++       */
++      vlenb = (uint32_t)(XNN_RISCV_VLENB);
++#else
+       size_t vl;
+       __asm__ volatile ("vsetvli %0, zero, e8, m1, ta, ma" : "=r"(vl));
+       vlenb = vl;   // because e8 =[] bytes
++#endif
+       hardware_config.vlenb = vlenb;
+       xnn_log_info("RISC-V VLENB: %" PRIu32, vlenb);
+     }
+--- a/third-party/executorch/backends/xnnpack/runtime/profiling/XNNProfiler.cpp	2026-07-28 23:17:47.641254953 -0700
++++ b/third-party/executorch/backends/xnnpack/runtime/profiling/XNNProfiler.cpp	2026-09-04 14:12:29.094289956 -0700
+@@ -6,6 +6,7 @@
+  * LICENSE file in the root directory of this source tree.
+  */
+ 
++#include <cstdio>
+ #include <executorch/backends/xnnpack/runtime/profiling/XNNProfiler.h>
+ #include <executorch/runtime/core/error.h>
+ #include <executorch/runtime/core/event_tracer.h>
+@@ -176,10 +177,18 @@
+     auto avg_op_time = op_timings_sum_[i] / static_cast<float>(run_count_);
+     total_time += avg_op_time;
+ 
+-    ET_LOG(
+-        Info, ">>, %s, %" PRId64 " (%f)", op_name, op_timings_[i], avg_op_time);
++    // printf, not ET_LOG(Info). These `>>` lines are the ONLY reason to build
++    // with ENABLE_XNNPACK_PROFILING, but going through ET_LOG(Info) meant they
++    // were compiled out at EXECUTORCH_LOG_LEVEL=Error -- so a profiling build
++    // produced no per-op data at all, silently (observed: fq 853). The only way
++    // to get them back was LOG_LEVEL=Info, which also unleashes every other
++    // Info/Debug line in ExecuTorch; on FireSim the console is HTIF at a few
++    // KB/s, so that floods the run and it hits the queue timeout (fq 859).
++    // printf emits the op lines at any log level and nothing else.
++    printf(">>, %s, %lld\n", op_name, (long long)op_timings_[i]);
+   }
+-  ET_LOG(Info, ">>, Total Time, %f", total_time);
++  printf(">>, Total Time, %f\n", total_time);
++  fflush(stdout);
+ #else
+   run_count_++;
+ #endif

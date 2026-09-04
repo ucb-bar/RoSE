@@ -1,0 +1,29 @@
+### submit et3rep lane=f2-05 stamp=et-et3rep-53861 2026-09-04T20:31:01Z
+#### elf mtime=2026-09-04T20:31:01Z bytes=91385984
+#### submit: submitted job 857  (completion=exit, timeout=3000s)
+  logs:   fq logs 857 -f
+  status: fq status 857
+#### jid=857
+#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/executorch/res/et3rep/2026-09-04--20-32-19-et-et3rep-53861-fq857x17b2626f/et-et3rep-538610/uartlog
+MB_ET_THREADPOOL from=4 to=1 ok=1
+MB_ET_HART=2
+MB_INPUT_BAKED=mlp_control_fp32 n=1 bytes0=64
+EXECUTORCH_EXECUTE_CYCLES[mlp_control_fp32][0]=1600835
+EXECUTORCH_EXECUTE_CYCLES[mlp_control_fp32][1]=1524561
+EXECUTORCH_EXECUTE_CYCLES[mlp_control_fp32][2]=1512815
+Output[0] numel=4 checksum=14.791794
+MB_INPUT_BAKED=dronet_int8 n=1 bytes0=150528
+EXECUTORCH_EXECUTE_CYCLES[dronet_int8][0]=15714339
+EXECUTORCH_EXECUTE_CYCLES[dronet_int8][1]=13953092
+EXECUTORCH_EXECUTE_CYCLES[dronet_int8][2]=13941927
+Output[0] numel=1 checksum=-0.030273
+Output[1] numel=1 checksum=0.478202
+MB_INPUT_BAKED=yolov8_nano_int8 n=1 bytes0=307200
+EXECUTORCH_EXECUTE_CYCLES[yolov8_nano_int8][0]=310728541
+EXECUTORCH_EXECUTE_CYCLES[yolov8_nano_int8][1]=303143017
+EXECUTORCH_EXECUTE_CYCLES[yolov8_nano_int8][2]=303150543
+Output[0] numel=57600 checksum=-448952.978705
+Output[1] numel=14400 checksum=-97813.484649
+Output[2] numel=3600 checksum=-19112.570846
+*** PASSED *** after 15280318832 cycles
+############ FQDONE et3rep ############
