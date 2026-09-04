@@ -101,8 +101,12 @@ measuring the same thing.
 | `yolov8_nano` int8 | 310,728,541 | **303,143,017** | 303.14 ms | 167,132,539 (fq 616) | 147 | **1.81×** |
 | `vint` int8 | 689,050,860 | **673,136,658** | 673.14 ms | 17,019,615,052 (fq 617) | 605 | **0.040×** |
 
-ET jobs: **fq 851** (mlp_control + dronet + yolov8_nano, one boot),
-**fq 852** (vint), **fq 853** (per-op profiling rerun of the first three).
+ET jobs on this bitstream: **fq 850** (first attempt, trapped — §7), **fq 851**
+(mlp_control + dronet + yolov8_nano, one boot), **fq 852** (vint), **fq 857**
+(bit-identical repeat of fq 851), **fq 853** and **fq 859** (per-op profiling
+variants of the first three), **fq 861** (per-op rerun with the `printf`
+profiler fix; in flight at the time of writing, and a confirmation of fq 859
+rather than a new result).
 Cycles are the measured quantity; the ms column assumes the 1 GHz nominal target
 clock implied by `CONFIG_SYS_CLOCK_HW_CYCLES_PER_SEC=1000000` together with the
 observed 1000:1 rdcycle-to-mtime ratio.
