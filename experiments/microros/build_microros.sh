@@ -37,12 +37,12 @@ EXDIR=$MB/examples/microros_demo
 find $EXDIR -name zephyr.elf -delete 2>/dev/null
 STAMP=$OUT/.stamp_$TAG; : > $STAMP; sleep 1
 
-MODELS=yolov8_nano,dronet,mlp_control \
-BACKENDS=gemmini_q31,rvv \
-PIN_BACKENDS=gemmini_q31,rvv,rvv \
+MODELS=${MODELS:-yolov8_nano,dronet,mlp_control} \
+BACKENDS=${BACKENDS:-gemmini_q31,rvv} \
+PIN_BACKENDS=${PIN_BACKENDS:-gemmini_q31,rvv,rvv} \
 PIN_HARTS=${PIN_HARTS:-0,2,2} \
 PERIODS_MS=${PERIODS_MS:-0,40,20} \
-QUANTS=int8,int8,fp32 \
+QUANTS=${QUANTS:-int8,int8,fp32} \
 RUNNER=firesim FIRESIM_CONF=firesim_chipyard_quad_hetero_q31.conf \
 MICROROS_BROKER_HART=${MICROROS_BROKER_HART:-3} \
 FORCE_REGEN=0 STOP_AFTER=build \
