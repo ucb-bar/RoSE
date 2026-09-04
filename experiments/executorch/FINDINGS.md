@@ -321,7 +321,7 @@ Three observations, and together they change the diagnosis:
   cycles included. So this is not a race and not uninitialised *randomness*.
 - **It varies with things that cannot affect arithmetic.** fq 861 and fq 853
   differ only in whether the sampled-output code — a `printf` loop that runs
-  *after* `execute()* and only reads output tensors — is compiled in, and they
+  *after* `execute()` and only reads output tensors — is compiled in, and they
   give different answers. So does turning profiling off (fq 851).
 - **Two independent builds match the x86 host to all six printed digits on all
   three outputs.** fq 859 and fq 861 differ in log level *and* in how the
