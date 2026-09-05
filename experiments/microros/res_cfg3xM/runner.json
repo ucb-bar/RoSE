@@ -1,0 +1,44 @@
+{
+  "job_id": 837,
+  "user": "ubuntu",
+  "uid": 1000,
+  "gid": 1000,
+  "spec": {
+    "tree": "/home/ubuntu/chipyard-rose",
+    "hw_config": "f2_quad_hetero_norose_tacit_q31_60mhz",
+    "num_fpgas": 1,
+    "elf": "/home/ubuntu/uros_cfg3xM.elf",
+    "runtime_args": {},
+    "timeout_s": 900,
+    "priority": 5,
+    "lane_hint": "f2-05",
+    "results_dir": "/home/ubuntu/urosres_cfg3xM",
+    "cwd": "/home/ubuntu/fpga_queue",
+    "fail_regex": "(mcause:|ZEPHYR FATAL ERROR|Faulting instruction address)"
+  },
+  "lane": {
+    "name": "f2-05",
+    "mode": "hosts",
+    "tag": null,
+    "capacity": 1,
+    "hosts": [
+      "192.168.0.169"
+    ],
+    "instance_type": null,
+    "manage_hosts": false
+  },
+  "backend": "firesim",
+  "backend_options": {
+    "conda_path": "/home/ubuntu/miniconda3/bin:/home/ubuntu/miniconda3/condabin",
+    "default_platform": "EC2InstanceDeployManager",
+    "simulation_dir": "/home/ubuntu",
+    "fpga_db": "/opt/firesim-db.json",
+    "fpgas_per_host": 1,
+    "run_host_key": "~/firesim.pem",
+    "run_host_user": "ubuntu",
+    "infrasetup_timeout_s": 7200
+  },
+  "timeout_s": 900,
+  "infrasetup_timeout_s": 7200,
+  "results_dir": "/home/ubuntu/urosres_cfg3xM"
+}

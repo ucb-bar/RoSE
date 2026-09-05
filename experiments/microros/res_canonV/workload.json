@@ -1,0 +1,9 @@
+{
+  "benchmark_name": "fq-job-855",
+  "common_bootbinary": "z.elf",
+  "common_rootfs": null,
+  "common_simulation_outputs": [
+    "uartlog"
+  ],
+  "no_post_run_hook": true
+}

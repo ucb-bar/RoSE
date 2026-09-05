@@ -1,0 +1,7 @@
+### submit cfg3xI 2026-09-04T02:12:06Z elf_mtime=2026-09-04T02:10:35Z
+#### submit: submitted job 829  (completion=exit, timeout=600s)
+  logs:   fq logs 829 -f
+  status: fq status 829
+#### jid=829
+#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/microros/res_cfg3xI/uartlog bytes=2661
+############ FQDONE cfg3xI ############

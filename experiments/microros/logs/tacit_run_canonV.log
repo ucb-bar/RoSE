@@ -1,0 +1,83 @@
+### canonV lane=f2-06 host=192.168.0.172 2026-09-04T20:25:56Z
+== lane=f2-06 host=192.168.0.172 hw=f2_quad_hetero_norose_tacit_q31_60mhz_pcim tag=canonV
+== cleared stale tacit*.out on 192.168.0.172
+Warning: Permanently added '192.168.0.172' (ED25519) to the list of known hosts.
+HugePages_Total:      64 HugePages_Free:       64 
+Warning: Permanently added '192.168.0.172' (ED25519) to the list of known hosts.
+bme-watcher-started
+get_local_driver_dir f2-firesim-FireSim-RoseTLQuadSmallTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemQuadSmallTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-RoseTLQuadLargeTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemQuadLargeTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemQuadHeteroTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-RoseTLQuadHeteroTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemQuadHeteroTacitMMIOOnlyConfig-BaseF2PCIMConfig
+get_local_driver_dir f2-firesim-FireSim-SatGemDualSmallTacitMMIOOnlyConfig-BaseF2PCIMConfig
+run_farm_hosts_dict defaultdict(<class 'list'>, {'192.168.0.172': [(<runtools.run_farm.Inst object at 0x79a1335fc160>, None)]})
+set_server_hardware_config 0 None
+[192.168.0.172] Killing FPGA simulation for slot: 0.
+Warning: run() received nonzero return code 1 while executing 'sudo pkill -SIGKILL FireSim-f2'!
+Confirming exit...
+screenoutput There are screens on:
+	1466276.virtual_jtag	(09/04/26 20:27:05)	(Detached)
+	1466093.hw_server	(09/04/26 20:27:04)	(Detached)
+2 Sockets in /run/screen/S-ubuntu.
+The full log of this run is:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-04--20-39-05-kill-4B5JGKFLEDY9YKUH.log
+[20:39:12] === phase COLLECT -> /home/ubuntu/r/canonV ===
+[20:39:12] $ bash -c mkdir -p /home/ubuntu/r/canonV; shopt -s nullglob; for r in /home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/*-fq-job-855-fq855x415bdf2f; do cp -a "$r" /home/ubuntu/r/canonV/ || true; done
+[20:39:12] job 855 finished state=DONE rc=0
+--- DONE / DONE on lane f2-06 ---
+
+job 855: DONE (exit_code=0)
+== fq submit returned 0
+== collecting tacit*.out from 192.168.0.172 ==
+-rw-r--r-- 1 root root 0 Sep  4 20:27 /home/ubuntu/sim_slot_0/tacit0.out
+-rw-r--r-- 1 root root 0 Sep  4 20:27 /home/ubuntu/sim_slot_0/tacit1.out
+-rw-r--r-- 1 root root 0 Sep  4 20:27 /home/ubuntu/sim_slot_0/tacit2.out
+-rw-r--r-- 1 root root 0 Sep  4 20:27 /home/ubuntu/sim_slot_0/tacit3.out
+total 0
+-rw-r--r-- 1 ubuntu ubuntu 0 Sep  4 20:39 tacit0.out
+-rw-r--r-- 1 ubuntu ubuntu 0 Sep  4 20:39 tacit1.out
+-rw-r--r-- 1 ubuntu ubuntu 0 Sep  4 20:39 tacit2.out
+-rw-r--r-- 1 ubuntu ubuntu 0 Sep  4 20:39 tacit3.out
+== uartlog tail ==
+1185,mlp_control,58,2,,,rvv,2,972789,973138
+1186,mlp_control,58,3,,,rvv,2,973139,973155
+1187,mlp_control,58,4,,,rvv,2,973155,973244
+1188,mlp_control,58,5,,,rvv,2,973245,973252
+1189,mlp_control,58,6,,,rvv,2,973252,973255
+1190,mlp_control,59,0,,,rvv,2,973255,973300
+1191,mlp_control,59,1,,,rvv,2,973300,973325
+1192,mlp_control,59,2,,,rvv,2,973326,973634
+1193,mlp_control,59,3,,,rvv,2,973634,973650
+1194,mlp_control,59,4,,,rvv,2,973650,973726
+1195,mlp_control,59,5,,,rvv,2,973726,973733
+1196,mlp_control,59,6,,,rvv,2,973733,973736
+=== MODELBLASTER_ROS_TRACE_END (skipped=0 corrupted) ===
+=== MODELBLASTER_WALL_CYCLES [yolov8_nano] === 318714
+=== MODELBLASTER_WALL_CYCLES [dronet] === 7519
+=== MODELBLASTER_WALL_CYCLES [mlp_control] === 481
+
+Simulation complete.
+*** PASSED *** after 41771283542 cycles
+
+Emulation Performance Summary
+------------------------------
+Wallclock Time Elapsed: 698.5 s
+Host Frequency: 60.000 MHz
+Target Cycles Emulated: 41771283542
+Effective Target Frequency: 59.804 MHz
+FMR: 1.00
+Note: The latter three figures are based on the fastest target clock.
+
+Script done on 2026-09-04 20:38:56+00:00 [COMMAND_EXIT_CODE="0"]
+== collecting results ==
+#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/microros/res_canonV/2026-09-04--20-27-10-fq-job-855-fq855x415bdf2f/fq-job-8550/uartlog
+--- summary ---
+45:[yolov8_nano] done — total iters=1, last wall_cycles=318714
+47:[bc_exec] done — b.iter=30 (wall=7519) c.iter=60 (wall=481)
+49:=== TRACE_MAGIC_AUDIT: 0/1197 slots missing ROS_TRACE_MAGIC ===
+1249:=== MODELBLASTER_ROS_TRACE_END (skipped=0 corrupted) ===
+1255:*** PASSED *** after 41771283542 cycles
+############ RUNDONE canonV ############

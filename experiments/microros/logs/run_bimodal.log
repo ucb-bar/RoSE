@@ -1,0 +1,73 @@
+== lane=f2-00 host=192.168.0.8 hw=f2_quad_hetero_norose_tacit_q31_60mhz_pcim tag=bimodal
+== cleared stale tacit*.out on 192.168.0.8
+Warning: Permanently added '192.168.0.8' (ED25519) to the list of known hosts.
+HugePages_Total:      64 HugePages_Free:       64 
+Warning: Permanently added '192.168.0.8' (ED25519) to the list of known hosts.
+bme-watcher-started
+get_local_driver_dir f2-firesim-FireSim-SatGemQuadSmallTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-RoseTLQuadLargeTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemQuadLargeTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemQuadHeteroTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-RoseTLQuadHeteroTacitMMIOOnlyConfig-BaseF2Config
+get_local_driver_dir f2-firesim-FireSim-SatGemQuadHeteroTacitMMIOOnlyConfig-BaseF2PCIMConfig
+get_local_driver_dir f2-firesim-FireSim-SatGemDualSmallTacitMMIOOnlyConfig-BaseF2PCIMConfig
+run_farm_hosts_dict defaultdict(<class 'list'>, {'192.168.0.8': [(<runtools.run_farm.Inst object at 0x7b29c8be8160>, None)]})
+set_server_hardware_config 0 None
+[192.168.0.8] Killing FPGA simulation for slot: 0.
+Warning: run() received nonzero return code 1 while executing 'sudo pkill -SIGKILL FireSim-f2'!
+Confirming exit...
+--- RUNNING / COLLECT on lane f2-00 ---
+screenoutput There are screens on:
+	2423151.virtual_jtag	(09/05/26 01:17:34)	(Detached)
+	2422954.hw_server	(09/05/26 01:17:32)	(Detached)
+2 Sockets in /run/screen/S-ubuntu.
+The full log of this run is:
+/home/ubuntu/chipyard-rose/sims/firesim/deploy/logs/2026-09-05--01-22-30-kill-MPH926U29QU5QFIJ.log
+[01:22:37] === phase COLLECT -> /home/ubuntu/r/bimodal ===
+[01:22:37] $ bash -c mkdir -p /home/ubuntu/r/bimodal; shopt -s nullglob; for r in /home/ubuntu/chipyard-rose/sims/firesim/deploy/results-workload/*-fq-job-867-fq867x554f447e; do cp -a "$r" /home/ubuntu/r/bimodal/ || true; done
+[01:22:37] job 867 finished state=DONE rc=0
+--- DONE / DONE on lane f2-00 ---
+
+job 867: DONE (exit_code=0)
+== fq submit returned 0
+== collecting tacit*.out from 192.168.0.8 ==
+-rw-r--r-- 1 root root 0 Sep  5 01:17 /home/ubuntu/sim_slot_0/tacit0.out
+-rw-r--r-- 1 root root 0 Sep  5 01:17 /home/ubuntu/sim_slot_0/tacit1.out
+-rw-r--r-- 1 root root 0 Sep  5 01:17 /home/ubuntu/sim_slot_0/tacit2.out
+-rw-r--r-- 1 root root 0 Sep  5 01:17 /home/ubuntu/sim_slot_0/tacit3.out
+total 0
+-rw-r--r-- 1 ubuntu ubuntu 0 Sep  5 01:22 tacit0.out
+-rw-r--r-- 1 ubuntu ubuntu 0 Sep  5 01:22 tacit1.out
+-rw-r--r-- 1 ubuntu ubuntu 0 Sep  5 01:22 tacit2.out
+-rw-r--r-- 1 ubuntu ubuntu 0 Sep  5 01:22 tacit3.out
+== uartlog tail ==
+344,yolov8_nano_sh,0,134,,,gemmini_q31,0,3831535,3833484
+345,yolov8_nano_sh,0,135,,,gemmini_q31,0,3833484,3834082
+346,yolov8_nano_sh,0,136,,,gemmini_q31,0,3834083,3835219
+347,yolov8_nano_sh,0,137,,,gemmini_q31,0,3835220,3835371
+348,yolov8_nano_sh,0,138,,,gemmini_q31,0,3835371,3835716
+349,yolov8_nano_sh,0,139,,,gemmini_q31,0,3835716,3835879
+350,yolov8_nano_sh,0,140,,,gemmini_q31,0,3835879,3836148
+351,yolov8_nano_sh,0,141,,,gemmini_q31,0,3836148,3837375
+352,yolov8_nano_sh,0,142,,,gemmini_q31,0,3837375,3837541
+353,yolov8_nano_sh,0,143,,,gemmini_q31,0,3837542,3837982
+354,yolov8_nano_sh,0,144,,,gemmini_q31,0,3837982,3838153
+355,yolov8_nano_sh,0,145,,,gemmini_q31,0,3838153,3838510
+356,yolov8_nano_sh,0,146,,,gemmini_q31,0,3838511,3838662
+=== MODELBLASTER_ROS_TRACE_END (skipped=0 corrupted) ===
+=== MODELBLASTER_WALL_CYCLES [yolov8_nano_sh] === 3673174
+=== MODELBLASTER_WALL_CYCLES [mlp_control_sa] === 11
+
+Simulation complete.
+*** PASSED *** after 16368906227 cycles
+
+Emulation Performance Summary
+------------------------------
+Wallclock Time Elapsed: 275.9 s
+Host Frequency: 60.000 MHz
+Target Cycles Emulated: 16368906227
+Effective Target Frequency: 59.338 MHz
+FMR: 1.01
+Note: The latter three figures are based on the fastest target clock.
+
+Script done on 2026-09-05 01:22:23+00:00 [COMMAND_EXIT_CODE="0"]

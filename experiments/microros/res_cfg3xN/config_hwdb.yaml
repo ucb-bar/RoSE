@@ -1,0 +1,68 @@
+firesim_rocket_30MHz_singlecore_no_nic:
+  xclbin: /scratch/rose/RoSE/soc/sim/bitstreams/platforms/vitis/cl_FireSim-DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.RocketConfig-F30MHz_BaseVitisConfig/bitstream/build_dir.xilinx_u250_gen3x16_xdma_3_1_202020_1/firesim.xclbin
+  deploy_triplet_override: FireSim-DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.RocketConfig-F30MHz_BaseVitisConfig
+  custom_runtime_config: null
+firesim-rocket-singlecore-fp32gemmini-with-airsim-fast-no-nic-l2-llc4mb-ddr3:
+  xclbin: /scratch/rose/RoSE/soc/sim/bitstreams/platforms/vitis/cl_FireSim-DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.AirSimIOTLFPGemminiRocketConfig-F45MHz_BaseVitisConfig/bitstream/build_dir.xilinx_u250_gen3x16_xdma_3_1_202020_1/firesim.xclbin
+  deploy_triplet_override: FireSim-DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.AirSimIOTLFPGemminiRocketConfig-F45MHz_BaseVitisConfig
+  custom_runtime_config: null
+firesim-dual-large-boom-fp32gemmini-singlecore-with-airsim-no-nic-l2-llc4mb-ddr3:
+  xclbin: /scratch/rose/RoSE/soc/sim/bitstreams/platforms/vitis/cl_FireSim-DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.AirSimIOTLFPGemminiLargeDualBoomConfig-F30MHz_BaseVitisConfig/bitstream/build_dir.xilinx_u250_gen3x16_xdma_3_1_202020_1/firesim.xclbin
+  deploy_triplet_override: FireSim-DDR3FRFCFSLLC4MB_WithDefaultFireSimBridges_WithFireSimConfigTweaks_chipyard.AirSimIOTLFPGemminiLargeDualBoomConfig-F30MHz_BaseVitisConfig
+  custom_runtime_config: null
+alveo-u250_firesim-boom-dual-dma-fast-no-nic-l2-llc4mb-ddr3:
+  bitstream_tar: file:///scratch/iansseijelly/RoSE/soc/sim/firesim/deploy/results-build/2024-06-04--23-47-37-alveo-u250_firesim-boom-dual-dma-fast-no-nic-l2-llc4mb-ddr3/cl_xilinx_alveo_u250-firesim-FireSim-RoseTLBOOMDualDMAMMIOOnlyConfig-BaseXilinxAlveoU250Config/firesim.tar.gz
+  deploy_quintuplet_override: null
+  custom_runtime_config: null
+alveo_u250_firesim-rocket-singlecore-with-rose-fast-no-nic-l2-llc4mb-ddr3:
+  bitstream_tar: file:///scratch/dima/rose-infra/RoSE/soc/sim/chipyard/sims/firesim/deploy/results-build/2026-07-01--01-45-06-alveo_u250_firesim-rocket-singlecore-with-rose-fast-no-nic-l2-llc4mb-ddr3/cl_xilinx_alveo_u250-firesim-FireSim-RoseTLRocketMMIOOnlyConfig-BaseXilinxAlveoU250Config/firesim.tar.gz
+  deploy_quintuplet_override: null
+  custom_runtime_config: null
+alveo_u250_firesim-rocket-saturn-with-rose-fast-no-nic-l2-llc4mb-ddr3:
+  bitstream_tar: file:///scratch/dima/rose-infra/RoSE/soc/sim/chipyard/sims/firesim/deploy/results-build/2026-08-13--14-28-37-alveo_u250_firesim-rocket-saturn-with-rose-fast-no-nic-l2-llc4mb-ddr3/cl_xilinx_alveo_u250-firesim-FireSim-RoseTLRocketSaturnMMIOOnlyConfig-BaseXilinxAlveoU250Config/firesim.tar.gz
+  deploy_quintuplet_override: null
+  custom_runtime_config: null
+alveo_u250_firesim-rocket-saturn-with-rose-DMA-fast-no-nic-l2-llc4mb-ddr3:
+  bitstream_tar: file:///scratch/dima/rose-infra/RoSE/soc/sim/chipyard/sims/firesim/deploy/results-build/2026-08-12--00-40-55-alveo_u250_firesim-rocket-saturn-with-rose-DMA-fast-no-nic-l2-llc4mb-ddr3/cl_xilinx_alveo_u250-firesim-FireSim-RoseTLRocketSaturnDMAMMIOOnlyConfig-BaseXilinxAlveoU250Config/firesim.tar.gz
+  deploy_quintuplet_override: null
+  custom_runtime_config: null
+alveo_u250_firesim-rocket-saturn-with-rose-DMA-60mhz-fast-no-nic-l2-llc4mb-ddr3:
+  bitstream_tar: file:///scratch/dima/rose-infra/RoSE/soc/sim/chipyard/sims/firesim/deploy/results-build/2026-08-26--18-41-39-alveo_u250_firesim-rocket-saturn-with-rose-DMA-60mhz-fast-no-nic-l2-llc4mb-ddr3/cl_xilinx_alveo_u250-firesim-FireSim-RoseTLRocketSaturnDMAMMIOOnlyConfig-BaseXilinxAlveoU250Config/firesim.tar.gz
+  deploy_quintuplet_override: null
+  custom_runtime_config: null
+alveo_u250_firesim-rocket-saturn-with-rose-60mhz-fast-no-nic-l2-llc4mb-ddr3:
+  bitstream_tar: file:///scratch/dima/rose-infra/RoSE/soc/sim/chipyard/sims/firesim/deploy/results-build/2026-08-13--20-00-51-alveo_u250_firesim-rocket-saturn-with-rose-60mhz-fast-no-nic-l2-llc4mb-ddr3/cl_xilinx_alveo_u250-firesim-FireSim-RoseTLRocketSaturnMMIOOnlyConfig-BaseXilinxAlveoU250Config/firesim.tar.gz
+  deploy_quintuplet_override: null
+  custom_runtime_config: null
+alveo_u250_firesim-dual-rocket-saturn-gemmini-with-rose-fast-no-nic-l2-llc4mb-ddr3:
+  bitstream_tar: file:///scratch/dima/rose-infra/RoSE/soc/sim/chipyard/sims/firesim/deploy/results-build/2026-08-13--22-26-01-alveo_u250_firesim-dual-rocket-saturn-gemmini-with-rose-fast-no-nic-l2-llc4mb-ddr3/cl_xilinx_alveo_u250-firesim-FireSim-RoseTLDualRocketSaturnGemminiMMIOOnlyConfig-BaseXilinxAlveoU250Config/firesim.tar.gz
+  deploy_quintuplet_override: null
+  custom_runtime_config: null
+alveo_u250_firesim-rocket-saturn-tacit-with-rose-fast-no-nic-l2-llc4mb-ddr3:
+  bitstream_tar: file:///scratch/dima/rose-infra/RoSE/soc/sim/chipyard/sims/firesim/deploy/results-build/2026-08-26--20-09-44-alveo_u250_firesim-rocket-saturn-tacit-with-rose-fast-no-nic-l2-llc4mb-ddr3/cl_xilinx_alveo_u250-firesim-FireSim-RoseTLRocketSaturnTacitMMIOOnlyConfig-BaseXilinxAlveoU250Config/firesim.tar.gz
+  deploy_quintuplet_override: null
+  custom_runtime_config: null
+f2_dual_small_norose_tacit_q31_20mhz:
+  agfi: agfi-0e4a0267313845a9d
+  deploy_quintuplet_override: null
+  custom_runtime_config: null
+f2_dual_small_norose_tacit_q31_60mhz:
+  agfi: agfi-024f2d6a1c6890cb4
+  deploy_quintuplet_override: null
+  custom_runtime_config: null
+f2_dual_large_norose_tacit_q31_60mhz:
+  agfi: agfi-0be54e2cd085c8e5d
+  deploy_quintuplet_override: null
+  custom_runtime_config: null
+f2_quad_hetero_norose_tacit_q31_60mhz:
+  agfi: agfi-0662319f4b07483a7
+  deploy_quintuplet_override: null
+  custom_runtime_config: null
+f2_quad_hetero_norose_tacit_q31_60mhz_pcim:
+  agfi: agfi-010049831c489a814
+  deploy_quintuplet_override: null
+  custom_runtime_config: null
+f2_dual_small_norose_tacit_q31_60mhz_pcim:
+  agfi: agfi-0d79cabf8816f6517
+  deploy_quintuplet_override: null
+  custom_runtime_config: null

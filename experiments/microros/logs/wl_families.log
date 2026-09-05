@@ -1,0 +1,35 @@
+########## perception_heavy  models=yolov8_nano_sf,mlp_control_sd periods=0,4  2026-09-05T00:18:47Z
+  build=BUILDDONE
+  lane=f2-00 host=192.168.0.8
+  --- perception_heavy result ---
+[mlp_control_sd] done — total iters=30, last wall_cycles=139
+[yolov8_nano_sf] done — total iters=1, last wall_cycles=180585
+=== TRACE_MAGIC_AUDIT: 0/357 slots missing ROS_TRACE_MAGIC ===
+*** PASSED *** after 12802429292 cycles
+########## saturation  models=yolov8_nano_se,dronet_sf,mlp_control_sf periods=0,19,3  2026-09-05T00:25:30Z
+  build=BUILDDONE
+  lane=f2-00 host=192.168.0.8
+  --- saturation result ---
+[yolov8_nano_se] done — total iters=1, last wall_cycles=132948
+[mlp_control_sf] done — total iters=30, last wall_cycles=484
+[dronet_sf] done — total iters=8, last wall_cycles=103656
+=== TRACE_MAGIC_AUDIT: 0/525 slots missing ROS_TRACE_MAGIC ===
+*** PASSED *** after 18600209672 cycles
+########## vint_intro  models=vint,mlp_control_sf periods=0,13  2026-09-05T00:33:53Z
+  build=BUILDDONE
+  lane=f2-00 host=192.168.0.8
+  --- vint_intro result ---
+[mlp_control_sf] done — total iters=30, last wall_cycles=426
+[vint] done — total iters=1, last wall_cycles=5253481
+=== TRACE_MAGIC_AUDIT: 0/815 slots missing ROS_TRACE_MAGIC ===
+*** PASSED *** after 32587455077 cycles
+########## vint_multi  models=vint,dronet_se,mlp_control_sd periods=0,63,3  2026-09-05T00:46:31Z
+  build=BUILDDONE
+  lane=f2-00 host=192.168.0.8
+  --- vint_multi result ---
+[mlp_control_sd] done — total iters=30, last wall_cycles=80
+[dronet_se] done — total iters=2, last wall_cycles=8344
+[vint] done — total iters=1, last wall_cycles=5255332
+=== TRACE_MAGIC_AUDIT: 0/857 slots missing ROS_TRACE_MAGIC ===
+*** PASSED *** after 34079000237 cycles
+########## WL FAMILY SWEEP DONE ##########

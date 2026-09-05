@@ -1,0 +1,469 @@
+Script started on 2026-09-04 03:22:54+00:00 [COMMAND="stty intr ^] && sudo LD_LIBRARY_PATH=/scratch/vnikiforov/rose-fsim/lib ./FireSim-f2 +permissive   +macaddr0=00:12:6D:00:00:02 +niclog0=niclog0  +trace-select=1 +trace-start=0 +trace-end=-1 +trace-output-format=0 +dwarf-file-name=fq-job-8470-uros_cfg3xN.elf-dwarf +autocounter-readrate=0 +autocounter-filename-base=AUTOCOUNTERFILE  +print-start=0 +print-end=-1 +linklatency0=6405 +netbw0=200 +shmemportname0=default +partitioned=1 +slotid=0 +permissive-off +prog0=fq-job-8470-uros_cfg3xN.elf   && stty intr ^c" TERM="screen" TTY="/dev/pts/6" COLUMNS="80" LINES="24"]
+AFI ID for Slot  0: agfi-0662319f4b07483a7
+AFI PCI  Vendor ID: 0x1d0f, Device ID 0xf002
+Attached to BAR0 (OCL)
+Attached to BAR4 (PCIS)
+widget_registry_t::add_widget(StreamEngine)
+cpu2fpga: 0, fpga2cpu: 4
+UART0 is here (stdin/stdout).
+command line for program 0. argc=19:
++permissive +macaddr0=00:12:6D:00:00:02 +niclog0=niclog0 +trace-select=1 +trace-start=0 +trace-end=-1 +trace-output-format=0 +dwarf-file-name=fq-job-8470-uros_cfg3xN.elf-dwarf +autocounter-readrate=0 +autocounter-filename-base=AUTOCOUNTERFILE +print-start=0 +print-end=-1 +linklatency0=6405 +netbw0=200 +shmemportname0=default +partitioned=1 +slotid=0 +permissive-off fq-job-8470-uros_cfg3xN.elf 
+entered simulation flow execution
+finished waiting
+FireSim fingerprint: 0x46697265
+Commencing simulation.
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+*** Booting Zephyr OS build c93d5bdb6078 ***
+*** microros_demo boot: yolov8_nano on hart 0 (gemmini_q31), dronet on hart 2 (rvv), mlp_control on hart 2 (rvv) ***
+broker: thread alive on hart 3
+[yolov8_nano] starting on hart 0, session_idx=0
+[dronet] starting on hart 2, session_idx=1
+[mlp_control] starting on hart 2, session_idx=2
+broker: session up s=1 id=0x81
+broker: session up s=0 id=0x81
+broker: session up s=2 id=0x81
+[yolov8_nano] done — total iters=1, last wall_cycles=319562
+[mlp_control] done — total iters=14, last wall_cycles=582
+[dronet] done — total iters=8, last wall_cycles=8256
+*** microros_demo exit ***
+=== TRACE_MAGIC_AUDIT: 0/413 slots missing ROS_TRACE_MAGIC ===
+=== MODELBLASTER_ROS_TRACE_BEGIN ===
+entry_id,network,instance,dispatch_id,op,name,kind,hart,start_cycles,end_cycles
+0,dronet,0,0,,,rvv,2,207195,208733
+1,dronet,0,1,,,rvv,2,208733,208958
+2,dronet,0,2,,,rvv,2,208958,208990
+3,dronet,0,3,,,rvv,2,208990,209844
+4,yolov8_nano,0,0,,,gemmini_q31,0,199599,210354
+5,dronet,0,4,,,rvv,2,209844,210688
+6,dronet,0,5,,,rvv,2,210688,210871
+7,dronet,0,6,,,rvv,2,210871,210883
+8,dronet,0,7,,,rvv,2,210884,210893
+9,dronet,0,8,,,rvv,2,210893,211476
+10,dronet,0,9,,,rvv,2,211476,212585
+11,dronet,0,10,,,rvv,2,212585,212699
+12,dronet,0,11,,,rvv,2,212699,212705
+13,dronet,0,12,,,rvv,2,212705,212711
+14,dronet,0,13,,,rvv,2,212711,213367
+15,dronet,0,14,,,rvv,2,213367,214662
+16,dronet,0,15,,,rvv,2,214662,214754
+17,dronet,0,16,,,rvv,2,214754,214759
+18,dronet,0,17,,,rvv,2,214759,214760
+19,dronet,0,18,,,rvv,2,214760,214763
+20,dronet,0,19,,,rvv,2,214763,214765
+21,dronet,0,20,,,rvv,2,214765,214766
+22,yolov8_nano,0,1,,,gemmini_q31,0,210354,238664
+23,yolov8_nano,0,2,,,gemmini_q31,0,238664,243128
+24,dronet,1,0,,,rvv,2,246595,248144
+25,dronet,1,1,,,rvv,2,248144,248369
+26,dronet,1,2,,,rvv,2,248369,248400
+27,dronet,1,3,,,rvv,2,248400,249270
+28,dronet,1,4,,,rvv,2,249270,250114
+29,dronet,1,5,,,rvv,2,250114,250312
+30,dronet,1,6,,,rvv,2,250312,250324
+31,dronet,1,7,,,rvv,2,250324,250334
+32,dronet,1,8,,,rvv,2,250334,250917
+33,mlp_control,0,0,,,rvv,2,252041,252100
+34,mlp_control,0,1,,,rvv,2,252100,252127
+35,mlp_control,0,2,,,rvv,2,252127,252512
+36,mlp_control,0,3,,,rvv,2,252512,252528
+37,mlp_control,0,4,,,rvv,2,252528,252626
+38,mlp_control,0,5,,,rvv,2,252626,252633
+39,mlp_control,0,6,,,rvv,2,252634,252637
+40,dronet,1,9,,,rvv,2,250917,252642
+41,dronet,1,10,,,rvv,2,252642,252757
+42,dronet,1,11,,,rvv,2,252758,252764
+43,dronet,1,12,,,rvv,2,252764,252770
+44,dronet,1,13,,,rvv,2,252770,253426
+45,dronet,1,14,,,rvv,2,253426,254745
+46,dronet,1,15,,,rvv,2,254745,254838
+47,dronet,1,16,,,rvv,2,254838,254842
+48,dronet,1,17,,,rvv,2,254842,254843
+49,dronet,1,18,,,rvv,2,254843,254846
+50,dronet,1,19,,,rvv,2,254846,254848
+51,dronet,1,20,,,rvv,2,254849,254850
+52,yolov8_nano,0,3,,,gemmini_q31,0,243128,256777
+53,yolov8_nano,0,4,,,gemmini_q31,0,256777,259873
+54,mlp_control,1,0,,,rvv,2,271195,271249
+55,mlp_control,1,1,,,rvv,2,271249,271275
+56,mlp_control,1,2,,,rvv,2,271275,271636
+57,mlp_control,1,3,,,rvv,2,271636,271652
+58,mlp_control,1,4,,,rvv,2,271652,271744
+59,mlp_control,1,5,,,rvv,2,271744,271751
+60,mlp_control,1,6,,,rvv,2,271751,271754
+61,yolov8_nano,0,5,,,gemmini_q31,0,259873,273600
+62,yolov8_nano,0,6,,,gemmini_q31,0,273600,276438
+63,yolov8_nano,0,7,,,gemmini_q31,0,276438,283473
+64,yolov8_nano,0,8,,,gemmini_q31,0,283473,286287
+65,dronet,2,0,,,rvv,2,287107,288657
+66,dronet,2,1,,,rvv,2,288658,288883
+67,dronet,2,2,,,rvv,2,288883,288913
+68,dronet,2,3,,,rvv,2,288913,289785
+69,dronet,2,4,,,rvv,2,289786,290630
+70,dronet,2,5,,,rvv,2,290631,290814
+71,dronet,2,6,,,rvv,2,290814,290827
+72,dronet,2,7,,,rvv,2,290827,290836
+73,dronet,2,8,,,rvv,2,290836,291422
+74,mlp_control,2,0,,,rvv,2,292548,292601
+75,mlp_control,2,1,,,rvv,2,292601,292628
+76,mlp_control,2,2,,,rvv,2,292628,292986
+77,mlp_control,2,3,,,rvv,2,292986,293002
+78,mlp_control,2,4,,,rvv,2,293002,293092
+79,mlp_control,2,5,,,rvv,2,293092,293099
+80,mlp_control,2,6,,,rvv,2,293099,293103
+81,dronet,2,9,,,rvv,2,291422,293108
+82,dronet,2,10,,,rvv,2,293108,293223
+83,dronet,2,11,,,rvv,2,293223,293230
+84,dronet,2,12,,,rvv,2,293230,293236
+85,yolov8_nano,0,9,,,gemmini_q31,0,286287,293373
+86,dronet,2,13,,,rvv,2,293236,293893
+87,yolov8_nano,0,10,,,gemmini_q31,0,293373,294218
+88,yolov8_nano,0,11,,,gemmini_q31,0,294219,295064
+89,dronet,2,14,,,rvv,2,293894,295220
+90,dronet,2,15,,,rvv,2,295221,295315
+91,dronet,2,16,,,rvv,2,295315,295319
+92,dronet,2,17,,,rvv,2,295319,295320
+93,dronet,2,18,,,rvv,2,295320,295323
+94,dronet,2,19,,,rvv,2,295323,295326
+95,dronet,2,20,,,rvv,2,295326,295327
+96,yolov8_nano,0,12,,,gemmini_q31,0,295064,298362
+97,mlp_control,3,0,,,rvv,2,310595,310650
+98,mlp_control,3,1,,,rvv,2,310650,310677
+99,mlp_control,3,2,,,rvv,2,310677,311052
+100,mlp_control,3,3,,,rvv,2,311052,311068
+101,mlp_control,3,4,,,rvv,2,311069,311162
+102,mlp_control,3,5,,,rvv,2,311163,311170
+103,mlp_control,3,6,,,rvv,2,311170,311173
+104,yolov8_nano,0,13,,,gemmini_q31,0,298362,312486
+105,yolov8_nano,0,14,,,gemmini_q31,0,312487,314395
+106,yolov8_nano,0,15,,,gemmini_q31,0,314396,321448
+107,yolov8_nano,0,16,,,gemmini_q31,0,321449,322788
+108,dronet,3,0,,,rvv,2,326595,328149
+109,dronet,3,1,,,rvv,2,328150,328375
+110,dronet,3,2,,,rvv,2,328375,328405
+111,dronet,3,3,,,rvv,2,328405,329278
+112,yolov8_nano,0,17,,,gemmini_q31,0,322788,329760
+113,dronet,3,4,,,rvv,2,329278,330124
+114,dronet,3,5,,,rvv,2,330124,330328
+115,dronet,3,6,,,rvv,2,330328,330340
+116,dronet,3,7,,,rvv,2,330340,330350
+117,yolov8_nano,0,18,,,gemmini_q31,0,329760,330840
+118,dronet,3,8,,,rvv,2,330350,330934
+119,mlp_control,4,0,,,rvv,2,332060,332114
+120,mlp_control,4,1,,,rvv,2,332114,332141
+121,mlp_control,4,2,,,rvv,2,332141,332505
+122,mlp_control,4,3,,,rvv,2,332505,332521
+123,mlp_control,4,4,,,rvv,2,332521,332613
+124,mlp_control,4,5,,,rvv,2,332613,332620
+125,mlp_control,4,6,,,rvv,2,332620,332623
+126,dronet,3,9,,,rvv,2,330934,332628
+127,dronet,3,10,,,rvv,2,332629,332744
+128,dronet,3,11,,,rvv,2,332744,332750
+129,dronet,3,12,,,rvv,2,332750,332756
+130,dronet,3,13,,,rvv,2,332757,333412
+131,yolov8_nano,0,19,,,gemmini_q31,0,330840,334196
+132,dronet,3,14,,,rvv,2,333412,334734
+133,dronet,3,15,,,rvv,2,334734,334827
+134,dronet,3,16,,,rvv,2,334827,334832
+135,dronet,3,17,,,rvv,2,334832,334833
+136,dronet,3,18,,,rvv,2,334833,334836
+137,dronet,3,19,,,rvv,2,334836,334838
+138,dronet,3,20,,,rvv,2,334838,334840
+139,yolov8_nano,0,20,,,gemmini_q31,0,334196,335277
+140,yolov8_nano,0,21,,,gemmini_q31,0,335277,338710
+141,yolov8_nano,0,22,,,gemmini_q31,0,338710,339134
+142,yolov8_nano,0,23,,,gemmini_q31,0,339134,340219
+143,yolov8_nano,0,24,,,gemmini_q31,0,340219,343589
+144,yolov8_nano,0,25,,,gemmini_q31,0,343589,344649
+145,yolov8_nano,0,26,,,gemmini_q31,0,344649,348181
+146,yolov8_nano,0,27,,,gemmini_q31,0,348181,348597
+147,yolov8_nano,0,28,,,gemmini_q31,0,348597,349171
+148,yolov8_nano,0,29,,,gemmini_q31,0,349171,350769
+149,mlp_control,5,0,,,rvv,2,351196,351251
+150,mlp_control,5,1,,,rvv,2,351251,351277
+151,mlp_control,5,2,,,rvv,2,351277,351646
+152,mlp_control,5,3,,,rvv,2,351647,351663
+153,mlp_control,5,4,,,rvv,2,351663,351758
+154,mlp_control,5,5,,,rvv,2,351758,351765
+155,mlp_control,5,6,,,rvv,2,351765,351768
+156,yolov8_nano,0,30,,,gemmini_q31,0,350769,357611
+157,yolov8_nano,0,31,,,gemmini_q31,0,357611,358566
+158,yolov8_nano,0,32,,,gemmini_q31,0,358566,362011
+159,yolov8_nano,0,33,,,gemmini_q31,0,362012,362678
+160,yolov8_nano,0,34,,,gemmini_q31,0,362679,366109
+161,yolov8_nano,0,35,,,gemmini_q31,0,366109,366598
+162,yolov8_nano,0,36,,,gemmini_q31,0,366599,368294
+163,dronet,4,0,,,rvv,2,367196,368760
+164,yolov8_nano,0,37,,,gemmini_q31,0,368294,368778
+165,dronet,4,1,,,rvv,2,368760,368986
+166,dronet,4,2,,,rvv,2,368986,369016
+167,dronet,4,3,,,rvv,2,369017,369889
+168,yolov8_nano,0,38,,,gemmini_q31,0,368778,370443
+169,yolov8_nano,0,39,,,gemmini_q31,0,370443,370658
+170,dronet,4,4,,,rvv,2,369889,370735
+171,dronet,4,5,,,rvv,2,370736,370925
+172,dronet,4,6,,,rvv,2,370925,370937
+173,dronet,4,7,,,rvv,2,370937,370947
+174,yolov8_nano,0,40,,,gemmini_q31,0,370658,371152
+175,dronet,4,8,,,rvv,2,370947,371535
+176,mlp_control,6,0,,,rvv,2,372662,372717
+177,mlp_control,6,1,,,rvv,2,372717,372743
+178,yolov8_nano,0,41,,,gemmini_q31,0,371152,372867
+179,mlp_control,6,2,,,rvv,2,372743,373117
+180,mlp_control,6,3,,,rvv,2,373117,373133
+181,mlp_control,6,4,,,rvv,2,373133,373227
+182,mlp_control,6,5,,,rvv,2,373227,373235
+183,mlp_control,6,6,,,rvv,2,373235,373238
+184,dronet,4,9,,,rvv,2,371535,373244
+185,yolov8_nano,0,42,,,gemmini_q31,0,372868,373349
+186,dronet,4,10,,,rvv,2,373244,373363
+187,dronet,4,11,,,rvv,2,373363,373369
+188,dronet,4,12,,,rvv,2,373370,373376
+189,dronet,4,13,,,rvv,2,373376,374031
+190,yolov8_nano,0,43,,,gemmini_q31,0,373349,375076
+191,yolov8_nano,0,44,,,gemmini_q31,0,375077,375292
+192,dronet,4,14,,,rvv,2,374031,375353
+193,dronet,4,15,,,rvv,2,375353,375448
+194,dronet,4,16,,,rvv,2,375448,375453
+195,dronet,4,17,,,rvv,2,375453,375454
+196,dronet,4,18,,,rvv,2,375454,375457
+197,dronet,4,19,,,rvv,2,375457,375459
+198,dronet,4,20,,,rvv,2,375460,375461
+199,yolov8_nano,0,45,,,gemmini_q31,0,375292,375584
+200,yolov8_nano,0,46,,,gemmini_q31,0,375584,376580
+201,yolov8_nano,0,47,,,gemmini_q31,0,376580,379974
+202,yolov8_nano,0,48,,,gemmini_q31,0,379974,380480
+203,yolov8_nano,0,49,,,gemmini_q31,0,380481,382206
+204,yolov8_nano,0,50,,,gemmini_q31,0,382206,382540
+205,yolov8_nano,0,51,,,gemmini_q31,0,382540,384294
+206,yolov8_nano,0,52,,,gemmini_q31,0,384295,384543
+207,yolov8_nano,0,53,,,gemmini_q31,0,384543,385371
+208,yolov8_nano,0,54,,,gemmini_q31,0,385371,385607
+209,yolov8_nano,0,55,,,gemmini_q31,0,385607,386440
+210,yolov8_nano,0,56,,,gemmini_q31,0,386440,386551
+211,yolov8_nano,0,57,,,gemmini_q31,0,386551,386660
+212,yolov8_nano,0,58,,,gemmini_q31,0,386660,387031
+213,yolov8_nano,0,59,,,gemmini_q31,0,387031,388744
+214,yolov8_nano,0,60,,,gemmini_q31,0,388744,388929
+215,yolov8_nano,0,61,,,gemmini_q31,0,388929,389839
+216,mlp_control,7,0,,,rvv,2,390696,390752
+217,mlp_control,7,1,,,rvv,2,390752,390779
+218,yolov8_nano,0,62,,,gemmini_q31,0,389840,391133
+219,mlp_control,7,2,,,rvv,2,390779,391161
+220,mlp_control,7,3,,,rvv,2,391161,391178
+221,mlp_control,7,4,,,rvv,2,391178,391274
+222,mlp_control,7,5,,,rvv,2,391274,391281
+223,mlp_control,7,6,,,rvv,2,391282,391285
+224,yolov8_nano,0,63,,,gemmini_q31,0,391133,392404
+225,yolov8_nano,0,64,,,gemmini_q31,0,392404,393637
+226,yolov8_nano,0,65,,,gemmini_q31,0,393637,393766
+227,yolov8_nano,0,66,,,gemmini_q31,0,393766,394184
+228,yolov8_nano,0,67,,,gemmini_q31,0,394184,395897
+229,yolov8_nano,0,68,,,gemmini_q31,0,395897,396670
+230,yolov8_nano,0,69,,,gemmini_q31,0,396670,397069
+231,yolov8_nano,0,70,,,gemmini_q31,0,397069,398366
+232,yolov8_nano,0,71,,,gemmini_q31,0,398367,401765
+233,yolov8_nano,0,72,,,gemmini_q31,0,401765,402255
+234,yolov8_nano,0,73,,,gemmini_q31,0,402256,403953
+235,yolov8_nano,0,74,,,gemmini_q31,0,403953,404434
+236,yolov8_nano,0,75,,,gemmini_q31,0,404434,406131
+237,yolov8_nano,0,76,,,gemmini_q31,0,406131,406341
+238,yolov8_nano,0,77,,,gemmini_q31,0,406342,407141
+239,dronet,5,0,,,rvv,2,406708,408269
+240,dronet,5,1,,,rvv,2,408269,408494
+241,dronet,5,2,,,rvv,2,408494,408524
+242,dronet,5,3,,,rvv,2,408524,409397
+243,dronet,5,4,,,rvv,2,409397,410241
+244,dronet,5,5,,,rvv,2,410241,410426
+245,dronet,5,6,,,rvv,2,410426,410438
+246,dronet,5,7,,,rvv,2,410438,410448
+247,yolov8_nano,0,78,,,gemmini_q31,0,407141,410455
+248,dronet,5,8,,,rvv,2,410448,411033
+249,yolov8_nano,0,79,,,gemmini_q31,0,410455,411647
+250,mlp_control,8,0,,,rvv,2,412163,412219
+251,mlp_control,8,1,,,rvv,2,412219,412246
+252,yolov8_nano,0,80,,,gemmini_q31,0,411647,412490
+253,mlp_control,8,2,,,rvv,2,412246,412627
+254,mlp_control,8,3,,,rvv,2,412627,412643
+255,mlp_control,8,4,,,rvv,2,412643,412739
+256,mlp_control,8,5,,,rvv,2,412740,412747
+257,mlp_control,8,6,,,rvv,2,412747,412750
+258,dronet,5,9,,,rvv,2,411034,412756
+259,dronet,5,10,,,rvv,2,412757,412875
+260,dronet,5,11,,,rvv,2,412875,412882
+261,dronet,5,12,,,rvv,2,412882,412888
+262,dronet,5,13,,,rvv,2,412888,413545
+263,yolov8_nano,0,81,,,gemmini_q31,0,412490,414408
+264,dronet,5,14,,,rvv,2,413545,414869
+265,dronet,5,15,,,rvv,2,414870,414963
+266,dronet,5,16,,,rvv,2,414963,414967
+267,dronet,5,17,,,rvv,2,414968,414969
+268,dronet,5,18,,,rvv,2,414969,414971
+269,dronet,5,19,,,rvv,2,414971,414974
+270,dronet,5,20,,,rvv,2,414974,414976
+271,yolov8_nano,0,82,,,gemmini_q31,0,414408,421255
+272,yolov8_nano,0,83,,,gemmini_q31,0,421255,422344
+273,yolov8_nano,0,84,,,gemmini_q31,0,422345,425729
+274,yolov8_nano,0,85,,,gemmini_q31,0,425729,426793
+275,yolov8_nano,0,86,,,gemmini_q31,0,426793,430200
+276,yolov8_nano,0,87,,,gemmini_q31,0,430201,430621
+277,mlp_control,9,0,,,rvv,2,431297,431353
+278,mlp_control,9,1,,,rvv,2,431353,431379
+279,mlp_control,9,2,,,rvv,2,431380,431755
+280,mlp_control,9,3,,,rvv,2,431755,431772
+281,mlp_control,9,4,,,rvv,2,431772,431867
+282,mlp_control,9,5,,,rvv,2,431867,431874
+283,mlp_control,9,6,,,rvv,2,431874,431878
+284,yolov8_nano,0,88,,,gemmini_q31,0,430621,432078
+285,yolov8_nano,0,89,,,gemmini_q31,0,432079,438860
+286,yolov8_nano,0,90,,,gemmini_q31,0,438860,439500
+287,yolov8_nano,0,91,,,gemmini_q31,0,439500,441204
+288,yolov8_nano,0,92,,,gemmini_q31,0,441205,441420
+289,yolov8_nano,0,93,,,gemmini_q31,0,441420,442220
+290,yolov8_nano,0,94,,,gemmini_q31,0,442220,445559
+291,yolov8_nano,0,95,,,gemmini_q31,0,445559,446050
+292,yolov8_nano,0,96,,,gemmini_q31,0,446051,447729
+293,yolov8_nano,0,97,,,gemmini_q31,0,447729,448212
+294,dronet,6,0,,,rvv,2,447296,448861
+295,dronet,6,1,,,rvv,2,448861,449086
+296,dronet,6,2,,,rvv,2,449086,449117
+297,yolov8_nano,0,98,,,gemmini_q31,0,448213,449936
+298,dronet,6,3,,,rvv,2,449117,449991
+299,yolov8_nano,0,99,,,gemmini_q31,0,449937,450149
+300,dronet,6,4,,,rvv,2,449991,450840
+301,yolov8_nano,0,100,,,gemmini_q31,0,450149,450960
+302,dronet,6,5,,,rvv,2,450841,451027
+303,dronet,6,6,,,rvv,2,451027,451040
+304,dronet,6,7,,,rvv,2,451040,451050
+305,dronet,6,8,,,rvv,2,451050,451635
+306,mlp_control,10,0,,,rvv,2,452762,452817
+307,mlp_control,10,1,,,rvv,2,452817,452844
+308,mlp_control,10,2,,,rvv,2,452844,453215
+309,mlp_control,10,3,,,rvv,2,453215,453231
+310,mlp_control,10,4,,,rvv,2,453231,453325
+311,mlp_control,10,5,,,rvv,2,453325,453332
+312,mlp_control,10,6,,,rvv,2,453332,453336
+313,dronet,6,9,,,rvv,2,451635,453341
+314,dronet,6,10,,,rvv,2,453341,453457
+315,dronet,6,11,,,rvv,2,453457,453464
+316,dronet,6,12,,,rvv,2,453464,453470
+317,dronet,6,13,,,rvv,2,453470,454125
+318,yolov8_nano,0,101,,,gemmini_q31,0,450960,454318
+319,yolov8_nano,0,102,,,gemmini_q31,0,454319,454668
+320,dronet,6,14,,,rvv,2,454125,455457
+321,yolov8_nano,0,103,,,gemmini_q31,0,454668,455514
+322,dronet,6,15,,,rvv,2,455458,455552
+323,dronet,6,16,,,rvv,2,455553,455557
+324,dronet,6,17,,,rvv,2,455557,455558
+325,dronet,6,18,,,rvv,2,455558,455561
+326,dronet,6,19,,,rvv,2,455561,455564
+327,dronet,6,20,,,rvv,2,455564,455566
+328,yolov8_nano,0,104,,,gemmini_q31,0,455514,455623
+329,yolov8_nano,0,105,,,gemmini_q31,0,455624,455991
+330,yolov8_nano,0,106,,,gemmini_q31,0,455991,457704
+331,yolov8_nano,0,107,,,gemmini_q31,0,457704,457953
+332,yolov8_nano,0,108,,,gemmini_q31,0,457953,458824
+333,yolov8_nano,0,109,,,gemmini_q31,0,458824,459067
+334,yolov8_nano,0,110,,,gemmini_q31,0,459067,459942
+335,yolov8_nano,0,111,,,gemmini_q31,0,459942,460048
+336,yolov8_nano,0,112,,,gemmini_q31,0,460049,460419
+337,yolov8_nano,0,113,,,gemmini_q31,0,460419,462113
+338,yolov8_nano,0,114,,,gemmini_q31,0,462113,464047
+339,yolov8_nano,0,115,,,gemmini_q31,0,464047,470851
+340,mlp_control,11,0,,,rvv,2,470795,470852
+341,mlp_control,11,1,,,rvv,2,470852,470879
+342,mlp_control,11,2,,,rvv,2,470879,471266
+343,mlp_control,11,3,,,rvv,2,471266,471283
+344,mlp_control,11,4,,,rvv,2,471283,471381
+345,mlp_control,11,5,,,rvv,2,471381,471388
+346,mlp_control,11,6,,,rvv,2,471388,471392
+347,yolov8_nano,0,116,,,gemmini_q31,0,470851,472747
+348,yolov8_nano,0,117,,,gemmini_q31,0,472747,479727
+349,yolov8_nano,0,118,,,gemmini_q31,0,479727,481060
+350,yolov8_nano,0,119,,,gemmini_q31,0,481060,483264
+351,dronet,7,0,,,rvv,2,486806,488359
+352,dronet,7,1,,,rvv,2,488360,488584
+353,dronet,7,2,,,rvv,2,488585,488615
+354,dronet,7,3,,,rvv,2,488615,489486
+355,dronet,7,4,,,rvv,2,489487,490331
+356,dronet,7,5,,,rvv,2,490332,490515
+357,dronet,7,6,,,rvv,2,490515,490528
+358,dronet,7,7,,,rvv,2,490528,490538
+359,dronet,7,8,,,rvv,2,490538,491123
+360,yolov8_nano,0,120,,,gemmini_q31,0,483264,491708
+361,mlp_control,12,0,,,rvv,2,492255,492309
+362,mlp_control,12,1,,,rvv,2,492309,492336
+363,mlp_control,12,2,,,rvv,2,492336,492709
+364,mlp_control,12,3,,,rvv,2,492709,492726
+365,mlp_control,12,4,,,rvv,2,492726,492821
+366,mlp_control,12,5,,,rvv,2,492822,492829
+367,mlp_control,12,6,,,rvv,2,492829,492832
+368,dronet,7,9,,,rvv,2,491123,492838
+369,dronet,7,10,,,rvv,2,492838,492957
+370,dronet,7,11,,,rvv,2,492957,492964
+371,dronet,7,12,,,rvv,2,492964,492970
+372,dronet,7,13,,,rvv,2,492970,493631
+373,yolov8_nano,0,121,,,gemmini_q31,0,491708,493936
+374,dronet,7,14,,,rvv,2,493632,494956
+375,dronet,7,15,,,rvv,2,494956,495049
+376,dronet,7,16,,,rvv,2,495049,495054
+377,dronet,7,17,,,rvv,2,495054,495055
+378,dronet,7,18,,,rvv,2,495055,495058
+379,dronet,7,19,,,rvv,2,495058,495060
+380,dronet,7,20,,,rvv,2,495060,495062
+381,yolov8_nano,0,122,,,gemmini_q31,0,493936,502782
+382,yolov8_nano,0,123,,,gemmini_q31,0,502782,504513
+383,yolov8_nano,0,124,,,gemmini_q31,0,504513,505110
+384,yolov8_nano,0,125,,,gemmini_q31,0,505110,505750
+385,yolov8_nano,0,126,,,gemmini_q31,0,505750,507483
+386,yolov8_nano,0,127,,,gemmini_q31,0,507484,507964
+387,yolov8_nano,0,128,,,gemmini_q31,0,507965,509747
+388,yolov8_nano,0,129,,,gemmini_q31,0,509747,510086
+389,yolov8_nano,0,130,,,gemmini_q31,0,510086,510795
+390,mlp_control,13,0,,,rvv,2,511395,511451
+391,mlp_control,13,1,,,rvv,2,511451,511478
+392,mlp_control,13,2,,,rvv,2,511478,511854
+393,mlp_control,13,3,,,rvv,2,511854,511871
+394,mlp_control,13,4,,,rvv,2,511871,511966
+395,mlp_control,13,5,,,rvv,2,511966,511973
+396,mlp_control,13,6,,,rvv,2,511973,511977
+397,yolov8_nano,0,131,,,gemmini_q31,0,510796,512872
+398,yolov8_nano,0,132,,,gemmini_q31,0,512872,513434
+399,yolov8_nano,0,133,,,gemmini_q31,0,513435,515565
+400,yolov8_nano,0,134,,,gemmini_q31,0,515566,516000
+401,yolov8_nano,0,135,,,gemmini_q31,0,516000,516151
+402,yolov8_nano,0,136,,,gemmini_q31,0,516151,516411
+403,yolov8_nano,0,137,,,gemmini_q31,0,516411,516853
+404,yolov8_nano,0,138,,,gemmini_q31,0,516854,516977
+405,yolov8_nano,0,139,,,gemmini_q31,0,516977,517422
+406,yolov8_nano,0,140,,,gemmini_q31,0,517422,517508
+407,yolov8_nano,0,141,,,gemmini_q31,0,517508,517782
+408,yolov8_nano,0,142,,,gemmini_q31,0,517782,518314
+409,yolov8_nano,0,143,,,gemmini_q31,0,518315,518459
+410,yolov8_nano,0,144,,,gemmini_q31,0,518459,519005
+411,yolov8_nano,0,145,,,gemmini_q31,0,519005,519113
+412,yolov8_nano,0,146,,,gemmini_q31,0,519113,519153
+=== MODELBLASTER_ROS_TRACE_END (skipped=0 corrupted) ===
+=== MODELBLASTER_WALL_CYCLES [yolov8_nano] === 319562
+=== MODELBLASTER_WALL_CYCLES [dronet] === 8256
+=== MODELBLASTER_WALL_CYCLES [mlp_control] === 582
+
+Simulation complete.
+*** PASSED *** after 15077837567 cycles
+
+Emulation Performance Summary
+------------------------------
+Wallclock Time Elapsed: 253.3 s
+Host Frequency: 60.000 MHz
+Target Cycles Emulated: 15077837567
+Effective Target Frequency: 59.528 MHz
+FMR: 1.01
+Note: The latter three figures are based on the fastest target clock.
+
+Script done on 2026-09-04 03:27:08+00:00 [COMMAND_EXIT_CODE="0"]

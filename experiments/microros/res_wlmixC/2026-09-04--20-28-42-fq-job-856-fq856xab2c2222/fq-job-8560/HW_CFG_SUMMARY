@@ -1,0 +1,6 @@
+RuntimeHWConfig: f2_quad_hetero_norose_tacit_q31_60mhz_pcim
+DeployQuintuplet: None
+DeployMakefrag: None
+AGFI: agfi-010049831c489a814
+Bitstream tar: None
+CustomRuntimeConf: None
