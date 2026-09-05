@@ -25,9 +25,24 @@ set +u; source $ZCS/scripts/activate_conda.sh; set -u
 export PYTHONPATH=$ZCS MB_DRIFT_ATOL=2
 PY=/scratch2/dima/miniforge3/envs/xpurt/bin/python
 
+# The model list is DERIVED from the workloads rather than read from a
+# hand-made /tmp file. It used to be the latter, and nothing in the tree ever
+# wrote it: the sweep depended on a temp file that vanishes on reboot, and it
+# went stale silently whenever a family gained a network -- the new model got
+# no split tree and no profile, then scheduled against nothing.
+MODELS_TXT=$OUT/wl_models.txt
+$PY - "$XR/data/toplevel/wl_sweep" > $MODELS_TXT <<'MODLIST'
+import json, glob, os, sys
+names = set()
+for f in glob.glob(os.path.join(sys.argv[1], "*.json")):
+    names |= set(json.load(open(f)).get("networks", {}))
+print("\n".join(sorted(names)))
+MODLIST
+echo "  models named by the workloads: $(wc -l < $MODELS_TXT)"
+
 echo "########## STEP 1: split trees for every model the workloads name ##########"
 cd $MB
-for M in $(cat /tmp/wl_models.txt); do
+for M in $(cat $MODELS_TXT); do
   [ "$M" = vint ] && continue
   case $M in mlp_control*) Q=fp32;; *) Q=int8;; esac
   [ -f $MB/examples/${M}_wls/$Q/generated/graph.json ] && { echo "  ${M}_wls exists"; continue; }
@@ -67,7 +82,7 @@ done
 
 echo "########## STEP 2: dispatch graphs + profiles for the split trees ##########"
 cd $XR
-for M in $(cat /tmp/wl_models.txt); do
+for M in $(cat $MODELS_TXT); do
   [ "$M" = vint ] && continue
   case $M in mlp_control*) Q=fp32;; *) Q=int8;; esac
   G=$MB/examples/${M}_wls/$Q/generated/graph.json
@@ -99,7 +114,7 @@ D="/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/data/toplevel"
 os.makedirs(f"{D}/wl_sweep_shard",exist_ok=True)
 n=0
 for f in glob.glob(f"{D}/wl_sweep/*.json"):
-    d=json.load(open(f)); nets={}
+    d=json.load(open(f)); nets={}; ren={}
     for name,e in d["networks"].items():
         if name=="vint": nets[name]=e; continue      # vint stays unsplit for now
         e=dict(e)
@@ -109,8 +124,16 @@ for f in glob.glob(f"{D}/wl_sweep/*.json"):
             # unsplit in BOTH arms rather than silently pointing at nothing.
             nets[name]=e; continue
         e["identifier"]=f"{name}_wls"; e["dispatch_deps_path"]=dp
-        nets[f"{name}_wls"]=e
+        nets[f"{name}_wls"]=e; ren[name]=f"{name}_wls"
     d["networks"]=nets
+    # Edge endpoints name networks, so they have to follow the rename above.
+    # workload_factory drops an edge whose endpoint is not a network key --
+    # silently, with a bare `continue` -- so leaving these unmapped would give
+    # the sharded arm NO dependency at all while the base arm kept it, and the
+    # two arms would no longer be the same scheduling problem.
+    if d.get("edges"):
+        d["edges"]=[{"from":ren.get(x["from"],x["from"]),
+                     "to":ren.get(x["to"],x["to"])} for x in d["edges"]]
     d["_comment"]="SHARDED arm. "+d["_comment"]
     json.dump(d,open(f"{D}/wl_sweep_shard/{os.path.basename(f)}","w"),indent=1); n+=1
 print(f"  wrote {n} sharded workload JSONs")
