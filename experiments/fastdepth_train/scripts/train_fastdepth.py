@@ -33,6 +33,11 @@ from torch.utils.data import Dataset, DataLoader
 
 MAX_DEPTH = 10.0    # NYU Depth V2 is captured to ~10 m
 MIN_DEPTH = 0.5     # below this the Kinect returns noise; standard eval floor
+#: The encoder is ImageNet-pretrained, so it expects ImageNet-normalised input.
+#: Feeding it raw [0,1] RGB does not fail, it just quietly wastes the pretrained
+#: features -- the first layers see a distribution they were never fitted on.
+IMAGENET_MEAN = torch.tensor([0.485, 0.456, 0.406]).view(3, 1, 1)
+IMAGENET_STD = torch.tensor([0.229, 0.224, 0.225]).view(3, 1, 1)
 
 
 def check_units(paths):
@@ -82,18 +87,31 @@ class NYU(Dataset):
         if self.train:
             if torch.rand(1).item() < 0.5:
                 rgb, dep = torch.flip(rgb, [2]), torch.flip(dep, [2])
+            # brightness jitter belongs in [0,1] space, before normalisation
             rgb = (rgb * (0.8 + 0.4 * torch.rand(1).item())).clamp(0, 1)
+        rgb = (rgb - IMAGENET_MEAN) / IMAGENET_STD
         return rgb, dep
 
 
 def metrics(pred, gt):
-    """Standard NYU depth metrics on valid pixels only."""
+    """Standard NYU depth metrics on valid pixels only.
+
+    Also reports RMSE split by depth band. d1 rose while RMSE worsened on the
+    first attempt, which is what L1 does when it trades a minority of far
+    pixels for the near majority -- the bands make that visible instead of
+    leaving it as a guess.
+    """
     m = (gt > MIN_DEPTH) & (gt < MAX_DEPTH)
     if m.sum() == 0:
         return None
     p, g = pred[m].clamp(MIN_DEPTH, MAX_DEPTH), gt[m]
     r = torch.max(p / g, g / p)
-    return dict(
+    bands = {}
+    for lo, hi in ((0.5, 2.0), (2.0, 5.0), (5.0, 10.0)):
+        b = (g >= lo) & (g < hi)
+        bands[f"rmse_{lo:g}_{hi:g}"] = (torch.sqrt(((p[b] - g[b]) ** 2).mean()).item()
+                                        if b.any() else float("nan"))
+    return dict(**bands,
         d1=(r < 1.25).float().mean().item(),
         d2=(r < 1.25 ** 2).float().mean().item(),
         d3=(r < 1.25 ** 3).float().mean().item(),
@@ -160,7 +178,7 @@ def main():
     opt = torch.optim.Adam(model.parameters(), lr=a.lr)
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=a.epochs * len(dl_tr))
     scaler = torch.amp.GradScaler("cuda", enabled=(dev == "cuda"))
-    best, hist = -1.0, []
+    best, best_rmse, hist = -1.0, 1e9, []
 
     for ep in range(a.epochs):
         model.train(); tl = 0.0; nb = 0; t0 = time.time()
@@ -187,7 +205,9 @@ def main():
         ev.update(epoch=ep, train_loss=tl / max(nb, 1), secs=round(time.time() - t0))
         hist.append(ev)
         print(f"  epoch {ep}: loss {ev['train_loss']:.4f}  d1 {ev['d1']:.4f} "
-              f"rmse {ev['rmse']:.4f} rel {ev['rel']:.4f}  ({ev['secs']}s)", flush=True)
+              f"rmse {ev['rmse']:.4f} rel {ev['rel']:.4f}  "
+              f"[near {ev['rmse_0.5_2']:.3f} mid {ev['rmse_2_5']:.3f} "
+              f"far {ev['rmse_5_10']:.3f}]  ({ev['secs']}s)", flush=True)
         json.dump(hist, open(f"{a.out}/history.json", "w"), indent=1)
         torch.save({"model": model.state_dict(), "epoch": ep, "metrics": ev},
                    f"{a.out}/last.pt")
@@ -196,6 +216,13 @@ def main():
             torch.save({"model": model.state_dict(), "epoch": ep, "metrics": ev},
                        f"{a.out}/best.pt")
             print(f"    new best d1 {best:.4f} -> best.pt", flush=True)
+        # Kept separately so the d1 rule cannot silently discard the model with
+        # the lowest absolute error, which is the one a depth CONSUMER wants.
+        if ev["rmse"] < best_rmse:
+            best_rmse = ev["rmse"]
+            torch.save({"model": model.state_dict(), "epoch": ep, "metrics": ev},
+                       f"{a.out}/best_rmse.pt")
+            print(f"    new best rmse {best_rmse:.4f} -> best_rmse.pt", flush=True)
     print(f"DONE best_d1={best:.4f}")
 
 
