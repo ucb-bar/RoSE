@@ -125,13 +125,18 @@ def main():
                              figsize=(13, 1.75 * len(panels) + 1.5))
     for ax, (lab, d) in zip(axes[:, 0], panels):
         harts = sorted({h for h, *_ in d})
+        # Utilisation is against THIS panel's own makespan, not the shared
+        # x-limit. Dividing by the global span makes a fully-saturated fast arm
+        # read as idle purely because a slower arm sets the axis -- the rvv arm
+        # showed "31% busy" while being busy every microsecond it ran.
+        own = max(e for _, _, e, _, _, _ in d) - min(s for _, s, _, _, _, _ in d)
         for i, h in enumerate(harts):
             bars = [x for x in d if x[0] == h]
             busy = sum(e - s for _, s, e, _, _, _ in bars)
             ax.broken_barh([(s, max(e - s, span * 4e-4)) for _, s, e, _, _, _ in bars],
                            (i * 10 + 2.5, 5),
                            facecolors=[STAGE_COL[x[5]] for x in bars], linewidth=0)
-            ax.text(span * 1.005, i * 10 + 5, f"{busy / span * 100:.0f}% busy",
+            ax.text(span * 1.005, i * 10 + 5, f"{busy / own * 100:.0f}% busy",
                     va="center", fontsize=7.5, color="#555")
         # the handoff: last fastdepth op to end, first dronet op to start
         dr_start = min((x[1] for x in d if x[5] == "dronet"), default=None)
@@ -152,10 +157,16 @@ def main():
                            else "time (ms, measured — mtime ticks at 1 MHz)", fontsize=9)
     fig.legend(handles=[Patch(facecolor=STAGE_COL[k], label=k) for k in ("fastdepth", "dronet")],
                loc="upper right", ncol=2, frameon=False, fontsize=9)
+    # The quant is not cosmetic here: the fp32 tree resolves conv2d to the
+    # REFERENCE kernel on both backends (Gemmini Q31 is an int8 systolic array,
+    # and the curated RVV convs are int8), so an fp32 panel is measuring scalar
+    # Rocket code and is ~139x off the int8 path on the same convolutions. A
+    # chart that does not say which one it is invites exactly that confusion.
+    quant = os.environ.get("MB_GANTT_QUANT", "fp32")
     fig.suptitle("fastdepth → dronet, PREDICTED schedule with an explicit "
                  "dependency edge (int8, hetero)" if sched else
                  "fastdepth → dronet fused pipeline, measured on F2 "
-                 "(f2_quad_hetero_norose_tacit_q31_60mhz, fp32)",
+                 f"(f2_quad_hetero_norose_tacit_q31_60mhz, {quant})",
                  fontsize=11, x=0.01, ha="left")
     fig.tight_layout(rect=[0, 0, 1, 0.94])
     fig.savefig(out, dpi=150)
