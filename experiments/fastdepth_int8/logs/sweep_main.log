@@ -1,0 +1,12 @@
+int8:int8_epoch0_c1    d1 0.6531  d2 0.9082  d3 0.9783  rmse 0.7380  rel 0.1955  log10 0.0868
+int8:int8_epoch0_c1pc  d1 0.6597  d2 0.9114  d3 0.9791  rmse 0.7276  rel 0.1942  log10 0.0857
+int8:int8_epoch0_c1pcdw d1 0.7221  d2 0.9269  d3 0.9798  rmse 0.6719  rel 0.1822  log10 0.0762
+int8:int8_epoch0_c32pcdw d1 0.7118  d2 0.9244  d3 0.9790  rmse 0.6700  rel 0.1907  log10 0.0778
+int8:int8_epoch0_c1pcdwca d1 0.7238  d2 0.9279  d3 0.9807  rmse 0.6663  rel 0.1800  log10 0.0758
+int8:int8_epoch0_c1ca  d1 0.6735  d2 0.9158  d3 0.9795  rmse 0.7114  rel 0.1911  log10 0.0835
+int8:int8_epoch12_c1   d1 0.6100  d2 0.8672  d3 0.9530  rmse 1.2099  rel 0.2509  log10 0.1016
+int8:int8_epoch12_c1pc d1 0.6117  d2 0.8696  d3 0.9542  rmse 1.2058  rel 0.2500  log10 0.1010
+int8:int8_epoch12_c1pcdw d1 0.7544  d2 0.9252  d3 0.9668  rmse 1.1222  rel 0.2054  log10 0.0768
+int8:int8_epoch12_c32pcdw d1 0.7279  d2 0.9158  d3 0.9639  rmse 1.1425  rel 0.2165  log10 0.0811
+int8:int8_epoch12_c1pcdwca d1 0.7628  d2 0.9272  d3 0.9669  rmse 1.1151  rel 0.2021  log10 0.0754
+int8:int8_epoch12_c1ca d1 0.6049  d2 0.8657  d3 0.9530  rmse 1.2067  rel 0.2513  log10 0.1022

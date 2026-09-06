@@ -1,0 +1,3 @@
+int8:int8_epoch0_c8pcdwca d1 0.7251  d2 0.9296  d3 0.9804  rmse 0.6514  rel 0.1824  log10 0.0755
+int8:int8_epoch0_c32pcdwca d1 0.7228  d2 0.9306  d3 0.9804  rmse 0.6511  rel 0.1828  log10 0.0757
+int8:int8_epoch0_c1dwonly d1 0.6531  d2 0.9082  d3 0.9783  rmse 0.7380  rel 0.1955  log10 0.0868

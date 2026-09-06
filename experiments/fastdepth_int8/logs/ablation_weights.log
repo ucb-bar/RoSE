@@ -1,0 +1,10 @@
+fp32                   d1 0.7417  d2 0.9203  d3 0.9633  rmse 1.2046  rel 0.2251  log10 0.0808
+w_pt_all               d1 0.5942  d2 0.8600  d3 0.9464  rmse 1.2934  rel 0.2715  log10 0.1058   dd1 -0.1476
+w_pc_dense_only        d1 0.5947  d2 0.8597  d3 0.9464  rmse 1.2911  rel 0.2710  log10 0.1056   dd1 -0.1470
+w_pc_dw_only           d1 0.7182  d2 0.9126  d3 0.9619  rmse 1.2131  rel 0.2319  log10 0.0845   dd1 -0.0235
+w_pc_all               d1 0.7191  d2 0.9122  d3 0.9608  rmse 1.2144  rel 0.2325  log10 0.0846   dd1 -0.0227
+w_pt_all+act           d1 0.5980  d2 0.8617  d3 0.9462  rmse 1.2950  rel 0.2720  log10 0.1054   dd1 -0.1437
+w_pc_dense_only+act    d1 0.5970  d2 0.8621  d3 0.9464  rmse 1.2920  rel 0.2716  log10 0.1054   dd1 -0.1447
+w_pc_dw_only+act       d1 0.7124  d2 0.9132  d3 0.9617  rmse 1.2192  rel 0.2326  log10 0.0852   dd1 -0.0293
+w_pc_all+act           d1 0.7108  d2 0.9111  d3 0.9620  rmse 1.2198  rel 0.2345  log10 0.0858   dd1 -0.0309
+/scratch/dima/rose-infra/RoSE/experiments/fastdepth_int8/results/ablation_weights.json

@@ -1,0 +1,20 @@
+{
+  "arm": "fidelity",
+  "n": 654,
+  "metrics": {},
+  "fidelity": {
+    "c1": {
+      "rmse_vs_fp32_m": 0.3995204567909241,
+      "max_abs_vs_fp32_m": 4.571540832519531,
+      "sqnr_db": 16.446718215942383,
+      "pred_std_ratio": 0.7890558242797852
+    },
+    "c8pcdwca": {
+      "rmse_vs_fp32_m": 0.1828983724117279,
+      "max_abs_vs_fp32_m": 2.593207836151123,
+      "sqnr_db": 23.543109893798828,
+      "pred_std_ratio": 0.989715039730072
+    }
+  },
+  "ckpt": "epoch0"
+}

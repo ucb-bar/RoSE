@@ -1,0 +1,15 @@
+wrote /tmp/fd_verify/stock/graph.json
+wrote /tmp/fd_verify/stock/weights.npz  (134 tensors)
+wrote /tmp/fd_verify/stock/io.npz  (1 input(s) ['int8'], packed dtype=int8, output dtype=int8)
+wrote /tmp/fd_verify/stock/passes_applied.json  (enable_fusion=False, linear_relu_fuse=0, conv2d_relu_fuse=10, add_relu_fuse=0, bn_relu_fuse=0, bn_conv_fuse=62, conv2d_silu_fuse=0, conv2d_pool_fuse=0)
+[A] stock extract     42.1s
+wrote /tmp/fd_verify/fast/graph.json
+wrote /tmp/fd_verify/fast/weights.npz  (134 tensors)
+wrote /tmp/fd_verify/fast/io.npz  (1 input(s) ['int8'], packed dtype=int8, output dtype=int8)
+wrote /tmp/fd_verify/fast/passes_applied.json  (enable_fusion=False, linear_relu_fuse=0, conv2d_relu_fuse=10, add_relu_fuse=0, bn_relu_fuse=0, bn_conv_fuse=62, conv2d_silu_fuse=0, conv2d_pool_fuse=0)
+[A] fast  extract      0.3s
+[A] graph.json   identical=True
+[A] weights.npz  identical=True
+[A] io.npz       identical=True
+[B] run_ir vs io.npz golden: identical=True  (max|diff|=0, 0.3s for 1 frame)
+VERIFY PASS

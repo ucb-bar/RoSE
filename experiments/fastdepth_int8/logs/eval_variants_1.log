@@ -1,0 +1,8 @@
+int8:int8_c1           d1 0.6100  d2 0.8672  d3 0.9530  rmse 1.2099  rel 0.2509  log10 0.1016
+   bands near 0.567 mid 1.223 far 1.913   43.4s
+int8:int8_c32          d1 0.5969  d2 0.8612  d3 0.9512  rmse 1.2108  rel 0.2563  log10 0.1036
+   bands near 0.578 mid 1.221 far 1.929   42.7s
+int8:int8_c1pc         d1 0.6117  d2 0.8696  d3 0.9542  rmse 1.2058  rel 0.2500  log10 0.1010
+   bands near 0.566 mid 1.220 far 1.891   40.6s
+int8:int8_c32pc        d1 0.5981  d2 0.8618  d3 0.9508  rmse 1.2094  rel 0.2559  log10 0.1037
+   bands near 0.573 mid 1.218 far 1.942   40.4s

@@ -1,0 +1,13 @@
+fp32                   d1 0.7417  d2 0.9203  d3 0.9633  rmse 1.2046  rel 0.2251  log10 0.0808
+w_only_pt              d1 0.5942  d2 0.8600  d3 0.9464  rmse 1.2934  rel 0.2715  log10 0.1058   dd1 -0.1476
+a_only                 d1 0.7264  d2 0.9174  d3 0.9620  rmse 1.2131  rel 0.2301  log10 0.0832   dd1 -0.0153
+a_input                d1 0.7421  d2 0.9204  d3 0.9634  rmse 1.2045  rel 0.2249  log10 0.0808   dd1 +0.0004
+a_encoder              d1 0.7319  d2 0.9184  d3 0.9628  rmse 1.2108  rel 0.2283  log10 0.0824   dd1 -0.0099
+a_decoder              d1 0.7382  d2 0.9196  d3 0.9631  rmse 1.2046  rel 0.2264  log10 0.0814   dd1 -0.0035
+a_skip                 d1 0.7414  d2 0.9202  d3 0.9633  rmse 1.2037  rel 0.2252  log10 0.0809   dd1 -0.0003
+a_depthwise            d1 0.7384  d2 0.9198  d3 0.9637  rmse 1.2080  rel 0.2268  log10 0.0815   dd1 -0.0033
+a_relu6                d1 0.7307  d2 0.9182  d3 0.9626  rmse 1.2122  rel 0.2286  log10 0.0825   dd1 -0.0111
+a_enc_proj1x1          d1 0.7414  d2 0.9205  d3 0.9634  rmse 1.2033  rel 0.2249  log10 0.0808   dd1 -0.0003
+a_head                 d1 0.7386  d2 0.9198  d3 0.9630  rmse 1.2056  rel 0.2263  log10 0.0813   dd1 -0.0031
+both                   d1 0.5980  d2 0.8617  d3 0.9462  rmse 1.2950  rel 0.2720  log10 0.1054   dd1 -0.1437
+/scratch/dima/rose-infra/RoSE/experiments/fastdepth_int8/results/ablation_groups.json

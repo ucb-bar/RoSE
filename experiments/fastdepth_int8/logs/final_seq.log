@@ -1,0 +1,5 @@
+int8:int8_epoch0_c1dwonly d1 0.7208  d2 0.9249  d3 0.9793  rmse 0.6744  rel 0.1811  log10 0.0765
+int8:int8_epoch12_c8pcdwca d1 0.7499  d2 0.9234  d3 0.9664  rmse 1.1177  rel 0.2065  log10 0.0772
+int8:int8_epoch0_c1    d1 0.6531  d2 0.9082  d3 0.9783  rmse 0.7380  rel 0.1955  log10 0.0868
+int8:int8_epoch0_c8pcdwca d1 0.7251  d2 0.9296  d3 0.9804  rmse 0.6514  rel 0.1824  log10 0.0755
+SEQ_DONE

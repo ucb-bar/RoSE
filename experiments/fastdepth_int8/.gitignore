@@ -1,0 +1,15 @@
+# Fetched or derived binaries, not source. Everything needed to rebuild them
+# is in scripts/ plus the kernel_opt_log entry:
+#   data/ckpt_*.pt   snapshots of experiments/fastdepth_train/artifacts/*.pt
+#   data/calib32.npz the 32-frame calibration bank from the training box
+#   data/nyu_val_*.npz  654 NYU val frames, preprocessed by scripts/ per the
+#                    eval protocol (square centre crop -> 224 -> ImageNet norm)
+#   data/nyu_h5/     40 raw NYU val HDF5 frames, for exercising the
+#                    nyu_depth loader's h5 branch
+#   ir/              extracted int8 IRs (regenerate with extract_fd_int8.py)
+#   results/pred_*   dumped depth predictions (~130 MB each)
+data/*.npz
+data/*.pt
+data/nyu_h5/
+results/pred_*.npz
+ir/
