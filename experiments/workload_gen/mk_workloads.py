@@ -78,6 +78,36 @@ ANCHOR = {                       # model -> (gemmini ms, rvv ms)
 }
 DEFAULT_RUNG = {"mlp_control": "sd", "dronet": "se", "yolov8_nano": "sd"}
 
+#: MEASURED single-hart cost (gemmini ms, rvv ms), from the serialP/serialE
+#: runs in experiments/sweep3net. These OVERRIDE the analytic estimate below
+#: wherever a rung appears here, because the estimate is not merely imprecise
+#: on some rungs -- it is wrong by more than an order of magnitude.
+#:
+#: WHY THIS EXISTS. cost_ms() scales MAC counts from a network's DEFAULT rung,
+#: which implicitly assumes every rung reaches the same curated kernels. It
+#: does not: dronet_sa (32px) and dronet_sb (48px) resolve 7/7 conv picks to
+#: REFERENCE scalar on BOTH backends where sc..sg get curated ones, so they run
+#: ~61x and ~64x slower than the estimate predicts (0.60 vs 36.8 ms measured on
+#: rvv). tight_loop derives its periods from dronet_sa, so it shipped windows
+#: of 2.281 ms against a 35.256 ms critical path -- infeasible by construction,
+#: in both arms and all four machine pairs. Every heuristic scheduler silently
+#: returned a schedule that missed them; only the MILP reported `infeasible`.
+#: See the sched_algo_sweep10 entry in experiments/kernel_opt_log.jsonl.
+MEASURED = {
+    "dronet":         (4.988, 7.912),   "dronet_sa":      (37.027, 36.813),
+    "dronet_sb":      (103.193, 102.192), "dronet_sc":    (2.269, 2.734),
+    "dronet_sd":      (4.913, 4.827),   "dronet_se":      (4.992, 7.903),
+    "dronet_sf":      (8.064, 9.389),   "dronet_sg":      (15.835, 12.528),
+    "fastdepth":      (230.644, 80.061),
+    "mlp_control":    (0.547, 0.596),   "mlp_control_sa": (0.045, 0.044),
+    "mlp_control_sb": (0.065, 0.045),   "mlp_control_sd": (0.529, 0.164),
+    "mlp_control_sf": (1.915, 0.479),
+    "vint":           (5257.460, 17021.522),
+    "yolov8_nano":    (90.029, 167.588), "yolov8_nano_sc": (60.209, 109.840),
+    "yolov8_nano_se": (130.794, 227.647), "yolov8_nano_sf": (180.720, 308.324),
+    "yolov8_nano_sh": (3662.874, 568.417),
+}
+
 
 def macs(graph):
     """Analytic cost proxy: MACs for conv/linear, elements for everything else."""
@@ -134,8 +164,10 @@ def discover():
     return out
 
 
-def cost_ms(info, models):
-    """(gemmini ms, rvv ms) scaled from the base network's measured default."""
+def cost_ms(info, models, name=None):
+    """(gemmini ms, rvv ms): measured where we have it, else scaled analytically."""
+    if name in MEASURED:
+        return MEASURED[name]
     base = info["base"]
     ref = models.get(f"{base}_{DEFAULT_RUNG[base]}") if base in DEFAULT_RUNG else None
     ref = ref or models.get(base)
@@ -251,7 +283,7 @@ def main():
             # (slowest, fastest) backend cost for each model on THIS pair
             cost = {}
             for name in spec:
-                g, v = cost_ms(models[name], models)
+                g, v = cost_ms(models[name], models, name)
                 cands = ([g] if PAIRS[pair]["cpu_p"] else []) + \
                         ([v] if PAIRS[pair]["cpu_e"] else [])
                 cost[name] = (max(cands), min(cands))
