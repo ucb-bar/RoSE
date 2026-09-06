@@ -1,0 +1,9 @@
+{
+  "benchmark_name": "fq-job-912",
+  "common_bootbinary": "qd_wl_scale_ladder_quad_greedy_shard.elf",
+  "common_rootfs": null,
+  "common_simulation_outputs": [
+    "uartlog"
+  ],
+  "no_post_run_hook": true
+}

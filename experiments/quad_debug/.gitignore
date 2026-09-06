@@ -1,0 +1,4 @@
+# 110 MB of binary-patched ELFs, regenerable in one command from the sweep's
+# own ELFs -- see RESULT.md "Reproducing":
+#   python3 patch_vstate_trap_hooks.py ../wl_sweep/elf/<tag>.elf elf/<tag>_novtrap.elf
+elf/

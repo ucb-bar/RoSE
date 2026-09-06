@@ -1,0 +1,12 @@
+### submit wl_scale_ladder_quad_greedy_shard 2026-09-06T04:45:08Z elf=experiments/quad_debug/elf/wl_scale_ladder_quad_greedy_shard_novtrap.elf
+#### submit: submitted job 912  (completion=exit, timeout=5400s)
+  logs:   fq logs 912 -f
+  status: fq status 912
+#### jid=912
+#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/quad_debug/res_wl_scale_ladder_quad_greedy_shard/uartlog
+#### identity OK (wl_scale_ladder_quad_greedy_shard)
+#### fault lines: 1
+xpurt-runner: schedule=wl_scale_ladder_quad_greedy_shard entries=211 kinds=2 on chipyard_riscv64/rocketchip_virt_riscv64
+ mcause: 7, Store/AMO access fault
+#### trace rows: 0
+############ FQDONE wl_scale_ladder_quad_greedy_shard ############

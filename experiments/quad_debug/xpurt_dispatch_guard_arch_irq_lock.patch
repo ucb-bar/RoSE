@@ -1,0 +1,129 @@
+Subject: xpurt: the dispatch guard must mask this hart's interrupts, not just its reschedule
+
+Apply in: soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster
+File:     pipeline/generate_xpurt_main.py
+
+THIS IS THE CHANGE harness_microros ALREADY SHIPS AND THAT WAS ALREADY
+HARDWARE-VALIDATED ON THIS BITSTREAM.  harness_microros/src/main.c:284-318
+carries it as MICROROS_DISPATCH_GUARD_IRQ (default 1), and
+experiments/kernel_opt_log.jsonl records the acceptance run:
+
+  microros-3net-rvv-preempt-004-sched-lock-insufficient  (fq 837)
+      "Is k_sched_lock() around each dispatch enough, as it was for the xpurt
+       scheduled harness?  NO. ... mcause=7, mepc=`vsse8.v v2,(a7),a4`,
+       mtval=0x529f7725e4 (not in DRAM) while other registers in the same
+       frame are valid DRAM pointers. ... a bare timer tick mid-kernel
+       suffices, and k_sched_lock() does not mask interrupts."
+  microros-3net-rvv-preempt-005-ACCEPTANCE-clean-3net    (fq 847)
+      "Does arch_irq_lock()+k_sched_lock() per dispatch give a clean 3-model
+       micro-ROS run on the Config-B pinning that faults without it?  PASS."
+
+harness_xpurt never got it.  98901c5 correctly removed irq_lock() from the
+xpurt guard -- under CONFIG_SMP that is z_smp_global_lock(), the big kernel
+lock, and it serialized the harts (makespan 6632 -> 5231 us).  But irq_lock()
+was doing two things and only one of them was the problem:
+z_smp_global_lock() is arch_irq_lock() PLUS the BKL, and it was the
+arch_irq_lock() half that suppressed the fault.  98901c5 replaced the whole
+thing with k_sched_lock(), which blocks a thread SWITCH and nothing else, and
+flagged the risk itself: "NOT yet evaluated: whether the weaker guard still
+suppresses the ViNT vector fault ... It needs a fused_vint soak."  The
+wl_sweep quad column is that soak; seven quad cells fail.  See
+experiments/quad_debug/NOTES.md.
+
+arch_irq_lock() is a plain per-hart `csrrc mstatus, MSTATUS_IEN`
+(include/zephyr/arch/riscv/arch.h:257).  There is no lock in it, so it cannot
+reintroduce the serialization 98901c5 removed.  The masked tick is not lost:
+CONFIG_TICKLESS_KERNEL recovers elapsed time from free-running mtime on
+unmask, k_cycle_get_64() reads mtime directly so every trace and profile
+number stays correct, and a pending IPI stays latched in the CLINT.  Cost is
+one delayed tick per dispatch.
+
+DIFFERENCE FROM THE MICROROS FORM: the mask is applied only to n_harts <= 1
+entries.  microros has no composite dispatches; xpurt does.  A composite entry
+runs modelblaster_pool helpers on other harts and the master BLOCKS waiting for
+them -- and RISC-V arch_switch does not carry mstatus.MIE per thread, so
+blocking with interrupts masked would resume the next thread with MIE clear.
+Those keep the k_sched_lock-only path.  (Every entry in the current sweep is
+n_harts == 1, so this branch is presently unreachable; it is there so the
+change is safe for composite schedules.)
+
+--- a/pipeline/generate_xpurt_main.py
++++ b/pipeline/generate_xpurt_main.py
+@@ line 368 (inside _emit's dispatch branch; three identical call sites)
+-            f"            XPURT_DISPATCH_GUARD_ENTER();\n"
++            f"            XPURT_DISPATCH_GUARD_ENTER(e_);\n"
+   (XPURT_DISPATCH_GUARD_EXIT() at line 392 is unchanged.)
+
+@@ lines 750-757 (the guard rationale, currently ending "...which k_sched_lock
+   does not.") -- replace that closing paragraph with:
++ * this thread.
++ *
++ * k_sched_lock() alone is NOT sufficient, which is why the guard also masks
++ * interrupts. The hazard is not the thread switch. With the ISR-entry V save
++ * removed and no thread switches at all, a bare timer tick mid-kernel still
++ * returned with one scalar register wrong (convfix-007 in
++ * experiments/kernel_opt_log.jsonl; independently reproduced on this harness
++ * at 4 harts in experiments/quad_debug/RESULT.md, fq 912). Masking MIE is the
++ * only measure that removed the crash class outright (convfix-008, fq
++ * 283/285/297; and fq 837 vs fq 847 for the sibling micro-ROS harness).
++ *
++ * arch_irq_lock(), NOT irq_lock(): include/zephyr/irq.h:259 redefines the
++ * latter to z_smp_global_lock() under CONFIG_SMP, the big kernel lock that
++ * serialized the harts and cost 1401 us of makespan. arch_irq_lock() is a
++ * plain per-hart mstatus.MIE clear and costs the other harts nothing.
++ *
++ * Singleton entries only. A composite (n_harts > 1) dispatch blocks on
++ * modelblaster_pool helpers on other harts, and RISC-V arch_switch does not
++ * carry mstatus.MIE per thread, so blocking with interrupts masked would
++ * resume the next thread with MIE clear. Those keep the sched-lock-only path.
+
+@@ lines 762-767 (the macro definitions)
+ #if XPURT_DISPATCH_IRQ_GUARD
+-#define XPURT_DISPATCH_GUARD_ENTER() k_sched_lock()
+-#define XPURT_DISPATCH_GUARD_EXIT()  k_sched_unlock()
++#if defined(MODELBLASTER_PLATFORM_LINUX)
++#define XPURT_DISPATCH_GUARD_ENTER(e_) do {{ }} while (0)
++#define XPURT_DISPATCH_GUARD_EXIT()    do {{ }} while (0)
++#else
++#define XPURT_DISPATCH_GUARD_ENTER(e_)                                        \
++    const int _xpurt_mask_irq = ((e_)->n_harts <= 1);                         \
++    unsigned int _xpurt_irq_key = 0;                                          \
++    if (_xpurt_mask_irq) {{ _xpurt_irq_key = arch_irq_lock(); }}              \
++    k_sched_lock()
++#define XPURT_DISPATCH_GUARD_EXIT()                                           \
++    k_sched_unlock();                                                         \
++    if (_xpurt_mask_irq) {{ arch_irq_unlock(_xpurt_irq_key); }}
++#endif
+ #else
+-#define XPURT_DISPATCH_GUARD_ENTER() do {{ }} while (0)
+-#define XPURT_DISPATCH_GUARD_EXIT()  do {{ }} while (0)
++#define XPURT_DISPATCH_GUARD_ENTER(e_) do {{ }} while (0)
++#define XPURT_DISPATCH_GUARD_EXIT()    do {{ }} while (0)
+ #endif
+
+NOTES FOR WHOEVER APPLIES THIS
+
+* Nesting order matches harness_microros exactly: arch_irq_lock() outermost,
+  k_sched_lock() inside, unwound in reverse.
+* ENTER and EXIT are emitted into the same block scope
+  (generate_xpurt_main.py:367-393 -- lock_entry_harts, ENTER, kernel, EXIT,
+  unlock_entry_harts), so ENTER's two declarations are visible at EXIT. They
+  must NOT be wrapped in do{{...}}while(0). Braces are doubled because the
+  block is inside an f-string.
+* arch_irq_lock/arch_irq_unlock come in with <zephyr/kernel.h>, which the
+  generated main already includes (line 54).
+* MODELBLASTER_PLATFORM_LINUX arm is defensive -- arch_irq_lock() has no
+  meaning in a hosted process, and a hosted OS handles vector state across
+  context switches itself. If harness_xpurt_linux currently satisfies
+  k_sched_lock() through a shim, keep that shim on this arm.
+
+VERIFYING IT
+  1. rebuild the seven failing quad cells with experiments/workload_gen/build_workload.sh
+  2. run them (experiments/quad_debug/submit.sh, or the sweep's own submitter)
+  3. python3 experiments/quad_debug/verify.py     -- three-part gate:
+     embedded `xpurt-runner: schedule=<tag>` identity, zero mcause, and a
+     non-empty 14-field trace with no unrun real dispatch. The gate is
+     calibrated against known-good and known-bad wl_sweep results.
+  Also re-check a 2-hart cell's makespan: the fix must NOT move it, because
+  arch_irq_lock is per-hart. If a 2-hart makespan regresses toward the serial
+  sum, the BKL has come back and the wrong lock is being taken.

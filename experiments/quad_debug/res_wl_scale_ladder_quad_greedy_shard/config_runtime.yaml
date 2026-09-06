@@ -1,0 +1,41 @@
+run_farm:
+  base_recipe: run-farm-recipes/externally_provisioned.yaml
+  recipe_arg_overrides:
+    default_platform: EC2InstanceDeployManager
+    default_simulation_dir: /home/ubuntu
+    default_fpga_db: /opt/firesim-db.json
+    run_farm_hosts_to_use:
+    - 192.168.0.172: one_fpga_spec
+metasimulation:
+  metasimulation_enabled: false
+  metasimulation_host_simulator: vcs-debug
+  metasimulation_only_plusargs: +fesvr-step-size=128 +max-cycles=100000000
+  metasimulation_only_vcs_plusargs: +vcs+initreg+0 +vcs+initmem+0
+target_config:
+  topology: no_net_config
+  no_net_num_nodes: 1
+  link_latency: 6405
+  switching_latency: 10
+  net_bandwidth: 200
+  profile_interval: -1
+  default_hw_config: f2_quad_hetero_norose_tacit_q31_60mhz
+  plusarg_passthrough: +partitioned=1
+tracing:
+  enable: false
+  output_format: 0
+  selector: 1
+  start: 0
+  end: -1
+autocounter:
+  read_rate: 0
+workload:
+  workload_name: fq-job-912.json
+  terminate_on_completion: false
+  suffix_tag: fq912x252f796b
+host_debug:
+  zero_out_dram: false
+  disable_synth_asserts: false
+synth_print:
+  start: 0
+  end: -1
+  cycle_prefix: true

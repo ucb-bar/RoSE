@@ -1,0 +1,14 @@
+### submit wl_control_mix_quad_greedy_base 2026-09-06T04:45:05Z elf=experiments/quad_debug/elf/wl_control_mix_quad_greedy_base_novtrap.elf
+#### submit: submitted job 911  (completion=exit, timeout=5400s)
+  logs:   fq logs 911 -f
+  status: fq status 911
+#### jid=911
+#### uartlog=/scratch/dima/rose-infra/RoSE/experiments/quad_debug/res_wl_control_mix_quad_greedy_base/uartlog
+#### identity OK (wl_control_mix_quad_greedy_base)
+#### fault lines: 0
+xpurt-runner: schedule=wl_control_mix_quad_greedy_base entries=232 kinds=2 on chipyard_riscv64/rocketchip_virt_riscv64
+=== MODELBLASTER_VERIFY [mlp_control_sd] === max_abs_err=1.90734863e-06 max_rel_err=6.57778116e-07 n=4 instance=0 ready=1
+=== MODELBLASTER_VERIFY [dronet_se] === max_abs_err=17 max_rel_err=0.303571433 n=2 instance=0 ready=1
+=== MODELBLASTER_VERIFY [yolov8_nano_sc] === max_abs_err=0 max_rel_err=0 n=48384 instance=0 ready=1
+#### trace rows: 236
+############ FQDONE wl_control_mix_quad_greedy_base ############

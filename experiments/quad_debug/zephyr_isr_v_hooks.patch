@@ -1,0 +1,49 @@
+Subject: riscv: don't run the eager V hooks on the trap path under V_KERNEL_ONLY
+
+Apply in: soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr
+
+isr.S calls z_riscv_vstate_save on EVERY trap entry and z_riscv_vstate_restore
+on every trap exit.  Those issue `csrw vstart,0` + `vsetvli e8,m8` + 4x vse8.v
+into Saturn's decoupled vector unit while the interrupted thread's own vector
+memop may still be in flight, which corrupts the interrupted thread's registers
+on this SoC (modelblaster 5057b0e, hardware jobs 283/287; re-observed as the
+six quad-only faults in experiments/quad_debug/NOTES.md).
+
+Under CONFIG_RISCV_V_KERNEL_ONLY the global -march has `v` stripped
+(cmake/compiler/gcc/target_riscv.cmake:181), so no ISR can execute a vector
+instruction and there is nothing for these hooks to preserve.  They are pure
+overhead and they are the corrupting agent.  switch.S keeps calling the
+*_thread variants directly, so per-thread V state is still saved and restored
+across context switches.
+
+--- a/arch/riscv/core/isr.S
++++ b/arch/riscv/core/isr.S
+@@ -202,10 +202,15 @@
+ #ifdef CONFIG_RISCV_ISA_EXT_V
+ #if defined(CONFIG_RISCV_V_DECOUPLED_LAZY)
+ 	/* Decoupled lazy V (Saturn fork) — V state save/restore happens
+ 	 * via the dedicated V trap path (z_riscv_v_trap), not on IRQ
+ 	 * entry/exit.  Skip the eager call here. */
++#elif defined(CONFIG_RISCV_V_KERNEL_ONLY)
++	/* V is stripped from the global -march, so no ISR can clobber
++	 * v0..v31 and this hook preserves nothing.  It is also the thing
++	 * that corrupts an in-flight Saturn vector memop on the trap path,
++	 * so it must not run.  switch.S still saves V per thread. */
+ #elif !defined(CONFIG_RISCV_ISA_EXT_V_LAZY)
+ 	call z_riscv_vstate_save
+ #endif
+ #endif /* CONFIG_RISCV_ISA_EXT_V */
+ 
+@@ -915,10 +920,13 @@
+ #ifdef CONFIG_RISCV_ISA_EXT_V
+ #if defined(CONFIG_RISCV_V_DECOUPLED_LAZY)
+ 	/* Decoupled lazy V — restored on demand via z_riscv_v_trap, not
+ 	 * eagerly on every IRQ exit. */
++#elif defined(CONFIG_RISCV_V_KERNEL_ONLY)
++	/* Symmetric with the trap-entry skip above.  Leaving the restore in
++	 * while the save is gone would reload a stale save area over v-regs
++	 * the running kernel has since written. */
+ #elif !defined(CONFIG_RISCV_ISA_EXT_V_LAZY)
+ 	call z_riscv_vstate_restore
+ #endif
+ #endif /* CONFIG_RISCV_ISA_EXT_V */
