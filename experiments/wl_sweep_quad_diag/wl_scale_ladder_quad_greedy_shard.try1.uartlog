@@ -1,0 +1,44 @@
+Script started on 2026-09-04 02:57:39+00:00 [COMMAND="stty intr ^] && sudo LD_LIBRARY_PATH=/scratch/vnikiforov/rose-fsim/lib ./FireSim-f2 +permissive   +macaddr0=00:12:6D:00:00:02 +niclog0=niclog0  +trace-select=1 +trace-start=0 +trace-end=-1 +trace-output-format=0 +dwarf-file-name=fq-job-8420-wl_wl_scale_ladder_quad_greedy_shard.elf-dwarf +autocounter-readrate=0 +autocounter-filename-base=AUTOCOUNTERFILE  +print-start=0 +print-end=-1 +linklatency0=6405 +netbw0=200 +shmemportname0=default +partitioned=1 +slotid=0 +permissive-off +prog0=fq-job-8420-wl_wl_scale_ladder_quad_greedy_shard.elf   && stty intr ^c" TERM="screen" TTY="/dev/pts/6" COLUMNS="80" LINES="24"]
+AFI ID for Slot  0: agfi-0662319f4b07483a7
+AFI PCI  Vendor ID: 0x1d0f, Device ID 0xf002
+Attached to BAR0 (OCL)
+Attached to BAR4 (PCIS)
+widget_registry_t::add_widget(StreamEngine)
+cpu2fpga: 0, fpga2cpu: 4
+UART0 is here (stdin/stdout).
+command line for program 0. argc=19:
++permissive +macaddr0=00:12:6D:00:00:02 +niclog0=niclog0 +trace-select=1 +trace-start=0 +trace-end=-1 +trace-output-format=0 +dwarf-file-name=fq-job-8420-wl_wl_scale_ladder_quad_greedy_shard.elf-dwarf +autocounter-readrate=0 +autocounter-filename-base=AUTOCOUNTERFILE +print-start=0 +print-end=-1 +linklatency0=6405 +netbw0=200 +shmemportname0=default +partitioned=1 +slotid=0 +permissive-off fq-job-8420-wl_wl_scale_ladder_quad_greedy_shard.elf 
+entered simulation flow execution
+finished waiting
+FireSim fingerprint: 0x46697265
+Commencing simulation.
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+tsibridge_t::tick skipping tick
+*** Booting Zephyr OS build c93d5bdb6078 ***
+xpurt-runner: schedule=wl_scale_ladder_quad_greedy_shard entries=211 kinds=2 on chipyard_riscv64/rocketchip_virt_riscv64
+
+ mcause: 7, Store/AMO access fault
+  mtval: 29e708572c
+     a0: 0000000000000051    t0: 0000000000000087
+     a1: 0000000000000009    t1: 0000000000000051
+     a2: 0000000000000008    t2: 0000000082d145bf
+     a3: 0000000000000004    t3: 0000000082d145c0
+     a4: ffffffffffffffe9    t4: 0000000000000020
+     a5: 0000000000000020    t5: 000000000000001f
+     a6: 000000000000007f    t6: fffffffffffffffe
+     a7: 00000029e708572c
+     sp: 00000000870eacb0
+     ra: 000000008002d7a8
+   mepc: 000000008002f34c
+mstatus: 8000000a00007c80
+
+call trace:
+bash: line 1: 1320576 Killed                  sudo LD_LIBRARY_PATH=/scratch/vnikiforov/rose-fsim/lib ./FireSim-f2 +permissive +macaddr0=00:12:6D:00:00:02 +niclog0=niclog0 +trace-select=1 +trace-start=0 +trace-end=-1 +trace-output-format=0 +dwarf-file-name=fq-job-8420-wl_wl_scale_ladder_quad_greedy_shard.elf-dwarf +autocounter-readrate=0 +autocounter-filename-base=AUTOCOUNTERFILE +print-start=0 +print-end=-1 +linklatency0=6405 +netbw0=200 +shmemportname0=default +partitioned=1 +slotid=0 +permissive-off +prog0=fq-job-8420-wl_wl_scale_ladder_quad_greedy_shard.elf
+
+Script done on 2026-09-04 02:58:04+00:00 [COMMAND_EXIT_CODE="137"]

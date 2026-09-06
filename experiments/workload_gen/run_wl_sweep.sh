@@ -110,7 +110,8 @@ done
 echo "########## STEP 3: sharded workload JSONs ##########"
 $PY - <<'PY'
 import json,glob,os
-D="/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/data/toplevel"
+XR="/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt"
+D=f"{XR}/data/toplevel"
 os.makedirs(f"{D}/wl_sweep_shard",exist_ok=True)
 n=0
 for f in glob.glob(f"{D}/wl_sweep/*.json"):
@@ -119,7 +120,12 @@ for f in glob.glob(f"{D}/wl_sweep/*.json"):
         if name=="vint": nets[name]=e; continue      # vint stays unsplit for now
         e=dict(e)
         dp=e["dispatch_deps_path"].replace(f"/{name}/",f"/{name}_wls/").replace(f"/{name}.",f"/{name}_wls.")
-        if not os.path.exists(dp):
+        # dispatch_deps_path is stored RELATIVE to xpu-rt. Resolving it against
+        # the cwd only worked because STEP 2 happens to leave us in $XR; from
+        # anywhere else EVERY existence check misses, every network reads as
+        # "nothing splittable", and all 44 shard JSONs silently revert to the
+        # unsplit models -- deleting the shard arm with no error at all.
+        if not os.path.exists(os.path.join(XR, dp)):
             # nothing splittable above the launch floor -- this model runs
             # unsplit in BOTH arms rather than silently pointing at nothing.
             nets[name]=e; continue
@@ -134,7 +140,10 @@ for f in glob.glob(f"{D}/wl_sweep/*.json"):
     if d.get("edges"):
         d["edges"]=[{"from":ren.get(x["from"],x["from"]),
                      "to":ren.get(x["to"],x["to"])} for x in d["edges"]]
-    d["_comment"]="SHARDED arm. "+d["_comment"]
+    # idempotent: STEP 3 is re-run whenever a model gains a split tree, and
+    # an unguarded prepend stacks "SHARDED arm. " once per run.
+    if not d["_comment"].startswith("SHARDED arm."):
+        d["_comment"]="SHARDED arm. "+d["_comment"]
     json.dump(d,open(f"{D}/wl_sweep_shard/{os.path.basename(f)}","w"),indent=1); n+=1
 print(f"  wrote {n} sharded workload JSONs")
 PY
@@ -149,8 +158,34 @@ for ARM in base shard; do
     # A sweep this long will lose cells to a build bug or a queue hiccup, and
     # re-running the ones that already landed costs FPGA hours. WL_RESUME=1
     # keeps every completed cell and retries only the rest.
-    [ "${WL_RESUME:-0}" = 1 ] && [ -d $OUT/res_$T ] && {
-      printf "  %-52s %s\n" "$T" "kept"; continue; }
+    #
+    # "Completed" is a VALID uartlog, not merely a directory. A crashed or
+    # timed-out run still leaves res_$T behind holding a uartlog with no trace
+    # rows, and fq copies from the run host's sim_slot_*/ which survives
+    # between jobs, so a cell can also collect the PREVIOUS job's log. Resuming
+    # on directory existence alone therefore silently locks in exactly the
+    # cells that failed -- five quad cells sat "done" that way with zero rows.
+    # Same gate the results are read with: PASSED + a non-empty 14-field
+    # dispatch trace + an embedded schedule= tag matching this cell.
+    if [ "${WL_RESUME:-0}" = 1 ] && [ -d $OUT/res_$T ]; then
+      if $PY - "$OUT/res_$T" "$T" <<'VALID'
+import sys, glob, re
+d, tag = sys.argv[1], sys.argv[2]
+u = glob.glob(d + "/**/uartlog", recursive=True)
+if not u: sys.exit(1)
+t = open(u[0], errors="replace").read()
+m = re.search(r"xpurt-runner: schedule=(\S+)", t)
+rows, seen = 0, False
+for ln in t.splitlines():
+    if ln.startswith("entry_id,network,"): seen = True; continue
+    if seen:
+        f = ln.split(",")
+        if len(f) == 14 and f[0].strip().isdigit(): rows += 1
+sys.exit(0 if ("*** PASSED ***" in t and rows > 0 and m and m.group(1) == tag) else 1)
+VALID
+      then printf "  %-52s %s\n" "$T" "kept"; continue
+      else printf "  %-52s %s\n" "$T" "stale/failed result -- rerunning"; fi
+    fi
     $PY scripts/run_xpurt_schedule.py --networks-json "$WL" --solver $SOLVER \
         > $OUT/logs/sched_${B}_${ARM}.log 2>&1
     SJ=$XR/schedules/scheduled_${B}_${SOLVER}_profiled.json
