@@ -48,7 +48,7 @@ recommendation, so hiding them would be the wrong call:
 ### Does "decomposed wins" survive? No.
 
 `decomposed` places **9th of 12**. It ties greedy exactly on the median workload
-(it *is* greedy on 41 of 80 workload-arms) and its mean is dragged to −4.92% by
+(it returns a bit-identical objective to greedy on 43 of 80 workload-arms) and its mean is dragged to −4.92% by
 `depth_contended`, where it is 46.6% worse than greedy. It also has the single
 worst deadline behaviour on `tight_loop`, missing **every** window (252/252 base,
 308/308 shard) where every other heuristic misses 84/140. The prior +2.18% is
