@@ -341,4 +341,8 @@ def main():
     print(f"\n  {'wrote '+str(n)+' workload JSONs to '+a.out if a.emit else '(dry run -- pass --emit)'}")
 
 
-main()
+# Guarded so the module can be imported for its tables (MEASURED, PAIRS) without
+# running the generator. tune_windows.py imports MEASURED, and an unguarded
+# main() consumed ITS argv and aborted with mk_workloads' own usage message.
+if __name__ == "__main__":
+    main()
