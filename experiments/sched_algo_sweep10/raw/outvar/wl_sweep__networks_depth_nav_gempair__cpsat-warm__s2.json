@@ -1,0 +1,32 @@
+{
+ "arm": "wl_sweep",
+ "workload": "networks_depth_nav_gempair",
+ "solver": "cpsat:warm",
+ "seed": 2,
+ "build_s": 0.007,
+ "ops": 382,
+ "combos": 3,
+ "periodic_ops": 382,
+ "lanes": "gemmini_q31+V256D128_rvv",
+ "wall_s": 1.347,
+ "objective": 592.480485,
+ "all_ops": 592.480485,
+ "misses": 0,
+ "validation": {
+  "prec_viol": 0,
+  "prec_worst_ms": 0.0,
+  "overlap_viol": 0,
+  "overlap_worst_ms": 0.0,
+  "inf_dur_assign": 0,
+  "neg_start": 0,
+  "before_min_start": 0
+ },
+ "cpsat": {
+  "status": "OPTIMAL",
+  "objective": 592.481,
+  "best_bound": 592.481,
+  "gap": 0.0,
+  "wall": 0.39515233039855957,
+  "time_limit": 60.0
+ }
+}

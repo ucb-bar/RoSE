@@ -1,0 +1,14 @@
+{
+ "arm": "wl_sweep_shard",
+ "workload": "networks_tight_loop_gempair",
+ "solver": "cpsat:warmbest",
+ "seed": 0,
+ "build_s": 0.006,
+ "ops": 308,
+ "combos": 3,
+ "periodic_ops": 308,
+ "lanes": "gemmini_q31+V256D128_rvv",
+ "wall_s": 1.528,
+ "error": "RuntimeError: cpsat returned INFEASIBLE with no solution",
+ "traceback": "Traceback (most recent call last):\n  File \"/home/ubuntu/sweep10/scripts/sweep10_runner.py\", line 182, in main\n    t, alpha = fn(w)\n               ^^^^^\n  File \"/home/ubuntu/sweep10/scripts/sweep10_runner.py\", line 97, in <lambda>\n    return lambda w: cpsat_schedule(w, time_limit=cpsat_time, workers=cpsat_workers,\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ubuntu/sweep10/code/xpu-rt/cpsat_scheduler.py\", line 242, in cpsat_schedule\n    raise RuntimeError(f\"cpsat returned {sol['status']} with no solution\")\nRuntimeError: cpsat returned INFEASIBLE with no solution\n"
+}

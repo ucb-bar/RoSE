@@ -1,0 +1,23 @@
+{
+ "arm": "wl_sweep_shard",
+ "workload": "networks_vint_multi_quad",
+ "solver": "greedy_reserved",
+ "build_s": 0.023,
+ "ops": 801,
+ "combos": 6,
+ "periodic_ops": 196,
+ "lanes": "gemmini_q31+V256D128_rvv",
+ "wall_s": 0.167,
+ "objective": 4011.99921,
+ "all_ops": 4011.99921,
+ "misses": 0,
+ "validation": {
+  "prec_viol": 0,
+  "prec_worst_ms": 0.0,
+  "overlap_viol": 0,
+  "overlap_worst_ms": 0.0,
+  "inf_dur_assign": 0,
+  "neg_start": 0,
+  "before_min_start": 0
+ }
+}

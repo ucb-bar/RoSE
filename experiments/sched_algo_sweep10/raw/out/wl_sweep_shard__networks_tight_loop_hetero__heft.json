@@ -1,0 +1,23 @@
+{
+ "arm": "wl_sweep_shard",
+ "workload": "networks_tight_loop_hetero",
+ "solver": "heft",
+ "build_s": 0.006,
+ "ops": 308,
+ "combos": 2,
+ "periodic_ops": 308,
+ "lanes": "gemmini_q31+V256D128_rvv",
+ "wall_s": 0.014,
+ "objective": 75.160267,
+ "all_ops": 75.160267,
+ "misses": 140,
+ "validation": {
+  "prec_viol": 0,
+  "prec_worst_ms": 0.0,
+  "overlap_viol": 0,
+  "overlap_worst_ms": 0.0,
+  "inf_dur_assign": 0,
+  "neg_start": 0,
+  "before_min_start": 0
+ }
+}

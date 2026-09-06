@@ -1,0 +1,9 @@
+88 workload-arms; 0 cheap jobs, 88 cpsat jobs
+  [cpsat] 25/88  74s  last=wl_sweep__networks_saturation_gempair__cpsat-warmbest 61.2s
+  [cpsat] 50/88  112s  last=wl_sweep_shard__networks_control_mix_hetero__cpsat-warmbest 61.3s
+  [cpsat] 75/88  204s  last=wl_sweep_shard__networks_scale_ladder_quad__cpsat-warmbest 4.8s
+  [cpsat] 88/88  222s  last=wl_sweep_shard__networks_vint_multi_rvvpair__cpsat-warmbest 8.8s
+cpsat phase done in 222s
+ALL DONE
+EXIT=0
+Sun Sep  6 05:36:55 UTC 2026

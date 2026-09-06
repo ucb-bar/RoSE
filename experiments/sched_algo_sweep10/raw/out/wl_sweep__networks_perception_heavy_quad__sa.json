@@ -1,0 +1,23 @@
+{
+ "arm": "wl_sweep",
+ "workload": "networks_perception_heavy_quad",
+ "solver": "sa",
+ "build_s": 0.007,
+ "ops": 183,
+ "combos": 6,
+ "periodic_ops": 28,
+ "lanes": "gemmini_q31+V256D128_rvv",
+ "wall_s": 5.836,
+ "objective": 102.201889,
+ "all_ops": 102.201889,
+ "misses": 0,
+ "validation": {
+  "prec_viol": 0,
+  "prec_worst_ms": 0.0,
+  "overlap_viol": 0,
+  "overlap_worst_ms": 0.0,
+  "inf_dur_assign": 0,
+  "neg_start": 0,
+  "before_min_start": 0
+ }
+}

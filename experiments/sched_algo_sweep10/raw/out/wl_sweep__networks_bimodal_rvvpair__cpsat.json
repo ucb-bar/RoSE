@@ -1,0 +1,31 @@
+{
+ "arm": "wl_sweep",
+ "workload": "networks_bimodal_rvvpair",
+ "solver": "cpsat",
+ "build_s": 0.004,
+ "ops": 379,
+ "combos": 3,
+ "periodic_ops": 224,
+ "lanes": "gemmini_q31+V256D128_rvv",
+ "wall_s": 14.007,
+ "objective": 430.534888,
+ "all_ops": 430.534888,
+ "misses": 0,
+ "validation": {
+  "prec_viol": 0,
+  "prec_worst_ms": 0.0,
+  "overlap_viol": 0,
+  "overlap_worst_ms": 0.0,
+  "inf_dur_assign": 0,
+  "neg_start": 0,
+  "before_min_start": 0
+ },
+ "cpsat": {
+  "status": "OPTIMAL",
+  "objective": 430.535,
+  "best_bound": 430.535,
+  "gap": 0.0,
+  "wall": 13.53834843635559,
+  "time_limit": 60.0
+ }
+}

@@ -1,0 +1,338 @@
+24 failed jobs of 968
+
+wl_sweep networks_tight_loop_gempair cpsat:warm
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  Traceback (most recent call last):
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 152, in main
+      t, alpha = fn(w)
+                 ^^^^^
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 68, in <lambda>
+      return lambda w: cpsat_schedule(w, time_limit=cpsat_time, workers=cpsat_workers,
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/home/ubuntu/sweep10/code/xpu-rt/cpsat_scheduler.py", line 242, in cpsat_schedule
+      raise RuntimeError(f"cpsat returned {sol['status']} with no solution")
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  
+
+wl_sweep networks_tight_loop_gempair cpsat
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  Traceback (most recent call last):
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 152, in main
+      t, alpha = fn(w)
+                 ^^^^^
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 65, in <lambda>
+      return lambda w: cpsat_schedule(w, time_limit=cpsat_time, workers=cpsat_workers)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/home/ubuntu/sweep10/code/xpu-rt/cpsat_scheduler.py", line 242, in cpsat_schedule
+      raise RuntimeError(f"cpsat returned {sol['status']} with no solution")
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  
+
+wl_sweep networks_tight_loop_hetero cpsat:warm
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  Traceback (most recent call last):
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 152, in main
+      t, alpha = fn(w)
+                 ^^^^^
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 68, in <lambda>
+      return lambda w: cpsat_schedule(w, time_limit=cpsat_time, workers=cpsat_workers,
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/home/ubuntu/sweep10/code/xpu-rt/cpsat_scheduler.py", line 242, in cpsat_schedule
+      raise RuntimeError(f"cpsat returned {sol['status']} with no solution")
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  
+
+wl_sweep networks_tight_loop_hetero cpsat
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  Traceback (most recent call last):
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 152, in main
+      t, alpha = fn(w)
+                 ^^^^^
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 65, in <lambda>
+      return lambda w: cpsat_schedule(w, time_limit=cpsat_time, workers=cpsat_workers)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/home/ubuntu/sweep10/code/xpu-rt/cpsat_scheduler.py", line 242, in cpsat_schedule
+      raise RuntimeError(f"cpsat returned {sol['status']} with no solution")
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  
+
+wl_sweep networks_tight_loop_quad cpsat:warm
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  Traceback (most recent call last):
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 152, in main
+      t, alpha = fn(w)
+                 ^^^^^
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 68, in <lambda>
+      return lambda w: cpsat_schedule(w, time_limit=cpsat_time, workers=cpsat_workers,
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/home/ubuntu/sweep10/code/xpu-rt/cpsat_scheduler.py", line 242, in cpsat_schedule
+      raise RuntimeError(f"cpsat returned {sol['status']} with no solution")
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  
+
+wl_sweep networks_tight_loop_quad cpsat
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  Traceback (most recent call last):
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 152, in main
+      t, alpha = fn(w)
+                 ^^^^^
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 65, in <lambda>
+      return lambda w: cpsat_schedule(w, time_limit=cpsat_time, workers=cpsat_workers)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/home/ubuntu/sweep10/code/xpu-rt/cpsat_scheduler.py", line 242, in cpsat_schedule
+      raise RuntimeError(f"cpsat returned {sol['status']} with no solution")
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  
+
+wl_sweep networks_tight_loop_rvvpair cpsat:warm
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  Traceback (most recent call last):
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 152, in main
+      t, alpha = fn(w)
+                 ^^^^^
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 68, in <lambda>
+      return lambda w: cpsat_schedule(w, time_limit=cpsat_time, workers=cpsat_workers,
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/home/ubuntu/sweep10/code/xpu-rt/cpsat_scheduler.py", line 242, in cpsat_schedule
+      raise RuntimeError(f"cpsat returned {sol['status']} with no solution")
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  
+
+wl_sweep networks_tight_loop_rvvpair cpsat
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  Traceback (most recent call last):
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 152, in main
+      t, alpha = fn(w)
+                 ^^^^^
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 65, in <lambda>
+      return lambda w: cpsat_schedule(w, time_limit=cpsat_time, workers=cpsat_workers)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/home/ubuntu/sweep10/code/xpu-rt/cpsat_scheduler.py", line 242, in cpsat_schedule
+      raise RuntimeError(f"cpsat returned {sol['status']} with no solution")
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  
+
+wl_sweep_shard networks_tight_loop_gempair cpsat:warm
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  Traceback (most recent call last):
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 152, in main
+      t, alpha = fn(w)
+                 ^^^^^
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 68, in <lambda>
+      return lambda w: cpsat_schedule(w, time_limit=cpsat_time, workers=cpsat_workers,
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/home/ubuntu/sweep10/code/xpu-rt/cpsat_scheduler.py", line 242, in cpsat_schedule
+      raise RuntimeError(f"cpsat returned {sol['status']} with no solution")
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  
+
+wl_sweep_shard networks_tight_loop_gempair cpsat
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  Traceback (most recent call last):
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 152, in main
+      t, alpha = fn(w)
+                 ^^^^^
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 65, in <lambda>
+      return lambda w: cpsat_schedule(w, time_limit=cpsat_time, workers=cpsat_workers)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/home/ubuntu/sweep10/code/xpu-rt/cpsat_scheduler.py", line 242, in cpsat_schedule
+      raise RuntimeError(f"cpsat returned {sol['status']} with no solution")
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  
+
+wl_sweep_shard networks_tight_loop_hetero cpsat:warm
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  Traceback (most recent call last):
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 152, in main
+      t, alpha = fn(w)
+                 ^^^^^
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 68, in <lambda>
+      return lambda w: cpsat_schedule(w, time_limit=cpsat_time, workers=cpsat_workers,
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/home/ubuntu/sweep10/code/xpu-rt/cpsat_scheduler.py", line 242, in cpsat_schedule
+      raise RuntimeError(f"cpsat returned {sol['status']} with no solution")
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  
+
+wl_sweep_shard networks_tight_loop_hetero cpsat
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  Traceback (most recent call last):
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 152, in main
+      t, alpha = fn(w)
+                 ^^^^^
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 65, in <lambda>
+      return lambda w: cpsat_schedule(w, time_limit=cpsat_time, workers=cpsat_workers)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/home/ubuntu/sweep10/code/xpu-rt/cpsat_scheduler.py", line 242, in cpsat_schedule
+      raise RuntimeError(f"cpsat returned {sol['status']} with no solution")
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  
+
+wl_sweep_shard networks_tight_loop_quad cpsat:warm
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  Traceback (most recent call last):
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 152, in main
+      t, alpha = fn(w)
+                 ^^^^^
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 68, in <lambda>
+      return lambda w: cpsat_schedule(w, time_limit=cpsat_time, workers=cpsat_workers,
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/home/ubuntu/sweep10/code/xpu-rt/cpsat_scheduler.py", line 242, in cpsat_schedule
+      raise RuntimeError(f"cpsat returned {sol['status']} with no solution")
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  
+
+wl_sweep_shard networks_tight_loop_quad cpsat
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  Traceback (most recent call last):
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 152, in main
+      t, alpha = fn(w)
+                 ^^^^^
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 65, in <lambda>
+      return lambda w: cpsat_schedule(w, time_limit=cpsat_time, workers=cpsat_workers)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/home/ubuntu/sweep10/code/xpu-rt/cpsat_scheduler.py", line 242, in cpsat_schedule
+      raise RuntimeError(f"cpsat returned {sol['status']} with no solution")
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  
+
+wl_sweep_shard networks_tight_loop_rvvpair cpsat:warm
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  Traceback (most recent call last):
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 152, in main
+      t, alpha = fn(w)
+                 ^^^^^
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 68, in <lambda>
+      return lambda w: cpsat_schedule(w, time_limit=cpsat_time, workers=cpsat_workers,
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/home/ubuntu/sweep10/code/xpu-rt/cpsat_scheduler.py", line 242, in cpsat_schedule
+      raise RuntimeError(f"cpsat returned {sol['status']} with no solution")
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  
+
+wl_sweep_shard networks_tight_loop_rvvpair cpsat
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  Traceback (most recent call last):
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 152, in main
+      t, alpha = fn(w)
+                 ^^^^^
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 65, in <lambda>
+      return lambda w: cpsat_schedule(w, time_limit=cpsat_time, workers=cpsat_workers)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/home/ubuntu/sweep10/code/xpu-rt/cpsat_scheduler.py", line 242, in cpsat_schedule
+      raise RuntimeError(f"cpsat returned {sol['status']} with no solution")
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  
+
+wl_sweep networks_tight_loop_gempair cpsat:warmbest
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  Traceback (most recent call last):
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 182, in main
+      t, alpha = fn(w)
+                 ^^^^^
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 97, in <lambda>
+      return lambda w: cpsat_schedule(w, time_limit=cpsat_time, workers=cpsat_workers,
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/home/ubuntu/sweep10/code/xpu-rt/cpsat_scheduler.py", line 242, in cpsat_schedule
+      raise RuntimeError(f"cpsat returned {sol['status']} with no solution")
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  
+
+wl_sweep networks_tight_loop_hetero cpsat:warmbest
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  Traceback (most recent call last):
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 182, in main
+      t, alpha = fn(w)
+                 ^^^^^
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 97, in <lambda>
+      return lambda w: cpsat_schedule(w, time_limit=cpsat_time, workers=cpsat_workers,
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/home/ubuntu/sweep10/code/xpu-rt/cpsat_scheduler.py", line 242, in cpsat_schedule
+      raise RuntimeError(f"cpsat returned {sol['status']} with no solution")
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  
+
+wl_sweep networks_tight_loop_quad cpsat:warmbest
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  Traceback (most recent call last):
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 182, in main
+      t, alpha = fn(w)
+                 ^^^^^
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 97, in <lambda>
+      return lambda w: cpsat_schedule(w, time_limit=cpsat_time, workers=cpsat_workers,
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/home/ubuntu/sweep10/code/xpu-rt/cpsat_scheduler.py", line 242, in cpsat_schedule
+      raise RuntimeError(f"cpsat returned {sol['status']} with no solution")
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  
+
+wl_sweep networks_tight_loop_rvvpair cpsat:warmbest
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  Traceback (most recent call last):
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 182, in main
+      t, alpha = fn(w)
+                 ^^^^^
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 97, in <lambda>
+      return lambda w: cpsat_schedule(w, time_limit=cpsat_time, workers=cpsat_workers,
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/home/ubuntu/sweep10/code/xpu-rt/cpsat_scheduler.py", line 242, in cpsat_schedule
+      raise RuntimeError(f"cpsat returned {sol['status']} with no solution")
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  
+
+wl_sweep_shard networks_tight_loop_gempair cpsat:warmbest
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  Traceback (most recent call last):
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 182, in main
+      t, alpha = fn(w)
+                 ^^^^^
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 97, in <lambda>
+      return lambda w: cpsat_schedule(w, time_limit=cpsat_time, workers=cpsat_workers,
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/home/ubuntu/sweep10/code/xpu-rt/cpsat_scheduler.py", line 242, in cpsat_schedule
+      raise RuntimeError(f"cpsat returned {sol['status']} with no solution")
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  
+
+wl_sweep_shard networks_tight_loop_hetero cpsat:warmbest
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  Traceback (most recent call last):
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 182, in main
+      t, alpha = fn(w)
+                 ^^^^^
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 97, in <lambda>
+      return lambda w: cpsat_schedule(w, time_limit=cpsat_time, workers=cpsat_workers,
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/home/ubuntu/sweep10/code/xpu-rt/cpsat_scheduler.py", line 242, in cpsat_schedule
+      raise RuntimeError(f"cpsat returned {sol['status']} with no solution")
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  
+
+wl_sweep_shard networks_tight_loop_quad cpsat:warmbest
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  Traceback (most recent call last):
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 182, in main
+      t, alpha = fn(w)
+                 ^^^^^
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 97, in <lambda>
+      return lambda w: cpsat_schedule(w, time_limit=cpsat_time, workers=cpsat_workers,
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/home/ubuntu/sweep10/code/xpu-rt/cpsat_scheduler.py", line 242, in cpsat_schedule
+      raise RuntimeError(f"cpsat returned {sol['status']} with no solution")
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  
+
+wl_sweep_shard networks_tight_loop_rvvpair cpsat:warmbest
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  Traceback (most recent call last):
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 182, in main
+      t, alpha = fn(w)
+                 ^^^^^
+    File "/home/ubuntu/sweep10/scripts/sweep10_runner.py", line 97, in <lambda>
+      return lambda w: cpsat_schedule(w, time_limit=cpsat_time, workers=cpsat_workers,
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/home/ubuntu/sweep10/code/xpu-rt/cpsat_scheduler.py", line 242, in cpsat_schedule
+      raise RuntimeError(f"cpsat returned {sol['status']} with no solution")
+  RuntimeError: cpsat returned INFEASIBLE with no solution
+  
+

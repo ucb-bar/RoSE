@@ -1,0 +1,23 @@
+{
+ "arm": "wl_sweep",
+ "workload": "networks_vint_multi_hetero",
+ "solver": "decomposed",
+ "build_s": 0.019,
+ "ops": 745,
+ "combos": 2,
+ "periodic_ops": 140,
+ "lanes": "gemmini_q31+V256D128_rvv",
+ "wall_s": 0.099,
+ "objective": 4546.27517,
+ "all_ops": 4546.27517,
+ "misses": 0,
+ "validation": {
+  "prec_viol": 0,
+  "prec_worst_ms": 0.0,
+  "overlap_viol": 0,
+  "overlap_worst_ms": 0.0,
+  "inf_dur_assign": 0,
+  "neg_start": 0,
+  "before_min_start": 0
+ }
+}

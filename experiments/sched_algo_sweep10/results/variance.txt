@@ -1,0 +1,7 @@
+Seed spread over {s0,s1,s2} on 20 workload-arms (10 families x {base/gempair, shard/quad}); spread = (max-min)/mean of the objective.
+
+solver           n  mean spread %  median spread %  max spread %  mean |d| vs s0 %
+pso             20         0.4989           0.0000        4.1440            0.2975
+sa              20         0.1413           0.0000        0.9443            0.1100
+cpsat           20         2.7262           0.0001       14.9031            1.9867
+cpsat:warm      20         0.2731           0.0000        2.1981            0.1929

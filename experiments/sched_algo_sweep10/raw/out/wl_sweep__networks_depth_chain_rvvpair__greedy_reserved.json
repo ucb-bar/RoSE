@@ -1,0 +1,23 @@
+{
+ "arm": "wl_sweep",
+ "workload": "networks_depth_chain_rvvpair",
+ "solver": "greedy_reserved",
+ "build_s": 0.006,
+ "ops": 270,
+ "combos": 3,
+ "periodic_ops": 270,
+ "lanes": "gemmini_q31+V256D128_rvv",
+ "wall_s": 0.017,
+ "objective": 222.846359,
+ "all_ops": 222.846359,
+ "misses": 0,
+ "validation": {
+  "prec_viol": 0,
+  "prec_worst_ms": 0.0,
+  "overlap_viol": 0,
+  "overlap_worst_ms": 0.0,
+  "inf_dur_assign": 0,
+  "neg_start": 0,
+  "before_min_start": 0
+ }
+}

@@ -1,0 +1,30 @@
+{
+ "pso": {
+  "n": 20,
+  "mean_spread_pct": 0.4989,
+  "median_spread_pct": 0.0,
+  "max_spread_pct": 4.144,
+  "mean_abs_dev_vs_seed0_pct": 0.2975
+ },
+ "sa": {
+  "n": 20,
+  "mean_spread_pct": 0.1413,
+  "median_spread_pct": 0.0,
+  "max_spread_pct": 0.9443,
+  "mean_abs_dev_vs_seed0_pct": 0.11
+ },
+ "cpsat": {
+  "n": 20,
+  "mean_spread_pct": 2.7262,
+  "median_spread_pct": 0.0001,
+  "max_spread_pct": 14.9031,
+  "mean_abs_dev_vs_seed0_pct": 1.9867
+ },
+ "cpsat:warm": {
+  "n": 20,
+  "mean_spread_pct": 0.2731,
+  "median_spread_pct": 0.0,
+  "max_spread_pct": 2.1981,
+  "mean_abs_dev_vs_seed0_pct": 0.1929
+ }
+}

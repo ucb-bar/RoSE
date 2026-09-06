@@ -1,0 +1,32 @@
+{
+ "arm": "wl_sweep_shard",
+ "workload": "networks_depth_contended_quad",
+ "solver": "cpsat",
+ "seed": 1,
+ "build_s": 0.019,
+ "ops": 695,
+ "combos": 6,
+ "periodic_ops": 414,
+ "lanes": "gemmini_q31+V256D128_rvv",
+ "wall_s": 61.388,
+ "objective": 38.841946,
+ "all_ops": 509.688614,
+ "misses": 0,
+ "validation": {
+  "prec_viol": 0,
+  "prec_worst_ms": 0.0,
+  "overlap_viol": 0,
+  "overlap_worst_ms": 0.0,
+  "inf_dur_assign": 0,
+  "neg_start": 0,
+  "before_min_start": 0
+ },
+ "cpsat": {
+  "status": "FEASIBLE",
+  "objective": 38.842,
+  "best_bound": 21.397,
+  "gap": 0.4491272334071366,
+  "wall": 60.05990481376648,
+  "time_limit": 60.0
+ }
+}

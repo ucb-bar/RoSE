@@ -1,0 +1,2 @@
+0 of 1032 schedules have a precedence/overlap/assignment violation
+

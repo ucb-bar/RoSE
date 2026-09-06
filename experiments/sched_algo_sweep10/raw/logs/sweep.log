@@ -1,0 +1,43 @@
+88 workload-arms; 704 cheap jobs, 176 cpsat jobs
+  [cheap] 25/704  21s  last=wl_sweep__networks_bimodal_rvvpair__greedy 0.2s
+  [cheap] 50/704  21s  last=wl_sweep__networks_control_mix_quad__greedy_periodic 0.2s
+  [cheap] 75/704  21s  last=wl_sweep__networks_depth_chain_hetero__greedy_reserved 0.2s
+  [cheap] 100/704  21s  last=wl_sweep__networks_depth_contended_gempair__decomposed 0.2s
+  [cheap] 125/704  21s  last=wl_sweep__networks_depth_contended_rvvpair__heft 0.2s
+  [cheap] 150/704  21s  last=wl_sweep__networks_depth_nav_quad__heft_edf 0.4s
+  [cheap] 175/704  21s  last=wl_sweep__networks_perception_heavy_hetero__pso 2.8s
+  [cheap] 200/704  21s  last=wl_sweep__networks_saturation_gempair__sa 17.2s
+  [cheap] 225/704  21s  last=wl_sweep__networks_scale_ladder_gempair__greedy 0.2s
+  [cheap] 250/704  21s  last=wl_sweep__networks_scale_ladder_rvvpair__greedy_periodic 0.2s
+  [cheap] 275/704  21s  last=wl_sweep__networks_tight_loop_quad__greedy_reserved 0.2s
+  [cheap] 300/704  22s  last=wl_sweep__networks_vint_intro_hetero__decomposed 0.3s
+  [cheap] 325/704  23s  last=wl_sweep__networks_vint_multi_gempair__heft 0.4s
+  [cheap] 350/704  24s  last=wl_sweep__networks_vint_multi_rvvpair__heft_edf 1.5s
+  [cheap] 375/704  25s  last=wl_sweep_shard__networks_bimodal_quad__pso 20.6s
+  [cheap] 400/704  25s  last=wl_sweep_shard__networks_control_mix_hetero__sa 15.2s
+  [cheap] 425/704  25s  last=wl_sweep_shard__networks_depth_chain_hetero__greedy 0.2s
+  [cheap] 450/704  26s  last=wl_sweep_shard__networks_depth_contended_gempair__greedy_periodic 0.2s
+  [cheap] 475/704  29s  last=wl_sweep_shard__networks_depth_contended_rvvpair__greedy_reserved 0.3s
+  [cheap] 500/704  29s  last=wl_sweep_shard__networks_depth_nav_quad__decomposed 0.3s
+  [cheap] 525/704  30s  last=wl_sweep_shard__networks_perception_heavy_hetero__heft 0.2s
+  [cheap] 550/704  32s  last=wl_sweep_shard__networks_saturation_gempair__heft_edf 1.0s
+  [cheap] 575/704  37s  last=wl_sweep_shard__networks_saturation_rvvpair__pso 21.1s
+  [cheap] 600/704  37s  last=wl_sweep_shard__networks_scale_ladder_quad__sa 8.7s
+  [cheap] 625/704  37s  last=wl_sweep_shard__networks_tight_loop_quad__greedy 0.2s
+  [cheap] 650/704  41s  last=wl_sweep_shard__networks_vint_intro_hetero__greedy_periodic 0.3s
+  [cheap] 675/704  41s  last=wl_sweep_shard__networks_vint_multi_gempair__greedy_reserved 0.3s
+  [cheap] 700/704  43s  last=wl_sweep_shard__networks_vint_multi_rvvpair__decomposed 0.4s
+  [cheap] 704/704  43s  last=wl_sweep_shard__networks_vint_multi_rvvpair__sa 20.2s
+cheap phase done in 43s
+  [cpsat] 25/176  54s  last=wl_sweep__networks_depth_contended_gempair__cpsat 16.7s
+  [cpsat] 50/176  117s  last=wl_sweep__networks_saturation_gempair__cpsat-warm 61.1s
+  [cpsat] 75/176  155s  last=wl_sweep__networks_vint_intro_hetero__cpsat 61.3s
+  [cpsat] 100/176  241s  last=wl_sweep_shard__networks_control_mix_hetero__cpsat-warm 61.6s
+  [cpsat] 125/176  311s  last=wl_sweep_shard__networks_depth_nav_quad__cpsat 40.3s
+  [cpsat] 150/176  422s  last=wl_sweep_shard__networks_scale_ladder_quad__cpsat-warm 3.2s
+  [cpsat] 175/176  447s  last=wl_sweep_shard__networks_vint_multi_rvvpair__cpsat 22.7s
+  [cpsat] 176/176  447s  last=wl_sweep_shard__networks_vint_multi_rvvpair__cpsat-warm 7.0s
+cpsat phase done in 447s
+ALL DONE
+EXIT=0
+Sun Sep  6 05:27:10 UTC 2026

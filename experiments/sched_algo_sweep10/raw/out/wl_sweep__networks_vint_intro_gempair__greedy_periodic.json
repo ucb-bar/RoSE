@@ -1,0 +1,23 @@
+{
+ "arm": "wl_sweep",
+ "workload": "networks_vint_intro_gempair",
+ "solver": "greedy_periodic",
+ "build_s": 0.014,
+ "ops": 661,
+ "combos": 3,
+ "periodic_ops": 56,
+ "lanes": "gemmini_q31+V256D128_rvv",
+ "wall_s": 0.075,
+ "objective": 4074.669807,
+ "all_ops": 4074.669807,
+ "misses": 5,
+ "validation": {
+  "prec_viol": 0,
+  "prec_worst_ms": 0.0,
+  "overlap_viol": 0,
+  "overlap_worst_ms": 0.0,
+  "inf_dur_assign": 0,
+  "neg_start": 0,
+  "before_min_start": 0
+ }
+}

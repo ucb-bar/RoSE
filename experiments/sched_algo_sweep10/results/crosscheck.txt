@@ -1,0 +1,39 @@
+compared 240 (workload, solver) cells present in both runs (base arm only; the Sep-3 run had no shard arm)
+
+DETERMINISTIC solvers (144 cells): 128 reproduce to <0.01% (the Sep-3 file's 3-decimal rounding floor), 16 genuinely differ
+  decomposed       24/24 reproduce, 0 differ
+  greedy           24/24 reproduce, 0 differ
+  greedy_periodic  24/24 reproduce, 0 differ
+  greedy_reserved  24/24 reproduce, 0 differ
+  heft             24/24 reproduce, 0 differ
+  heft_edf          8/24 reproduce, 16 differ (worst 37.48%)
+  networks_tight_loop_quad          heft_edf         sep3=    73.438 now=    45.916  -37.476%
+  networks_tight_loop_rvvpair       heft_edf         sep3=    91.208 now=    75.598  -17.115%
+  networks_saturation_rvvpair       heft_edf         sep3=   217.560 now=   182.981  -15.894%
+  networks_saturation_quad          heft_edf         sep3=    86.617 now=    75.544  -12.784%
+  networks_control_mix_hetero       heft_edf         sep3=    44.433 now=    38.910  -12.430%
+  networks_control_mix_rvvpair      heft_edf         sep3=    97.123 now=    85.670  -11.793%
+  networks_saturation_hetero        heft_edf         sep3=   115.835 now=   104.251  -10.000%
+  networks_control_mix_gempair      heft_edf         sep3=    60.074 now=    54.074   -9.987%
+  networks_control_mix_quad         heft_edf         sep3=    36.120 now=    33.635   -6.880%
+  networks_saturation_gempair       heft_edf         sep3=   164.668 now=   154.639   -6.090%
+  networks_vint_multi_quad          heft_edf         sep3=  3939.278 now=  3750.825   -4.784%
+  networks_vint_multi_gempair       heft_edf         sep3=  3874.091 now=  3757.463   -3.010%
+
+STOCHASTIC solvers (88 cells): mean change -7.689%, median -3.657% (negative = faster now)
+  cpsat        n= 20 mean  -14.503%  median  -12.984%  best  -56.712%  worst  +17.172%
+  cpsat:warm   n= 20 mean   -3.437%  median   +0.003%  best  -21.637%  worst   +0.141%
+  pso          n= 24 mean   -7.510%  median   -8.172%  best  -25.231%  worst   +0.044%
+  sa           n= 24 mean   -5.732%  median   -6.007%  best  -24.882%  worst   +0.000%
+
+largest CP-SAT improvement (most negative = biggest improvement since Sep 3):
+  networks_vint_intro_hetero        cpsat        sep3=  9119.446 now=  3947.610  -56.712%
+  networks_saturation_hetero        cpsat        sep3=   140.927 now=    82.043  -41.783%
+  networks_vint_multi_rvvpair       cpsat        sep3= 16528.104 now= 11068.233  -33.034%
+  networks_vint_intro_rvvpair       cpsat        sep3= 15620.433 now= 11068.233  -29.143%
+  networks_saturation_gempair       cpsat        sep3=   180.372 now=   130.305  -27.758%
+  networks_vint_multi_gempair       cpsat        sep3=  4985.869 now=  3754.235  -24.702%
+  networks_saturation_hetero        cpsat:warm   sep3=   104.418 now=    81.825  -21.637%
+  networks_vint_intro_gempair       cpsat        sep3=  4764.821 now=  3754.235  -21.209%
+  networks_saturation_rvvpair       cpsat        sep3=   212.089 now=   170.980  -19.383%
+  networks_vint_multi_hetero        cpsat        sep3=  5327.289 now=  4320.503  -18.899%

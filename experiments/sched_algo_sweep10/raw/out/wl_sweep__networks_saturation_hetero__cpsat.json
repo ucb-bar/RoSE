@@ -1,0 +1,31 @@
+{
+ "arm": "wl_sweep",
+ "workload": "networks_saturation_hetero",
+ "solver": "cpsat",
+ "build_s": 0.009,
+ "ops": 393,
+ "combos": 2,
+ "periodic_ops": 238,
+ "lanes": "gemmini_q31+V256D128_rvv",
+ "wall_s": 60.794,
+ "objective": 82.04316,
+ "all_ops": 104.446141,
+ "misses": 0,
+ "validation": {
+  "prec_viol": 0,
+  "prec_worst_ms": 0.0,
+  "overlap_viol": 0,
+  "overlap_worst_ms": 0.0,
+  "inf_dur_assign": 0,
+  "neg_start": 0,
+  "before_min_start": 0
+ },
+ "cpsat": {
+  "status": "FEASIBLE",
+  "objective": 82.044,
+  "best_bound": 76.022,
+  "gap": 0.0733996392179806,
+  "wall": 60.042192697525024,
+  "time_limit": 60.0
+ }
+}

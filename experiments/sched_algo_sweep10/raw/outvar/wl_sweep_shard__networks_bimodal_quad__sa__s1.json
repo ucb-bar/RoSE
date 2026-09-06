@@ -1,0 +1,24 @@
+{
+ "arm": "wl_sweep_shard",
+ "workload": "networks_bimodal_quad",
+ "solver": "sa",
+ "seed": 1,
+ "build_s": 0.011,
+ "ops": 442,
+ "combos": 6,
+ "periodic_ops": 224,
+ "lanes": "gemmini_q31+V256D128_rvv",
+ "wall_s": 17.767,
+ "objective": 147.658017,
+ "all_ops": 147.658017,
+ "misses": 0,
+ "validation": {
+  "prec_viol": 0,
+  "prec_worst_ms": 0.0,
+  "overlap_viol": 0,
+  "overlap_worst_ms": 0.0,
+  "inf_dur_assign": 0,
+  "neg_start": 0,
+  "before_min_start": 0
+ }
+}
