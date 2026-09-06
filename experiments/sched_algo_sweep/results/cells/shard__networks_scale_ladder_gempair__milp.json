@@ -1,0 +1,23 @@
+{
+ "cell_id": "shard__networks_scale_ladder_gempair__milp",
+ "family": "scale_ladder",
+ "pair": "gempair",
+ "arm": "shard",
+ "solver": "milp",
+ "basename": "networks_scale_ladder_gempair",
+ "networks_json": "/home/ubuntu/xpu-rt/data/toplevel/wl_sweep_shard/networks_scale_ladder_gempair.json",
+ "returncode": -9,
+ "wall_s": 1200.7569918632507,
+ "timed_out": true,
+ "time_limit_s": 120.0,
+ "blas_threads": 1,
+ "solver_status": null,
+ "ops_reported_prescheduling": 211,
+ "ok": false,
+ "error": "run failed (rc=-9) or no schedule json",
+ "tail": "ile target/topology: target=firesim_f2_rocket_saturn, topo_tag=topo_0\n  p_core_speedup: 1.0\n  random_seed: 42\n  solver_verbosity: 1\n  time_limit: 120.0\n  use_profiled: True\n  prune_periodic: True\n  restrict_makespan_to_nonperiodic: False\n  machine_combination_mode: singletons\n  enforce_same_processor_combinations: True\n\nUsing profiled runtimes where available...\n\nCreating workload from network hierarchy...\n\nWorkload created successfully!\n  Total operations: 211\n  Scheduler machines (2 cores): ['CPU_P#0', 'CPU_P#1']\n  Machine combination options: 3 (mode=singletons)\n  Job names: ['dronet_sb_wls', 'dronet_sc_wls', 'dronet_sd_wls', 'dronet_se_wls', 'dronet_sf_wls', 'dronet_sg_wls']\n  Operations with multiple predecessors: 147\n  Independent jobs (can run in parallel): 12\n\n============================================================\nScheduling combined workload (MILP)...\n============================================================\n===============================================================================\n                                     CVXPY                                     \n                                     v1.7.5                                    \n===============================================================================\n-------------------------------------------------------------------------------\n                                  Compilation                                  \n-------------------------------------------------------------------------------\n(CVXPY) Sep 06 03:27:22 AM: Your problem has 45366 variables, 264629 constraints, and 0 parameters.\n(CVXPY) Sep 06 03:27:55 AM: It is compliant with the following grammars: DCP, DQCP\n(CVXPY) Sep 06 03:27:55 AM: (If you need to solve this problem multiple times, but with different data, consider using parameters.)\n(CVXPY) Sep 06 03:27:55 AM: CVXPY will first compile your problem; then, it will invoke a numerical solver to obtain a solution.\n(CVXPY) Sep 06 03:27:55 AM: Your problem is compiled with the CPP canonicalization backend.\n(CVXPY) Sep 06 03:28:24 AM: Compiling problem (target solver=MOSEK).\n(CVXPY) Sep 06 03:28:24 AM: Reduction chain: Dcp2Cone -> CvxAttr2Constr -> ConeMatrixStuffing -> MOSEK\n(CVXPY) Sep 06 03:28:24 AM: Applying reduction Dcp2Cone\n(CVXPY) Sep 06 03:29:15 AM: Applying reduction CvxAttr2Constr\n(CVXPY) Sep 06 03:29:18 AM: Applying reduction ConeMatrixStuffing\n",
+ "milp_n_variables": 45366,
+ "milp_n_constraints": 264629,
+ "last_cvxpy_reduction": "ConeMatrixStuffing",
+ "failure_reason": "wall_clock_timeout"
+}

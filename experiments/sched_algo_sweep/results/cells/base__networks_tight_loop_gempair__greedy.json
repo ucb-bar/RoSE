@@ -1,0 +1,128 @@
+{
+ "cell_id": "base__networks_tight_loop_gempair__greedy",
+ "family": "tight_loop",
+ "pair": "gempair",
+ "arm": "base",
+ "solver": "greedy",
+ "basename": "networks_tight_loop_gempair",
+ "networks_json": "/home/ubuntu/xpu-rt/data/toplevel/wl_sweep/networks_tight_loop_gempair.json",
+ "returncode": 0,
+ "wall_s": 2.837008476257324,
+ "time_limit_s": 120.0,
+ "blas_threads": 1,
+ "solver_status": "heuristic",
+ "ops_reported_prescheduling": 252,
+ "makespan_pred_ms": 98.40299499999996,
+ "makespan_meta_ms": 98.40299499999996,
+ "num_operations": 252,
+ "num_periodic_operations": 252,
+ "num_nonperiodic_operations": 0,
+ "total_busy_ms": 148.61166400000005,
+ "machines": [
+  "CPU_P#0",
+  "CPU_P#1"
+ ],
+ "profile_hw": {
+  "CPU_P": "gemmini_q31",
+  "CPU_E": "V256D128_rvv"
+ },
+ "busy_by_machine_ms": {
+  "CPU_P#0": 67.12068599999999,
+  "CPU_P#1": 81.490978
+ },
+ "util_by_machine": {
+  "CPU_P#0": 0.6821000316098105,
+  "CPU_P#1": 0.8281351395859449
+ },
+ "busy_by_kind_ms": {
+  "CPU_P": 148.611664
+ },
+ "util_by_kind": {
+  "CPU_P": 0.7551175855978777
+ },
+ "n_machines_by_kind": {
+  "CPU_P": 2
+ },
+ "ops_by_machine": {
+  "CPU_P#0": 202,
+  "CPU_P#1": 50
+ },
+ "periodic_instances_retained": {
+  "dronet_sa": 4,
+  "mlp_control_sa": 16,
+  "mlp_control_sb": 8
+ },
+ "periodic_declared_instances": {
+  "mlp_control_sa": 16,
+  "mlp_control_sb": 8,
+  "dronet_sa": 4
+ },
+ "periodic_periods_ms": {
+  "mlp_control_sa": 0.044,
+  "mlp_control_sb": 0.18,
+  "dronet_sa": 2.281
+ },
+ "period_misses": [
+  {
+   "network": "dronet_sa",
+   "instance": 0,
+   "window": [
+    0.0,
+    2.281
+   ],
+   "actual": [
+    0.591298,
+    38.651737
+   ],
+   "late_by_ms": 36.370737,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "dronet_sa",
+   "instance": 1,
+   "window": [
+    2.281,
+    4.562
+   ],
+   "actual": [
+    9.870407,
+    53.530198
+   ],
+   "late_by_ms": 48.968198,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "dronet_sa",
+   "instance": 2,
+   "window": [
+    4.562,
+    6.843
+   ],
+   "actual": [
+    45.14253299999999,
+    83.52453399999997
+   ],
+   "late_by_ms": 76.68153399999997,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "dronet_sa",
+   "instance": 3,
+   "window": [
+    6.843,
+    9.124
+   ],
+   "actual": [
+    54.74320399999999,
+    98.40299499999996
+   ],
+   "late_by_ms": 89.27899499999997,
+   "early_by_ms": 0.0
+  }
+ ],
+ "num_period_misses": 4,
+ "any_period_missed": true,
+ "worst_late_ms": 89.27899499999997,
+ "ok": true,
+ "schedule_json": "/home/ubuntu/sweep/work/base__networks_tight_loop_gempair__greedy/schedules/scheduled_networks_tight_loop_gempair_greedy_profiled.json"
+}

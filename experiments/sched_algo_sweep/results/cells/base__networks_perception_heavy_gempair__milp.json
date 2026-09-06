@@ -1,0 +1,11 @@
+{
+ "cell_id": "base__networks_perception_heavy_gempair__milp",
+ "arm": "base",
+ "basename": "networks_perception_heavy_gempair",
+ "family": "perception_heavy",
+ "pair": "gempair",
+ "solver": "milp",
+ "ok": false,
+ "error": "not_attempted_budget",
+ "failure_reason": "not_attempted_budget"
+}

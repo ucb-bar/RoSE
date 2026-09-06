@@ -1,0 +1,330 @@
+[
+ {
+  "cell_id": "base__networks_bimodal_gempair",
+  "ops": 379,
+  "combinations": 3,
+  "variables": 145158,
+  "constraints": 504291,
+  "constraints_per_n2": 3.511
+ },
+ {
+  "cell_id": "base__networks_control_mix_gempair",
+  "ops": 295,
+  "combinations": 3,
+  "variables": 88206,
+  "constraints": 335189,
+  "constraints_per_n2": 3.852
+ },
+ {
+  "cell_id": "base__networks_control_mix_hetero",
+  "ops": 295,
+  "combinations": 2,
+  "variables": 87911,
+  "constraints": 96829,
+  "constraints_per_n2": 1.113
+ },
+ {
+  "cell_id": "base__networks_control_mix_quad",
+  "ops": 295,
+  "combinations": 6,
+  "variables": 89091,
+  "constraints": 668893,
+  "constraints_per_n2": 7.686
+ },
+ {
+  "cell_id": "base__networks_control_mix_rvvpair",
+  "ops": 295,
+  "combinations": 3,
+  "variables": 88206,
+  "constraints": 335189,
+  "constraints_per_n2": 3.852
+ },
+ {
+  "cell_id": "base__networks_depth_chain_gempair",
+  "ops": 270,
+  "combinations": 3,
+  "variables": 73981,
+  "constraints": 1954,
+  "constraints_per_n2": 0.027
+ },
+ {
+  "cell_id": "base__networks_depth_chain_hetero",
+  "ops": 270,
+  "combinations": 2,
+  "variables": 73711,
+  "constraints": 1734,
+  "constraints_per_n2": 0.024
+ },
+ {
+  "cell_id": "base__networks_depth_chain_quad",
+  "ops": 270,
+  "combinations": 6,
+  "variables": 74791,
+  "constraints": 2262,
+  "constraints_per_n2": 0.031
+ },
+ {
+  "cell_id": "base__networks_depth_chain_rvvpair",
+  "ops": 270,
+  "combinations": 3,
+  "variables": 73981,
+  "constraints": 1954,
+  "constraints_per_n2": 0.027
+ },
+ {
+  "cell_id": "base__networks_depth_contended_gempair",
+  "ops": 425,
+  "combinations": 3,
+  "variables": 182326,
+  "constraints": 600637,
+  "constraints_per_n2": 3.325
+ },
+ {
+  "cell_id": "base__networks_depth_contended_hetero",
+  "ops": 425,
+  "combinations": 2,
+  "variables": 181901,
+  "constraints": 173247,
+  "constraints_per_n2": 0.959
+ },
+ {
+  "cell_id": "base__networks_depth_contended_quad",
+  "ops": 425,
+  "combinations": 6,
+  "variables": 183601,
+  "constraints": 1198983,
+  "constraints_per_n2": 6.638
+ },
+ {
+  "cell_id": "base__networks_depth_contended_rvvpair",
+  "ops": 425,
+  "combinations": 3,
+  "variables": 182326,
+  "constraints": 600637,
+  "constraints_per_n2": 3.325
+ },
+ {
+  "cell_id": "base__networks_depth_nav_hetero",
+  "ops": 382,
+  "combinations": 2,
+  "variables": 147071,
+  "constraints": 63262,
+  "constraints_per_n2": 0.434
+ },
+ {
+  "cell_id": "base__networks_depth_nav_quad",
+  "ops": 382,
+  "combinations": 6,
+  "variables": 148599,
+  "constraints": 429022,
+  "constraints_per_n2": 2.94
+ },
+ {
+  "cell_id": "base__networks_saturation_quad",
+  "ops": 393,
+  "combinations": 6,
+  "variables": 157201,
+  "constraints": 1135201,
+  "constraints_per_n2": 7.35
+ },
+ {
+  "cell_id": "base__networks_scale_ladder_gempair",
+  "ops": 126,
+  "combinations": 3,
+  "variables": 16381,
+  "constraints": 94050,
+  "constraints_per_n2": 5.924
+ },
+ {
+  "cell_id": "base__networks_scale_ladder_hetero",
+  "ops": 126,
+  "combinations": 2,
+  "variables": 16255,
+  "constraints": 27240,
+  "constraints_per_n2": 1.716
+ },
+ {
+  "cell_id": "base__networks_scale_ladder_quad",
+  "ops": 126,
+  "combinations": 6,
+  "variables": 16759,
+  "constraints": 187584,
+  "constraints_per_n2": 11.816
+ },
+ {
+  "cell_id": "base__networks_scale_ladder_rvvpair",
+  "ops": 126,
+  "combinations": 3,
+  "variables": 16381,
+  "constraints": 94050,
+  "constraints_per_n2": 5.924
+ },
+ {
+  "cell_id": "base__networks_tight_loop_gempair",
+  "ops": 252,
+  "combinations": 3,
+  "variables": 64513,
+  "constraints": 65910,
+  "constraints_per_n2": 1.038
+ },
+ {
+  "cell_id": "base__networks_tight_loop_hetero",
+  "ops": 252,
+  "combinations": 2,
+  "variables": 64261,
+  "constraints": 19900,
+  "constraints_per_n2": 0.313
+ },
+ {
+  "cell_id": "base__networks_tight_loop_quad",
+  "ops": 252,
+  "combinations": 6,
+  "variables": 65269,
+  "constraints": 130324,
+  "constraints_per_n2": 2.052
+ },
+ {
+  "cell_id": "base__networks_tight_loop_rvvpair",
+  "ops": 252,
+  "combinations": 3,
+  "variables": 64513,
+  "constraints": 65910,
+  "constraints_per_n2": 1.038
+ },
+ {
+  "cell_id": "shard__networks_control_mix_quad",
+  "ops": 477,
+  "combinations": 6,
+  "variables": 230869,
+  "constraints": 1691467,
+  "constraints_per_n2": 7.434
+ },
+ {
+  "cell_id": "shard__networks_depth_chain_gempair",
+  "ops": 298,
+  "combinations": 3,
+  "variables": 89997,
+  "constraints": 3168,
+  "constraints_per_n2": 0.036
+ },
+ {
+  "cell_id": "shard__networks_depth_chain_hetero",
+  "ops": 298,
+  "combinations": 2,
+  "variables": 89699,
+  "constraints": 2248,
+  "constraints_per_n2": 0.025
+ },
+ {
+  "cell_id": "shard__networks_depth_chain_quad",
+  "ops": 298,
+  "combinations": 6,
+  "variables": 90891,
+  "constraints": 4456,
+  "constraints_per_n2": 0.05
+ },
+ {
+  "cell_id": "shard__networks_depth_chain_rvvpair",
+  "ops": 298,
+  "combinations": 3,
+  "variables": 89997,
+  "constraints": 3168,
+  "constraints_per_n2": 0.036
+ },
+ {
+  "cell_id": "shard__networks_perception_heavy_gempair",
+  "ops": 228,
+  "combinations": 3,
+  "variables": 52897,
+  "constraints": 101959,
+  "constraints_per_n2": 1.961
+ },
+ {
+  "cell_id": "shard__networks_perception_heavy_hetero",
+  "ops": 228,
+  "combinations": 2,
+  "variables": 52669,
+  "constraints": 29869,
+  "constraints_per_n2": 0.575
+ },
+ {
+  "cell_id": "shard__networks_perception_heavy_quad",
+  "ops": 228,
+  "combinations": 6,
+  "variables": 53581,
+  "constraints": 202885,
+  "constraints_per_n2": 3.903
+ },
+ {
+  "cell_id": "shard__networks_perception_heavy_rvvpair",
+  "ops": 228,
+  "combinations": 3,
+  "variables": 52897,
+  "constraints": 101959,
+  "constraints_per_n2": 1.961
+ },
+ {
+  "cell_id": "shard__networks_scale_ladder_gempair",
+  "ops": 211,
+  "combinations": 3,
+  "variables": 45366,
+  "constraints": 264629,
+  "constraints_per_n2": 5.944
+ },
+ {
+  "cell_id": "shard__networks_scale_ladder_hetero",
+  "ops": 211,
+  "combinations": 2,
+  "variables": 45155,
+  "constraints": 76359,
+  "constraints_per_n2": 1.715
+ },
+ {
+  "cell_id": "shard__networks_scale_ladder_quad",
+  "ops": 211,
+  "combinations": 6,
+  "variables": 45999,
+  "constraints": 528207,
+  "constraints_per_n2": 11.864
+ },
+ {
+  "cell_id": "shard__networks_scale_ladder_rvvpair",
+  "ops": 211,
+  "combinations": 3,
+  "variables": 45366,
+  "constraints": 264629,
+  "constraints_per_n2": 5.944
+ },
+ {
+  "cell_id": "shard__networks_tight_loop_gempair",
+  "ops": 308,
+  "combinations": 3,
+  "variables": 96097,
+  "constraints": 101262,
+  "constraints_per_n2": 1.067
+ },
+ {
+  "cell_id": "shard__networks_tight_loop_hetero",
+  "ops": 308,
+  "combinations": 2,
+  "variables": 95789,
+  "constraints": 30332,
+  "constraints_per_n2": 0.32
+ },
+ {
+  "cell_id": "shard__networks_tight_loop_quad",
+  "ops": 308,
+  "combinations": 6,
+  "variables": 97021,
+  "constraints": 200564,
+  "constraints_per_n2": 2.114
+ },
+ {
+  "cell_id": "shard__networks_tight_loop_rvvpair",
+  "ops": 308,
+  "combinations": 3,
+  "variables": 96097,
+  "constraints": 101262,
+  "constraints_per_n2": 1.067
+ }
+]

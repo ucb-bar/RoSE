@@ -1,0 +1,65 @@
+{
+ "cell_id": "base__networks_bimodal_gempair__greedy",
+ "family": "bimodal",
+ "pair": "gempair",
+ "arm": "base",
+ "solver": "greedy",
+ "basename": "networks_bimodal_gempair",
+ "networks_json": "/home/ubuntu/xpu-rt/data/toplevel/wl_sweep/networks_bimodal_gempair.json",
+ "returncode": 0,
+ "wall_s": 4.291011333465576,
+ "time_limit_s": 120.0,
+ "blas_threads": 1,
+ "solver_status": "heuristic",
+ "ops_reported_prescheduling": 379,
+ "makespan_pred_ms": 3627.6066590000005,
+ "makespan_meta_ms": 3627.6066590000005,
+ "num_operations": 379,
+ "num_periodic_operations": 224,
+ "num_nonperiodic_operations": 155,
+ "total_busy_ms": 3662.979604999973,
+ "machines": [
+  "CPU_P#0",
+  "CPU_P#1"
+ ],
+ "profile_hw": {
+  "CPU_P": "gemmini_q31",
+  "CPU_E": "V256D128_rvv"
+ },
+ "busy_by_machine_ms": {
+  "CPU_P#1": 421.9129429999999,
+  "CPU_P#0": 3241.0666619999733
+ },
+ "util_by_machine": {
+  "CPU_P#0": 0.8934448981559147,
+  "CPU_P#1": 0.11630614414968188
+ },
+ "busy_by_kind_ms": {
+  "CPU_P": 3662.979604999973
+ },
+ "util_by_kind": {
+  "CPU_P": 0.5048755211527982
+ },
+ "n_machines_by_kind": {
+  "CPU_P": 2
+ },
+ "ops_by_machine": {
+  "CPU_P#1": 15,
+  "CPU_P#0": 364
+ },
+ "periodic_instances_retained": {
+  "mlp_control_sa": 32
+ },
+ "periodic_declared_instances": {
+  "mlp_control_sa": 32
+ },
+ "periodic_periods_ms": {
+  "mlp_control_sa": 0.03
+ },
+ "period_misses": [],
+ "num_period_misses": 0,
+ "any_period_missed": false,
+ "worst_late_ms": 0.0,
+ "ok": true,
+ "schedule_json": "/home/ubuntu/sweep/work/base__networks_bimodal_gempair__greedy/schedules/scheduled_networks_bimodal_gempair_greedy_profiled.json"
+}

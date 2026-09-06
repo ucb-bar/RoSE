@@ -1,0 +1,11 @@
+{
+ "cell_id": "shard__networks_depth_contended_hetero__milp",
+ "arm": "shard",
+ "basename": "networks_depth_contended_hetero",
+ "family": "depth_contended",
+ "pair": "hetero",
+ "solver": "milp",
+ "ok": false,
+ "error": "not_attempted_budget",
+ "failure_reason": "not_attempted_budget"
+}

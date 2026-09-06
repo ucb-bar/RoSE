@@ -1,0 +1,65 @@
+{
+ "cell_id": "shard__networks_vint_intro_gempair__decomposed",
+ "family": "vint_intro",
+ "pair": "gempair",
+ "arm": "shard",
+ "solver": "decomposed",
+ "basename": "networks_vint_intro_gempair",
+ "networks_json": "/home/ubuntu/xpu-rt/data/toplevel/wl_sweep_shard/networks_vint_intro_gempair.json",
+ "returncode": 0,
+ "wall_s": 3.330904006958008,
+ "time_limit_s": 120.0,
+ "blas_threads": 1,
+ "solver_status": "heuristic",
+ "ops_reported_prescheduling": 669,
+ "makespan_pred_ms": 4086.6037580000007,
+ "makespan_meta_ms": 4086.6037580000007,
+ "num_operations": 669,
+ "num_periodic_operations": 64,
+ "num_nonperiodic_operations": 605,
+ "total_busy_ms": 5270.669515000005,
+ "machines": [
+  "CPU_P#0",
+  "CPU_P#1"
+ ],
+ "profile_hw": {
+  "CPU_P": "gemmini_q31",
+  "CPU_E": "V256D128_rvv"
+ },
+ "busy_by_machine_ms": {
+  "CPU_P#1": 1702.4967490000001,
+  "CPU_P#0": 3568.1727660000006
+ },
+ "util_by_machine": {
+  "CPU_P#0": 0.8731389137042926,
+  "CPU_P#1": 0.4166043124849492
+ },
+ "busy_by_kind_ms": {
+  "CPU_P": 5270.6695150000005
+ },
+ "util_by_kind": {
+  "CPU_P": 0.6448716130946209
+ },
+ "n_machines_by_kind": {
+  "CPU_P": 2
+ },
+ "ops_by_machine": {
+  "CPU_P#1": 43,
+  "CPU_P#0": 626
+ },
+ "periodic_instances_retained": {
+  "mlp_control_sf_wls": 8
+ },
+ "periodic_declared_instances": {
+  "mlp_control_sf_wls": 8
+ },
+ "periodic_periods_ms": {
+  "mlp_control_sf_wls": 12.439
+ },
+ "period_misses": [],
+ "num_period_misses": 0,
+ "any_period_missed": false,
+ "worst_late_ms": 0.0,
+ "ok": true,
+ "schedule_json": "/home/ubuntu/sweep/work/shard__networks_vint_intro_gempair__decomposed/schedules/scheduled_networks_vint_intro_gempair_decomposed_profiled.json"
+}

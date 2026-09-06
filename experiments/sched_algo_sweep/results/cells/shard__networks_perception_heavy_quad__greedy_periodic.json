@@ -1,0 +1,119 @@
+{
+ "cell_id": "shard__networks_perception_heavy_quad__greedy_periodic",
+ "family": "perception_heavy",
+ "pair": "quad",
+ "arm": "shard",
+ "solver": "greedy_periodic",
+ "basename": "networks_perception_heavy_quad",
+ "networks_json": "/home/ubuntu/xpu-rt/data/toplevel/wl_sweep_shard/networks_perception_heavy_quad.json",
+ "returncode": 0,
+ "wall_s": 2.525115728378296,
+ "time_limit_s": 120.0,
+ "blas_threads": 1,
+ "solver_status": "heuristic",
+ "ops_reported_prescheduling": 228,
+ "makespan_pred_ms": 82.01294600000003,
+ "makespan_meta_ms": 82.01294600000003,
+ "num_operations": 228,
+ "num_periodic_operations": 28,
+ "num_nonperiodic_operations": 200,
+ "total_busy_ms": 150.27325200000007,
+ "machines": [
+  "CPU_P#0",
+  "CPU_P#1",
+  "CPU_E#0",
+  "CPU_E#1"
+ ],
+ "profile_hw": {
+  "CPU_P": "gemmini_q31",
+  "CPU_E": "V256D128_rvv"
+ },
+ "busy_by_machine_ms": {
+  "CPU_E#0": 31.691776999999995,
+  "CPU_E#1": 26.208198999999986,
+  "CPU_P#0": 51.68193900000002,
+  "CPU_P#1": 40.691337000000004
+ },
+ "util_by_machine": {
+  "CPU_P#0": 0.630168059076917,
+  "CPU_P#1": 0.49615748469759874,
+  "CPU_E#0": 0.3864240774864981,
+  "CPU_E#1": 0.319561731144251
+ },
+ "busy_by_kind_ms": {
+  "CPU_P": 92.37327600000003,
+  "CPU_E": 57.89997599999998
+ },
+ "util_by_kind": {
+  "CPU_P": 0.5631627718872579,
+  "CPU_E": 0.35299290431537456
+ },
+ "n_machines_by_kind": {
+  "CPU_P": 2,
+  "CPU_E": 2
+ },
+ "ops_by_machine": {
+  "CPU_E#0": 86,
+  "CPU_E#1": 27,
+  "CPU_P#0": 64,
+  "CPU_P#1": 51
+ },
+ "periodic_instances_retained": {
+  "mlp_control_sd": 4
+ },
+ "periodic_declared_instances": {
+  "mlp_control_sd": 4
+ },
+ "periodic_periods_ms": {
+  "mlp_control_sd": 4.768
+ },
+ "period_misses": [
+  {
+   "network": "mlp_control_sd",
+   "instance": 0,
+   "window": [
+    0.0,
+    4.768
+   ],
+   "actual": [
+    8.270817000000001,
+    8.454103000000002
+   ],
+   "late_by_ms": 3.686103000000002,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sd",
+   "instance": 2,
+   "window": [
+    9.536,
+    14.303999999999998
+   ],
+   "actual": [
+    15.765995,
+    18.869823
+   ],
+   "late_by_ms": 4.565823000000002,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sd",
+   "instance": 3,
+   "window": [
+    14.303999999999998,
+    19.072
+   ],
+   "actual": [
+    18.357771,
+    19.315661
+   ],
+   "late_by_ms": 0.24366099999999946,
+   "early_by_ms": 0.0
+  }
+ ],
+ "num_period_misses": 3,
+ "any_period_missed": true,
+ "worst_late_ms": 4.565823000000002,
+ "ok": true,
+ "schedule_json": "/home/ubuntu/sweep/work/shard__networks_perception_heavy_quad__greedy_periodic/schedules/scheduled_networks_perception_heavy_quad_greedy_periodic_profiled.json"
+}

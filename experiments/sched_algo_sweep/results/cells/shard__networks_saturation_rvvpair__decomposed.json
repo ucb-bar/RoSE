@@ -1,0 +1,68 @@
+{
+ "cell_id": "shard__networks_saturation_rvvpair__decomposed",
+ "family": "saturation",
+ "pair": "rvvpair",
+ "arm": "shard",
+ "solver": "decomposed",
+ "basename": "networks_saturation_rvvpair",
+ "networks_json": "/home/ubuntu/xpu-rt/data/toplevel/wl_sweep_shard/networks_saturation_rvvpair.json",
+ "returncode": 0,
+ "wall_s": 5.354694843292236,
+ "time_limit_s": 120.0,
+ "blas_threads": 1,
+ "solver_status": "heuristic",
+ "ops_reported_prescheduling": 619,
+ "makespan_pred_ms": 158.36999900000006,
+ "makespan_meta_ms": 158.36999900000006,
+ "num_operations": 619,
+ "num_periodic_operations": 338,
+ "num_nonperiodic_operations": 281,
+ "total_busy_ms": 282.5965919999997,
+ "machines": [
+  "CPU_E#0",
+  "CPU_E#1"
+ ],
+ "profile_hw": {
+  "CPU_P": "gemmini_q31",
+  "CPU_E": "V256D128_rvv"
+ },
+ "busy_by_machine_ms": {
+  "CPU_E#1": 139.22746599999985,
+  "CPU_E#0": 143.36912599999982
+ },
+ "util_by_machine": {
+  "CPU_E#0": 0.9052795788677107,
+  "CPU_E#1": 0.8791277822764891
+ },
+ "busy_by_kind_ms": {
+  "CPU_E": 282.59659199999965
+ },
+ "util_by_kind": {
+  "CPU_E": 0.8922036805720998
+ },
+ "n_machines_by_kind": {
+  "CPU_E": 2
+ },
+ "ops_by_machine": {
+  "CPU_E#1": 237,
+  "CPU_E#0": 382
+ },
+ "periodic_instances_retained": {
+  "dronet_sf_wls": 6,
+  "mlp_control_sf_wls": 16
+ },
+ "periodic_declared_instances": {
+  "dronet_sf_wls": 6,
+  "mlp_control_sf_wls": 16
+ },
+ "periodic_periods_ms": {
+  "dronet_sf_wls": 19.302,
+  "mlp_control_sf_wls": 3.388
+ },
+ "period_misses": [],
+ "num_period_misses": 0,
+ "any_period_missed": false,
+ "worst_late_ms": 0.0,
+ "ok": true,
+ "schedule_json": "/home/ubuntu/sweep/work/shard__networks_saturation_rvvpair__decomposed/schedules/scheduled_networks_saturation_rvvpair_decomposed_profiled.json"
+}

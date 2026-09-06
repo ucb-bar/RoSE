@@ -1,0 +1,464 @@
+{
+ "cell_id": "shard__networks_tight_loop_gempair__decomposed",
+ "family": "tight_loop",
+ "pair": "gempair",
+ "arm": "shard",
+ "solver": "decomposed",
+ "basename": "networks_tight_loop_gempair",
+ "networks_json": "/home/ubuntu/xpu-rt/data/toplevel/wl_sweep_shard/networks_tight_loop_gempair.json",
+ "returncode": 0,
+ "wall_s": 6.258405685424805,
+ "time_limit_s": 120.0,
+ "blas_threads": 1,
+ "solver_status": "heuristic",
+ "ops_reported_prescheduling": 308,
+ "makespan_pred_ms": 71.05814200000005,
+ "makespan_meta_ms": 71.05814200000005,
+ "num_operations": 308,
+ "num_periodic_operations": 308,
+ "num_nonperiodic_operations": 0,
+ "total_busy_ms": 141.4339600000001,
+ "machines": [
+  "CPU_P#0",
+  "CPU_P#1"
+ ],
+ "profile_hw": {
+  "CPU_P": "gemmini_q31",
+  "CPU_E": "V256D128_rvv"
+ },
+ "busy_by_machine_ms": {
+  "CPU_P#1": 70.52769499999998,
+  "CPU_P#0": 70.90626499999999
+ },
+ "util_by_machine": {
+  "CPU_P#0": 0.997862637613012,
+  "CPU_P#1": 0.992535028568576
+ },
+ "busy_by_kind_ms": {
+  "CPU_P": 141.43395999999996
+ },
+ "util_by_kind": {
+  "CPU_P": 0.9951988330907939
+ },
+ "n_machines_by_kind": {
+  "CPU_P": 2
+ },
+ "ops_by_machine": {
+  "CPU_P#1": 120,
+  "CPU_P#0": 188
+ },
+ "periodic_instances_retained": {
+  "dronet_sa_wls": 4,
+  "mlp_control_sa": 16,
+  "mlp_control_sb": 8
+ },
+ "periodic_declared_instances": {
+  "mlp_control_sa": 16,
+  "mlp_control_sb": 8,
+  "dronet_sa_wls": 4
+ },
+ "periodic_periods_ms": {
+  "mlp_control_sa": 0.044,
+  "mlp_control_sb": 0.18,
+  "dronet_sa_wls": 2.281
+ },
+ "period_misses": [
+  {
+   "network": "dronet_sa_wls",
+   "instance": 0,
+   "window": [
+    0.0,
+    2.281
+   ],
+   "actual": [
+    0.0,
+    52.45651800000003
+   ],
+   "late_by_ms": 50.17551800000003,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "dronet_sa_wls",
+   "instance": 1,
+   "window": [
+    2.281,
+    4.562
+   ],
+   "actual": [
+    4.196704,
+    60.79438700000003
+   ],
+   "late_by_ms": 56.23238700000003,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "dronet_sa_wls",
+   "instance": 2,
+   "window": [
+    4.562,
+    6.843
+   ],
+   "actual": [
+    10.798635,
+    68.00343500000004
+   ],
+   "late_by_ms": 61.160435000000035,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "dronet_sa_wls",
+   "instance": 3,
+   "window": [
+    6.843,
+    9.124
+   ],
+   "actual": [
+    21.307551000000004,
+    71.05814200000005
+   ],
+   "late_by_ms": 61.934142000000044,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sa",
+   "instance": 0,
+   "window": [
+    0.0,
+    0.044
+   ],
+   "actual": [
+    40.920477,
+    40.940864000000005
+   ],
+   "late_by_ms": 40.89686400000001,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sa",
+   "instance": 1,
+   "window": [
+    0.044,
+    0.088
+   ],
+   "actual": [
+    42.06627,
+    42.08665700000001
+   ],
+   "late_by_ms": 41.99865700000001,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sa",
+   "instance": 2,
+   "window": [
+    0.088,
+    0.132
+   ],
+   "actual": [
+    42.08665700000001,
+    42.107044000000016
+   ],
+   "late_by_ms": 41.97504400000002,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sa",
+   "instance": 3,
+   "window": [
+    0.132,
+    0.176
+   ],
+   "actual": [
+    42.10762000000001,
+    42.14867500000002
+   ],
+   "late_by_ms": 41.97267500000002,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sa",
+   "instance": 4,
+   "window": [
+    0.176,
+    0.21999999999999997
+   ],
+   "actual": [
+    44.776203000000024,
+    44.79659000000003
+   ],
+   "late_by_ms": 44.57659000000003,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sa",
+   "instance": 5,
+   "window": [
+    0.21999999999999997,
+    0.26399999999999996
+   ],
+   "actual": [
+    44.79659000000003,
+    44.81697700000004
+   ],
+   "late_by_ms": 44.552977000000034,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sa",
+   "instance": 6,
+   "window": [
+    0.264,
+    0.308
+   ],
+   "actual": [
+    44.80137500000002,
+    44.82176200000003
+   ],
+   "late_by_ms": 44.51376200000003,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sa",
+   "instance": 7,
+   "window": [
+    0.308,
+    0.352
+   ],
+   "actual": [
+    44.831217000000024,
+    44.85160400000003
+   ],
+   "late_by_ms": 44.49960400000003,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sa",
+   "instance": 8,
+   "window": [
+    0.352,
+    0.39599999999999996
+   ],
+   "actual": [
+    44.861631000000024,
+    44.88201800000003
+   ],
+   "late_by_ms": 44.48601800000003,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sa",
+   "instance": 9,
+   "window": [
+    0.39599999999999996,
+    0.43999999999999995
+   ],
+   "actual": [
+    44.871377000000024,
+    44.89176400000003
+   ],
+   "late_by_ms": 44.45176400000003,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sa",
+   "instance": 10,
+   "window": [
+    0.43999999999999995,
+    0.48399999999999993
+   ],
+   "actual": [
+    44.887888000000025,
+    44.90827500000003
+   ],
+   "late_by_ms": 44.42427500000003,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sa",
+   "instance": 11,
+   "window": [
+    0.484,
+    0.528
+   ],
+   "actual": [
+    44.90885100000003,
+    44.92923800000003
+   ],
+   "late_by_ms": 44.401238000000035,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sa",
+   "instance": 12,
+   "window": [
+    0.528,
+    0.5720000000000001
+   ],
+   "actual": [
+    44.93926500000003,
+    44.959652000000034
+   ],
+   "late_by_ms": 44.38765200000003,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sa",
+   "instance": 13,
+   "window": [
+    0.572,
+    0.616
+   ],
+   "actual": [
+    44.94901100000003,
+    44.969398000000034
+   ],
+   "late_by_ms": 44.353398000000034,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sa",
+   "instance": 14,
+   "window": [
+    0.616,
+    0.66
+   ],
+   "actual": [
+    44.96552200000003,
+    44.985909000000035
+   ],
+   "late_by_ms": 44.32590900000004,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sa",
+   "instance": 15,
+   "window": [
+    0.6599999999999999,
+    0.704
+   ],
+   "actual": [
+    44.98648500000003,
+    45.00687200000004
+   ],
+   "late_by_ms": 44.302872000000036,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sb",
+   "instance": 0,
+   "window": [
+    0.0,
+    0.18
+   ],
+   "actual": [
+    42.09428900000001,
+    42.152723000000016
+   ],
+   "late_by_ms": 41.972723000000016,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sb",
+   "instance": 1,
+   "window": [
+    0.18,
+    0.36
+   ],
+   "actual": [
+    44.81788600000002,
+    44.871295000000025
+   ],
+   "late_by_ms": 44.511295000000025,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sb",
+   "instance": 2,
+   "window": [
+    0.36,
+    0.54
+   ],
+   "actual": [
+    44.895520000000026,
+    44.94892900000003
+   ],
+   "late_by_ms": 44.40892900000003,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sb",
+   "instance": 3,
+   "window": [
+    0.54,
+    0.72
+   ],
+   "actual": [
+    44.97315400000003,
+    45.02656300000003
+   ],
+   "late_by_ms": 44.30656300000003,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sb",
+   "instance": 4,
+   "window": [
+    0.72,
+    0.8999999999999999
+   ],
+   "actual": [
+    45.01689900000003,
+    45.06667200000003
+   ],
+   "late_by_ms": 44.166672000000034,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sb",
+   "instance": 5,
+   "window": [
+    0.8999999999999999,
+    1.0799999999999998
+   ],
+   "actual": [
+    45.03023000000003,
+    45.08000300000003
+   ],
+   "late_by_ms": 44.000003000000035,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sb",
+   "instance": 6,
+   "window": [
+    1.08,
+    1.26
+   ],
+   "actual": [
+    47.79847800000004,
+    47.84825100000004
+   ],
+   "late_by_ms": 46.58825100000004,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sb",
+   "instance": 7,
+   "window": [
+    1.26,
+    1.44
+   ],
+   "actual": [
+    47.84634900000004,
+    47.89612200000004
+   ],
+   "late_by_ms": 46.45612200000004,
+   "early_by_ms": 0.0
+  }
+ ],
+ "num_period_misses": 28,
+ "any_period_missed": true,
+ "worst_late_ms": 61.934142000000044,
+ "ok": true,
+ "schedule_json": "/home/ubuntu/sweep/work/shard__networks_tight_loop_gempair__decomposed/schedules/scheduled_networks_tight_loop_gempair_decomposed_profiled.json"
+}

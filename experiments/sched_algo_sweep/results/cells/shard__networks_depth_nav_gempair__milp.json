@@ -1,0 +1,11 @@
+{
+ "cell_id": "shard__networks_depth_nav_gempair__milp",
+ "arm": "shard",
+ "basename": "networks_depth_nav_gempair",
+ "family": "depth_nav",
+ "pair": "gempair",
+ "solver": "milp",
+ "ok": false,
+ "error": "not_attempted_budget",
+ "failure_reason": "not_attempted_budget"
+}

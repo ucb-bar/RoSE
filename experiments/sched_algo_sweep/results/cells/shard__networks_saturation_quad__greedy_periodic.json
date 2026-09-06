@@ -1,0 +1,346 @@
+{
+ "cell_id": "shard__networks_saturation_quad__greedy_periodic",
+ "family": "saturation",
+ "pair": "quad",
+ "arm": "shard",
+ "solver": "greedy_periodic",
+ "basename": "networks_saturation_quad",
+ "networks_json": "/home/ubuntu/xpu-rt/data/toplevel/wl_sweep_shard/networks_saturation_quad.json",
+ "returncode": 0,
+ "wall_s": 24.936801195144653,
+ "time_limit_s": 120.0,
+ "blas_threads": 1,
+ "solver_status": "heuristic",
+ "ops_reported_prescheduling": 619,
+ "makespan_pred_ms": 64.71804399999996,
+ "makespan_meta_ms": 64.71804399999996,
+ "num_operations": 549,
+ "num_periodic_operations": 268,
+ "num_nonperiodic_operations": 281,
+ "total_busy_ms": 136.3463719999997,
+ "machines": [
+  "CPU_P#0",
+  "CPU_P#1",
+  "CPU_E#0",
+  "CPU_E#1"
+ ],
+ "profile_hw": {
+  "CPU_P": "gemmini_q31",
+  "CPU_E": "V256D128_rvv"
+ },
+ "busy_by_machine_ms": {
+  "CPU_E#0": 20.85339499999997,
+  "CPU_E#1": 28.523473000000024,
+  "CPU_P#0": 43.546178999999995,
+  "CPU_P#1": 43.42332499999996
+ },
+ "util_by_machine": {
+  "CPU_P#0": 0.6728599368670664,
+  "CPU_P#1": 0.6709616409296917,
+  "CPU_E#0": 0.3222191789356301,
+  "CPU_E#1": 0.4407344727538434
+ },
+ "busy_by_kind_ms": {
+  "CPU_P": 86.96950399999996,
+  "CPU_E": 49.376867999999995
+ },
+ "util_by_kind": {
+  "CPU_P": 0.671910788898379,
+  "CPU_E": 0.38147682584473674
+ },
+ "n_machines_by_kind": {
+  "CPU_P": 2,
+  "CPU_E": 2
+ },
+ "ops_by_machine": {
+  "CPU_E#0": 214,
+  "CPU_E#1": 129,
+  "CPU_P#0": 113,
+  "CPU_P#1": 93
+ },
+ "periodic_instances_retained": {
+  "dronet_sf_wls": 4,
+  "mlp_control_sf_wls": 16
+ },
+ "periodic_declared_instances": {
+  "dronet_sf_wls": 6,
+  "mlp_control_sf_wls": 16
+ },
+ "periodic_periods_ms": {
+  "dronet_sf_wls": 19.302,
+  "mlp_control_sf_wls": 3.388
+ },
+ "period_misses": [
+  {
+   "network": "dronet_sf_wls",
+   "instance": 0,
+   "window": [
+    0.0,
+    19.302
+   ],
+   "actual": [
+    32.882977999999994,
+    58.11315699999995
+   ],
+   "late_by_ms": 38.81115699999995,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "dronet_sf_wls",
+   "instance": 1,
+   "window": [
+    19.302,
+    38.604
+   ],
+   "actual": [
+    49.78314399999997,
+    62.34645799999994
+   ],
+   "late_by_ms": 23.742457999999942,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "dronet_sf_wls",
+   "instance": 2,
+   "window": [
+    38.604,
+    57.906
+   ],
+   "actual": [
+    55.95160099999997,
+    62.59371999999994
+   ],
+   "late_by_ms": 4.687719999999942,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf_wls",
+   "instance": 0,
+   "window": [
+    0.0,
+    3.388
+   ],
+   "actual": [
+    6.161204000000001,
+    9.847831999999999
+   ],
+   "late_by_ms": 6.459831999999999,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf_wls",
+   "instance": 1,
+   "window": [
+    3.388,
+    6.776
+   ],
+   "actual": [
+    7.483441,
+    23.676263000000002
+   ],
+   "late_by_ms": 16.900263000000002,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf_wls",
+   "instance": 2,
+   "window": [
+    6.776,
+    10.164
+   ],
+   "actual": [
+    8.799491,
+    27.017886
+   ],
+   "late_by_ms": 16.853886000000003,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf_wls",
+   "instance": 3,
+   "window": [
+    10.164,
+    13.552
+   ],
+   "actual": [
+    13.302316,
+    30.533907
+   ],
+   "late_by_ms": 16.981907,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf_wls",
+   "instance": 4,
+   "window": [
+    13.552,
+    16.939999999999998
+   ],
+   "actual": [
+    16.648836,
+    33.36930100000001
+   ],
+   "late_by_ms": 16.42930100000001,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf_wls",
+   "instance": 5,
+   "window": [
+    16.939999999999998,
+    20.327999999999996
+   ],
+   "actual": [
+    20.647222,
+    33.757162000000015
+   ],
+   "late_by_ms": 13.42916200000002,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf_wls",
+   "instance": 6,
+   "window": [
+    20.328,
+    23.716
+   ],
+   "actual": [
+    23.064594,
+    50.25833299999998
+   ],
+   "late_by_ms": 26.542332999999978,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf_wls",
+   "instance": 7,
+   "window": [
+    23.716,
+    27.104
+   ],
+   "actual": [
+    26.560859,
+    50.34185299999998
+   ],
+   "late_by_ms": 23.23785299999998,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf_wls",
+   "instance": 8,
+   "window": [
+    27.104,
+    30.491999999999997
+   ],
+   "actual": [
+    30.041271,
+    50.72670999999998
+   ],
+   "late_by_ms": 20.234709999999986,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf_wls",
+   "instance": 9,
+   "window": [
+    30.491999999999997,
+    33.879999999999995
+   ],
+   "actual": [
+    32.876664999999996,
+    54.46159299999997
+   ],
+   "late_by_ms": 20.581592999999977,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf_wls",
+   "instance": 10,
+   "window": [
+    33.879999999999995,
+    37.267999999999994
+   ],
+   "actual": [
+    37.05334099999999,
+    54.54511299999997
+   ],
+   "late_by_ms": 17.27711299999998,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf_wls",
+   "instance": 11,
+   "window": [
+    37.268,
+    40.656
+   ],
+   "actual": [
+    40.529517999999975,
+    54.929969999999976
+   ],
+   "late_by_ms": 14.273969999999977,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf_wls",
+   "instance": 12,
+   "window": [
+    40.656,
+    44.044
+   ],
+   "actual": [
+    43.87528499999997,
+    55.22878899999998
+   ],
+   "late_by_ms": 11.18478899999998,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf_wls",
+   "instance": 13,
+   "window": [
+    44.044,
+    47.431999999999995
+   ],
+   "actual": [
+    47.405435999999966,
+    55.52760799999998
+   ],
+   "late_by_ms": 8.095607999999984,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf_wls",
+   "instance": 14,
+   "window": [
+    47.432,
+    50.82
+   ],
+   "actual": [
+    49.75892799999997,
+    55.82642699999998
+   ],
+   "late_by_ms": 5.006426999999981,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf_wls",
+   "instance": 15,
+   "window": [
+    50.82,
+    54.208
+   ],
+   "actual": [
+    53.064521999999975,
+    56.12524599999998
+   ],
+   "late_by_ms": 1.9172459999999845,
+   "early_by_ms": 0.0
+  }
+ ],
+ "num_period_misses": 19,
+ "any_period_missed": true,
+ "worst_late_ms": 38.81115699999995,
+ "ok": true,
+ "schedule_json": "/home/ubuntu/sweep/work/shard__networks_saturation_quad__greedy_periodic/schedules/scheduled_networks_saturation_quad_greedy_periodic_profiled.json"
+}

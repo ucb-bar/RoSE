@@ -1,0 +1,11 @@
+{
+ "cell_id": "shard__networks_depth_nav_quad__milp",
+ "arm": "shard",
+ "basename": "networks_depth_nav_quad",
+ "family": "depth_nav",
+ "pair": "quad",
+ "solver": "milp",
+ "ok": false,
+ "error": "not_attempted_budget",
+ "failure_reason": "not_attempted_budget"
+}

@@ -1,0 +1,82 @@
+{
+ "cell_id": "shard__networks_depth_nav_quad__greedy",
+ "family": "depth_nav",
+ "pair": "quad",
+ "arm": "shard",
+ "solver": "greedy",
+ "basename": "networks_depth_nav_quad",
+ "networks_json": "/home/ubuntu/xpu-rt/data/toplevel/wl_sweep_shard/networks_depth_nav_quad.json",
+ "returncode": 0,
+ "wall_s": 4.766395807266235,
+ "time_limit_s": 120.0,
+ "blas_threads": 1,
+ "solver_status": "heuristic",
+ "ops_reported_prescheduling": 410,
+ "makespan_pred_ms": 429.50886699999967,
+ "makespan_meta_ms": 429.50886699999967,
+ "num_operations": 410,
+ "num_periodic_operations": 410,
+ "num_nonperiodic_operations": 0,
+ "total_busy_ms": 146.50896000000049,
+ "machines": [
+  "CPU_P#0",
+  "CPU_P#1",
+  "CPU_E#0",
+  "CPU_E#1"
+ ],
+ "profile_hw": {
+  "CPU_P": "gemmini_q31",
+  "CPU_E": "V256D128_rvv"
+ },
+ "busy_by_machine_ms": {
+  "CPU_P#0": 29.94157799999999,
+  "CPU_E#0": 86.68797199999987,
+  "CPU_E#1": 26.360046,
+  "CPU_P#1": 3.519364
+ },
+ "util_by_machine": {
+  "CPU_P#0": 0.06971119876787087,
+  "CPU_P#1": 0.00819392629675327,
+  "CPU_E#0": 0.201830459532748,
+  "CPU_E#1": 0.061372530406921776
+ },
+ "busy_by_kind_ms": {
+  "CPU_P": 33.46094199999999,
+  "CPU_E": 113.04801799999987
+ },
+ "util_by_kind": {
+  "CPU_P": 0.038952562532312066,
+  "CPU_E": 0.1316014949698349
+ },
+ "n_machines_by_kind": {
+  "CPU_P": 2,
+  "CPU_E": 2
+ },
+ "ops_by_machine": {
+  "CPU_P#0": 98,
+  "CPU_E#0": 272,
+  "CPU_E#1": 24,
+  "CPU_P#1": 16
+ },
+ "periodic_instances_retained": {
+  "dronet_sf_wls": 2,
+  "fastdepth": 2,
+  "mlp_control_sd": 16
+ },
+ "periodic_declared_instances": {
+  "fastdepth": 2,
+  "dronet_sf_wls": 2,
+  "mlp_control_sd": 16
+ },
+ "periodic_periods_ms": {
+  "fastdepth": 359.972,
+  "dronet_sf_wls": 359.972,
+  "mlp_control_sd": 2.384
+ },
+ "period_misses": [],
+ "num_period_misses": 0,
+ "any_period_missed": false,
+ "worst_late_ms": 0.0,
+ "ok": true,
+ "schedule_json": "/home/ubuntu/sweep/work/shard__networks_depth_nav_quad__greedy/schedules/scheduled_networks_depth_nav_quad_greedy_profiled.json"
+}

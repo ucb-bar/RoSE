@@ -1,0 +1,131 @@
+{
+ "cell_id": "shard__networks_tight_loop_hetero__greedy_periodic",
+ "family": "tight_loop",
+ "pair": "hetero",
+ "arm": "shard",
+ "solver": "greedy_periodic",
+ "basename": "networks_tight_loop_hetero",
+ "networks_json": "/home/ubuntu/xpu-rt/data/toplevel/wl_sweep_shard/networks_tight_loop_hetero.json",
+ "returncode": 0,
+ "wall_s": 3.102720260620117,
+ "time_limit_s": 120.0,
+ "blas_threads": 1,
+ "solver_status": "heuristic",
+ "ops_reported_prescheduling": 308,
+ "makespan_pred_ms": 77.07119900000001,
+ "makespan_meta_ms": 77.07119900000001,
+ "num_operations": 308,
+ "num_periodic_operations": 308,
+ "num_nonperiodic_operations": 0,
+ "total_busy_ms": 140.54782100000006,
+ "machines": [
+  "CPU_P#0",
+  "CPU_E#0"
+ ],
+ "profile_hw": {
+  "CPU_P": "gemmini_q31",
+  "CPU_E": "V256D128_rvv"
+ },
+ "busy_by_machine_ms": {
+  "CPU_E#0": 71.00198400000002,
+  "CPU_P#0": 69.54583699999999
+ },
+ "util_by_machine": {
+  "CPU_P#0": 0.9023583115659065,
+  "CPU_E#0": 0.9212518414304157
+ },
+ "busy_by_kind_ms": {
+  "CPU_P": 69.54583699999999,
+  "CPU_E": 71.00198400000002
+ },
+ "util_by_kind": {
+  "CPU_P": 0.9023583115659065,
+  "CPU_E": 0.9212518414304157
+ },
+ "n_machines_by_kind": {
+  "CPU_P": 1,
+  "CPU_E": 1
+ },
+ "ops_by_machine": {
+  "CPU_E#0": 227,
+  "CPU_P#0": 81
+ },
+ "periodic_instances_retained": {
+  "dronet_sa_wls": 4,
+  "mlp_control_sa": 16,
+  "mlp_control_sb": 8
+ },
+ "periodic_declared_instances": {
+  "mlp_control_sa": 16,
+  "mlp_control_sb": 8,
+  "dronet_sa_wls": 4
+ },
+ "periodic_periods_ms": {
+  "mlp_control_sa": 0.048,
+  "mlp_control_sb": 0.196,
+  "dronet_sa_wls": 3.618
+ },
+ "period_misses": [
+  {
+   "network": "dronet_sa_wls",
+   "instance": 0,
+   "window": [
+    0.0,
+    3.618
+   ],
+   "actual": [
+    0.7309159999999999,
+    19.210791999999998
+   ],
+   "late_by_ms": 15.592791999999998,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "dronet_sa_wls",
+   "instance": 1,
+   "window": [
+    3.618,
+    7.236
+   ],
+   "actual": [
+    19.210355999999997,
+    41.04963300000001
+   ],
+   "late_by_ms": 33.81363300000001,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "dronet_sa_wls",
+   "instance": 2,
+   "window": [
+    7.236,
+    10.854
+   ],
+   "actual": [
+    19.210791999999998,
+    74.28070200000002
+   ],
+   "late_by_ms": 63.42670200000002,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "dronet_sa_wls",
+   "instance": 3,
+   "window": [
+    10.854,
+    14.472
+   ],
+   "actual": [
+    23.220212999999998,
+    77.07119900000001
+   ],
+   "late_by_ms": 62.599199000000006,
+   "early_by_ms": 0.0
+  }
+ ],
+ "num_period_misses": 4,
+ "any_period_missed": true,
+ "worst_late_ms": 63.42670200000002,
+ "ok": true,
+ "schedule_json": "/home/ubuntu/sweep/work/shard__networks_tight_loop_hetero__greedy_periodic/schedules/scheduled_networks_tight_loop_hetero_greedy_periodic_profiled.json"
+}

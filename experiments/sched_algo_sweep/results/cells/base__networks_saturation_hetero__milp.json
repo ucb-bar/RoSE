@@ -1,0 +1,11 @@
+{
+ "cell_id": "base__networks_saturation_hetero__milp",
+ "arm": "base",
+ "basename": "networks_saturation_hetero",
+ "family": "saturation",
+ "pair": "hetero",
+ "solver": "milp",
+ "ok": false,
+ "error": "not_attempted_budget",
+ "failure_reason": "not_attempted_budget"
+}

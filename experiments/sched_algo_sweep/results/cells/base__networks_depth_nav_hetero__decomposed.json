@@ -1,0 +1,74 @@
+{
+ "cell_id": "base__networks_depth_nav_hetero__decomposed",
+ "family": "depth_nav",
+ "pair": "hetero",
+ "arm": "base",
+ "solver": "decomposed",
+ "basename": "networks_depth_nav_hetero",
+ "networks_json": "/home/ubuntu/xpu-rt/data/toplevel/wl_sweep/networks_depth_nav_hetero.json",
+ "returncode": 0,
+ "wall_s": 2.6030678749084473,
+ "time_limit_s": 120.0,
+ "blas_threads": 1,
+ "solver_status": "heuristic",
+ "ops_reported_prescheduling": 382,
+ "makespan_pred_ms": 430.5871559999998,
+ "makespan_meta_ms": 430.5871559999998,
+ "num_operations": 382,
+ "num_periodic_operations": 382,
+ "num_nonperiodic_operations": 0,
+ "total_busy_ms": 163.52766600000064,
+ "machines": [
+  "CPU_P#0",
+  "CPU_E#0"
+ ],
+ "profile_hw": {
+  "CPU_P": "gemmini_q31",
+  "CPU_E": "V256D128_rvv"
+ },
+ "busy_by_machine_ms": {
+  "CPU_P#0": 54.84030100000002,
+  "CPU_E#0": 108.6873649999998
+ },
+ "util_by_machine": {
+  "CPU_P#0": 0.12736167402076443,
+  "CPU_E#0": 0.2524166443088234
+ },
+ "busy_by_kind_ms": {
+  "CPU_P": 54.84030100000002,
+  "CPU_E": 108.6873649999998
+ },
+ "util_by_kind": {
+  "CPU_P": 0.12736167402076443,
+  "CPU_E": 0.2524166443088234
+ },
+ "n_machines_by_kind": {
+  "CPU_P": 1,
+  "CPU_E": 1
+ },
+ "ops_by_machine": {
+  "CPU_P#0": 104,
+  "CPU_E#0": 278
+ },
+ "periodic_instances_retained": {
+  "dronet_sf": 2,
+  "fastdepth": 2,
+  "mlp_control_sd": 16
+ },
+ "periodic_declared_instances": {
+  "fastdepth": 2,
+  "dronet_sf": 2,
+  "mlp_control_sd": 16
+ },
+ "periodic_periods_ms": {
+  "fastdepth": 359.972,
+  "dronet_sf": 359.972,
+  "mlp_control_sd": 2.384
+ },
+ "period_misses": [],
+ "num_period_misses": 0,
+ "any_period_missed": false,
+ "worst_late_ms": 0.0,
+ "ok": true,
+ "schedule_json": "/home/ubuntu/sweep/work/base__networks_depth_nav_hetero__decomposed/schedules/scheduled_networks_depth_nav_hetero_decomposed_profiled.json"
+}

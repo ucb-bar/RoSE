@@ -1,0 +1,195 @@
+{
+ "cell_id": "base__networks_control_mix_rvvpair__greedy_periodic",
+ "family": "control_mix",
+ "pair": "rvvpair",
+ "arm": "base",
+ "solver": "greedy_periodic",
+ "basename": "networks_control_mix_rvvpair",
+ "networks_json": "/home/ubuntu/xpu-rt/data/toplevel/wl_sweep/networks_control_mix_rvvpair.json",
+ "returncode": 0,
+ "wall_s": 3.2836737632751465,
+ "time_limit_s": 120.0,
+ "blas_threads": 1,
+ "solver_status": "heuristic",
+ "ops_reported_prescheduling": 295,
+ "makespan_pred_ms": 104.59515800000001,
+ "makespan_meta_ms": 104.59515800000001,
+ "num_operations": 274,
+ "num_periodic_operations": 119,
+ "num_nonperiodic_operations": 155,
+ "total_busy_ms": 134.11948400000003,
+ "machines": [
+  "CPU_E#0",
+  "CPU_E#1"
+ ],
+ "profile_hw": {
+  "CPU_P": "gemmini_q31",
+  "CPU_E": "V256D128_rvv"
+ },
+ "busy_by_machine_ms": {
+  "CPU_E#1": 42.54727700000001,
+  "CPU_E#0": 91.57220700000003
+ },
+ "util_by_machine": {
+  "CPU_E#0": 0.8754918368209743,
+  "CPU_E#1": 0.40678056053034506
+ },
+ "busy_by_kind_ms": {
+  "CPU_E": 134.11948400000006
+ },
+ "util_by_kind": {
+  "CPU_E": 0.6411361986756597
+ },
+ "n_machines_by_kind": {
+  "CPU_E": 2
+ },
+ "ops_by_machine": {
+  "CPU_E#1": 60,
+  "CPU_E#0": 214
+ },
+ "periodic_instances_retained": {
+  "dronet_se": 3,
+  "mlp_control_sd": 8
+ },
+ "periodic_declared_instances": {
+  "mlp_control_sd": 8,
+  "dronet_se": 4
+ },
+ "periodic_periods_ms": {
+  "mlp_control_sd": 2.384,
+  "dronet_se": 39.56
+ },
+ "period_misses": [
+  {
+   "network": "dronet_se",
+   "instance": 0,
+   "window": [
+    0.0,
+    39.56
+   ],
+   "actual": [
+    59.48743400000003,
+    66.95318000000002
+   ],
+   "late_by_ms": 27.393180000000015,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "dronet_se",
+   "instance": 1,
+   "window": [
+    39.56,
+    79.12
+   ],
+   "actual": [
+    74.49079100000002,
+    81.959129
+   ],
+   "late_by_ms": 2.839129,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sd",
+   "instance": 1,
+   "window": [
+    2.384,
+    4.768
+   ],
+   "actual": [
+    58.61961300000002,
+    58.979064000000015
+   ],
+   "late_by_ms": 54.211064000000015,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sd",
+   "instance": 2,
+   "window": [
+    4.768,
+    7.151999999999999
+   ],
+   "actual": [
+    58.65484600000002,
+    59.09188400000002
+   ],
+   "late_by_ms": 51.93988400000002,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sd",
+   "instance": 3,
+   "window": [
+    7.151999999999999,
+    9.536
+   ],
+   "actual": [
+    58.69007900000002,
+    59.20470400000003
+   ],
+   "late_by_ms": 49.66870400000003,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sd",
+   "instance": 4,
+   "window": [
+    9.536,
+    11.92
+   ],
+   "actual": [
+    58.72531200000002,
+    59.317524000000034
+   ],
+   "late_by_ms": 47.39752400000003,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sd",
+   "instance": 5,
+   "window": [
+    11.92,
+    14.304
+   ],
+   "actual": [
+    58.760545000000015,
+    59.34900400000003
+   ],
+   "late_by_ms": 45.04500400000003,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sd",
+   "instance": 6,
+   "window": [
+    14.303999999999998,
+    16.688
+   ],
+   "actual": [
+    58.79577800000001,
+    59.43275400000003
+   ],
+   "late_by_ms": 42.74475400000003,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sd",
+   "instance": 7,
+   "window": [
+    16.688,
+    19.072
+   ],
+   "actual": [
+    58.83101100000001,
+    59.51650400000003
+   ],
+   "late_by_ms": 40.44450400000004,
+   "early_by_ms": 0.0
+  }
+ ],
+ "num_period_misses": 9,
+ "any_period_missed": true,
+ "worst_late_ms": 54.211064000000015,
+ "ok": true,
+ "schedule_json": "/home/ubuntu/sweep/work/base__networks_control_mix_rvvpair__greedy_periodic/schedules/scheduled_networks_control_mix_rvvpair_greedy_periodic_profiled.json"
+}

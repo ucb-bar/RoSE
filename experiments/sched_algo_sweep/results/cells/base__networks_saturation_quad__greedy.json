@@ -1,0 +1,79 @@
+{
+ "cell_id": "base__networks_saturation_quad__greedy",
+ "family": "saturation",
+ "pair": "quad",
+ "arm": "base",
+ "solver": "greedy",
+ "basename": "networks_saturation_quad",
+ "networks_json": "/home/ubuntu/xpu-rt/data/toplevel/wl_sweep/networks_saturation_quad.json",
+ "returncode": 0,
+ "wall_s": 6.333898305892944,
+ "time_limit_s": 120.0,
+ "blas_threads": 1,
+ "solver_status": "heuristic",
+ "ops_reported_prescheduling": 393,
+ "makespan_pred_ms": 92.43968900000002,
+ "makespan_meta_ms": 92.43968900000002,
+ "num_operations": 372,
+ "num_periodic_operations": 217,
+ "num_nonperiodic_operations": 155,
+ "total_busy_ms": 118.03733899999972,
+ "machines": [
+  "CPU_P#0",
+  "CPU_P#1",
+  "CPU_E#0",
+  "CPU_E#1"
+ ],
+ "profile_hw": {
+  "CPU_P": "gemmini_q31",
+  "CPU_E": "V256D128_rvv"
+ },
+ "busy_by_machine_ms": {
+  "CPU_E#1": 20.576725000000003,
+  "CPU_E#0": 35.31162400000006,
+  "CPU_P#0": 45.009378000000005,
+  "CPU_P#1": 17.139612
+ },
+ "util_by_machine": {
+  "CPU_P#0": 0.4869053378143667,
+  "CPU_P#1": 0.18541399463167815,
+  "CPU_E#0": 0.3819963522378364,
+  "CPU_E#1": 0.22259621622050244
+ },
+ "busy_by_kind_ms": {
+  "CPU_P": 62.148990000000005,
+  "CPU_E": 55.88834900000006
+ },
+ "util_by_kind": {
+  "CPU_P": 0.3361596662230224,
+  "CPU_E": 0.30229628422916943
+ },
+ "n_machines_by_kind": {
+  "CPU_P": 2,
+  "CPU_E": 2
+ },
+ "ops_by_machine": {
+  "CPU_E#1": 25,
+  "CPU_E#0": 239,
+  "CPU_P#0": 84,
+  "CPU_P#1": 24
+ },
+ "periodic_instances_retained": {
+  "dronet_sf": 5,
+  "mlp_control_sf": 16
+ },
+ "periodic_declared_instances": {
+  "dronet_sf": 6,
+  "mlp_control_sf": 16
+ },
+ "periodic_periods_ms": {
+  "dronet_sf": 19.302,
+  "mlp_control_sf": 3.388
+ },
+ "period_misses": [],
+ "num_period_misses": 0,
+ "any_period_missed": false,
+ "worst_late_ms": 0.0,
+ "ok": true,
+ "schedule_json": "/home/ubuntu/sweep/work/base__networks_saturation_quad__greedy/schedules/scheduled_networks_saturation_quad_greedy_profiled.json"
+}

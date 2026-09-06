@@ -1,0 +1,464 @@
+{
+ "cell_id": "base__networks_tight_loop_rvvpair__decomposed",
+ "family": "tight_loop",
+ "pair": "rvvpair",
+ "arm": "base",
+ "solver": "decomposed",
+ "basename": "networks_tight_loop_rvvpair",
+ "networks_json": "/home/ubuntu/xpu-rt/data/toplevel/wl_sweep/networks_tight_loop_rvvpair.json",
+ "returncode": 0,
+ "wall_s": 3.8493075370788574,
+ "time_limit_s": 120.0,
+ "blas_threads": 1,
+ "solver_status": "heuristic",
+ "ops_reported_prescheduling": 252,
+ "makespan_pred_ms": 95.50718999999987,
+ "makespan_meta_ms": 95.50718999999987,
+ "num_operations": 252,
+ "num_periodic_operations": 252,
+ "num_nonperiodic_operations": 0,
+ "total_busy_ms": 147.38149199999992,
+ "machines": [
+  "CPU_E#0",
+  "CPU_E#1"
+ ],
+ "profile_hw": {
+  "CPU_P": "gemmini_q31",
+  "CPU_E": "V256D128_rvv"
+ },
+ "busy_by_machine_ms": {
+  "CPU_E#1": 78.462723,
+  "CPU_E#0": 68.91876900000004
+ },
+ "util_by_machine": {
+  "CPU_E#0": 0.7216081742118069,
+  "CPU_E#1": 0.8215373418482955
+ },
+ "busy_by_kind_ms": {
+  "CPU_E": 147.38149200000004
+ },
+ "util_by_kind": {
+  "CPU_E": 0.7715727580300512
+ },
+ "n_machines_by_kind": {
+  "CPU_E": 2
+ },
+ "ops_by_machine": {
+  "CPU_E#1": 195,
+  "CPU_E#0": 57
+ },
+ "periodic_instances_retained": {
+  "dronet_sa": 4,
+  "mlp_control_sa": 16,
+  "mlp_control_sb": 8
+ },
+ "periodic_declared_instances": {
+  "mlp_control_sa": 16,
+  "mlp_control_sb": 8,
+  "dronet_sa": 4
+ },
+ "periodic_periods_ms": {
+  "mlp_control_sa": 0.048,
+  "mlp_control_sb": 0.196,
+  "dronet_sa": 3.618
+ },
+ "period_misses": [
+  {
+   "network": "dronet_sa",
+   "instance": 0,
+   "window": [
+    0.0,
+    3.618
+   ],
+   "actual": [
+    0.0,
+    74.87331899999985
+   ],
+   "late_by_ms": 71.25531899999986,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "dronet_sa",
+   "instance": 1,
+   "window": [
+    3.618,
+    7.236
+   ],
+   "actual": [
+    3.618,
+    83.87009799999986
+   ],
+   "late_by_ms": 76.63409799999985,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "dronet_sa",
+   "instance": 2,
+   "window": [
+    7.236,
+    10.854
+   ],
+   "actual": [
+    12.157954,
+    89.91413399999986
+   ],
+   "late_by_ms": 79.06013399999986,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "dronet_sa",
+   "instance": 3,
+   "window": [
+    10.854,
+    14.472
+   ],
+   "actual": [
+    25.58021,
+    95.50718999999987
+   ],
+   "late_by_ms": 81.03518999999987,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sa",
+   "instance": 0,
+   "window": [
+    0.0,
+    0.048
+   ],
+   "actual": [
+    62.55107500000001,
+    62.562102
+   ],
+   "late_by_ms": 62.514102,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sa",
+   "instance": 1,
+   "window": [
+    0.048,
+    0.096
+   ],
+   "actual": [
+    62.562102,
+    62.573128999999994
+   ],
+   "late_by_ms": 62.477129,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sa",
+   "instance": 2,
+   "window": [
+    0.096,
+    0.14400000000000002
+   ],
+   "actual": [
+    62.573128999999994,
+    62.584155999999986
+   ],
+   "late_by_ms": 62.44015599999999,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sa",
+   "instance": 3,
+   "window": [
+    0.14400000000000002,
+    0.192
+   ],
+   "actual": [
+    62.59332699999998,
+    62.61353999999997
+   ],
+   "late_by_ms": 62.42153999999997,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sa",
+   "instance": 4,
+   "window": [
+    0.192,
+    0.24
+   ],
+   "actual": [
+    62.617768999999974,
+    62.628795999999966
+   ],
+   "late_by_ms": 62.388795999999964,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sa",
+   "instance": 5,
+   "window": [
+    0.24,
+    0.288
+   ],
+   "actual": [
+    62.628795999999966,
+    62.63982299999996
+   ],
+   "late_by_ms": 62.35182299999996,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sa",
+   "instance": 6,
+   "window": [
+    0.28800000000000003,
+    0.336
+   ],
+   "actual": [
+    62.63982299999996,
+    62.65084999999995
+   ],
+   "late_by_ms": 62.31484999999995,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sa",
+   "instance": 7,
+   "window": [
+    0.336,
+    0.384
+   ],
+   "actual": [
+    62.65084999999995,
+    62.671047999999935
+   ],
+   "late_by_ms": 62.287047999999935,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sa",
+   "instance": 8,
+   "window": [
+    0.384,
+    0.432
+   ],
+   "actual": [
+    62.68446299999994,
+    62.69548999999993
+   ],
+   "late_by_ms": 62.263489999999926,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sa",
+   "instance": 9,
+   "window": [
+    0.432,
+    0.48
+   ],
+   "actual": [
+    62.69548999999993,
+    62.70651699999992
+   ],
+   "late_by_ms": 62.22651699999992,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sa",
+   "instance": 10,
+   "window": [
+    0.48,
+    0.528
+   ],
+   "actual": [
+    62.70651699999992,
+    62.71754399999991
+   ],
+   "late_by_ms": 62.18954399999991,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sa",
+   "instance": 11,
+   "window": [
+    0.528,
+    0.5760000000000001
+   ],
+   "actual": [
+    62.71754399999991,
+    62.7377419999999
+   ],
+   "late_by_ms": 62.1617419999999,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sa",
+   "instance": 12,
+   "window": [
+    0.5760000000000001,
+    0.6240000000000001
+   ],
+   "actual": [
+    62.7511569999999,
+    62.76218399999989
+   ],
+   "late_by_ms": 62.13818399999989,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sa",
+   "instance": 13,
+   "window": [
+    0.624,
+    0.672
+   ],
+   "actual": [
+    62.76218399999989,
+    62.77321099999988
+   ],
+   "late_by_ms": 62.101210999999886,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sa",
+   "instance": 14,
+   "window": [
+    0.672,
+    0.7200000000000001
+   ],
+   "actual": [
+    62.77321099999988,
+    62.784237999999874
+   ],
+   "late_by_ms": 62.064237999999875,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sa",
+   "instance": 15,
+   "window": [
+    0.72,
+    0.768
+   ],
+   "actual": [
+    62.784237999999874,
+    62.795264999999866
+   ],
+   "late_by_ms": 62.027264999999865,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sb",
+   "instance": 0,
+   "window": [
+    0.0,
+    0.196
+   ],
+   "actual": [
+    62.584155999999986,
+    62.617768999999974
+   ],
+   "late_by_ms": 62.421768999999976,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sb",
+   "instance": 1,
+   "window": [
+    0.196,
+    0.392
+   ],
+   "actual": [
+    62.65545199999995,
+    62.68446299999994
+   ],
+   "late_by_ms": 62.292462999999934,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sb",
+   "instance": 2,
+   "window": [
+    0.392,
+    0.5880000000000001
+   ],
+   "actual": [
+    62.725972999999904,
+    62.7511569999999
+   ],
+   "late_by_ms": 62.1631569999999,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sb",
+   "instance": 3,
+   "window": [
+    0.5880000000000001,
+    0.784
+   ],
+   "actual": [
+    62.795264999999866,
+    62.81785099999986
+   ],
+   "late_by_ms": 62.03385099999986,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sb",
+   "instance": 4,
+   "window": [
+    0.784,
+    0.98
+   ],
+   "actual": [
+    62.81785099999986,
+    62.84043699999986
+   ],
+   "late_by_ms": 61.86043699999986,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sb",
+   "instance": 5,
+   "window": [
+    0.98,
+    1.176
+   ],
+   "actual": [
+    62.84043699999986,
+    62.863022999999856
+   ],
+   "late_by_ms": 61.687022999999854,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sb",
+   "instance": 6,
+   "window": [
+    1.1760000000000002,
+    1.372
+   ],
+   "actual": [
+    62.863022999999856,
+    62.88560899999985
+   ],
+   "late_by_ms": 61.51360899999985,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sb",
+   "instance": 7,
+   "window": [
+    1.372,
+    1.568
+   ],
+   "actual": [
+    62.88560899999985,
+    62.90819499999985
+   ],
+   "late_by_ms": 61.34019499999985,
+   "early_by_ms": 0.0
+  }
+ ],
+ "num_period_misses": 28,
+ "any_period_missed": true,
+ "worst_late_ms": 81.03518999999987,
+ "ok": true,
+ "schedule_json": "/home/ubuntu/sweep/work/base__networks_tight_loop_rvvpair__decomposed/schedules/scheduled_networks_tight_loop_rvvpair_decomposed_profiled.json"
+}

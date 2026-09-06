@@ -1,0 +1,83 @@
+{
+ "cell_id": "base__networks_depth_chain_hetero__milp",
+ "family": "depth_chain",
+ "pair": "hetero",
+ "arm": "base",
+ "solver": "milp",
+ "basename": "networks_depth_chain_hetero",
+ "networks_json": "/home/ubuntu/xpu-rt/data/toplevel/wl_sweep/networks_depth_chain_hetero.json",
+ "returncode": 0,
+ "wall_s": 3.5555827617645264,
+ "timed_out": false,
+ "time_limit_s": 120.0,
+ "blas_threads": 1,
+ "solver_status": "optimal",
+ "milp_objective": 430.5847039999998,
+ "ops_reported_prescheduling": 270,
+ "makespan_pred_ms": 430.5847039999998,
+ "makespan_meta_ms": 430.5847039999998,
+ "num_operations": 270,
+ "num_periodic_operations": 270,
+ "num_nonperiodic_operations": 0,
+ "total_busy_ms": 143.2031270000001,
+ "machines": [
+  "CPU_P#0",
+  "CPU_E#0"
+ ],
+ "profile_hw": {
+  "CPU_P": "gemmini_q31",
+  "CPU_E": "V256D128_rvv"
+ },
+ "busy_by_machine_ms": {
+  "CPU_P#0": 32.89251999999999,
+  "CPU_E#0": 110.31060699999996
+ },
+ "util_by_machine": {
+  "CPU_P#0": 0.07639035872486544,
+  "CPU_E#0": 0.25618793695003156
+ },
+ "busy_by_kind_ms": {
+  "CPU_P": 32.89251999999999,
+  "CPU_E": 110.31060699999996
+ },
+ "util_by_kind": {
+  "CPU_P": 0.07639035872486544,
+  "CPU_E": 0.25618793695003156
+ },
+ "n_machines_by_kind": {
+  "CPU_P": 1,
+  "CPU_E": 1
+ },
+ "ops_by_machine": {
+  "CPU_P#0": 102,
+  "CPU_E#0": 168
+ },
+ "periodic_instances_retained": {
+  "dronet_sf": 2,
+  "fastdepth": 2
+ },
+ "periodic_declared_instances": {
+  "fastdepth": 2,
+  "dronet_sf": 2
+ },
+ "periodic_periods_ms": {
+  "fastdepth": 359.972,
+  "dronet_sf": 359.972
+ },
+ "period_misses": [],
+ "num_period_misses": 0,
+ "any_period_missed": false,
+ "worst_late_ms": 0.0,
+ "ok": true,
+ "schedule_json": "/home/ubuntu/sweep/work/base__networks_depth_chain_hetero__milp/schedules/scheduled_networks_depth_chain_hetero_profiled.json",
+ "build_s": 1.089,
+ "solve_s": 0.175,
+ "mosek_time_s": 0.14,
+ "mip_best_obj": 430.584704,
+ "mip_best_bound": 430.584704,
+ "milp_n_variables": 73711,
+ "milp_n_constraints": 1734,
+ "last_cvxpy_reduction": "MOSEK",
+ "mosek_problem_status": "PRIMAL_FEASIBLE",
+ "mip_rel_gap": 0.0
+}

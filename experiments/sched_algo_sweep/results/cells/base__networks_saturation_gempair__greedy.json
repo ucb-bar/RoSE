@@ -1,0 +1,97 @@
+{
+ "cell_id": "base__networks_saturation_gempair__greedy",
+ "family": "saturation",
+ "pair": "gempair",
+ "arm": "base",
+ "solver": "greedy",
+ "basename": "networks_saturation_gempair",
+ "networks_json": "/home/ubuntu/xpu-rt/data/toplevel/wl_sweep/networks_saturation_gempair.json",
+ "returncode": 0,
+ "wall_s": 3.7969768047332764,
+ "time_limit_s": 120.0,
+ "blas_threads": 1,
+ "solver_status": "heuristic",
+ "ops_reported_prescheduling": 393,
+ "makespan_pred_ms": 170.99422399999997,
+ "makespan_meta_ms": 170.99422399999997,
+ "num_operations": 393,
+ "num_periodic_operations": 238,
+ "num_nonperiodic_operations": 155,
+ "total_busy_ms": 208.624247,
+ "machines": [
+  "CPU_P#0",
+  "CPU_P#1"
+ ],
+ "profile_hw": {
+  "CPU_P": "gemmini_q31",
+  "CPU_E": "V256D128_rvv"
+ },
+ "busy_by_machine_ms": {
+  "CPU_P#1": 60.300314,
+  "CPU_P#0": 148.32393300000024
+ },
+ "util_by_machine": {
+  "CPU_P#0": 0.8674207205969733,
+  "CPU_P#1": 0.35264532678016075
+ },
+ "busy_by_kind_ms": {
+  "CPU_P": 208.62424700000025
+ },
+ "util_by_kind": {
+  "CPU_P": 0.610033023688567
+ },
+ "n_machines_by_kind": {
+  "CPU_P": 2
+ },
+ "ops_by_machine": {
+  "CPU_P#1": 64,
+  "CPU_P#0": 329
+ },
+ "periodic_instances_retained": {
+  "dronet_sf": 6,
+  "mlp_control_sf": 16
+ },
+ "periodic_declared_instances": {
+  "dronet_sf": 6,
+  "mlp_control_sf": 16
+ },
+ "periodic_periods_ms": {
+  "dronet_sf": 12.169,
+  "mlp_control_sf": 3.11
+ },
+ "period_misses": [
+  {
+   "network": "mlp_control_sf",
+   "instance": 2,
+   "window": [
+    6.22,
+    9.33
+   ],
+   "actual": [
+    6.22,
+    9.478617999999999
+   ],
+   "late_by_ms": 0.14861799999999903,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf",
+   "instance": 13,
+   "window": [
+    40.43,
+    43.54
+   ],
+   "actual": [
+    40.43,
+    45.90015599999998
+   ],
+   "late_by_ms": 2.360155999999982,
+   "early_by_ms": 0.0
+  }
+ ],
+ "num_period_misses": 2,
+ "any_period_missed": true,
+ "worst_late_ms": 2.360155999999982,
+ "ok": true,
+ "schedule_json": "/home/ubuntu/sweep/work/base__networks_saturation_gempair__greedy/schedules/scheduled_networks_saturation_gempair_greedy_profiled.json"
+}

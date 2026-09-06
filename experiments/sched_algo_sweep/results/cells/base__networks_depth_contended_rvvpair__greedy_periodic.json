@@ -1,0 +1,97 @@
+{
+ "cell_id": "base__networks_depth_contended_rvvpair__greedy_periodic",
+ "family": "depth_contended",
+ "pair": "rvvpair",
+ "arm": "base",
+ "solver": "greedy_periodic",
+ "basename": "networks_depth_contended_rvvpair",
+ "networks_json": "/home/ubuntu/xpu-rt/data/toplevel/wl_sweep/networks_depth_contended_rvvpair.json",
+ "returncode": 0,
+ "wall_s": 2.82610821723938,
+ "time_limit_s": 120.0,
+ "blas_threads": 1,
+ "solver_status": "heuristic",
+ "ops_reported_prescheduling": 425,
+ "makespan_pred_ms": 174.53762399999997,
+ "makespan_meta_ms": 174.53762399999997,
+ "num_operations": 290,
+ "num_periodic_operations": 135,
+ "num_nonperiodic_operations": 155,
+ "total_busy_ms": 198.476053,
+ "machines": [
+  "CPU_E#0",
+  "CPU_E#1"
+ ],
+ "profile_hw": {
+  "CPU_P": "gemmini_q31",
+  "CPU_E": "V256D128_rvv"
+ },
+ "busy_by_machine_ms": {
+  "CPU_E#1": 65.52820299999999,
+  "CPU_E#0": 132.94785000000007
+ },
+ "util_by_machine": {
+  "CPU_E#0": 0.7617145630445852,
+  "CPU_E#1": 0.37543883947910284
+ },
+ "busy_by_kind_ms": {
+  "CPU_E": 198.47605300000006
+ },
+ "util_by_kind": {
+  "CPU_E": 0.568576701261844
+ },
+ "n_machines_by_kind": {
+  "CPU_E": 2
+ },
+ "ops_by_machine": {
+  "CPU_E#1": 34,
+  "CPU_E#0": 256
+ },
+ "periodic_instances_retained": {
+  "dronet_sf": 1,
+  "fastdepth": 1
+ },
+ "periodic_declared_instances": {
+  "fastdepth": 2,
+  "dronet_sf": 2
+ },
+ "periodic_periods_ms": {
+  "fastdepth": 134.177,
+  "dronet_sf": 134.177
+ },
+ "period_misses": [
+  {
+   "network": "dronet_sf",
+   "instance": 0,
+   "window": [
+    0.0,
+    134.177
+   ],
+   "actual": [
+    165.61978099999996,
+    174.53762399999997
+   ],
+   "late_by_ms": 40.36062399999997,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "fastdepth",
+   "instance": 0,
+   "window": [
+    0.0,
+    134.177
+   ],
+   "actual": [
+    85.16859800000002,
+    165.61978099999996
+   ],
+   "late_by_ms": 31.442780999999968,
+   "early_by_ms": 0.0
+  }
+ ],
+ "num_period_misses": 2,
+ "any_period_missed": true,
+ "worst_late_ms": 40.36062399999997,
+ "ok": true,
+ "schedule_json": "/home/ubuntu/sweep/work/base__networks_depth_contended_rvvpair__greedy_periodic/schedules/scheduled_networks_depth_contended_rvvpair_greedy_periodic_profiled.json"
+}

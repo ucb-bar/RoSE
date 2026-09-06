@@ -1,0 +1,74 @@
+{
+ "cell_id": "shard__networks_scale_ladder_hetero__milp",
+ "family": "scale_ladder",
+ "pair": "hetero",
+ "arm": "shard",
+ "solver": "milp",
+ "basename": "networks_scale_ladder_hetero",
+ "networks_json": "/home/ubuntu/xpu-rt/data/toplevel/wl_sweep_shard/networks_scale_ladder_hetero.json",
+ "returncode": 0,
+ "wall_s": 1038.5000126361847,
+ "timed_out": false,
+ "time_limit_s": 600.0,
+ "blas_threads": 1,
+ "solver_status": "optimal_inaccurate",
+ "milp_objective": 103.5390930000654,
+ "ops_reported_prescheduling": 211,
+ "makespan_pred_ms": 103.5390930000654,
+ "makespan_meta_ms": 103.5390930000654,
+ "num_operations": 211,
+ "num_periodic_operations": 0,
+ "num_nonperiodic_operations": 211,
+ "total_busy_ms": 134.12422600000014,
+ "machines": [
+  "CPU_P#0",
+  "CPU_E#0"
+ ],
+ "profile_hw": {
+  "CPU_P": "gemmini_q31",
+  "CPU_E": "V256D128_rvv"
+ },
+ "busy_by_machine_ms": {
+  "CPU_E#0": 45.52001900000001,
+  "CPU_P#0": 88.60420700000007
+ },
+ "util_by_machine": {
+  "CPU_P#0": 0.8557560669373847,
+  "CPU_E#0": 0.43964089003533435
+ },
+ "busy_by_kind_ms": {
+  "CPU_P": 88.60420700000007,
+  "CPU_E": 45.52001900000001
+ },
+ "util_by_kind": {
+  "CPU_P": 0.8557560669373847,
+  "CPU_E": 0.43964089003533435
+ },
+ "n_machines_by_kind": {
+  "CPU_P": 1,
+  "CPU_E": 1
+ },
+ "ops_by_machine": {
+  "CPU_E#0": 45,
+  "CPU_P#0": 166
+ },
+ "periodic_instances_retained": {},
+ "periodic_declared_instances": {},
+ "periodic_periods_ms": {},
+ "period_misses": [],
+ "num_period_misses": 0,
+ "any_period_missed": false,
+ "worst_late_ms": 0.0,
+ "ok": true,
+ "schedule_json": "/home/ubuntu/sweep600/work/shard__networks_scale_ladder_hetero__milp/schedules/scheduled_networks_scale_ladder_hetero_profiled.json",
+ "build_s": 406.5,
+ "solve_s": 600.4,
+ "mosek_time_s": 600.28,
+ "mip_best_obj": 103.5390930001,
+ "mip_best_bound": 47.60156597696,
+ "milp_n_variables": 45155,
+ "milp_n_constraints": 76359,
+ "last_cvxpy_reduction": "MOSEK",
+ "mosek_problem_status": "PRIMAL_FEASIBLE",
+ "mip_rel_gap": 0.5402551384440462
+}

@@ -1,0 +1,18 @@
+{
+ "cell_id": "base__networks_bimodal_rvvpair__greedy_periodic",
+ "family": "bimodal",
+ "pair": "rvvpair",
+ "arm": "base",
+ "solver": "greedy_periodic",
+ "basename": "networks_bimodal_rvvpair",
+ "networks_json": "/home/ubuntu/xpu-rt/data/toplevel/wl_sweep/networks_bimodal_rvvpair.json",
+ "returncode": 1,
+ "wall_s": 0.8324134349822998,
+ "time_limit_s": 120.0,
+ "blas_threads": 1,
+ "solver_status": "heuristic",
+ "ok": false,
+ "error": "run failed (rc=1) or no schedule json",
+ "tail": "============================================================\nLoading network hierarchy from JSON...\n============================================================\n\nLoading networks from: /home/ubuntu/xpu-rt/data/toplevel/wl_sweep/networks_bimodal_rvvpair.json\n\nFound 2 networks:\n  - yolov8_nano_sh (id: 0, identifier: yolov8_nano_sh)\n  - mlp_control_sa (id: 1, identifier: mlp_control_sa)\n\nFound 0 network-level dependencies:\n\nResolved runtime configuration:\n  Machine core counts: {'CPU_E': 2}\n  Profile HW mapping: CPU_P->gemmini_q31, CPU_E->V256D128_rvv\n  Profile target/topology: target=firesim_f2_rocket_saturn, topo_tag=topo_0\n  p_core_speedup: 1.0\n  random_seed: 42\n  solver_verbosity: 0\n  time_limit: 120.0\n  use_profiled: True\n  prune_periodic: True\n  restrict_makespan_to_nonperiodic: False\n  machine_combination_mode: singletons\n  enforce_same_processor_combinations: True\n\nUsing profiled runtimes where available...\nTraceback (most recent call last):\n  File \"/home/ubuntu/xpu-rt/scripts/run_xpurt_schedule.py\", line 799, in <module>\n    schedule_iree_networks(\n  File \"/home/ubuntu/xpu-rt/scripts/run_xpurt_schedule.py\", line 275, in schedule_iree_networks\n    processing_times, combined_profiled_p, combined_profiled_e, profiled_by_network = load_profiled_processing_times(\n                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ubuntu/xpu-rt/xpu-rt/profile_loader.py\", line 763, in load_profiled_processing_times\n    raise FileNotFoundError(\nFileNotFoundError: profile_loader: required profile data is missing. Schedules generated against synthetic random times produce fictional predicted timelines (this used to be silent \u2014 see the rng.uniform(2.0, 10.0) fallback). Either:\n  1. Run the missing profile sweeps (runtime/scripts/profile_remote.sh\n     or profile_dispatches.py \u2014 make sure the harness flags match\n     the consumer of the schedule, e.g. xpurt_demo's BACKENDS /\n     prj.conf overlay), OR\n  2. Pass strict=False to load_profiled_processing_times to opt\n     into the synthetic fallback explicitly.\nMissing entries (1):\n  - yolov8_nano_sh @ V256D128_rvv/topo_0: no profile CSV under gen/profile/V256D128_rvv/firesim_f2_rocket_saturn/<model>/<basename>/.../topo_0/results.csv\n",
+ "failure_reason": "missing_profile_data"
+}

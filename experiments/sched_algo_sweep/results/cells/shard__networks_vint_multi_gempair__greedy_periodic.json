@@ -1,0 +1,111 @@
+{
+ "cell_id": "shard__networks_vint_multi_gempair__greedy_periodic",
+ "family": "vint_multi",
+ "pair": "gempair",
+ "arm": "shard",
+ "solver": "greedy_periodic",
+ "basename": "networks_vint_multi_gempair",
+ "networks_json": "/home/ubuntu/xpu-rt/data/toplevel/wl_sweep_shard/networks_vint_multi_gempair.json",
+ "returncode": 0,
+ "wall_s": 5.982371807098389,
+ "time_limit_s": 120.0,
+ "blas_threads": 1,
+ "solver_status": "heuristic",
+ "ops_reported_prescheduling": 801,
+ "makespan_pred_ms": 4106.564548000001,
+ "makespan_meta_ms": 4106.564548000001,
+ "num_operations": 801,
+ "num_periodic_operations": 196,
+ "num_nonperiodic_operations": 605,
+ "total_busy_ms": 5282.87553500001,
+ "machines": [
+  "CPU_P#0",
+  "CPU_P#1"
+ ],
+ "profile_hw": {
+  "CPU_P": "gemmini_q31",
+  "CPU_E": "V256D128_rvv"
+ },
+ "busy_by_machine_ms": {
+  "CPU_P#1": 1698.1779490000022,
+  "CPU_P#0": 3584.697586000002
+ },
+ "util_by_machine": {
+  "CPU_P#0": 0.8729188459355494,
+  "CPU_P#1": 0.41352764072028453
+ },
+ "busy_by_kind_ms": {
+  "CPU_P": 5282.875535000005
+ },
+ "util_by_kind": {
+  "CPU_P": 0.643223243327917
+ },
+ "n_machines_by_kind": {
+  "CPU_P": 2
+ },
+ "ops_by_machine": {
+  "CPU_P#1": 161,
+  "CPU_P#0": 640
+ },
+ "periodic_instances_retained": {
+  "dronet_se_wls": 4,
+  "mlp_control_sd": 8
+ },
+ "periodic_declared_instances": {
+  "dronet_se_wls": 4,
+  "mlp_control_sd": 8
+ },
+ "periodic_periods_ms": {
+  "dronet_se_wls": 39.904,
+  "mlp_control_sd": 3.282
+ },
+ "period_misses": [
+  {
+   "network": "mlp_control_sd",
+   "instance": 2,
+   "window": [
+    6.564,
+    9.846
+   ],
+   "actual": [
+    15.698925999999998,
+    16.343405999999998
+   ],
+   "late_by_ms": 6.497405999999998,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sd",
+   "instance": 3,
+   "window": [
+    9.846,
+    13.128
+   ],
+   "actual": [
+    15.765139999999999,
+    16.922052
+   ],
+   "late_by_ms": 3.7940520000000006,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sd",
+   "instance": 4,
+   "window": [
+    13.128,
+    16.41
+   ],
+   "actual": [
+    15.831354,
+    17.36789
+   ],
+   "late_by_ms": 0.957889999999999,
+   "early_by_ms": 0.0
+  }
+ ],
+ "num_period_misses": 3,
+ "any_period_missed": true,
+ "worst_late_ms": 6.497405999999998,
+ "ok": true,
+ "schedule_json": "/home/ubuntu/sweep/work/shard__networks_vint_multi_gempair__greedy_periodic/schedules/scheduled_networks_vint_multi_gempair_greedy_periodic_profiled.json"
+}

@@ -1,0 +1,11 @@
+{
+ "cell_id": "base__networks_vint_multi_hetero__milp",
+ "arm": "base",
+ "basename": "networks_vint_multi_hetero",
+ "family": "vint_multi",
+ "pair": "hetero",
+ "solver": "milp",
+ "ok": false,
+ "error": "not_attempted_budget",
+ "failure_reason": "not_attempted_budget"
+}

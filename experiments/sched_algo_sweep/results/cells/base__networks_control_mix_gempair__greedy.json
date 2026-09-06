@@ -1,0 +1,68 @@
+{
+ "cell_id": "base__networks_control_mix_gempair__greedy",
+ "family": "control_mix",
+ "pair": "gempair",
+ "arm": "base",
+ "solver": "greedy",
+ "basename": "networks_control_mix_gempair",
+ "networks_json": "/home/ubuntu/xpu-rt/data/toplevel/wl_sweep/networks_control_mix_gempair.json",
+ "returncode": 0,
+ "wall_s": 3.856358289718628,
+ "time_limit_s": 120.0,
+ "blas_threads": 1,
+ "solver_status": "heuristic",
+ "ops_reported_prescheduling": 295,
+ "makespan_pred_ms": 62.769885999999985,
+ "makespan_meta_ms": 62.769885999999985,
+ "num_operations": 274,
+ "num_periodic_operations": 119,
+ "num_nonperiodic_operations": 155,
+ "total_busy_ms": 78.61497999999996,
+ "machines": [
+  "CPU_P#0",
+  "CPU_P#1"
+ ],
+ "profile_hw": {
+  "CPU_P": "gemmini_q31",
+  "CPU_E": "V256D128_rvv"
+ },
+ "busy_by_machine_ms": {
+  "CPU_P#0": 51.934878999999974,
+  "CPU_P#1": 26.680100999999997
+ },
+ "util_by_machine": {
+  "CPU_P#0": 0.8273852687895592,
+  "CPU_P#1": 0.4250461917359544
+ },
+ "busy_by_kind_ms": {
+  "CPU_P": 78.61497999999997
+ },
+ "util_by_kind": {
+  "CPU_P": 0.6262157302627568
+ },
+ "n_machines_by_kind": {
+  "CPU_P": 2
+ },
+ "ops_by_machine": {
+  "CPU_P#0": 231,
+  "CPU_P#1": 43
+ },
+ "periodic_instances_retained": {
+  "dronet_se": 3,
+  "mlp_control_sd": 8
+ },
+ "periodic_declared_instances": {
+  "mlp_control_sd": 8,
+  "dronet_se": 4
+ },
+ "periodic_periods_ms": {
+  "mlp_control_sd": 2.188,
+  "dronet_se": 24.94
+ },
+ "period_misses": [],
+ "num_period_misses": 0,
+ "any_period_missed": false,
+ "worst_late_ms": 0.0,
+ "ok": true,
+ "schedule_json": "/home/ubuntu/sweep/work/base__networks_control_mix_gempair__greedy/schedules/scheduled_networks_control_mix_gempair_greedy_profiled.json"
+}

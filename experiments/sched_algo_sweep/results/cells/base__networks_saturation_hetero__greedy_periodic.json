@@ -1,0 +1,310 @@
+{
+ "cell_id": "base__networks_saturation_hetero__greedy_periodic",
+ "family": "saturation",
+ "pair": "hetero",
+ "arm": "base",
+ "solver": "greedy_periodic",
+ "basename": "networks_saturation_hetero",
+ "networks_json": "/home/ubuntu/xpu-rt/data/toplevel/wl_sweep/networks_saturation_hetero.json",
+ "returncode": 0,
+ "wall_s": 3.872905731201172,
+ "time_limit_s": 120.0,
+ "blas_threads": 1,
+ "solver_status": "heuristic",
+ "ops_reported_prescheduling": 393,
+ "makespan_pred_ms": 111.90778900000001,
+ "makespan_meta_ms": 111.90778900000001,
+ "num_operations": 393,
+ "num_periodic_operations": 238,
+ "num_nonperiodic_operations": 155,
+ "total_busy_ms": 124.62604099999962,
+ "machines": [
+  "CPU_P#0",
+  "CPU_E#0"
+ ],
+ "profile_hw": {
+  "CPU_P": "gemmini_q31",
+  "CPU_E": "V256D128_rvv"
+ },
+ "busy_by_machine_ms": {
+  "CPU_E#0": 51.907744999999984,
+  "CPU_P#0": 72.71829599999997
+ },
+ "util_by_machine": {
+  "CPU_P#0": 0.6498054929849428,
+  "CPU_E#0": 0.46384389740735543
+ },
+ "busy_by_kind_ms": {
+  "CPU_P": 72.71829599999997,
+  "CPU_E": 51.907744999999984
+ },
+ "util_by_kind": {
+  "CPU_P": 0.6498054929849428,
+  "CPU_E": 0.46384389740735543
+ },
+ "n_machines_by_kind": {
+  "CPU_P": 1,
+  "CPU_E": 1
+ },
+ "ops_by_machine": {
+  "CPU_E#0": 258,
+  "CPU_P#0": 135
+ },
+ "periodic_instances_retained": {
+  "dronet_sf": 6,
+  "mlp_control_sf": 16
+ },
+ "periodic_declared_instances": {
+  "dronet_sf": 6,
+  "mlp_control_sf": 16
+ },
+ "periodic_periods_ms": {
+  "dronet_sf": 19.302,
+  "mlp_control_sf": 3.388
+ },
+ "period_misses": [
+  {
+   "network": "dronet_sf",
+   "instance": 0,
+   "window": [
+    0.0,
+    19.302
+   ],
+   "actual": [
+    55.38873200000001,
+    58.767066
+   ],
+   "late_by_ms": 39.465066,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "dronet_sf",
+   "instance": 1,
+   "window": [
+    19.302,
+    38.604
+   ],
+   "actual": [
+    58.69844700000001,
+    62.076781
+   ],
+   "late_by_ms": 23.472780999999998,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "dronet_sf",
+   "instance": 2,
+   "window": [
+    38.604,
+    57.906
+   ],
+   "actual": [
+    62.008162000000006,
+    65.38649600000001
+   ],
+   "late_by_ms": 7.480496000000009,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "dronet_sf",
+   "instance": 4,
+   "window": [
+    77.208,
+    96.50999999999999
+   ],
+   "actual": [
+    94.80987400000001,
+    98.188208
+   ],
+   "late_by_ms": 1.6782080000000121,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf",
+   "instance": 1,
+   "window": [
+    3.388,
+    6.776
+   ],
+   "actual": [
+    10.405734999999998,
+    13.082321
+   ],
+   "late_by_ms": 6.3063210000000005,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf",
+   "instance": 2,
+   "window": [
+    6.776,
+    10.164
+   ],
+   "actual": [
+    10.405734999999998,
+    13.473562000000001
+   ],
+   "late_by_ms": 3.3095620000000014,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf",
+   "instance": 3,
+   "window": [
+    10.164,
+    13.552
+   ],
+   "actual": [
+    12.578905999999998,
+    16.392449000000003
+   ],
+   "late_by_ms": 2.840449000000003,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf",
+   "instance": 5,
+   "window": [
+    16.939999999999998,
+    20.327999999999996
+   ],
+   "actual": [
+    22.40104100000001,
+    22.974514000000013
+   ],
+   "late_by_ms": 2.6465140000000176,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf",
+   "instance": 7,
+   "window": [
+    23.716,
+    27.104
+   ],
+   "actual": [
+    27.042992000000005,
+    30.32680800000001
+   ],
+   "late_by_ms": 3.222808000000011,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf",
+   "instance": 8,
+   "window": [
+    27.104,
+    30.491999999999997
+   ],
+   "actual": [
+    29.831007000000007,
+    40.05359100000001
+   ],
+   "late_by_ms": 9.561591000000014,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf",
+   "instance": 9,
+   "window": [
+    30.491999999999997,
+    33.879999999999995
+   ],
+   "actual": [
+    35.623279000000004,
+    40.44483200000001
+   ],
+   "late_by_ms": 6.564832000000017,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf",
+   "instance": 10,
+   "window": [
+    33.879999999999995,
+    37.267999999999994
+   ],
+   "actual": [
+    37.19995300000001,
+    54.428139000000016
+   ],
+   "late_by_ms": 17.160139000000022,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf",
+   "instance": 11,
+   "window": [
+    37.268,
+    40.656
+   ],
+   "actual": [
+    39.55779000000001,
+    54.81938000000002
+   ],
+   "late_by_ms": 14.163380000000018,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf",
+   "instance": 12,
+   "window": [
+    40.656,
+    44.044
+   ],
+   "actual": [
+    43.72553000000001,
+    55.21062100000002
+   ],
+   "late_by_ms": 11.16662100000002,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf",
+   "instance": 13,
+   "window": [
+    44.044,
+    47.431999999999995
+   ],
+   "actual": [
+    50.14996100000002,
+    55.47888500000001
+   ],
+   "late_by_ms": 8.046885000000017,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf",
+   "instance": 14,
+   "window": [
+    47.432,
+    50.82
+   ],
+   "actual": [
+    50.80333000000002,
+    55.87012600000001
+   ],
+   "late_by_ms": 5.050126000000013,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf",
+   "instance": 15,
+   "window": [
+    50.82,
+    54.208
+   ],
+   "actual": [
+    53.905819000000015,
+    56.261367000000014
+   ],
+   "late_by_ms": 2.0533670000000157,
+   "early_by_ms": 0.0
+  }
+ ],
+ "num_period_misses": 17,
+ "any_period_missed": true,
+ "worst_late_ms": 39.465066,
+ "ok": true,
+ "schedule_json": "/home/ubuntu/sweep/work/base__networks_saturation_hetero__greedy_periodic/schedules/scheduled_networks_saturation_hetero_greedy_periodic_profiled.json"
+}

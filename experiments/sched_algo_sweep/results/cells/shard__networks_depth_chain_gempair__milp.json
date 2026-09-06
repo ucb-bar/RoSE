@@ -1,0 +1,82 @@
+{
+ "cell_id": "shard__networks_depth_chain_gempair__milp",
+ "family": "depth_chain",
+ "pair": "gempair",
+ "arm": "shard",
+ "solver": "milp",
+ "basename": "networks_depth_chain_gempair",
+ "networks_json": "/home/ubuntu/xpu-rt/data/toplevel/wl_sweep_shard/networks_depth_chain_gempair.json",
+ "returncode": 0,
+ "wall_s": 26.859432458877563,
+ "timed_out": false,
+ "time_limit_s": 120.0,
+ "blas_threads": 1,
+ "solver_status": "optimal",
+ "milp_objective": 589.7923299999994,
+ "ops_reported_prescheduling": 298,
+ "makespan_pred_ms": 589.7923299999994,
+ "makespan_meta_ms": 589.7923299999994,
+ "num_operations": 298,
+ "num_periodic_operations": 298,
+ "num_nonperiodic_operations": 0,
+ "total_busy_ms": 478.8085639999999,
+ "machines": [
+  "CPU_P#0",
+  "CPU_P#1"
+ ],
+ "profile_hw": {
+  "CPU_P": "gemmini_q31",
+  "CPU_E": "V256D128_rvv"
+ },
+ "busy_by_machine_ms": {
+  "CPU_P#0": 465.0354139999999,
+  "CPU_P#1": 8.817352000000001,
+  "CPU_P#0+CPU_P#1": 4.9557980000000015
+ },
+ "util_by_machine": {
+  "CPU_P#0": 0.7884731461326402,
+  "CPU_P#1": 0.014949926527528783
+ },
+ "busy_by_kind_ms": {
+  "CPU_P": 478.8085639999999
+ },
+ "util_by_kind": {
+  "CPU_P": 0.4059128439327113
+ },
+ "n_machines_by_kind": {
+  "CPU_P": 2
+ },
+ "ops_by_machine": {
+  "CPU_P#0": 245,
+  "CPU_P#1": 35,
+  "CPU_P#0+CPU_P#1": 18
+ },
+ "periodic_instances_retained": {
+  "dronet_sf_wls": 2,
+  "fastdepth": 2
+ },
+ "periodic_declared_instances": {
+  "fastdepth": 2,
+  "dronet_sf_wls": 2
+ },
+ "periodic_periods_ms": {
+  "fastdepth": 354.622,
+  "dronet_sf_wls": 354.622
+ },
+ "period_misses": [],
+ "num_period_misses": 0,
+ "any_period_missed": false,
+ "worst_late_ms": 0.0,
+ "ok": true,
+ "schedule_json": "/home/ubuntu/sweep/work/shard__networks_depth_chain_gempair__milp/schedules/scheduled_networks_depth_chain_gempair_profiled.json",
+ "build_s": 11.88,
+ "solve_s": 10.47,
+ "mosek_time_s": 10.42,
+ "mip_best_obj": 589.79233,
+ "mip_best_bound": 589.735906,
+ "milp_n_variables": 89997,
+ "milp_n_constraints": 3168,
+ "last_cvxpy_reduction": "MOSEK",
+ "mosek_problem_status": "PRIMAL_FEASIBLE",
+ "mip_rel_gap": 9.566757166881553e-05
+}

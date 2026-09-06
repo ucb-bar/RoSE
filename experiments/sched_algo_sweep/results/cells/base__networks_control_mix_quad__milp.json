@@ -1,0 +1,23 @@
+{
+ "cell_id": "base__networks_control_mix_quad__milp",
+ "family": "control_mix",
+ "pair": "quad",
+ "arm": "base",
+ "solver": "milp",
+ "basename": "networks_control_mix_quad",
+ "networks_json": "/home/ubuntu/xpu-rt/data/toplevel/wl_sweep/networks_control_mix_quad.json",
+ "returncode": 1,
+ "wall_s": 701.0234441757202,
+ "timed_out": false,
+ "time_limit_s": 120.0,
+ "blas_threads": 1,
+ "solver_status": null,
+ "ops_reported_prescheduling": 295,
+ "ok": false,
+ "error": "run failed (rc=1) or no schedule json",
+ "tail": " 120.0\n  use_profiled: True\n  prune_periodic: True\n  restrict_makespan_to_nonperiodic: False\n  machine_combination_mode: singletons\n  enforce_same_processor_combinations: True\n\nUsing profiled runtimes where available...\n\nCreating workload from network hierarchy...\n\nWorkload created successfully!\n  Total operations: 295\n  Scheduler machines (4 cores): ['CPU_P#0', 'CPU_P#1', 'CPU_E#0', 'CPU_E#1']\n  Machine combination options: 6 (mode=singletons)\n  Job names: ['mlp_control_sd0', 'dronet_se0', 'yolov8_nano_sc', 'mlp_control_sd1', 'mlp_control_sd2', 'mlp_control_sd3', 'mlp_control_sd4', 'mlp_control_sd5', 'mlp_control_sd6', 'mlp_control_sd7', 'dronet_se1', 'dronet_se2', 'dronet_se3']\n  Operations with multiple predecessors: 34\n  Independent jobs (can run in parallel): 13\n\n============================================================\nScheduling combined workload (MILP)...\n============================================================\n===============================================================================\n                                     CVXPY                                     \n                                     v1.7.5                                    \n===============================================================================\n-------------------------------------------------------------------------------\n                                  Compilation                                  \n-------------------------------------------------------------------------------\n(CVXPY) Sep 06 03:42:04 AM: Your problem has 89091 variables, 668893 constraints, and 0 parameters.\n(CVXPY) Sep 06 03:43:26 AM: It is compliant with the following grammars: DCP, DQCP\n(CVXPY) Sep 06 03:43:26 AM: (If you need to solve this problem multiple times, but with different data, consider using parameters.)\n(CVXPY) Sep 06 03:43:26 AM: CVXPY will first compile your problem; then, it will invoke a numerical solver to obtain a solution.\n(CVXPY) Sep 06 03:43:26 AM: Your problem is compiled with the CPP canonicalization backend.\n(CVXPY) Sep 06 03:44:41 AM: Compiling problem (target solver=MOSEK).\n(CVXPY) Sep 06 03:44:41 AM: Reduction chain: Dcp2Cone -> CvxAttr2Constr -> ConeMatrixStuffing -> MOSEK\n(CVXPY) Sep 06 03:44:41 AM: Applying reduction Dcp2Cone\n(CVXPY) Sep 06 03:49:32 AM: Applying reduction CvxAttr2Constr\n(CVXPY) Sep 06 03:49:42 AM: Applying reduction ConeMatrixStuffing\nTraceback (most recent call last):\n  File \"/home/ubuntu/xpu-rt/scripts/run_xpurt_schedule.py\", line 799, in <module>\n    schedule_iree_networks(\n  File \"/home/ubuntu/xpu-rt/scripts/run_xpurt_schedule.py\", line 345, in schedule_iree_networks\n    result = milp_schedule(\n             ^^^^^^^^^^^^^^\nSystemError: error return without exception set\n",
+ "milp_n_variables": 89091,
+ "milp_n_constraints": 668893,
+ "last_cvxpy_reduction": "ConeMatrixStuffing",
+ "failure_reason": "other"
+}

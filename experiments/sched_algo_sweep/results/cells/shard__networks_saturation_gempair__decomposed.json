@@ -1,0 +1,195 @@
+{
+ "cell_id": "shard__networks_saturation_gempair__decomposed",
+ "family": "saturation",
+ "pair": "gempair",
+ "arm": "shard",
+ "solver": "decomposed",
+ "basename": "networks_saturation_gempair",
+ "networks_json": "/home/ubuntu/xpu-rt/data/toplevel/wl_sweep_shard/networks_saturation_gempair.json",
+ "returncode": 0,
+ "wall_s": 5.493853569030762,
+ "time_limit_s": 120.0,
+ "blas_threads": 1,
+ "solver_status": "heuristic",
+ "ops_reported_prescheduling": 619,
+ "makespan_pred_ms": 140.13265199999995,
+ "makespan_meta_ms": 140.13265199999995,
+ "num_operations": 619,
+ "num_periodic_operations": 338,
+ "num_nonperiodic_operations": 281,
+ "total_busy_ms": 231.03731699999966,
+ "machines": [
+  "CPU_P#0",
+  "CPU_P#1"
+ ],
+ "profile_hw": {
+  "CPU_P": "gemmini_q31",
+  "CPU_E": "V256D128_rvv"
+ },
+ "busy_by_machine_ms": {
+  "CPU_P#1": 107.29909200000009,
+  "CPU_P#0": 123.73822500000009
+ },
+ "util_by_machine": {
+  "CPU_P#0": 0.8830078017791323,
+  "CPU_P#1": 0.7656965772688019
+ },
+ "busy_by_kind_ms": {
+  "CPU_P": 231.03731700000017
+ },
+ "util_by_kind": {
+  "CPU_P": 0.824352189523967
+ },
+ "n_machines_by_kind": {
+  "CPU_P": 2
+ },
+ "ops_by_machine": {
+  "CPU_P#1": 256,
+  "CPU_P#0": 363
+ },
+ "periodic_instances_retained": {
+  "dronet_sf_wls": 6,
+  "mlp_control_sf_wls": 16
+ },
+ "periodic_declared_instances": {
+  "dronet_sf_wls": 6,
+  "mlp_control_sf_wls": 16
+ },
+ "periodic_periods_ms": {
+  "dronet_sf_wls": 12.169,
+  "mlp_control_sf_wls": 3.11
+ },
+ "period_misses": [
+  {
+   "network": "dronet_sf_wls",
+   "instance": 0,
+   "window": [
+    0.0,
+    12.169
+   ],
+   "actual": [
+    6.3357149999999995,
+    14.252372000000005
+   ],
+   "late_by_ms": 2.083372000000004,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "dronet_sf_wls",
+   "instance": 1,
+   "window": [
+    12.169,
+    24.338
+   ],
+   "actual": [
+    18.775715,
+    25.579819999999998
+   ],
+   "late_by_ms": 1.241819999999997,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "dronet_sf_wls",
+   "instance": 2,
+   "window": [
+    24.338,
+    36.507000000000005
+   ],
+   "actual": [
+    31.215715,
+    38.131928
+   ],
+   "late_by_ms": 1.624927999999997,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "dronet_sf_wls",
+   "instance": 3,
+   "window": [
+    36.507000000000005,
+    48.676
+   ],
+   "actual": [
+    43.655715,
+    50.3585
+   ],
+   "late_by_ms": 1.6824999999999974,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf_wls",
+   "instance": 3,
+   "window": [
+    9.33,
+    12.44
+   ],
+   "actual": [
+    9.33,
+    14.616275000000005
+   ],
+   "late_by_ms": 2.1762750000000057,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf_wls",
+   "instance": 4,
+   "window": [
+    12.44,
+    15.549999999999999
+   ],
+   "actual": [
+    14.252372000000005,
+    16.14778500000001
+   ],
+   "late_by_ms": 0.5977850000000107,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf_wls",
+   "instance": 7,
+   "window": [
+    21.77,
+    24.88
+   ],
+   "actual": [
+    22.975961,
+    27.342892
+   ],
+   "late_by_ms": 2.462892,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf_wls",
+   "instance": 11,
+   "window": [
+    34.21,
+    37.32
+   ],
+   "actual": [
+    36.84102300000001,
+    39.895
+   ],
+   "late_by_ms": 2.575000000000003,
+   "early_by_ms": 0.0
+  },
+  {
+   "network": "mlp_control_sf_wls",
+   "instance": 15,
+   "window": [
+    46.65,
+    49.76
+   ],
+   "actual": [
+    49.214021,
+    52.121572
+   ],
+   "late_by_ms": 2.3615720000000024,
+   "early_by_ms": 0.0
+  }
+ ],
+ "num_period_misses": 9,
+ "any_period_missed": true,
+ "worst_late_ms": 2.575000000000003,
+ "ok": true,
+ "schedule_json": "/home/ubuntu/sweep/work/shard__networks_saturation_gempair__decomposed/schedules/scheduled_networks_saturation_gempair_decomposed_profiled.json"
+}

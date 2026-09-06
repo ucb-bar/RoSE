@@ -1,0 +1,23 @@
+{
+ "cell_id": "shard__networks_tight_loop_quad__milp",
+ "family": "tight_loop",
+ "pair": "quad",
+ "arm": "shard",
+ "solver": "milp",
+ "basename": "networks_tight_loop_quad",
+ "networks_json": "/home/ubuntu/xpu-rt/data/toplevel/wl_sweep_shard/networks_tight_loop_quad.json",
+ "returncode": -9,
+ "wall_s": 1200.5495858192444,
+ "timed_out": true,
+ "time_limit_s": 120.0,
+ "blas_threads": 1,
+ "solver_status": null,
+ "ops_reported_prescheduling": 308,
+ "ok": false,
+ "error": "run failed (rc=-9) or no schedule json",
+ "tail": "rations: 308\n  Scheduler machines (4 cores): ['CPU_P#0', 'CPU_P#1', 'CPU_E#0', 'CPU_E#1']\n  Machine combination options: 6 (mode=singletons)\n  Job names: ['mlp_control_sa0', 'mlp_control_sb0', 'dronet_sa_wls0', 'mlp_control_sa1', 'mlp_control_sa2', 'mlp_control_sa3', 'mlp_control_sa4', 'mlp_control_sa5', 'mlp_control_sa6', 'mlp_control_sa7', 'mlp_control_sa8', 'mlp_control_sa9', 'mlp_control_sa10', 'mlp_control_sa11', 'mlp_control_sa12', 'mlp_control_sa13', 'mlp_control_sa14', 'mlp_control_sa15', 'mlp_control_sb1', 'mlp_control_sb2', 'mlp_control_sb3', 'mlp_control_sb4', 'mlp_control_sb5', 'mlp_control_sb6', 'mlp_control_sb7', 'dronet_sa_wls1', 'dronet_sa_wls2', 'dronet_sa_wls3']\n  Operations with multiple predecessors: 96\n  Independent jobs (can run in parallel): 32\n\n============================================================\nScheduling combined workload (MILP)...\n============================================================\n===============================================================================\n                                     CVXPY                                     \n                                     v1.7.5                                    \n===============================================================================\n-------------------------------------------------------------------------------\n                                  Compilation                                  \n-------------------------------------------------------------------------------\n(CVXPY) Sep 06 04:08:36 AM: Your problem has 97021 variables, 200564 constraints, and 0 parameters.\n(CVXPY) Sep 06 04:08:52 AM: It is compliant with the following grammars: DCP, DQCP\n(CVXPY) Sep 06 04:08:52 AM: (If you need to solve this problem multiple times, but with different data, consider using parameters.)\n(CVXPY) Sep 06 04:08:52 AM: CVXPY will first compile your problem; then, it will invoke a numerical solver to obtain a solution.\n(CVXPY) Sep 06 04:08:52 AM: Your problem is compiled with the CPP canonicalization backend.\n(CVXPY) Sep 06 04:09:14 AM: Compiling problem (target solver=MOSEK).\n(CVXPY) Sep 06 04:09:14 AM: Reduction chain: Dcp2Cone -> CvxAttr2Constr -> ConeMatrixStuffing -> MOSEK\n(CVXPY) Sep 06 04:09:14 AM: Applying reduction Dcp2Cone\n(CVXPY) Sep 06 04:10:06 AM: Applying reduction CvxAttr2Constr\n(CVXPY) Sep 06 04:10:08 AM: Applying reduction ConeMatrixStuffing\n",
+ "milp_n_variables": 97021,
+ "milp_n_constraints": 200564,
+ "last_cvxpy_reduction": "ConeMatrixStuffing",
+ "failure_reason": "wall_clock_timeout"
+}

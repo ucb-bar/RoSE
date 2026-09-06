@@ -1,0 +1,11 @@
+{
+ "cell_id": "shard__networks_vint_multi_quad__milp",
+ "arm": "shard",
+ "basename": "networks_vint_multi_quad",
+ "family": "vint_multi",
+ "pair": "quad",
+ "solver": "milp",
+ "ok": false,
+ "error": "not_attempted_budget",
+ "failure_reason": "not_attempted_budget"
+}

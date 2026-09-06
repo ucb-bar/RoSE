@@ -1,0 +1,82 @@
+{
+ "cell_id": "base__networks_depth_nav_quad__greedy_periodic",
+ "family": "depth_nav",
+ "pair": "quad",
+ "arm": "base",
+ "solver": "greedy_periodic",
+ "basename": "networks_depth_nav_quad",
+ "networks_json": "/home/ubuntu/xpu-rt/data/toplevel/wl_sweep/networks_depth_nav_quad.json",
+ "returncode": 0,
+ "wall_s": 4.442288160324097,
+ "time_limit_s": 120.0,
+ "blas_threads": 1,
+ "solver_status": "heuristic",
+ "ops_reported_prescheduling": 382,
+ "makespan_pred_ms": 430.5847039999998,
+ "makespan_meta_ms": 430.5847039999998,
+ "num_operations": 382,
+ "num_periodic_operations": 382,
+ "num_nonperiodic_operations": 0,
+ "total_busy_ms": 144.3450360000006,
+ "machines": [
+  "CPU_P#0",
+  "CPU_P#1",
+  "CPU_E#0",
+  "CPU_E#1"
+ ],
+ "profile_hw": {
+  "CPU_P": "gemmini_q31",
+  "CPU_E": "V256D128_rvv"
+ },
+ "busy_by_machine_ms": {
+  "CPU_P#0": 31.428183999999998,
+  "CPU_E#0": 86.93161199999982,
+  "CPU_E#1": 25.609542,
+  "CPU_P#1": 0.375698
+ },
+ "util_by_machine": {
+  "CPU_P#0": 0.07298955050665248,
+  "CPU_P#1": 0.0008725298332938463,
+  "CPU_E#0": 0.20189201147284566,
+  "CPU_E#1": 0.05947620006492384
+ },
+ "busy_by_kind_ms": {
+  "CPU_P": 31.803881999999998,
+  "CPU_E": 112.54115399999982
+ },
+ "util_by_kind": {
+  "CPU_P": 0.036931040169973166,
+  "CPU_E": 0.13068410576888476
+ },
+ "n_machines_by_kind": {
+  "CPU_P": 2,
+  "CPU_E": 2
+ },
+ "ops_by_machine": {
+  "CPU_P#0": 96,
+  "CPU_E#0": 268,
+  "CPU_E#1": 14,
+  "CPU_P#1": 4
+ },
+ "periodic_instances_retained": {
+  "dronet_sf": 2,
+  "fastdepth": 2,
+  "mlp_control_sd": 16
+ },
+ "periodic_declared_instances": {
+  "fastdepth": 2,
+  "dronet_sf": 2,
+  "mlp_control_sd": 16
+ },
+ "periodic_periods_ms": {
+  "fastdepth": 359.972,
+  "dronet_sf": 359.972,
+  "mlp_control_sd": 2.384
+ },
+ "period_misses": [],
+ "num_period_misses": 0,
+ "any_period_missed": false,
+ "worst_late_ms": 0.0,
+ "ok": true,
+ "schedule_json": "/home/ubuntu/sweep/work/base__networks_depth_nav_quad__greedy_periodic/schedules/scheduled_networks_depth_nav_quad_greedy_periodic_profiled.json"
+}

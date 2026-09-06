@@ -1,0 +1,71 @@
+{
+ "cell_id": "base__networks_control_mix_hetero__decomposed",
+ "family": "control_mix",
+ "pair": "hetero",
+ "arm": "base",
+ "solver": "decomposed",
+ "basename": "networks_control_mix_hetero",
+ "networks_json": "/home/ubuntu/xpu-rt/data/toplevel/wl_sweep/networks_control_mix_hetero.json",
+ "returncode": 0,
+ "wall_s": 2.4615490436553955,
+ "time_limit_s": 120.0,
+ "blas_threads": 1,
+ "solver_status": "heuristic",
+ "ops_reported_prescheduling": 295,
+ "makespan_pred_ms": 46.03685800000002,
+ "makespan_meta_ms": 46.03685800000002,
+ "num_operations": 253,
+ "num_periodic_operations": 98,
+ "num_nonperiodic_operations": 155,
+ "total_busy_ms": 51.12496,
+ "machines": [
+  "CPU_P#0",
+  "CPU_E#0"
+ ],
+ "profile_hw": {
+  "CPU_P": "gemmini_q31",
+  "CPU_E": "V256D128_rvv"
+ },
+ "busy_by_machine_ms": {
+  "CPU_E#0": 15.49281599999999,
+  "CPU_P#0": 35.632144
+ },
+ "util_by_machine": {
+  "CPU_P#0": 0.7739916568589451,
+  "CPU_E#0": 0.3365306989456141
+ },
+ "busy_by_kind_ms": {
+  "CPU_P": 35.632144,
+  "CPU_E": 15.49281599999999
+ },
+ "util_by_kind": {
+  "CPU_P": 0.7739916568589451,
+  "CPU_E": 0.3365306989456141
+ },
+ "n_machines_by_kind": {
+  "CPU_P": 1,
+  "CPU_E": 1
+ },
+ "ops_by_machine": {
+  "CPU_E#0": 150,
+  "CPU_P#0": 103
+ },
+ "periodic_instances_retained": {
+  "dronet_se": 2,
+  "mlp_control_sd": 8
+ },
+ "periodic_declared_instances": {
+  "mlp_control_sd": 8,
+  "dronet_se": 4
+ },
+ "periodic_periods_ms": {
+  "mlp_control_sd": 2.384,
+  "dronet_se": 39.56
+ },
+ "period_misses": [],
+ "num_period_misses": 0,
+ "any_period_missed": false,
+ "worst_late_ms": 0.0,
+ "ok": true,
+ "schedule_json": "/home/ubuntu/sweep/work/base__networks_control_mix_hetero__decomposed/schedules/scheduled_networks_control_mix_hetero_decomposed_profiled.json"
+}

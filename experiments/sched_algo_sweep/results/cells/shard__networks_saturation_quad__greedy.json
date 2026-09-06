@@ -1,0 +1,79 @@
+{
+ "cell_id": "shard__networks_saturation_quad__greedy",
+ "family": "saturation",
+ "pair": "quad",
+ "arm": "shard",
+ "solver": "greedy",
+ "basename": "networks_saturation_quad",
+ "networks_json": "/home/ubuntu/xpu-rt/data/toplevel/wl_sweep_shard/networks_saturation_quad.json",
+ "returncode": 0,
+ "wall_s": 19.864739894866943,
+ "time_limit_s": 120.0,
+ "blas_threads": 1,
+ "solver_status": "heuristic",
+ "ops_reported_prescheduling": 619,
+ "makespan_pred_ms": 68.38559099999999,
+ "makespan_meta_ms": 68.38559099999999,
+ "num_operations": 549,
+ "num_periodic_operations": 268,
+ "num_nonperiodic_operations": 281,
+ "total_busy_ms": 136.96316899999977,
+ "machines": [
+  "CPU_P#0",
+  "CPU_P#1",
+  "CPU_E#0",
+  "CPU_E#1"
+ ],
+ "profile_hw": {
+  "CPU_P": "gemmini_q31",
+  "CPU_E": "V256D128_rvv"
+ },
+ "busy_by_machine_ms": {
+  "CPU_E#1": 25.061222000000008,
+  "CPU_E#0": 20.789405000000006,
+  "CPU_P#0": 49.166751999999995,
+  "CPU_P#1": 41.94578999999996
+ },
+ "util_by_machine": {
+  "CPU_P#0": 0.7189636191050831,
+  "CPU_P#1": 0.6133717554623453,
+  "CPU_E#0": 0.30400271016156033,
+  "CPU_E#1": 0.3664693341613442
+ },
+ "busy_by_kind_ms": {
+  "CPU_P": 91.11254199999996,
+  "CPU_E": 45.85062700000002
+ },
+ "util_by_kind": {
+  "CPU_P": 0.6661676872837143,
+  "CPU_E": 0.33523602216145226
+ },
+ "n_machines_by_kind": {
+  "CPU_P": 2,
+  "CPU_E": 2
+ },
+ "ops_by_machine": {
+  "CPU_E#1": 119,
+  "CPU_E#0": 239,
+  "CPU_P#0": 104,
+  "CPU_P#1": 87
+ },
+ "periodic_instances_retained": {
+  "dronet_sf_wls": 4,
+  "mlp_control_sf_wls": 16
+ },
+ "periodic_declared_instances": {
+  "dronet_sf_wls": 6,
+  "mlp_control_sf_wls": 16
+ },
+ "periodic_periods_ms": {
+  "dronet_sf_wls": 19.302,
+  "mlp_control_sf_wls": 3.388
+ },
+ "period_misses": [],
+ "num_period_misses": 0,
+ "any_period_missed": false,
+ "worst_late_ms": 0.0,
+ "ok": true,
+ "schedule_json": "/home/ubuntu/sweep/work/shard__networks_saturation_quad__greedy/schedules/scheduled_networks_saturation_quad_greedy_profiled.json"
+}

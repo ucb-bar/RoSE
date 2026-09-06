@@ -1,0 +1,22 @@
+{
+ "cell_id": "shard__networks_control_mix_quad__milp",
+ "family": "control_mix",
+ "pair": "quad",
+ "arm": "shard",
+ "solver": "milp",
+ "basename": "networks_control_mix_quad",
+ "networks_json": "/home/ubuntu/xpu-rt/data/toplevel/wl_sweep_shard/networks_control_mix_quad.json",
+ "returncode": 1,
+ "wall_s": 537.1745018959045,
+ "timed_out": false,
+ "time_limit_s": 120.0,
+ "blas_threads": 1,
+ "solver_status": null,
+ "ops_reported_prescheduling": 477,
+ "ok": false,
+ "error": "run failed (rc=1) or no schedule json",
+ "tail": "': 2}\n  Profile HW mapping: CPU_P->gemmini_q31, CPU_E->V256D128_rvv\n  Profile target/topology: target=firesim_f2_rocket_saturn, topo_tag=topo_0\n  p_core_speedup: 1.0\n  random_seed: 42\n  solver_verbosity: 1\n  time_limit: 120.0\n  use_profiled: True\n  prune_periodic: True\n  restrict_makespan_to_nonperiodic: False\n  machine_combination_mode: singletons\n  enforce_same_processor_combinations: True\n\nUsing profiled runtimes where available...\n\nCreating workload from network hierarchy...\n\nWorkload created successfully!\n  Total operations: 477\n  Scheduler machines (4 cores): ['CPU_P#0', 'CPU_P#1', 'CPU_E#0', 'CPU_E#1']\n  Machine combination options: 6 (mode=singletons)\n  Job names: ['mlp_control_sd0', 'dronet_se_wls0', 'yolov8_nano_sc_wls', 'mlp_control_sd1', 'mlp_control_sd2', 'mlp_control_sd3', 'mlp_control_sd4', 'mlp_control_sd5', 'mlp_control_sd6', 'mlp_control_sd7', 'dronet_se_wls1', 'dronet_se_wls2', 'dronet_se_wls3']\n  Operations with multiple predecessors: 327\n  Independent jobs (can run in parallel): 18\n\n============================================================\nScheduling combined workload (MILP)...\n============================================================\n===============================================================================\n                                     CVXPY                                     \n                                     v1.7.5                                    \n===============================================================================\n(CVXPY) Sep 06 04:19:13 AM: Your problem has 230869 variables, 1691467 constraints, and 0 parameters.\nTraceback (most recent call last):\n  File \"/home/ubuntu/xpu-rt/scripts/run_xpurt_schedule.py\", line 799, in <module>\n    schedule_iree_networks(\n  File \"/home/ubuntu/xpu-rt/scripts/run_xpurt_schedule.py\", line 345, in schedule_iree_networks\n    result = milp_schedule(\n             ^^^^^^^^^^^^^^\nSystemError: error return without exception set\n",
+ "milp_n_variables": 230869,
+ "milp_n_constraints": 1691467,
+ "failure_reason": "other"
+}
