@@ -259,16 +259,24 @@ use by another campaign, so nothing here writes outside `experiments/quad_debug/
 wrappers (`z_riscv_vstate_save`, `z_riscv_vstate_restore`) in the exact
 faulting ELF, after asserting each has exactly one call site. It deliberately
 leaves `z_riscv_vstate_save_thread` / `z_riscv_vstate_restore_thread`
-untouched, so switch.S keeps doing per-thread V context switching. That is safe
-here because `CONFIG_RISCV_V_KERNEL_ONLY=y` strips `v` from the global `-march`
-(`cmake/compiler/gcc/target_riscv.cmake:181`), so no ISR can emit a vector
-instruction and clobber `v0..v31` behind the interrupted thread.
+untouched, so switch.S keeps doing per-thread V context switching. That is
+*intended* to be safe because `CONFIG_RISCV_V_KERNEL_ONLY=y` strips `v` from
+the global `-march` (`cmake/compiler/gcc/target_riscv.cmake:181`), so no ISR
+should be able to clobber `v0..v31` behind the interrupted thread -- though see
+the caveat about picolibc's `vse64.v` memcpy in `RESULT.md`.
 
 Sanity check first: the patched `control_mix_quad_base` ELF produces
 **byte-identical** `MODELBLASTER_VERIFY` lines to the unpatched one under
-`spike -p4`, so the patch is numerically inert.
+`spike -p4`, so the patch is numerically inert in software.
 
-Result: see `RESULT.md`.
+**Result: `wl_scale_ladder_quad_greedy_shard` STILL FAULTS** (fq 912), at the
+same `vsse8.v v2,(a7),a0` in the same `mb_conv2d_s8_tiled_direct` source line,
+same `sp`, byte-identical neighbouring registers -- only which dronet rung was
+executing moved. `wl_control_mix_quad_greedy_base` stopped faulting (fq 911,
+232 trace rows) but drifted numerically. Full numbers and both fault frames in
+`RESULT.md`. The negative is the load-bearing one: it says the corrupting agent
+is the trap, not the V-save code the trap happens to run, which is why the fix
+in section 6 is the interrupt mask and not this.
 
 ## 6. The fix
 
