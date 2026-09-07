@@ -16,7 +16,7 @@ the reference palette's slots 1-4 in fixed order.
 Baseline is greedy, per workload-arm: it is the incumbent that every one of the
 88 measured FPGA cells was scheduled with.
 """
-import csv, os, statistics, collections
+import csv, os, statistics, collections, sys
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -35,6 +35,22 @@ FAMILY = {
     "cpsat:warmbest": ("CP-SAT", "#eda100"),
 }
 INK, INK2, GRID = "#0b0b0b", "#52514e", "#d8d7d2"
+
+# PAPER MODE. A figure destined for a tight single column must be RENDERED at
+# column width, not drawn wide and shrunk: scaling a 15.5in figure into a 3.5in
+# column takes 11pt type down to about 2.5pt no matter what size was set. Here
+# the panels stack (two side by side in 3.5in would leave ~1.6in each, which
+# twelve labelled points cannot survive) and the type is sized for print, which
+# makes it roughly 2.8x larger RELATIVE to the figure than the wide version.
+PAPER = "--paper" in sys.argv
+if PAPER:
+    FIG, STACK = (3.6, 6.4), True
+    F_TITLE, F_PANEL, F_AX, F_TICK, F_LBL, F_LEG, F_CAP = 8.5, 8.0, 7.5, 7.0, 6.6, 6.6, 5.8
+    MS_ON, MS_OFF = 46, 30
+else:
+    FIG, STACK = (15.5, 7.2), False
+    F_TITLE, F_PANEL, F_AX, F_TICK, F_LBL, F_LEG, F_CAP = 15, 13.5, 12, 11, 11, 11, 10.5
+    MS_ON, MS_OFF = 150, 95
 
 rows = list(csv.DictReader(open(f"{R}/results.csv")))
 # tight_loop's periods were infeasible by construction when this swept, so every
@@ -84,7 +100,8 @@ for r in rows:
 # number: you cannot know which of the six wins on a given workload without
 # running all of them, so every one is on the critical path to the answer.
 S = sorted(imp, key=lambda s: -statistics.mean(imp[s]))
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15.5, 7.2))
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=FIG) if STACK else \
+                  plt.subplots(1, 2, figsize=FIG)
 
 
 def frontier(ax, xs, ys, names, lower_x_better=True):
@@ -101,9 +118,11 @@ def frontier(ax, xs, ys, names, lower_x_better=True):
 
 for ax, xs, xlabel, scale in (
         (ax1, [statistics.median(wall[s]) for s in S],
-         "median solve time (s, log scale)  →  cheaper is left", "log"),
+         ("median solve time (s)" if PAPER else
+          "median solve time (s, log scale)  →  cheaper is left"), "log"),
         (ax2, [statistics.mean(miss_pct[s]) for s in S],
-         "periodic operations that missed their window (%, symlog)  →  fewer is left",
+         ("periodic ops missing their window (%)" if PAPER else
+          "periodic operations that missed their window (%, symlog)  →  fewer is left"),
          "symlog")):
     ys = [statistics.mean(imp[s]) for s in S]
     front = frontier(ax, xs, ys, S)
@@ -123,15 +142,22 @@ for ax, xs, xlabel, scale in (
     for i, (x, y, s) in enumerate(zip(xs, ys, S)):
         fam, col = FAMILY[s]
         on = s in front
-        ax.scatter([x], [y], s=150 if on else 95, color=col, zorder=3,
+        ax.scatter([x], [y], s=MS_ON if on else MS_OFF, color=col, zorder=3,
                    edgecolor="white", linewidth=1.6 if on else 0.9,
                    alpha=1.0 if on else 0.72)
         ly = label_y[i]
         # a hairline leader only when the label had to move off its point
         if abs(ly - y) > gap * 0.35:
             ax.plot([x, x], [y, ly], color=GRID, lw=0.7, zorder=2)
-        ax.annotate(s, (x, ly), textcoords="offset points", xytext=(10, -3),
-                    fontsize=11, color=INK if on else INK2,
+        # In a single column there is no room for a right-hand label on a
+        # right-hand point, so points past the midline label leftwards.
+        x0, x1 = ax.get_xlim()
+        frac = ((ax.transData.transform((x, 0))[0] - ax.transAxes.transform((0, 0))[0])
+                / max(ax.transAxes.transform((1, 0))[0] - ax.transAxes.transform((0, 0))[0], 1))
+        left = PAPER and frac > 0.55
+        ax.annotate(s, (x, ly), textcoords="offset points",
+                    xytext=(-8 if left else 8, -3), ha="right" if left else "left",
+                    fontsize=F_LBL, color=INK if on else INK2,
                     fontweight="bold" if on else "normal", zorder=4)
     # symlog, not log, on the misses axis: six solvers sit at EXACTLY zero
     # misses, and a linear axis crushes them into one pile against heft's 2930
@@ -145,18 +171,23 @@ for ax, xs, xlabel, scale in (
     ax.xaxis.set_major_formatter(FuncFormatter(lambda v, _: f"{v:g}"))
     ax.xaxis.set_minor_formatter(NullFormatter())
     ax.axhline(0, color=GRID, lw=1.2, zorder=0)
-    ax.set_xlabel(xlabel, fontsize=12, color=INK2)
+    ax.set_xlabel(xlabel, fontsize=F_AX, color=INK2)
+    if PAPER:
+        ax.margins(x=0.12)
     ax.grid(alpha=0.22, lw=0.6, color=GRID)
     ax.set_axisbelow(True)
     for sp in ("top", "right"):
         ax.spines[sp].set_visible(False)
     for sp in ("left", "bottom"):
         ax.spines[sp].set_color(GRID)
-    ax.tick_params(colors=INK2, labelsize=11)
+    ax.tick_params(colors=INK2, labelsize=F_TICK)
 
-ax1.set_ylabel("mean makespan improvement over greedy (%)", fontsize=12, color=INK2)
-ax1.set_title("quality vs cost", fontsize=13.5, color=INK, loc="left")
-ax2.set_title("quality vs feasibility", fontsize=13.5, color=INK, loc="left")
+for _a in ((ax1, ax2) if STACK else (ax1,)):
+    _a.set_ylabel("makespan gain over greedy (%)" if PAPER
+                  else "mean makespan improvement over greedy (%)",
+                  fontsize=F_AX, color=INK2)
+ax1.set_title("quality vs cost", fontsize=F_PANEL, color=INK, loc="left")
+ax2.set_title("quality vs feasibility", fontsize=F_PANEL, color=INK, loc="left")
 
 seen, handles = set(), []
 from matplotlib.lines import Line2D
@@ -164,23 +195,31 @@ for s in S:
     fam, col = FAMILY[s]
     if fam in seen: continue
     seen.add(fam)
-    handles.append(Line2D([], [], marker="o", ls="", color=col, markersize=10,
+    handles.append(Line2D([], [], marker="o", ls="", color=col, markersize=6 if PAPER else 10,
                           markeredgecolor="white", label=fam))
 handles.append(Line2D([], [], ls="-", color=INK2, alpha=0.45, label="Pareto frontier"))
-ax1.legend(handles=handles, loc="lower right", frameon=False, fontsize=11,
-           labelcolor=INK2)
+ax1.legend(handles=handles, loc="lower right", frameon=False, fontsize=F_LEG,
+           labelcolor=INK2, handletextpad=0.4, borderpad=0.2,
+           labelspacing=0.3 if PAPER else 0.5)
 
-fig.suptitle("Scheduler algorithms on wl_sweep — 12 solvers x 80 workload-arms, "
-             "greedy as baseline", fontsize=15, color=INK, x=0.005, ha="left",
-             y=0.985)
-fig.text(0.005, 0.905,
-         "Predicted makespan from the measured-cost model, not hardware. tight_loop excluded "
-         "(infeasible by construction at sweep time); swept before the window retune.\n"
-         "cheap_portfolio is a virtual solver — run all six sub-second heuristics, keep the best "
-         "feasible-then-fastest; its cost is all six, since the winner is not known in advance.",
-         fontsize=10.5, color=INK2, ha="left")
-fig.tight_layout(rect=[0, 0, 1, 0.875])
-out = os.path.join(os.path.dirname(HERE), "plots", "solver_pareto.png")
+if PAPER:
+    # No running caption: the paper's own figure caption carries the method and
+    # the caveats, and repeating them here would eat a third of the column.
+    fig.suptitle("Scheduler algorithms on wl_sweep", fontsize=F_TITLE,
+                 color=INK, x=0.01, ha="left", y=0.995)
+else:
+    fig.suptitle("Scheduler algorithms on wl_sweep — 12 solvers x 80 workload-arms, "
+                 "greedy as baseline", fontsize=F_TITLE, color=INK, x=0.005,
+                 ha="left", y=0.985)
+    fig.text(0.005, 0.905,
+             "Predicted makespan from the measured-cost model, not hardware. tight_loop excluded "
+             "(infeasible by construction at sweep time); swept before the window retune.\n"
+             "cheap_portfolio is a virtual solver — run all six sub-second heuristics, keep the best "
+             "feasible-then-fastest; its cost is all six, since the winner is not known in advance.",
+             fontsize=F_CAP, color=INK2, ha="left")
+fig.tight_layout(rect=[0, 0, 1, 0.965] if PAPER else [0, 0, 1, 0.875])
+out = os.path.join(os.path.dirname(HERE), "plots",
+                   "solver_pareto_column.png" if PAPER else "solver_pareto.png")
 fig.savefig(out, dpi=150, facecolor="#fcfcfb")
 print("wrote", out)
 print(f"\n  {'solver':<18}{'mean %':>9}{'med wall':>10}{'miss%':>10}{'total':>9}{'cells hit':>11}")
