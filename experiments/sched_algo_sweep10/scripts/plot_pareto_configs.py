@@ -34,8 +34,8 @@ FAMILY = {"greedy": "#2a78d6", "greedy_periodic": "#2a78d6",
 FAMNAME = {"#2a78d6": "greedy family", "#eb6834": "list heuristic",
            "#1baf7a": "metaheuristic", "#eda100": "CP-SAT"}
 INK, INK2, GRID = "#0b0b0b", "#52514e", "#d8d7d2"
-FIG = (7.4, 3.6) if WIDE else (3.5, 5.4)
-FT, FA, FK, FL, FG = (12, 10.5, 9.5, 9.5, 9) if WIDE else (8.5, 7.5, 7, 6.5, 6.2)
+FIG = (10.0, 4.2) if WIDE else (5.4, 6.4)
+FT, FA, FK, FL, FG = (13.5, 11.5, 10.5, 10.5, 9.5) if WIDE else (11, 9.5, 8.5, 8.5, 8)
 
 rows = [r for r in csv.DictReader(open(f"{R}/results.csv")) if r["family"] != "tight_loop"]
 
@@ -127,7 +127,7 @@ axes[0].legend(handles=[Line2D([], [], marker="o", ls="", color=c, markersize=5,
                         for c, n in FAMNAME.items()],
                loc="lower right", frameon=False, fontsize=FG, labelcolor=INK2,
                handletextpad=0.3, borderpad=0.15, labelspacing=0.25)
-fig.subplots_adjust(left=0.185 if not WIDE else 0.095, right=0.975,
+fig.subplots_adjust(left=0.135 if not WIDE else 0.075, right=0.975,
                     top=0.93, bottom=0.10, hspace=0.42, wspace=0.16)
 out = os.path.join(os.path.dirname(HERE), "plots",
                    "solver_pareto_configs_wide.png" if WIDE else "solver_pareto_configs.png")

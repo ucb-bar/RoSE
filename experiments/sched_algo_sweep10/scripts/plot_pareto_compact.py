@@ -35,8 +35,8 @@ FAMILY = {"greedy": "#2a78d6", "greedy_periodic": "#2a78d6",
 FAMNAME = {"#2a78d6": "greedy family", "#eb6834": "list heuristic",
            "#1baf7a": "metaheuristic", "#eda100": "CP-SAT"}
 INK, INK2, GRID, MUTE = "#0b0b0b", "#52514e", "#d8d7d2", "#9a9992"
-FIG = (7.1, 3.9) if WIDE else (3.5, 3.9)
-FT, FA, FK, FL, FG = (13, 11, 10, 10, 9.5) if WIDE else (8.5, 7.5, 7, 6.6, 6.2)
+FIG = (9.0, 4.2) if WIDE else (5.4, 4.0)
+FT, FA, FK, FL, FG = (14, 12, 11, 11, 10) if WIDE else (11, 9.5, 8.5, 8.5, 8)
 
 
 def series(rows):
@@ -162,7 +162,7 @@ bx.spines["bottom"].set_color(GRID)
 # tight_layout refuses this gridspec (it warns and then clips the y-label), so
 # the margins are set explicitly: room on the left for the axis title and at
 # the bottom for the strip's rotated tick labels.
-fig.subplots_adjust(left=0.175 if not WIDE else 0.095, right=0.965,
+fig.subplots_adjust(left=0.125 if not WIDE else 0.082, right=0.965,
                     top=0.925, bottom=0.135)
 out = os.path.join(os.path.dirname(HERE), "plots",
                    "solver_pareto_compact_wide.png" if WIDE else "solver_pareto_compact.png")
