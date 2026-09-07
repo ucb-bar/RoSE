@@ -87,10 +87,19 @@ FRONT = {p[2] for p in front}
 ax.plot([p[0] for p in front], [p[1] for p in front], "-", color=INK2, lw=1.3,
         alpha=0.5, zorder=1)
 for s in S:
-    on = s in FRONT
-    ax.scatter([X[s]], [Y[s]], s=(90 if WIDE else 62) if on else (40 if WIDE else 28),
-               color=FAMILY[s], edgecolor="white" if on else "none",
-               linewidth=1.1, alpha=1.0 if on else 0.55, zorder=3 if on else 2)
+    on, ok = s in FRONT, M[s] < 0.05
+    # Hollow marks the solvers that miss deadlines. Without this cue the
+    # frontier looks wrong: heft sits at 0.04 s / 3.81%, above AND left of
+    # heft_edf, so the eye says the line should start there. It is excluded
+    # because it misses 22.9% of periodic operations, and the reader needs to
+    # be able to see that from this panel rather than infer it from the other.
+    # Fill carries ONE thing (feasible or not) and size carries the other (on
+    # the frontier or not). Using opacity for the second made a faded fill read
+    # as hollow, which is the very distinction the panel turns on.
+    ax.scatter([X[s]], [Y[s]], s=(95 if WIDE else 66) if on else (42 if WIDE else 30),
+               facecolor=FAMILY[s] if ok else "none",
+               edgecolor="white" if (on and ok) else FAMILY[s],
+               linewidth=1.2 if ok else 1.4, zorder=3 if on else 2)
 # only the frontier is named here; the right panel names everything
 lab = sorted(FRONT, key=lambda s: -Y[s])
 for i, s in enumerate(lab):
@@ -109,8 +118,11 @@ ax.tick_params(colors=INK2, labelsize=FK)
 ax.set_xlabel("median solve time (s)", fontsize=FA, color=INK2)
 ax.set_ylabel("mean makespan gain over greedy (%)", fontsize=FA, color=INK2)
 ax.set_title("Pareto: quality vs solve time", fontsize=FT, color=INK, loc="left")
-ax.legend(handles=[Line2D([], [], marker="o", ls="", color=c, markersize=5, label=n)
-                   for c, n in FAMNAME.items()],
+_h = [Line2D([], [], marker="o", ls="", color=c, markersize=5, label=n)
+      for c, n in FAMNAME.items()]
+_h.append(Line2D([], [], marker="o", ls="", markerfacecolor="none",
+                 markeredgecolor=INK2, markersize=5, label="misses deadlines"))
+ax.legend(handles=_h,
           loc="lower right", frameon=False, fontsize=FG, labelcolor=INK2,
           handletextpad=0.3, borderpad=0.15, labelspacing=0.25)
 
