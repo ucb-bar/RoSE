@@ -50,7 +50,9 @@ for r in rows:
 
 imp = collections.defaultdict(list)
 wall = collections.defaultdict(list)
-miss = collections.Counter()
+miss = collections.Counter()          # raw total, kept for the printout
+miss_pct = collections.defaultdict(list)   # per-cell % of periodic ops missed
+hit = collections.Counter()           # cells with ANY miss
 clean = collections.Counter()
 cells = collections.Counter()
 for r in rows:
@@ -63,7 +65,16 @@ for r in rows:
     try: wall[s].append(float(r["wall_s"]))
     except (TypeError, ValueError): pass
     m = int(float(r["misses"] or 0)); miss[s] += m; cells[s] += 1
-    clean[s] += (m == 0)
+    clean[s] += (m == 0); hit[s] += (m > 0)
+    # NORMALISED, not the raw total. A total conflates "fails a little
+    # everywhere" with "fails catastrophically once": decomposed's 130 misses
+    # are all in ONE cell while heft's 2930 are spread over 30, so on totals
+    # decomposed looks 3x worse than greedy while actually hitting fewer cells.
+    # Percent of that cell's own periodic operations is comparable across
+    # workloads of very different size.
+    po = int(float(r["periodic_ops"] or 0))
+    if po:
+        miss_pct[s].append(m / po * 100.0)
 
 S = sorted(imp, key=lambda s: -statistics.mean(imp[s]))
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14.5, 6.4))
@@ -84,38 +95,41 @@ def frontier(ax, xs, ys, names, lower_x_better=True):
 for ax, xs, xlabel, scale in (
         (ax1, [statistics.median(wall[s]) for s in S],
          "median solve time (s, log scale)  →  cheaper is left", "log"),
-        (ax2, [miss[s] for s in S],
-         "total deadline misses (symlog, so 0 is plottable)  →  fewer is left",
+        (ax2, [statistics.mean(miss_pct[s]) for s in S],
+         "periodic operations that missed their window (%, symlog)  →  fewer is left",
          "symlog")):
     ys = [statistics.mean(imp[s]) for s in S]
     front = frontier(ax, xs, ys, S)
-    # Declutter: several solvers land within a fraction of a percent of each
-    # other, so a fixed label offset overprints them. Walk in y order and push
-    # each label clear of the previous one.
-    order = sorted(range(len(S)), key=lambda i: -ys[i])
-    span = (max(ys) - min(ys)) or 1.0
-    last_y, dy = None, 0
-    offs = {}
-    for i in order:
-        if last_y is not None and (last_y - ys[i]) < span * 0.085:
-            dy -= 11
-        else:
-            dy = 4
-        offs[i] = dy
-        last_y = ys[i]
+    # Label placement. A fixed offset overprints (several solvers land within a
+    # fraction of a percent of each other, and in the right panel seven share
+    # x=0 exactly). A naive downward cascade is worse -- it pushes a label onto
+    # the NEXT point's label. So place greedily in data space against a running
+    # floor: each label sits at its point, or just below the last one placed,
+    # whichever is lower. That cannot collide by construction.
+    lo, hi = min(ys), max(ys)
+    gap = (hi - lo) * 0.052            # ~one label height in data units
+    label_y, floor = {}, None
+    for i in sorted(range(len(S)), key=lambda i: -ys[i]):
+        y = ys[i] if floor is None else min(ys[i], floor)
+        label_y[i] = y
+        floor = y - gap
     for i, (x, y, s) in enumerate(zip(xs, ys, S)):
         fam, col = FAMILY[s]
         on = s in front
         ax.scatter([x], [y], s=150 if on else 95, color=col, zorder=3,
                    edgecolor="white", linewidth=1.6 if on else 0.9,
                    alpha=1.0 if on else 0.72)
-        ax.annotate(s, (x, y), textcoords="offset points", xytext=(10, offs[i]),
+        ly = label_y[i]
+        # a hairline leader only when the label had to move off its point
+        if abs(ly - y) > gap * 0.35:
+            ax.plot([x, x], [y, ly], color=GRID, lw=0.7, zorder=2)
+        ax.annotate(s, (x, ly), textcoords="offset points", xytext=(10, -3),
                     fontsize=8.5, color=INK if on else INK2,
                     fontweight="bold" if on else "normal", zorder=4)
     # symlog, not log, on the misses axis: six solvers sit at EXACTLY zero
     # misses, and a linear axis crushes them into one pile against heft's 2930
     # so no frontier can form. symlog keeps zero as a real, plottable value.
-    ax.set_xscale(scale, **({"linthresh": 1} if scale == "symlog" else {}))
+    ax.set_xscale(scale, **({"linthresh": 0.1} if scale == "symlog" else {}))
     ax.axhline(0, color=GRID, lw=1.2, zorder=0)
     ax.set_xlabel(xlabel, fontsize=9.5, color=INK2)
     ax.grid(alpha=0.22, lw=0.6, color=GRID)
@@ -153,7 +167,7 @@ fig.tight_layout(rect=[0, 0, 1, 0.92])
 out = os.path.join(os.path.dirname(HERE), "plots", "solver_pareto.png")
 fig.savefig(out, dpi=150, facecolor="#fcfcfb")
 print("wrote", out)
-print(f"\n  {'solver':<18}{'mean %':>9}{'med wall':>10}{'misses':>9}{'clean cells':>13}")
+print(f"\n  {'solver':<18}{'mean %':>9}{'med wall':>10}{'miss%':>10}{'total':>9}{'cells hit':>11}")
 for s in S:
     print(f"  {s:<18}{statistics.mean(imp[s]):>9.2f}{statistics.median(wall[s]):>10.2f}"
-          f"{miss[s]:>9}{clean[s]:>8}/{cells[s]}")
+          f"{statistics.mean(miss_pct[s]):>9.1f}%{miss[s]:>9}{hit[s]:>6}/{cells[s]}")
