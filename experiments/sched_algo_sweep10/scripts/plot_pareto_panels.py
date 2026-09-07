@@ -39,8 +39,8 @@ FAMILY = {"greedy": "#2a78d6", "greedy_periodic": "#2a78d6",
 FAMNAME = {"#2a78d6": "greedy family", "#eb6834": "list heuristic",
            "#1baf7a": "metaheuristic", "#eda100": "CP-SAT"}
 INK, INK2, GRID = "#0b0b0b", "#52514e", "#d8d7d2"
-FIG = (11.0, 4.6) if WIDE else (7.6, 4.3)
-FT, FA, FK, FL, FG = (14, 12, 11, 11, 10) if WIDE else (11, 9.5, 8.5, 8.5, 8)
+FIG = (13.0, 4.8) if WIDE else (9.4, 4.2)
+FT, FA, FK, FL, FG = (15, 13, 12, 12, 11) if WIDE else (12.5, 11, 10, 10, 9.5)
 
 rows = [r for r in csv.DictReader(open(f"{R}/results.csv")) if r["family"] != "tight_loop"]
 base = {}
@@ -75,7 +75,7 @@ W = {s: (statistics.quantiles(sorted(imp[s]), n=10)[0],
          statistics.quantiles(sorted(imp[s]), n=10)[8]) for s in S}
 
 fig, (ax, bx) = plt.subplots(1, 2, figsize=FIG,
-                             gridspec_kw=dict(width_ratios=[1.0, 1.15], wspace=0.32))
+                             gridspec_kw=dict(width_ratios=[1.62, 1.0], wspace=0.46))
 
 # ---------------- left: Pareto ----------------
 clean = [s for s in S if M[s] < 0.05]
@@ -160,7 +160,7 @@ for sp in ("top", "right", "left"): bx.spines[sp].set_visible(False)
 bx.spines["bottom"].set_color(GRID)
 bx.tick_params(colors=INK2, labelsize=FK, length=2)
 bx.set_xlabel("makespan gain over greedy (%)", fontsize=FA, color=INK2)
-bx.set_title("Distribution over 80 workload-arms", fontsize=FT, color=INK, loc="left")
+bx.set_title("Distribution across workloads", fontsize=FT, color=INK, loc="left")
 
 
 # trailing column: the miss rate, attached to its own solver
@@ -177,9 +177,11 @@ bx.set_xlim(x0, xr * 1.34)
 # One key line for the whole figure: per-panel subtitles collided with the
 # titles and with each other at this width.
 fig.text(0.5, 0.012,
-         "thin bar = p10–p90    block = interquartile    | median    ● mean",
+         "over 80 workload-arms:   thin bar = p10–p90    block = interquartile"
+         "    | median    ● mean",
          fontsize=FG - 0.5, color=INK2, ha="center")
-fig.subplots_adjust(left=0.085 if WIDE else 0.105, right=0.955, top=0.90, bottom=0.185)
+fig.subplots_adjust(left=0.068 if WIDE else 0.085, right=0.965,
+                    top=0.90, bottom=0.175)
 out = os.path.join(os.path.dirname(HERE), "plots",
                    "solver_pareto_panels_wide.png" if WIDE else "solver_pareto_panels.png")
 fig.savefig(out, dpi=200, facecolor="#fcfcfb")
