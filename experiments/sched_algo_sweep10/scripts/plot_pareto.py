@@ -80,27 +80,11 @@ for r in rows:
     if po:
         miss_pct[s].append(m / po * 100.0)
 
-# COST HONESTY. cheap_portfolio is a virtual solver charged the SERIAL sum of
-# its six members, and cpsat:warmbest runs that same portfolio inline to build
-# its hint. But the six are independent, so the achievable cost is the SLOWEST
-# of them, not their sum. Rather than pick one number, plot the measured serial
-# cost as the marker and whisker left to the parallel bound.
-par_bound = {}
-_ser, _par, _wb = [], [], []
-for k, d in wall_by_cell.items():
-    six = [d[c] for c in CHEAP6 if c in d]
-    if len(six) != 6:
-        continue
-    _ser.append(sum(six)); _par.append(max(six))
-    if "cpsat:warmbest" in d:
-        _wb.append(d["cpsat:warmbest"] - (sum(six) - max(six)))
-if _par:
-    par_bound["cheap_portfolio"] = statistics.median(_par)
-if _wb:
-    par_bound["cpsat:warmbest"] = statistics.median(_wb)
-
+# The portfolio's cost is the sum of all six members, and that is the honest
+# number: you cannot know which of the six wins on a given workload without
+# running all of them, so every one is on the critical path to the answer.
 S = sorted(imp, key=lambda s: -statistics.mean(imp[s]))
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14.5, 6.4))
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15.5, 7.2))
 
 
 def frontier(ax, xs, ys, names, lower_x_better=True):
@@ -142,34 +126,30 @@ for ax, xs, xlabel, scale in (
         ax.scatter([x], [y], s=150 if on else 95, color=col, zorder=3,
                    edgecolor="white", linewidth=1.6 if on else 0.9,
                    alpha=1.0 if on else 0.72)
-        # whisker to the parallel-execution bound, on the cost axis only
-        if scale == "log" and s in par_bound and par_bound[s] < x:
-            ax.plot([par_bound[s], x], [y, y], color=col, lw=1.5, alpha=0.55, zorder=2)
-            ax.plot([par_bound[s]], [y], marker="|", color=col, ms=9, mew=1.6, zorder=3)
         ly = label_y[i]
         # a hairline leader only when the label had to move off its point
         if abs(ly - y) > gap * 0.35:
             ax.plot([x, x], [y, ly], color=GRID, lw=0.7, zorder=2)
         ax.annotate(s, (x, ly), textcoords="offset points", xytext=(10, -3),
-                    fontsize=8.5, color=INK if on else INK2,
+                    fontsize=11, color=INK if on else INK2,
                     fontweight="bold" if on else "normal", zorder=4)
     # symlog, not log, on the misses axis: six solvers sit at EXACTLY zero
     # misses, and a linear axis crushes them into one pile against heft's 2930
     # so no frontier can form. symlog keeps zero as a real, plottable value.
     ax.set_xscale(scale, **({"linthresh": 0.1} if scale == "symlog" else {}))
     ax.axhline(0, color=GRID, lw=1.2, zorder=0)
-    ax.set_xlabel(xlabel, fontsize=9.5, color=INK2)
+    ax.set_xlabel(xlabel, fontsize=12, color=INK2)
     ax.grid(alpha=0.22, lw=0.6, color=GRID)
     ax.set_axisbelow(True)
     for sp in ("top", "right"):
         ax.spines[sp].set_visible(False)
     for sp in ("left", "bottom"):
         ax.spines[sp].set_color(GRID)
-    ax.tick_params(colors=INK2, labelsize=8.5)
+    ax.tick_params(colors=INK2, labelsize=11)
 
-ax1.set_ylabel("mean makespan improvement over greedy (%)", fontsize=9.5, color=INK2)
-ax1.set_title("quality vs cost", fontsize=11, color=INK, loc="left")
-ax2.set_title("quality vs feasibility", fontsize=11, color=INK, loc="left")
+ax1.set_ylabel("mean makespan improvement over greedy (%)", fontsize=12, color=INK2)
+ax1.set_title("quality vs cost", fontsize=13.5, color=INK, loc="left")
+ax2.set_title("quality vs feasibility", fontsize=13.5, color=INK, loc="left")
 
 seen, handles = set(), []
 from matplotlib.lines import Line2D
@@ -177,23 +157,21 @@ for s in S:
     fam, col = FAMILY[s]
     if fam in seen: continue
     seen.add(fam)
-    handles.append(Line2D([], [], marker="o", ls="", color=col, markersize=8,
+    handles.append(Line2D([], [], marker="o", ls="", color=col, markersize=10,
                           markeredgecolor="white", label=fam))
 handles.append(Line2D([], [], ls="-", color=INK2, alpha=0.45, label="Pareto frontier"))
-handles.append(Line2D([], [], ls="-", marker="|", color=INK2, alpha=0.55,
-                      label="serial cost → parallel bound"))
-ax1.legend(handles=handles, loc="lower right", frameon=False, fontsize=8.5,
+ax1.legend(handles=handles, loc="lower right", frameon=False, fontsize=11,
            labelcolor=INK2)
 
 fig.suptitle("Scheduler algorithms on wl_sweep — 12 solvers x 80 workload-arms, "
-             "greedy as baseline", fontsize=12.5, color=INK, x=0.005, ha="left",
+             "greedy as baseline", fontsize=15, color=INK, x=0.005, ha="left",
              y=0.985)
 fig.text(0.005, 0.905,
          "Predicted makespan from the measured-cost model, not hardware. tight_loop excluded "
          "(infeasible by construction at sweep time); swept before the window retune.\n"
          "cheap_portfolio is a virtual solver — run all six sub-second heuristics, keep the best "
-         "feasible-then-fastest. Marker = serial cost of all six; whisker = parallel bound.",
-         fontsize=8.5, color=INK2, ha="left")
+         "feasible-then-fastest; its cost is all six, since the winner is not known in advance.",
+         fontsize=10.5, color=INK2, ha="left")
 fig.tight_layout(rect=[0, 0, 1, 0.875])
 out = os.path.join(os.path.dirname(HERE), "plots", "solver_pareto.png")
 fig.savefig(out, dpi=150, facecolor="#fcfcfb")
