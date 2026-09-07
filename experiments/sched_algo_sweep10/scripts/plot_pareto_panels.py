@@ -84,8 +84,13 @@ best, front = -1e9, []
 for x, y, n in pts:
     if y > best: front.append((x, y, n)); best = y
 FRONT = {p[2] for p in front}
-ax.plot([p[0] for p in front], [p[1] for p in front], "-", color=INK2, lw=1.3,
-        alpha=0.5, zorder=1)
+# Shade the DOMINATED region: everything slower and no better than some point
+# on the frontier. Drawn as a staircase because dominance is a step relation --
+# between two frontier points the best achievable quality is still the left
+# one's, so a straight line would claim performance nothing achieves.
+_fx = [p[0] for p in front]
+_fy = [p[1] for p in front]
+ax.plot(_fx, _fy, "-", color=INK2, lw=1.3, alpha=0.5, zorder=2)
 for s in S:
     on, ok = s in FRONT, M[s] < 0.05
     # Hollow marks the solvers that miss deadlines. Without this cue the
@@ -115,6 +120,12 @@ ax.grid(alpha=0.22, lw=0.6, color=GRID); ax.set_axisbelow(True)
 for sp in ("top", "right"): ax.spines[sp].set_visible(False)
 for sp in ("left", "bottom"): ax.spines[sp].set_color(GRID)
 ax.tick_params(colors=INK2, labelsize=FK)
+# Fill AFTER the scale and margins are set, then restore the limits: extending
+# the staircase to the right edge as DATA stretched the log axis to 10,000 s.
+_xl, _yl = ax.get_xlim(), ax.get_ylim()
+ax.fill_between(_fx + [_xl[1]], _yl[0], _fy + [_fy[-1]], step="post",
+                color=INK2, alpha=0.055, linewidth=0, zorder=0)
+ax.set_xlim(*_xl); ax.set_ylim(*_yl)
 ax.set_xlabel("median solve time (s)", fontsize=FA, color=INK2)
 ax.set_ylabel("mean makespan gain over greedy (%)", fontsize=FA, color=INK2)
 ax.set_title("Pareto: quality vs solve time", fontsize=FT, color=INK, loc="left")
@@ -122,6 +133,8 @@ _h = [Line2D([], [], marker="o", ls="", color=c, markersize=5, label=n)
       for c, n in FAMNAME.items()]
 _h.append(Line2D([], [], marker="o", ls="", markerfacecolor="none",
                  markeredgecolor=INK2, markersize=5, label="misses deadlines"))
+from matplotlib.patches import Patch
+_h.append(Patch(facecolor=INK2, alpha=0.10, edgecolor="none", label="dominated"))
 ax.legend(handles=_h,
           loc="lower right", frameon=False, fontsize=FG, labelcolor=INK2,
           handletextpad=0.3, borderpad=0.15, labelspacing=0.25)
