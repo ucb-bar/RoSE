@@ -1,5 +1,10 @@
 # Ten-solver scheduler bench over all 44 wl_sweep workloads, both arms
 
+
+> **Naming.** `best-of-fast` was called `cheap_portfolio` when the sweep ran, and `experiments/kernel_opt_log.jsonl` still uses that name — the log is append-only and records what was actually executed. Everything else here uses `best-of-fast`.
+>
+> It is not a Virtual Best Solver or an oracle: those terms mean best-of-N charged only the winner's time, whereas this runs all six sub-second heuristics and is charged for all six, because which one wins is not known in advance.
+
 **Supersedes the four-solver sweep in `experiments/sched_algo_sweep/`.** That run
 compared only the four solvers RoSE's `run_xpurt_schedule.py` exposes (milp,
 greedy, greedy_periodic, decomposed) and concluded "decomposed wins, +2.18% over
@@ -27,7 +32,7 @@ infeasible by construction (§5).
 | **pso** | 78/78 | **+9.10%** | +8.63% | +0.00% | 12.2 s |
 | **sa** | 78/78 | +8.75% | +8.55% | +0.00% | 15.3 s |
 | **cpsat:warm** | 78/78 | +8.30% | +8.58% | −28.11% | 29.2 s |
-| **cheap_portfolio** (supplementary) | 78/78 | +7.63% | +6.59% | +0.00% | **0.77 s** |
+| **best-of-fast** (supplementary) | 78/78 | +7.63% | +6.59% | +0.00% | **0.77 s** |
 | **cpsat** | 78/78 | +6.03% | +7.42% | −38.90% | 34.4 s |
 | heft_edf | 78/78 | +2.37% | +6.29% | −119.07% | 0.46 s |
 | greedy | 78/78 | 0 | 0 | 0 | 0.06 s |
@@ -40,7 +45,7 @@ Two supplementary arms are in this table, clearly marked. They are not among the
 ten; the ten-solver data motivated them (§3) and they are the actual
 recommendation, so hiding them would be the wrong call:
 
-- **`cheap_portfolio`** — run all six sub-second heuristics and keep the best
+- **`best-of-fast`** — run all six sub-second heuristics and keep the best
   *feasible* one. A deployable policy, costed at the sum of all six walls.
 - **`cpsat:warmbest`** — CP-SAT hinted from that portfolio instead of from
   `heft_edf` unconditionally, which is what `cpsat:warm` does.
@@ -68,7 +73,7 @@ sometimes 47% worse.
 
 | solver | workload-arms with ≥1 miss (of 80, ex tight_loop) | total missed windows |
 |---|---|---|
-| heft_edf, pso, sa, cpsat, cpsat:warm, cpsat:warmbest, cheap_portfolio | **0** | 0 |
+| heft_edf, pso, sa, cpsat, cpsat:warm, cpsat:warmbest, best-of-fast | **0** | 0 |
 | greedy | 2 | 42 |
 | decomposed | 1 | 130 |
 | greedy_reserved | 23 | 2398 |
@@ -85,13 +90,13 @@ cases where they stayed feasible.
 
 ## 2. Quality vs cost
 
-`cheap_portfolio` is the number that matters for the default path:
+`best-of-fast` is the number that matters for the default path:
 
 | | wall | mean impr vs greedy | % of the best available gain |
 |---|---|---|---|
 | greedy | 0.06 s | 0 | 0% |
 | heft_edf alone | 0.46 s | +2.37% | 24% |
-| **cheap_portfolio** | **0.77 s** | **+7.63%** | **78%** |
+| **best-of-fast** | **0.77 s** | **+7.63%** | **78%** |
 | pso | 12.2 s | +9.10% | 93% |
 | cpsat:warm | 29.2 s | +8.30% | 85% |
 | cpsat:warmbest | 27.5 s | +9.75% | 100% |
@@ -103,7 +108,7 @@ mean gap lives entirely in `depth_contended` and `saturation`.
 
 **Recommendation.**
 
-- **Default path: `cheap_portfolio`.** Sub-second, feasible on 80/80, never worse
+- **Default path: `best-of-fast`.** Sub-second, feasible on 80/80, never worse
   than greedy, and within a quarter of a percent of the best solver on the median
   workload. Critically, the portfolio's *feasibility filter* is what makes it
   safe — `heft` supplies its answer 33 times and `heft_edf` 31 times, and both of
@@ -282,7 +287,7 @@ has a precedence or overlap violation in float arithmetic, CP-SAT's included.
    where it failed on 66 of 80 cells and averaged −4.19%; at 126-801 ops the
    big-M pairwise encoding is not tractable, which is the stated reason the
    CP-SAT backend exists.
-6. `cheap_portfolio` is scored on the same 88 runs as its members, not on an
+6. `best-of-fast` is scored on the same 88 runs as its members, not on an
    independent execution. Its wall time is the honest sum of all six, but it
    inherits their determinism, which is exact for all six.
 
@@ -292,7 +297,7 @@ has a precedence or overlap violation in float arithmetic, CP-SAT's included.
 scripts/sweep10_runner.py            one (arm, workload, solver) solve + independent validation
 scripts/sweep10_dispatch.py          two-pool fan-out (CP-SAT wants 8 threads, everything else 1)
 scripts/sweep10_variance.py          seed-repeat run
-scripts/sweep10_analyze.py           tables + plots; synthesises cheap_portfolio
+scripts/sweep10_analyze.py           tables + plots; synthesises best-of-fast
 scripts/sweep10_breakdown.py         per family / pair / arm, and the paired head-to-heads
 scripts/sweep10_variance_analyze.py  seed spread
 scripts/sweep10_crosscheck.py        against the Sep-3 baseline

@@ -2,7 +2,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_bimodal_gempair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.008,
   "ops": 379,
   "combos": 3,
@@ -304,7 +304,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_bimodal_hetero",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.009,
   "ops": 379,
   "combos": 2,
@@ -606,7 +606,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_bimodal_quad",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.009,
   "ops": 379,
   "combos": 6,
@@ -908,7 +908,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_bimodal_rvvpair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.005,
   "ops": 379,
   "combos": 3,
@@ -1210,7 +1210,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_control_mix_gempair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.007,
   "ops": 295,
   "combos": 3,
@@ -1512,7 +1512,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_control_mix_hetero",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.008,
   "ops": 295,
   "combos": 2,
@@ -1814,7 +1814,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_control_mix_quad",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.009,
   "ops": 295,
   "combos": 6,
@@ -2116,7 +2116,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_control_mix_rvvpair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.007,
   "ops": 295,
   "combos": 3,
@@ -2418,7 +2418,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_depth_chain_gempair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.006,
   "ops": 270,
   "combos": 3,
@@ -2720,7 +2720,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_depth_chain_hetero",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.007,
   "ops": 270,
   "combos": 2,
@@ -3022,7 +3022,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_depth_chain_quad",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.007,
   "ops": 270,
   "combos": 6,
@@ -3324,7 +3324,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_depth_chain_rvvpair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.006,
   "ops": 270,
   "combos": 3,
@@ -3626,7 +3626,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_depth_contended_gempair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.01,
   "ops": 425,
   "combos": 3,
@@ -3928,7 +3928,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_depth_contended_hetero",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.012,
   "ops": 425,
   "combos": 2,
@@ -4230,7 +4230,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_depth_contended_quad",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.012,
   "ops": 425,
   "combos": 6,
@@ -4532,7 +4532,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_depth_contended_rvvpair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.009,
   "ops": 425,
   "combos": 3,
@@ -4834,7 +4834,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_depth_nav_gempair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.007,
   "ops": 382,
   "combos": 3,
@@ -5136,7 +5136,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_depth_nav_hetero",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.008,
   "ops": 382,
   "combos": 2,
@@ -5438,7 +5438,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_depth_nav_quad",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.009,
   "ops": 382,
   "combos": 6,
@@ -5740,7 +5740,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_depth_nav_rvvpair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.008,
   "ops": 382,
   "combos": 3,
@@ -6042,7 +6042,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_perception_heavy_gempair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.006,
   "ops": 183,
   "combos": 3,
@@ -6344,7 +6344,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_perception_heavy_hetero",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.007,
   "ops": 183,
   "combos": 2,
@@ -6646,7 +6646,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_perception_heavy_quad",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.007,
   "ops": 183,
   "combos": 6,
@@ -6948,7 +6948,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_perception_heavy_rvvpair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.006,
   "ops": 183,
   "combos": 3,
@@ -7250,7 +7250,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_saturation_gempair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.008,
   "ops": 393,
   "combos": 3,
@@ -7552,7 +7552,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_saturation_hetero",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.009,
   "ops": 393,
   "combos": 2,
@@ -7854,7 +7854,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_saturation_quad",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.01,
   "ops": 393,
   "combos": 6,
@@ -8156,7 +8156,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_saturation_rvvpair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.008,
   "ops": 393,
   "combos": 3,
@@ -8458,7 +8458,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_scale_ladder_gempair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.006,
   "ops": 126,
   "combos": 3,
@@ -8760,7 +8760,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_scale_ladder_hetero",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.008,
   "ops": 126,
   "combos": 2,
@@ -9062,7 +9062,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_scale_ladder_quad",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.008,
   "ops": 126,
   "combos": 6,
@@ -9364,7 +9364,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_scale_ladder_rvvpair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.007,
   "ops": 126,
   "combos": 3,
@@ -9666,7 +9666,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_tight_loop_gempair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.005,
   "ops": 252,
   "combos": 3,
@@ -9914,7 +9914,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_tight_loop_hetero",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.005,
   "ops": 252,
   "combos": 2,
@@ -10162,7 +10162,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_tight_loop_quad",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.006,
   "ops": 252,
   "combos": 6,
@@ -10410,7 +10410,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_tight_loop_rvvpair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.005,
   "ops": 252,
   "combos": 3,
@@ -10658,7 +10658,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_vint_intro_gempair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.015,
   "ops": 661,
   "combos": 3,
@@ -10960,7 +10960,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_vint_intro_hetero",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.018,
   "ops": 661,
   "combos": 2,
@@ -11262,7 +11262,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_vint_intro_quad",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.019,
   "ops": 661,
   "combos": 6,
@@ -11564,7 +11564,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_vint_intro_rvvpair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.015,
   "ops": 661,
   "combos": 3,
@@ -11866,7 +11866,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_vint_multi_gempair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.016,
   "ops": 745,
   "combos": 3,
@@ -12168,7 +12168,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_vint_multi_hetero",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.019,
   "ops": 745,
   "combos": 2,
@@ -12470,7 +12470,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_vint_multi_quad",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.022,
   "ops": 745,
   "combos": 6,
@@ -12772,7 +12772,7 @@
  {
   "arm": "wl_sweep",
   "workload": "networks_vint_multi_rvvpair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.016,
   "ops": 745,
   "combos": 3,
@@ -13074,7 +13074,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_bimodal_gempair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.009,
   "ops": 442,
   "combos": 3,
@@ -13376,7 +13376,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_bimodal_hetero",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.011,
   "ops": 442,
   "combos": 2,
@@ -13678,7 +13678,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_bimodal_quad",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.011,
   "ops": 442,
   "combos": 6,
@@ -13980,7 +13980,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_bimodal_rvvpair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.009,
   "ops": 442,
   "combos": 3,
@@ -14282,7 +14282,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_control_mix_gempair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.011,
   "ops": 477,
   "combos": 3,
@@ -14584,7 +14584,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_control_mix_hetero",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.013,
   "ops": 477,
   "combos": 2,
@@ -14886,7 +14886,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_control_mix_quad",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.013,
   "ops": 477,
   "combos": 6,
@@ -15188,7 +15188,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_control_mix_rvvpair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.011,
   "ops": 477,
   "combos": 3,
@@ -15490,7 +15490,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_depth_chain_gempair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.009,
   "ops": 414,
   "combos": 3,
@@ -15792,7 +15792,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_depth_chain_hetero",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.006,
   "ops": 414,
   "combos": 2,
@@ -16094,7 +16094,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_depth_chain_quad",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.01,
   "ops": 414,
   "combos": 6,
@@ -16396,7 +16396,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_depth_chain_rvvpair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.009,
   "ops": 414,
   "combos": 3,
@@ -16698,7 +16698,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_depth_contended_gempair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.009,
   "ops": 695,
   "combos": 3,
@@ -17000,7 +17000,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_depth_contended_hetero",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.018,
   "ops": 695,
   "combos": 2,
@@ -17302,7 +17302,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_depth_contended_quad",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.019,
   "ops": 695,
   "combos": 6,
@@ -17604,7 +17604,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_depth_contended_rvvpair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.015,
   "ops": 695,
   "combos": 3,
@@ -17906,7 +17906,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_depth_nav_gempair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.01,
   "ops": 526,
   "combos": 3,
@@ -18208,7 +18208,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_depth_nav_hetero",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.011,
   "ops": 526,
   "combos": 2,
@@ -18510,7 +18510,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_depth_nav_quad",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.012,
   "ops": 526,
   "combos": 6,
@@ -18812,7 +18812,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_depth_nav_rvvpair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.01,
   "ops": 526,
   "combos": 3,
@@ -19114,7 +19114,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_perception_heavy_gempair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.007,
   "ops": 228,
   "combos": 3,
@@ -19416,7 +19416,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_perception_heavy_hetero",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.008,
   "ops": 228,
   "combos": 2,
@@ -19718,7 +19718,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_perception_heavy_quad",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.009,
   "ops": 228,
   "combos": 6,
@@ -20020,7 +20020,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_perception_heavy_rvvpair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.007,
   "ops": 228,
   "combos": 3,
@@ -20322,7 +20322,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_saturation_gempair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.007,
   "ops": 619,
   "combos": 3,
@@ -20624,7 +20624,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_saturation_hetero",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.013,
   "ops": 619,
   "combos": 2,
@@ -20926,7 +20926,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_saturation_quad",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.014,
   "ops": 619,
   "combos": 6,
@@ -21228,7 +21228,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_saturation_rvvpair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.012,
   "ops": 619,
   "combos": 3,
@@ -21530,7 +21530,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_scale_ladder_gempair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.008,
   "ops": 211,
   "combos": 3,
@@ -21832,7 +21832,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_scale_ladder_hetero",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.01,
   "ops": 211,
   "combos": 2,
@@ -22134,7 +22134,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_scale_ladder_quad",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.011,
   "ops": 211,
   "combos": 6,
@@ -22436,7 +22436,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_scale_ladder_rvvpair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.009,
   "ops": 211,
   "combos": 3,
@@ -22738,7 +22738,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_tight_loop_gempair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.006,
   "ops": 308,
   "combos": 3,
@@ -22986,7 +22986,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_tight_loop_hetero",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.004,
   "ops": 308,
   "combos": 2,
@@ -23234,7 +23234,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_tight_loop_quad",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.007,
   "ops": 308,
   "combos": 6,
@@ -23482,7 +23482,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_tight_loop_rvvpair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.006,
   "ops": 308,
   "combos": 3,
@@ -23730,7 +23730,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_vint_intro_gempair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.015,
   "ops": 669,
   "combos": 3,
@@ -24032,7 +24032,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_vint_intro_hetero",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.019,
   "ops": 669,
   "combos": 2,
@@ -24334,7 +24334,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_vint_intro_quad",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.02,
   "ops": 669,
   "combos": 6,
@@ -24636,7 +24636,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_vint_intro_rvvpair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.015,
   "ops": 669,
   "combos": 3,
@@ -24938,7 +24938,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_vint_multi_gempair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.017,
   "ops": 801,
   "combos": 3,
@@ -25240,7 +25240,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_vint_multi_hetero",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.021,
   "ops": 801,
   "combos": 2,
@@ -25542,7 +25542,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_vint_multi_quad",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.022,
   "ops": 801,
   "combos": 6,
@@ -25844,7 +25844,7 @@
  {
   "arm": "wl_sweep_shard",
   "workload": "networks_vint_multi_rvvpair",
-  "solver": "cheap_portfolio",
+  "solver": "best-of-fast",
   "build_s": 0.017,
   "ops": 801,
   "combos": 3,

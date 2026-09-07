@@ -15,7 +15,7 @@ d = json.load(open(f"{res}/all_results.json"))
 tbl = {(r["arm"], r["workload"], r["solver"]): r for r in d}
 allwls = sorted({(a, w) for a, w, s in tbl})
 PAIRS = ["gempair", "hetero", "quad", "rvvpair"]
-S = ["cheap_portfolio", "pso", "sa", "cpsat", "cpsat:warm", "cpsat:warmbest",
+S = ["best-of-fast", "pso", "sa", "cpsat", "cpsat:warm", "cpsat:warmbest",
      "heft_edf", "heft", "decomposed", "greedy_periodic", "greedy_reserved"]
 
 
@@ -78,7 +78,7 @@ table("By arm (tight_loop excluded)",
 wls = [k for k in allwls if fam(k[1])[0] != "tight_loop"]
 emit("\n### Paired head-to-head (tight_loop excluded, both feasible)\n")
 emit("Positive = row is FASTER than column, as a % of the column's makespan.\n")
-tops = ["cpsat:warmbest", "pso", "sa", "cpsat:warm", "cheap_portfolio", "cpsat",
+tops = ["cpsat:warmbest", "pso", "sa", "cpsat:warm", "best-of-fast", "cpsat",
         "heft_edf", "greedy"]
 emit("| | " + " | ".join(tops) + " |")
 emit("|---" * (len(tops) + 1) + "|")
@@ -99,14 +99,14 @@ emit("\n(mean / median. A median of 0.00 with a non-zero mean means the two "
 
 emit("\n### Cheap portfolio composition\n")
 from collections import Counter
-c = Counter(tbl[(k[0], k[1], "cheap_portfolio")].get("picked") for k in wls
-            if tbl.get((k[0], k[1], "cheap_portfolio")))
+c = Counter(tbl[(k[0], k[1], "best-of-fast")].get("picked") for k in wls
+            if tbl.get((k[0], k[1], "best-of-fast")))
 emit("Which of the six sub-second heuristics actually supplied the portfolio's "
      "answer, over the 80 non-tight_loop workload-arms:\n")
 for name, n in c.most_common():
     emit(f"- `{name}`: {n}")
-walls = [tbl[(k[0], k[1], "cheap_portfolio")]["wall_s"] for k in allwls
-         if tbl.get((k[0], k[1], "cheap_portfolio"))]
+walls = [tbl[(k[0], k[1], "best-of-fast")]["wall_s"] for k in allwls
+         if tbl.get((k[0], k[1], "best-of-fast"))]
 emit(f"\nCost of running all six: mean {np.mean(walls):.3f} s, "
      f"median {np.median(walls):.3f} s, max {np.max(walls):.3f} s.")
 

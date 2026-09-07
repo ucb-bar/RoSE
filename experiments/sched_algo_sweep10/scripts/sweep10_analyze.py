@@ -18,11 +18,11 @@ import numpy as np
 TEN = ["greedy", "greedy_periodic", "greedy_reserved", "decomposed",
        "heft", "heft_edf", "pso", "sa", "cpsat", "cpsat:warm"]
 # Two SUPPLEMENTARY arms the ten-solver data motivated, reported apart from the
-# ranking of the ten: `cheap_portfolio` = best feasible-then-fastest of the six
+# ranking of the ten: `best-of-fast` = best feasible-then-fastest of the six
 # sub-second heuristics (a virtual solver, costed as the sum of all six);
 # `cpsat:warmbest` = CP-SAT hinted from that portfolio instead of from heft_edf
 # unconditionally.
-EXTRA = ["cheap_portfolio", "cpsat:warmbest"]
+EXTRA = ["best-of-fast", "cpsat:warmbest"]
 SOLVERS = TEN + EXTRA
 CHEAP6 = ["greedy", "greedy_periodic", "greedy_reserved", "decomposed",
           "heft", "heft_edf"]
@@ -83,8 +83,8 @@ def main():
         if not cands:
             continue
         b = min(cands, key=key)
-        tbl[(arm, wl, "cheap_portfolio")] = dict(
-            b, solver="cheap_portfolio", picked=b["solver"],
+        tbl[(arm, wl, "best-of-fast")] = dict(
+            b, solver="best-of-fast", picked=b["solver"],
             wall_s=round(sum(tbl[(arm, wl, s)].get("wall_s", 0.0) for s in CHEAP6
                              if tbl.get((arm, wl, s))), 3))
     arms = sorted({k[0] for k in tbl})

@@ -28,7 +28,7 @@ GROUPS = [("homogeneous", {"rvvpair", "gempair"}, "one backend kind"),
           ("heterogeneous", {"hetero", "quad"}, "Gemmini + Saturn together")]
 FAMILY = {"greedy": "#2a78d6", "greedy_periodic": "#2a78d6",
           "greedy_reserved": "#2a78d6", "decomposed": "#2a78d6",
-          "heft": "#eb6834", "heft_edf": "#eb6834", "cheap_portfolio": "#eb6834",
+          "heft": "#eb6834", "heft_edf": "#eb6834", "best-of-fast": "#eb6834",
           "pso": "#1baf7a", "sa": "#1baf7a",
           "cpsat": "#eda100", "cpsat:warm": "#eda100", "cpsat:warmbest": "#eda100"}
 FAMNAME = {"#2a78d6": "greedy family", "#eb6834": "list heuristic",

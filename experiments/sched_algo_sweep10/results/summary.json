@@ -189,7 +189,7 @@
   "median_wall_s": 19.797,
   "max_wall_s": 62.564
  },
- "cheap_portfolio": {
+ "best-of-fast": {
   "n": 88,
   "solved": 88,
   "feasible": 80,

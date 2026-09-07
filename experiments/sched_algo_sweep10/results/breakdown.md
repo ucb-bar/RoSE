@@ -4,7 +4,7 @@ Every cell is mean % makespan improvement over `greedy`, counted only on workloa
 
 ### By family (both arms pooled)
 
-| group | cheap_portfolio | pso | sa | cpsat | cpsat:warm | cpsat:warmbest | heft_edf | heft | decomposed | greedy_periodic | greedy_reserved |
+| group | best-of-fast | pso | sa | cpsat | cpsat:warm | cpsat:warmbest | heft_edf | heft | decomposed | greedy_periodic | greedy_reserved |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | bimodal | +5.95 (n=8) | +6.84 (n=8) | +6.72 (n=8) | +7.06 (n=8) | +7.06 (n=8) | +7.22 (n=8) | +5.95 (n=8) | +7.15 (n=5) | +0.00 (n=8) | +0.00 (n=8) | -0.03 (n=8) |
 | control_mix | +16.02 (n=7) | +17.05 (n=7) | +16.47 (n=7) | +11.40 (n=7) | +18.41 (n=7) | +18.41 (n=7) | +16.02 (n=7) | +14.11 (n=1) | +0.68 (n=7) | -- | -- |
@@ -20,7 +20,7 @@ Every cell is mean % makespan improvement over `greedy`, counted only on workloa
 
 ### By machine pair (tight_loop excluded)
 
-| group | cheap_portfolio | pso | sa | cpsat | cpsat:warm | cpsat:warmbest | heft_edf | heft | decomposed | greedy_periodic | greedy_reserved |
+| group | best-of-fast | pso | sa | cpsat | cpsat:warm | cpsat:warmbest | heft_edf | heft | decomposed | greedy_periodic | greedy_reserved |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | gempair | +5.15 (n=19) | +5.60 (n=19) | +5.39 (n=19) | +6.62 (n=19) | +5.07 (n=19) | +6.68 (n=19) | -1.81 (n=19) | -10.70 (n=9) | -7.84 (n=18) | +0.30 (n=12) | -0.80 (n=14) |
 | hetero | +7.22 (n=20) | +10.44 (n=20) | +9.53 (n=20) | +7.42 (n=20) | +9.05 (n=20) | +11.29 (n=20) | -1.17 (n=20) | -7.64 (n=13) | -8.77 (n=20) | +0.34 (n=14) | +0.40 (n=14) |
@@ -29,7 +29,7 @@ Every cell is mean % makespan improvement over `greedy`, counted only on workloa
 
 ### By arm (tight_loop excluded)
 
-| group | cheap_portfolio | pso | sa | cpsat | cpsat:warm | cpsat:warmbest | heft_edf | heft | decomposed | greedy_periodic | greedy_reserved |
+| group | best-of-fast | pso | sa | cpsat | cpsat:warm | cpsat:warmbest | heft_edf | heft | decomposed | greedy_periodic | greedy_reserved |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | wl_sweep | +8.83 (n=39) | +10.29 (n=39) | +9.94 (n=39) | +10.18 (n=39) | +11.07 (n=39) | +11.08 (n=39) | +6.46 (n=39) | +3.88 (n=29) | -2.46 (n=39) | +0.33 (n=28) | -0.47 (n=29) |
 | wl_sweep_shard | +6.44 (n=39) | +7.91 (n=39) | +7.56 (n=39) | +1.87 (n=39) | +5.52 (n=39) | +8.42 (n=39) | -1.72 (n=39) | -9.29 (n=21) | -7.45 (n=38) | +1.75 (n=28) | +0.28 (n=28) |
@@ -38,13 +38,13 @@ Every cell is mean % makespan improvement over `greedy`, counted only on workloa
 
 Positive = row is FASTER than column, as a % of the column's makespan.
 
-| | cpsat:warmbest | pso | sa | cpsat:warm | cheap_portfolio | cpsat | heft_edf | greedy |
+| | cpsat:warmbest | pso | sa | cpsat:warm | best-of-fast | cpsat | heft_edf | greedy |
 |---|---|---|---|---|---|---|---|---|
 | **cpsat:warmbest** | -- | +0.97 / +0.02 | +1.44 / +0.05 | +1.19 / +0.00 | +2.60 / +0.23 | +3.17 / +0.00 | +5.50 / +0.23 | +9.75 / +9.06 |
 | **pso** | -1.05 / -0.02 | -- | +0.50 / +0.00 | +0.12 / -0.00 | +1.66 / +0.00 | +2.10 / +0.01 | +4.59 / +0.00 | +9.10 / +8.63 |
 | **sa** | -1.62 / -0.05 | -0.53 / +0.00 | -- | -0.44 / -0.01 | +1.17 / +0.00 | +1.55 / +0.00 | +4.07 / +0.00 | +8.75 / +8.55 |
 | **cpsat:warm** | -1.57 / +0.00 | -0.62 / +0.00 | -0.14 / +0.01 | -- | +1.11 / +0.12 | +1.95 / +0.00 | +4.58 / +0.22 | +8.30 / +8.58 |
-| **cheap_portfolio** | -2.89 / -0.23 | -1.80 / +0.00 | -1.26 / +0.00 | -1.64 / -0.12 | -- | +0.39 / +0.00 | +3.04 / +0.00 | +7.63 / +6.59 |
+| **best-of-fast** | -2.89 / -0.23 | -1.80 / +0.00 | -1.26 / +0.00 | -1.64 / -0.12 | -- | +0.39 / +0.00 | +3.04 / +0.00 | +7.63 / +6.59 |
 | **cpsat** | -4.30 / +0.00 | -3.35 / -0.01 | -2.86 / -0.00 | -2.72 / +0.00 | -1.55 / -0.00 | -- | +1.92 / +0.01 | +6.03 / +7.42 |
 | **heft_edf** | -9.10 / -0.23 | -7.95 / +0.00 | -7.46 / +0.00 | -6.97 / -0.22 | -5.93 / +0.00 | -4.99 / -0.01 | -- | +2.37 / +6.29 |
 | **greedy** | -11.90 / -9.96 | -10.96 / -9.45 | -10.48 / -9.34 | -10.52 / -9.39 | -9.08 / -7.05 | -7.98 / -8.01 | -5.45 / -6.72 | -- |

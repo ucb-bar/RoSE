@@ -29,7 +29,7 @@ FAMILY = {
     "greedy": ("greedy family", "#2a78d6"), "greedy_periodic": ("greedy family", "#2a78d6"),
     "greedy_reserved": ("greedy family", "#2a78d6"), "decomposed": ("greedy family", "#2a78d6"),
     "heft": ("list heuristic", "#eb6834"), "heft_edf": ("list heuristic", "#eb6834"),
-    "cheap_portfolio": ("list heuristic", "#eb6834"),
+    "best-of-fast": ("list heuristic", "#eb6834"),
     "pso": ("metaheuristic", "#1baf7a"), "sa": ("metaheuristic", "#1baf7a"),
     "cpsat": ("CP-SAT", "#eda100"), "cpsat:warm": ("CP-SAT", "#eda100"),
     "cpsat:warmbest": ("CP-SAT", "#eda100"),
@@ -214,7 +214,7 @@ else:
     fig.text(0.005, 0.905,
              "Predicted makespan from the measured-cost model, not hardware. tight_loop excluded "
              "(infeasible by construction at sweep time); swept before the window retune.\n"
-             "cheap_portfolio is a virtual solver — run all six sub-second heuristics, keep the best "
+             "best-of-fast is a virtual solver — run all six sub-second heuristics, keep the best "
              "feasible-then-fastest; its cost is all six, since the winner is not known in advance.",
              fontsize=F_CAP, color=INK2, ha="left")
 fig.tight_layout(rect=[0, 0, 1, 0.965] if PAPER else [0, 0, 1, 0.875])
