@@ -66,6 +66,18 @@ X = {s: statistics.median(wall[s]) for s in S}
 Y = {s: statistics.mean(imp[s]) for s in S}
 M = {s: statistics.mean(mpct[s]) for s in S}
 
+
+def iqr(v):
+    """25th/75th percentile. Each marker summarises 80 workload-arms and a bare
+    point throws that sampling away -- two solvers with the same mean can have
+    completely different spread, and on this data they do."""
+    q = statistics.quantiles(sorted(v), n=4)
+    return q[0], q[2]
+
+
+XQ = {s: iqr(wall[s]) for s in S}
+YQ = {s: iqr(imp[s]) for s in S}
+
 fig, (ax, bx) = plt.subplots(2, 1, figsize=FIG, sharex=False,
                              gridspec_kw=dict(height_ratios=[4.4, 0.85], hspace=0.52))
 
@@ -88,6 +100,11 @@ mid = 10 ** (sum(math.log10(v) for v in X.values()) / len(X))
 
 for s in S:
     x, y, col, on = X[s], Y[s], FAMILY[s], s in FRONT
+    # interquartile spread across the 80 workload-arms, both axes
+    ax.plot(XQ[s], [y, y], color=col, lw=1.0, alpha=0.42, zorder=2,
+            solid_capstyle="butt")
+    ax.plot([x, x], YQ[s], color=col, lw=1.0, alpha=0.42, zorder=2,
+            solid_capstyle="butt")
     ax.scatter([x], [y], s=(60 if WIDE else 40) * (1.5 if on else 1.0),
                color=col, edgecolor="white", linewidth=0.8, zorder=3)
     ly = label_y[s]
@@ -110,7 +127,10 @@ for sp in ("left", "bottom"): ax.spines[sp].set_color(GRID)
 ax.tick_params(colors=INK2, labelsize=FK)
 ax.set_xlabel("median solve time (s)", fontsize=FA, color=INK2, labelpad=1)
 ax.set_ylabel("makespan gain over greedy (%)", fontsize=FA, color=INK2)
-ax.set_title("Scheduler algorithms on wl_sweep", fontsize=FT, color=INK, loc="left")
+ax.set_title("Scheduler algorithms on wl_sweep", fontsize=FT, color=INK,
+             loc="left", pad=13)
+ax.text(0.0, 1.012, "bars = interquartile range over 80 workload-arms",
+        transform=ax.transAxes, fontsize=FG - 0.5, color=INK2, va="bottom")
 h = [Line2D([], [], marker="o", ls="", color=c, markersize=5, label=n)
      for c, n in FAMNAME.items()]
 ax.legend(handles=h, loc="lower right", frameon=False, fontsize=FG,

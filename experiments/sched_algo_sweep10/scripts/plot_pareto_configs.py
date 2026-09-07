@@ -57,20 +57,26 @@ def stats(sub):
         except (TypeError, ValueError): pass
         po = int(float(r["periodic_ops"] or 0))
         if po: mp[s].append(int(float(r["misses"] or 0)) / po * 100.0)
+    def q(v):
+        a = statistics.quantiles(sorted(v), n=4)
+        return a[0], a[2]
     return ({s: statistics.mean(v) for s, v in imp.items()},
             {s: statistics.median(wall[s]) for s in imp},
-            {s: statistics.mean(mp[s]) if mp[s] else 0.0 for s in imp})
+            {s: statistics.mean(mp[s]) if mp[s] else 0.0 for s in imp},
+            {s: q(imp[s]) for s in imp}, {s: q(wall[s]) for s in imp})
 
 
 G = [(name, note) + stats([r for r in rows if r["pair"] in pairs])
      for name, pairs, note in GROUPS]
-allY = [v for _, _, Y, _, _ in G for v in Y.values()]
-allX = [v for _, _, _, X, _ in G for v in X.values()]
-ylim = (min(allY) - 1.5, max(allY) + 2.2)
-xlim = (min(allX) * 0.45, max(allX) * 2.6)
+allY = [v for _, _, Y, _, _, _, _ in G for v in Y.values()]
+allX = [v for _, _, _, X, _, _, _ in G for v in X.values()]
+allYQ = [b for _, _, _, _, _, YQ, _ in G for t in YQ.values() for b in t]
+allXQ = [b for _, _, _, _, _, _, XQ in G for t in XQ.values() for b in t]
+ylim = (min(allY + allYQ) - 1.2, max(allY + allYQ) + 2.0)
+xlim = (min(allX + allXQ) * 0.55, max(allX + allXQ) * 2.2)
 
 fig, axes = plt.subplots(1, 2, figsize=FIG) if WIDE else plt.subplots(2, 1, figsize=FIG)
-for ax, (name, note, Y, X, M) in zip(axes, G):
+for ax, (name, note, Y, X, M, YQ, XQ) in zip(axes, G):
     S = sorted(Y, key=lambda s: -Y[s])
     clean = [s for s in S if M[s] < 0.05]
     pts = sorted(((X[s], Y[s], s) for s in clean), key=lambda p: (p[0], -p[1]))
@@ -88,6 +94,9 @@ for ax, (name, note, Y, X, M) in zip(axes, G):
     mid = 10 ** (sum(math.log10(v) for v in X.values()) / len(X))
     for s in S:
         on = s in FRONT
+        # interquartile spread within this half of the sweep
+        ax.plot(XQ[s], [Y[s], Y[s]], color=FAMILY[s], lw=0.9, alpha=0.40, zorder=2)
+        ax.plot([X[s], X[s]], YQ[s], color=FAMILY[s], lw=0.9, alpha=0.40, zorder=2)
         ax.scatter([X[s]], [Y[s]], s=(52 if WIDE else 34) * (1.5 if on else 1.0),
                    color=FAMILY[s], edgecolor="white", linewidth=0.8, zorder=3)
         ly = label_y[s]
@@ -121,6 +130,6 @@ out = os.path.join(os.path.dirname(HERE), "plots",
                    "solver_pareto_configs_wide.png" if WIDE else "solver_pareto_configs.png")
 fig.savefig(out, dpi=200, facecolor="#fcfcfb")
 print("wrote", out)
-for name, note, Y, X, M in G:
+for name, note, Y, X, M, _YQ, _XQ in G:
     top = sorted(Y, key=lambda s: -Y[s])[:4]
     print(f"  {name:<15} top: " + ", ".join(f"{s} {Y[s]:.1f}%" for s in top))
