@@ -137,6 +137,13 @@ for ax, xs, xlabel, scale in (
     # misses, and a linear axis crushes them into one pile against heft's 2930
     # so no frontier can form. symlog keeps zero as a real, plottable value.
     ax.set_xscale(scale, **({"linthresh": 0.1} if scale == "symlog" else {}))
+    # Plain decimals, not 10^n. These axes span about three decades over a
+    # bounded, human-sized range (hundredths of a second to tens of seconds;
+    # tenths of a percent to tens of percent), so exponent notation costs the
+    # reader a mental step and buys nothing.
+    from matplotlib.ticker import FuncFormatter, NullFormatter
+    ax.xaxis.set_major_formatter(FuncFormatter(lambda v, _: f"{v:g}"))
+    ax.xaxis.set_minor_formatter(NullFormatter())
     ax.axhline(0, color=GRID, lw=1.2, zorder=0)
     ax.set_xlabel(xlabel, fontsize=12, color=INK2)
     ax.grid(alpha=0.22, lw=0.6, color=GRID)
