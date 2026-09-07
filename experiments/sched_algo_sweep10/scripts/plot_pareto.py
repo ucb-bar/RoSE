@@ -48,8 +48,11 @@ for r in rows:
         try: base[(r["arm"], r["workload"])] = float(r["objective"])
         except (TypeError, ValueError): pass
 
+CHEAP6 = ["greedy", "greedy_periodic", "greedy_reserved", "decomposed",
+          "heft", "heft_edf"]
 imp = collections.defaultdict(list)
 wall = collections.defaultdict(list)
+wall_by_cell = collections.defaultdict(dict)   # (arm,wl) -> solver -> wall_s
 miss = collections.Counter()          # raw total, kept for the printout
 miss_pct = collections.defaultdict(list)   # per-cell % of periodic ops missed
 hit = collections.Counter()           # cells with ANY miss
@@ -62,7 +65,8 @@ for r in rows:
     except (TypeError, ValueError): continue
     if not b or obj <= 0: continue
     imp[s].append((b - obj) / b * 100.0)
-    try: wall[s].append(float(r["wall_s"]))
+    try:
+        wall[s].append(float(r["wall_s"])); wall_by_cell[k][s] = float(r["wall_s"])
     except (TypeError, ValueError): pass
     m = int(float(r["misses"] or 0)); miss[s] += m; cells[s] += 1
     clean[s] += (m == 0); hit[s] += (m > 0)
@@ -75,6 +79,25 @@ for r in rows:
     po = int(float(r["periodic_ops"] or 0))
     if po:
         miss_pct[s].append(m / po * 100.0)
+
+# COST HONESTY. cheap_portfolio is a virtual solver charged the SERIAL sum of
+# its six members, and cpsat:warmbest runs that same portfolio inline to build
+# its hint. But the six are independent, so the achievable cost is the SLOWEST
+# of them, not their sum. Rather than pick one number, plot the measured serial
+# cost as the marker and whisker left to the parallel bound.
+par_bound = {}
+_ser, _par, _wb = [], [], []
+for k, d in wall_by_cell.items():
+    six = [d[c] for c in CHEAP6 if c in d]
+    if len(six) != 6:
+        continue
+    _ser.append(sum(six)); _par.append(max(six))
+    if "cpsat:warmbest" in d:
+        _wb.append(d["cpsat:warmbest"] - (sum(six) - max(six)))
+if _par:
+    par_bound["cheap_portfolio"] = statistics.median(_par)
+if _wb:
+    par_bound["cpsat:warmbest"] = statistics.median(_wb)
 
 S = sorted(imp, key=lambda s: -statistics.mean(imp[s]))
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14.5, 6.4))
@@ -119,6 +142,10 @@ for ax, xs, xlabel, scale in (
         ax.scatter([x], [y], s=150 if on else 95, color=col, zorder=3,
                    edgecolor="white", linewidth=1.6 if on else 0.9,
                    alpha=1.0 if on else 0.72)
+        # whisker to the parallel-execution bound, on the cost axis only
+        if scale == "log" and s in par_bound and par_bound[s] < x:
+            ax.plot([par_bound[s], x], [y, y], color=col, lw=1.5, alpha=0.55, zorder=2)
+            ax.plot([par_bound[s]], [y], marker="|", color=col, ms=9, mew=1.6, zorder=3)
         ly = label_y[i]
         # a hairline leader only when the label had to move off its point
         if abs(ly - y) > gap * 0.35:
@@ -153,17 +180,21 @@ for s in S:
     handles.append(Line2D([], [], marker="o", ls="", color=col, markersize=8,
                           markeredgecolor="white", label=fam))
 handles.append(Line2D([], [], ls="-", color=INK2, alpha=0.45, label="Pareto frontier"))
+handles.append(Line2D([], [], ls="-", marker="|", color=INK2, alpha=0.55,
+                      label="serial cost → parallel bound"))
 ax1.legend(handles=handles, loc="lower right", frameon=False, fontsize=8.5,
            labelcolor=INK2)
 
 fig.suptitle("Scheduler algorithms on wl_sweep — 12 solvers x 80 workload-arms, "
-             "greedy as baseline", fontsize=12.5, color=INK, x=0.005, ha="left")
-fig.text(0.005, 0.935,
-         "Predicted makespan from the measured-cost model, not hardware. "
-         "tight_loop excluded (its periods were infeasible by construction at sweep time). "
-         "Swept before the window retune.",
+             "greedy as baseline", fontsize=12.5, color=INK, x=0.005, ha="left",
+             y=0.985)
+fig.text(0.005, 0.905,
+         "Predicted makespan from the measured-cost model, not hardware. tight_loop excluded "
+         "(infeasible by construction at sweep time); swept before the window retune.\n"
+         "cheap_portfolio is a virtual solver — run all six sub-second heuristics, keep the best "
+         "feasible-then-fastest. Marker = serial cost of all six; whisker = parallel bound.",
          fontsize=8.5, color=INK2, ha="left")
-fig.tight_layout(rect=[0, 0, 1, 0.92])
+fig.tight_layout(rect=[0, 0, 1, 0.875])
 out = os.path.join(os.path.dirname(HERE), "plots", "solver_pareto.png")
 fig.savefig(out, dpi=150, facecolor="#fcfcfb")
 print("wrote", out)
