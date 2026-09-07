@@ -18,6 +18,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
+from matplotlib.patches import Rectangle
 from matplotlib.ticker import FuncFormatter, NullFormatter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -94,9 +95,11 @@ for ax, (name, note, Y, X, M, YQ, XQ) in zip(axes, G):
     mid = 10 ** (sum(math.log10(v) for v in X.values()) / len(X))
     for s in S:
         on = s in FRONT
-        # interquartile spread within this half of the sweep
-        ax.plot(XQ[s], [Y[s], Y[s]], color=FAMILY[s], lw=0.9, alpha=0.40, zorder=2)
-        ax.plot([X[s], X[s]], YQ[s], color=FAMILY[s], lw=0.9, alpha=0.40, zorder=2)
+        # interquartile region as a soft box (see plot_pareto_compact)
+        (xa, xb), (ya, yb) = XQ[s], YQ[s]
+        ax.add_patch(Rectangle((xa, ya), xb - xa, yb - ya, facecolor=FAMILY[s],
+                               alpha=0.12, edgecolor=FAMILY[s], linewidth=0.5,
+                               joinstyle="round", zorder=1))
         ax.scatter([X[s]], [Y[s]], s=(52 if WIDE else 34) * (1.5 if on else 1.0),
                    color=FAMILY[s], edgecolor="white", linewidth=0.8, zorder=3)
         ly = label_y[s]

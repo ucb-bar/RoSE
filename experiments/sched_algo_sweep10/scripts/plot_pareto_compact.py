@@ -20,6 +20,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
+from matplotlib.patches import Rectangle
 from matplotlib.ticker import FuncFormatter, NullFormatter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -100,11 +101,14 @@ mid = 10 ** (sum(math.log10(v) for v in X.values()) / len(X))
 
 for s in S:
     x, y, col, on = X[s], Y[s], FAMILY[s], s in FRONT
-    # interquartile spread across the 80 workload-arms, both axes
-    ax.plot(XQ[s], [y, y], color=col, lw=1.0, alpha=0.42, zorder=2,
-            solid_capstyle="butt")
-    ax.plot([x, x], YQ[s], color=col, lw=1.0, alpha=0.42, zorder=2,
-            solid_capstyle="butt")
+    # Interquartile region as a soft box rather than crossed bars: twelve
+    # overlapping crosses read as noise, whereas a filled area is legible even
+    # where solvers overlap, and it says the same thing -- the middle half of
+    # this solver's 80 workload-arms lands in here.
+    (xa, xb), (ya, yb) = XQ[s], YQ[s]
+    ax.add_patch(Rectangle((xa, ya), xb - xa, yb - ya, facecolor=col,
+                           alpha=0.12, edgecolor=col, linewidth=0.5,
+                           joinstyle="round", zorder=1))
     ax.scatter([x], [y], s=(60 if WIDE else 40) * (1.5 if on else 1.0),
                color=col, edgecolor="white", linewidth=0.8, zorder=3)
     ly = label_y[s]
@@ -129,7 +133,7 @@ ax.set_xlabel("median solve time (s)", fontsize=FA, color=INK2, labelpad=1)
 ax.set_ylabel("makespan gain over greedy (%)", fontsize=FA, color=INK2)
 ax.set_title("Scheduler algorithms on wl_sweep", fontsize=FT, color=INK,
              loc="left", pad=13)
-ax.text(0.0, 1.012, "bars = interquartile range over 80 workload-arms",
+ax.text(0.0, 1.012, "shaded = interquartile range over 80 workload-arms",
         transform=ax.transAxes, fontsize=FG - 0.5, color=INK2, va="bottom")
 h = [Line2D([], [], marker="o", ls="", color=c, markersize=5, label=n)
      for c, n in FAMNAME.items()]
