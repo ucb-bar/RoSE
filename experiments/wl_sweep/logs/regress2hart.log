@@ -1,0 +1,12 @@
+✓ Conda environment 'zephyr' activated successfully
+Zephyr SDK environment variables set:
+  ZEPHYR_BASE=/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr
+  ZEPHYR_SDK_INSTALL_DIR=/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1
+  ZEPHYR_TOOLCHAIN_VARIANT=zephyr
+##### wl_control_mix_gempair_greedy_base   pre-fix makespan 64.44 ms
+  arch_irq_lock occurrences in generated main: 2
+  POST-FIX 64.47 ms  vs pre-fix 64.44 ms  ->  +0.05%   no material regression
+##### wl_saturation_hetero_greedy_base   pre-fix makespan 121.70 ms
+  arch_irq_lock occurrences in generated main: 2
+  POST-FIX 121.79 ms  vs pre-fix 121.70 ms  ->  +0.08%   no material regression
+##### REGRESSDONE
