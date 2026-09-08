@@ -268,3 +268,237 @@ this job anyway, since it makes the comparison reproducible and rerunnable
 without a JAX install.
 
 `/scratch2/dima/misc_sw/octo_work/` was treated as read-only throughout.
+
+---
+
+## 10. Deliverable 4 — fp32 extraction: BLOCKED in both extractors
+
+**fp32 extraction does not currently succeed, for two independent reasons in
+two different files. Neither is a defect in the port.** The graph itself is
+fully covered — see §11 — so the missing piece is an emitter, not an op.
+
+Everything below was produced by *running* the extractors, not by reading them.
+Artifacts are under `inventory/`.
+
+### 10a. `pipeline/extract_graph.py --quant fp32` (torch.fx) — structurally unusable
+
+The model traces cleanly under `torch.fx.symbolic_trace`, and 220 of its 352
+fx nodes classify as supported. It then hard-raises. Two blockers, both
+`raise NotImplementedError`, neither with a bypass flag:
+
+```
+extract_graph.py:5382   get_attr nodes not supported yet: backbone_pos_language
+extract_graph.py:5369   unsupported call_method (transpose/unflatten/reshape/...)
+```
+
+Full fx-level rejection census for the faithful config (`op_inventory.py`):
+
+```
+[supported] 220        [REJECTED] 132
+  86  nn.Linear          48  method:transpose
+  30  fn:add             36  method:unflatten
+  28  nn.LayerNorm       18  get_attr            <- position embeddings + mask
+  12  fn:sdpa            12  method:flatten
+  12  fn:gelu             8  method:reshape
+  10  nn.Conv2d           3  method:expand_as
+   8  nn.GroupNorm        2  fn:sub
+   8  fn:relu             2  method:permute
+   7  fn:cat              1  method:unsqueeze
+   6  fn:getitem          1  fn:cos
+   6  fn:mul              1  fn:sin
+   5  fn:sigmoid
+   2  fn:truediv
+```
+
+**110 of the 132 rejections are pure tensor reshaping** —
+`transpose`/`unflatten`/`flatten`/`reshape`/`permute`/`unsqueeze`/`expand_as`
+as *methods*. `extract_graph.py` only accepts two `call_method` targets at all
+(`chunk`, `flip`, `:5280-5371`); everything else raises. Splitting `(B, L, 384)`
+into `(B, 6, L, 64)` heads and back is not optional in an attention block, so
+this rejects **any** transformer, not just Octo.
+
+The other 18 (34 with `GN=layernorm`) are `get_attr`: Octo's four learned
+positional-embedding tables and the constant attention-mask buffer. Any tensor
+that is an `nn.Parameter`/buffer consumed by *arithmetic* rather than owned by
+a recognised module becomes `get_attr` in fx. **Every ViT-shaped model has
+learned position embeddings**, so this too is a whole-model-class blocker.
+
+Note the direction of the `GN` knob here: `MODELBLASTER_OCTO_GN=layernorm`
+makes the fx path *worse* (132 → 184 rejections), because fx handles
+`nn.LayerNorm` the module but not `F.layer_norm` the function. `GN=native` is
+correct for fx; `GN=layernorm` is correct for export. The knob is not cosmetic.
+
+### 10b. `pipeline/extract_graph_export.py` (torch.export) — refuses fp32 by design
+
+This is the extractor whose vocabulary actually fits (it treats all 148 alias
+nodes as free, which is exactly what fx rejects). It ingests the model
+end-to-end. But:
+
+```
+extract_graph_export.py:1976   raise SystemExit("--quant fp32 not implemented
+                               in the export path yet")
+```
+
+checked *before* the model is even loaded. `--quant int8` and `--quant fp16`
+are implemented; fp32 is not.
+
+Two small enabling changes were needed and made, because the export path
+whitelists models in two places:
+
+```
+extract_graph_export.py:1941   --model choices += "octo_small"
+extract_graph_export.py:1930   _import_model_module(): added the octo_small branch
+```
+
+`_load_model` itself is generic (`get_model()` + `get_sample_input()`), so
+that is the whole change. With it, `--inventory-only` runs and the extractor
+writes its own classification — reproduced in §11.
+
+### 10c. What it would take
+
+In rough order of effort, cheapest first:
+
+1. **Run the port at `--quant fp16` through the export path.** Already
+   unblocked by 10b's two lines; needs no new op. This is the shortest route
+   to real IR + a scheduled graph, and fp16 is what ViNT's conv encoder
+   already uses.
+2. **Add an fp32 mode to the export walker.** It is the *same* walker: it
+   already carries an `fp16` branch that skips scale/multiplier/shift and
+   casts weights, and `op_suffix`/`tensor_dtype`/`weight_np_dtype` are already
+   parameterised on quant. fp32 is that branch with an empty suffix and no
+   cast. This is the principled fix and it lifts the restriction for every
+   future model, not just Octo.
+3. **Teach the fx path aliases + `get_attr`.** Much larger: `_ALIAS`-style
+   pass-through for the shape methods plus constant-tensor handling. Only
+   worth it if the fx path has to stay the fp32 route.
+
+I did **not** do (2). It is a change to a shared 2,375-line pipeline file that
+every other model's int8 flow goes through, and the brief scoped this task to
+the port plus a report. Reporting it precisely is the deliverable; silently
+rewriting the shared extractor is not. Flagging it as the recommended next
+step, with the evidence above.
+
+## 11. Deliverable 5 — op-coverage gap report
+
+### 11a. The histogram, from the extractor itself
+
+`inventory/export_faithful/op_inventory.txt` (613 aten nodes) and
+`inventory/export_covered/op_inventory.txt` (648 nodes), both written by
+`extract_graph_export.py --inventory-only`:
+
+| class | faithful | covered (`GN=layernorm NORM=0 TIME=lut`) |
+|---|---|---|
+| supported | 141 | 145 |
+| new | 63 | 76 |
+| alias (free) | 116 | 148 |
+| tail (host scalar) | 2 | 0 |
+| **UNKNOWN** | **12** | **0** |
+
+Faithful config, per op:
+
+```
+supported  86 linear   30 add   10 conv2d   8 relu   7 cat
+new        28 layer_norm   12 sdpa   12 gelu   6 mul   5 sigmoid
+alias      48 transpose  36 unflatten  12 flatten  8 reshape  5 slice
+            3 expand_as  2 permute  1 unsqueeze  1 select
+tail        2 div
+UNKNOWN     8 group_norm   2 sub   1 cos   1 sin
+```
+
+**Every one of the 12 unknowns is removable by a knob, exactly, with no
+accuracy cost — and the covered config verifies at 0 UNKNOWN.** The
+extractor confirms this itself: it prints a `!!! UNKNOWN ops` banner and
+`sys.exit(1)` in the faithful config, and prints nothing in the covered one.
+
+### 11b. The four gaps and what each costs
+
+| gap | count | status | fix |
+|---|---|---|---|
+| `group_norm` | 8 | **exists in fx, missing in export, no int8 kernel anywhere** | `GN=layernorm` (exact) |
+| `sub` | 2 | image normalisation only | `NORM=0` (pre-normalised input) |
+| `cos`, `sin` | 2 | int8-only in the repo, no fp32 spec | `TIME=lut` (exact) |
+
+* **`group_norm`** is the interesting one, because it is *half* present. The fx
+  extractor supports it (`extract_graph.py:628`, `:4175`) and there is a
+  curated vectorised RVV fp32 kernel (`kernels/rvv/rvv_group_norm_direct.c`,
+  validated `35_GroupNorm PASS 7.03e-06`), plus an auto-synthesised
+  `group_norm_f16`. But it is absent from the export extractor's tables, and
+  **there is no `group_norm_s8` at all** — so an int8 Octo must either gain
+  one or pin GroupNorm to fp16 via the mixed-precision path, the same way ViNT
+  pins its goal encoder. `GN=layernorm` sidesteps all of it and is exact
+  (measured `max_abs=1.788e-06` vs `nn.GroupNorm`, §12).
+* **`cos`/`sin`** exist only as `cos_s8`/`sin_s8` (int8, curated
+  `rvv_*_s8_rvv_memo_lut_gather.c`); there is no fp32 spec. Rather than add
+  one, `TIME=lut` deletes the need: the time-conditioning branch is a frozen
+  function of the timestep and DDPM visits exactly 20 integer timesteps, so
+  FourierFeatures + the 2-layer cond MLP collapse to a **20×32 host-side
+  table** (`ScoreNet.cond_table`). Measured bit-exact (`max_abs=0.0`) against
+  the on-the-fly branch, and the full 20-step rollout still matches JAX at
+  `1.25e-06`. Same reasoning as not porting T5.
+* **`sub`** is only the `x/127.5 - 1` normalisation. Worth noting the
+  normalisation *cannot* be folded into conv0: the scale folds cleanly but the
+  `-1` shift does not, for the same zero-padding reason the goal-channel fold
+  fails (§8.3).
+
+### 11c. Curated vs reference kernels for Octo's op set
+
+Selection: `generate_kernels.py` probes
+`kernels/<target>/<backend>_<op>_<algorithm>.c` first, verifies it against the
+model's real shapes, and falls back to `spec.reference_impl` on a miss
+(`--global-curated-dir modelblaster/kernels`).
+
+| op | curated? | where |
+|---|---|---|
+| `conv2d` fp32 | yes | `kernels/rvv/rvv_conv2d_rvv_oc_blocked.c` |
+| `linear` fp32 | yes | `kernels/rvv/rvv_linear_direct.c` |
+| `layer_norm` fp32 | yes | rvv `direct` |
+| `group_norm` fp32 | yes | rvv `direct` (**rvv only**; no s8 variant) |
+| `gelu` / `gelu_exact` | yes | rvv `direct` (both) |
+| `softmax` fp32 | yes | rvv `direct` |
+| `relu`, `sigmoid` fp32 | yes | rvv `direct` |
+| `matmul`/`_ta`/`_tb`/`bmm` | yes | rvv `direct` each |
+| `mean_dim` | yes | rvv `direct` (unused here — see below) |
+| **`sdpa`** | **NO** | reference only, on every backend |
+| **`add` fp32** | **NO** | `add_s8`/`add_f16` only |
+| **`mul` fp32** | **NO** | `mul_s8`/`mul_f16`/`mul_c1_*` only |
+| **`cat*_c1` fp32** | **NO** | only an f16 curated variant exists |
+
+So on RVV fp32 the port's four uncurated ops are **`sdpa` (12), `add` (30),
+`mul` (6), `cat` (7)** — they fall back to the scalar reference compiled with
+`-march=rv64gcv`. `add`/`mul`/`cat` are memory-bound elementwise/copy work
+that auto-vectorises acceptably; **`sdpa` is the one that matters**, and it is
+worse than "uncurated":
+
+> the reference `sdpa` (`reference_kernels.py:12386`) supports **no mask**, no
+> dropout and no custom scale, and declares a VLA `float scores[S]` on the
+> stack. Octo's attention is **masked** — a 690×690 blockwise-causal mask —
+> and S=690. So the existing `sdpa` kernel is not merely slow for this model,
+> it is *semantically wrong* and would silently drop the mask.
+
+The port's answer is already in place: `MODELBLASTER_OCTO_ATTN=matmul` writes
+attention out as `matmul → mul_scalar → add(mask) → softmax → matmul`, all of
+which have curated RVV fp32 kernels, and it is equivalent to the sdpa form to
+round-off (`max_abs=1.073e-06`, §12). That is the same decomposition
+`extract_graph_export.py:81-84` already applies to ViNT's sdpa. **Anyone
+scheduling this model on real hardware should use `ATTN=matmul`, or add a
+masked `sdpa` spec.** The mask is additive and pre-baked as a buffer, so the
+`add` is a plain elementwise add against a constant.
+
+`mean_dim` is listed only to record that the port does **not** need it: the
+readout mean-pool is over a length-1 axis (`readouts={"action":1}`) and lowers
+to a `select`, which is a free alias.
+
+## 12. Equivalence of the lowering knobs (measured, not asserted)
+
+Each knob claims to be mathematically identical to the faithful form. Verified
+end-to-end on the port's own output rather than argued:
+
+```
+GN=layernorm vs nn.GroupNorm     max_abs=1.788e-06  rel=9.955e-07  cos=1.000000000
+ATTN=matmul  vs sdpa             max_abs=1.073e-06  rel=5.973e-07  cos=1.000000119
+TIME=lut     vs fourier branch   max_abs=0.000e+00  (bit-exact)
+TIME=lut     eps_pred vs JAX     max_abs=8.345e-07  rel=4.622e-07
+TIME=lut     20-step actions     max_abs=1.252e-06  rel=1.244e-06
+```
+
+`NORM=0` is definitionally identical (it moves `x/127.5-1` out of the graph).

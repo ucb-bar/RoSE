@@ -1,0 +1,26 @@
+=== supported (145) ===
+     83  linear.default
+     38  add.Tensor
+     10  conv2d.default
+      8  relu.default
+      6  cat.default
+
+=== new (76) ===
+     36  layer_norm.default
+     12  mul.Tensor
+     12  scaled_dot_product_attention.default
+     12  gelu.default
+      4  sigmoid.default
+
+=== alias (148) ===
+     48  transpose.int
+     36  unflatten.int
+     24  reshape.default
+     16  view.default
+     12  flatten.using_ints
+      5  slice.Tensor
+      3  expand_as.default
+      2  permute.default
+      1  unsqueeze.default
+      1  select.int
+

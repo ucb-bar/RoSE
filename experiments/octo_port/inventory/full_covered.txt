@@ -1,0 +1,57 @@
+PART=full  window=2  primary=256  wrist=128  layers=12  gn=layernorm  attn=sdpa
+forward(img_primary, img_wrist, lang, noisy_actions, t)
+
+=== 1. torch.fx level -> extract_graph.py (--quant fp32) ===
+
+  [supported] 219 nodes
+       83  nn.Linear
+       38  fn:add
+       28  nn.LayerNorm
+       12  fn:mul
+       12  fn:scaled_dot_product_attention
+       12  fn:gelu
+       10  nn.Conv2d
+        8  fn:relu
+        6  fn:cat
+        6  fn:getitem
+        4  fn:sigmoid
+
+  [REJECTED] 184 nodes
+       48  method:transpose
+       36  method:unflatten
+       34  get_attr (raise at extract_graph.py:5382)
+       24  method:reshape
+       16  method:view
+       12  method:flatten
+        8  fn:layer_norm
+        3  method:expand_as
+        2  method:permute
+        1  method:unsqueeze
+
+=== 2. aten level -> extract_graph_export.py  (369 nodes) ===
+
+  [supported] 145 nodes
+       83  linear.default
+       38  add.Tensor
+       10  conv2d.default
+        8  relu.default
+        6  cat.default
+
+  [new] 76 nodes
+       36  layer_norm.default
+       12  mul.Tensor
+       12  scaled_dot_product_attention.default
+       12  gelu.default
+        4  sigmoid.default
+
+  [alias] 148 nodes
+       48  transpose.int
+       36  unflatten.int
+       24  reshape.default
+       16  view.default
+       12  flatten.using_ints
+        5  slice.Tensor
+        3  expand_as.default
+        2  permute.default
+        1  unsqueeze.default
+        1  select.int
