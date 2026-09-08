@@ -15,8 +15,28 @@ than greedy, not 2%.
 
 - 44 workloads x 2 arms (`wl_sweep`, `wl_sweep_shard`) x 10 solvers = **880 solves**
 - plus 160 seed-repeat solves and 88 solves of one supplementary variant = 1128 total
-- AWS EC2 `i-02251dea96ee5f6be`, c7i.24xlarge, 96 vCPU / 185 GB. **Stopped** after
-  the results were copied back.
+- AWS EC2 `i-02251dea96ee5f6be` (`rose-sched-sweep`), c7i.24xlarge, 96 vCPU /
+  185 GB. **Stopped** after the results were copied back.
+  > **It is running again and has been since 2026-09-06 23:14 UTC**, about 25 h
+  > after this sweep was logged (`kernel_opt_log.jsonl` ts
+  > `2026-09-05T22:43:10`), restarted by something other than this sweep and
+  > left **idle**. Found 2026-09-08 while checking whether it needed starting
+  > for more solves: load 0.04, no solver processes. At $4.284/hr on-demand
+  > that is ~$103/day, and roughly $195 had accrued unnoticed -- precisely
+  > because this line said "stopped". If you are done with it, stop it; if you
+  > are about to solve, it is ready (see below).
+  >
+  > Ready-state, verified 2026-09-08 rather than assumed: solve tree
+  > `~/sweep10/code` + `~/sweep10/data` (the PINNED snapshot -- prefer it over
+  > `~/xpurt_sched/` and `~/xpu-rt/data`, which have diverged and are not
+  > cell-comparable), `~/miniforge3/envs/sched/bin/python` for the eight
+  > single-threaded solvers and `~/cpsat-venv/bin/python` (ortools) for CP-SAT,
+  > MOSEK Personal Academic licence at `~/mosek/mosek.lic` valid to
+  > 07-jan-2027. 11 of the 12 solver entries return schedules with zero missed
+  > windows on a 382-op smoke cell; `milp` trips its own tractability guard at
+  > that size, which is §8.5's expected behaviour and the reason the CP-SAT
+  > backend exists, not a broken licence. ssh with `firesim.pem` to
+  > 192.168.0.44 from the manager.
 - Every number here is a **predicted** makespan from the xpu-rt cost model. No FPGA.
 
 ## 1. Headline: which solver to use
