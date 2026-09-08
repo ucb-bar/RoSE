@@ -899,8 +899,45 @@ spanning +/-2.
   reference at the spec shapes (0 FAILs).
 * Reduced-size (`LAYERS=1 WINDOW=1`) fp16 on spike with all 18: PASS,
   `max_abs_err=0.00748`, 5.41M wall cycles.
-* Full-size (690-token, 12-layer) fp16 on spike: launched, not yet
-  reported here. The full-size curated verify is the slow part -- it
-  builds and runs the whole model once per kernel.
-* `cat4_c1_f16` (1 dispatch, 1.6 Mcyc) has no curated kernel.
+* Full-size (690-token, 12-layer) fp16 on spike with all 18: **PASS**,
+  `max_abs_err=0.00732`, 7.99 G rdcycles over 328 dispatches.
+* `cat4_c1_f16` now has a curated kernel too (19/19), added after the
+  measurements below, so it is not in them.
 * No FPGA run at fp16.
+
+### 14.7 Full-size profile: it is now 97% GEMM
+
+```
+op                 Gcycles   share
+linear_f16           3.618   45.3%
+bmm_tb_f16           2.503   31.3%
+bmm_f16              1.101   13.8%
+conv2d_f16           0.561    7.0%
+softmax_f16          0.105    1.3%
+gelu_f16             0.036    0.4%
+layer_norm_f16       0.025    0.3%
+everything else     <0.05    <0.3% each
+TOTAL                7.99 G
+```
+
+Two things worth taking from this.
+
+**The second tier is gone.** softmax, gelu and layer_norm were 25% of the
+model when only linear and conv were curated (14.3); they are now 2.0%
+combined. The seven kernels §14.4 describes did their job and are no
+longer where the time is.
+
+**`bmm_tb_f16` is the top remaining target, and its 8.1x is the lowest of
+the new kernels -- those two facts are the same fact.** At 31.3% it is the
+second-largest cost in the model, and its K-reduction form reduces over
+K = head_dim = 64, which at f16m2 on VLEN=256 is only two vector
+iterations before a `vfredusum`. The reduction overhead is amortized over
+almost nothing, unlike `linear_f16` (41x) whose K is 384 or 1536. An
+N-lanes or register-tiled form that keeps several output columns live per
+pass would amortize it properly; that is the measurement to take next,
+not a guess.
+
+Note also that conv2d is only 7.0% at full size against 52% on the
+reduced model -- the stem runs once while the transformer runs twelve
+times, so `LAYERS=1 WINDOW=1` flatters conv and the A/B in 14.3 should be
+read per-op, not as a whole-model figure for the real model.

@@ -1,0 +1,42 @@
+  octo checkpoint: /scratch/dima/rose-infra/RoSE/experiments/octo_port/octo_small_torch.pt
+  octo calibration: /scratch2/dima/misc_sw/octo_work/bridge_episodes.pkl
+[1/5] extract_graph (quant=fp16) -> /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/fp16/generated
+MODELBLASTER_STAGE_BEGIN:extract
+[extract_export] tracing octo_small via torch.export ...
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools/miniforge3/envs/zephyr/lib/python3.12/site-packages/torch/cuda/__init__.py:188: UserWarning: CUDA initialization: The NVIDIA driver on your system is too old (found version 12060). Please update your GPU driver by downloading and installing a new version from the URL: http://www.nvidia.com/Download/index.aspx Alternatively, go to: https://pytorch.org to install a PyTorch version that has been compiled with your version of the CUDA driver. (Triggered internally at /__w/pytorch/pytorch/c10/cuda/CUDAFunctions.cpp:119.)
+  return torch._C._cuda_getDeviceCount() > 0
+[extract_export] traced: 713 aten nodes
+[extract_export] op inventory → /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/fp16/generated/op_inventory.txt
+[extract_export] resolving calibration spec (8 samples) ...
+    img_primary: bridge_episodes from /scratch2/dima/misc_sw/octo_work/bridge_episodes.pkl
+    img_wrist: bridge_episodes from /scratch2/dima/misc_sw/octo_work/bridge_episodes.pkl
+    lang: synthetic from synthetic
+    noisy_actions: synthetic from synthetic
+    t: synthetic from synthetic
+[extract_export] calibrating + capturing intermediates ...
+[extract_export] emitting IR ...
+[extract_export] wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/fp16/generated/graph.json (328 op records, 0 pending kernels)
+[extract_export] wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/fp16/generated/passes_applied.json  (bn_fold_into_conv2d=0, pad_fold_into_conv2d=0)
+[extract_export] wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/fp16/generated/weights.npz (269 weight tensors)
+[extract_export] wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/fp16/generated/io.npz (input 503928 float16, output 56 bytes [linear_84=56f16])
+[extract_export] wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/fp16/generated/calibration_spec.json
+MODELBLASTER_STAGE_END:extract:11.026
+[2/5] generate_skeleton (backend=rvv_f16) -> /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/fp16/generated/rvv
+MODELBLASTER_STAGE_BEGIN:generate_skeleton
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/fp16/generated/rvv/weights.h
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/fp16/generated/rvv/weights.c
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/fp16/generated/rvv/model.h
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/fp16/generated/rvv/model.c
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/fp16/generated/rvv/buffers.c
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/fp16/generated/rvv/test_io.h
+MODELBLASTER_STAGE_END:generate_skeleton:50.373
+[ram0] verify: 704 MiB for spike (io ~0MB, buffers ~479MB, weights ~53MB)
+[3/5] generate_kernels (backend=reference target=rvv_f16 quant=fp16 optimize=0) -> /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/fp16/generated/rvv
+MODELBLASTER_STAGE_BEGIN:generate_kernels
+backend=reference  target=rvv_f16  ops=['add_c1_f16', 'add_f16', 'add_tile_f16', 'bmm_f16', 'bmm_tb_f16', 'cat2_c1_f16', 'cat4_c1_f16', 'conv2d_f16', 'gelu_f16', 'layer_norm_f16', 'linear_f16', 'mul_c1_f16', 'mul_f16', 'mul_scalar_f16', 'permute4_f16', 'relu_f16', 'sigmoid_f16', 'slice_c_f16', 'softmax_f16']
+  [curated] pre-seeded verify baseline with 18 curated kernel(s): ['add_c1_f16', 'add_f16', 'add_tile_f16', 'bmm_f16', 'bmm_tb_f16', 'cat2_c1_f16', 'conv2d_f16', 'gelu_f16', 'layer_norm_f16', 'linear_f16', 'mul_c1_f16', 'mul_f16', 'mul_scalar_f16', 'permute4_f16', 'relu_f16', 'sigmoid_f16', 'slice_c_f16', 'softmax_f16']
+  [add_c1_f16/direct] reference + curated swap from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv_f16/rvv_f16_add_c1_f16_direct.c
+  [add_c1_f16/direct] verify curated at 10 shape(s) vs reference_impl
+  [add_c1_f16/direct] curated verify PASS — spike-harness ok (max_abs_err=0.00732 max_rel_err=0.26, cycles={'linear_f16': 3617632657, 'add_f16': 1343809, 'cat2_c1_f16': 228647, 'conv2d_f16': 561308472, 'layer_norm_f16': 24727283, 'mul_c1_f16': 593936, 'add_c1_f16': 1543960, 'relu_f16': 521056, 'permute4_f16': 6526088, 'slice_c_f16': 100060, 'cat4_c1_f16': 3105961, 'bmm_tb_f16': 2502830028, 'mul_scalar_f16': 16068588, 'add_tile_f16': 16070016, 'softmax_f16': 105222756, 'bmm_f16': 1100910108, 'gelu_f16': 35770068, 'sigmoid_f16': 16367, 'mul_f16': 1407})
+  [add_f16/direct] reference + curated swap from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/kernels/rvv_f16/rvv_f16_add_f16_direct.c
+  [add_f16/direct] verify curated at 7 shape(s) vs reference_impl

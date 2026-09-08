@@ -22,6 +22,13 @@ read the config column before quoting a number.
 | `fp16_native_full.log` | full-size fp16, board native_sim | `max_abs_err=0.00537`, cos 0.999998, **PASS** |
 | `fp16_rvv_curated.log` + `fp16_rvv_curated_profile.csv` | `LAYERS=1 WINDOW=1`, backend `rvv_f16`, all 18 curated | PASS, 5.41M wall cycles |
 | `fp16_rvv_reference.log` + `fp16_rvv_reference_profile.csv` | same IR, `GLOBAL_CURATED_DIR=` (all reference) | PASS, 246.81M wall cycles |
+| `fp16_rvv_curated_fullsize.log` | **full size** (690-token, 12-layer), backend `rvv_f16`, 18 curated | PASS, `max_abs_err=0.00732`, 7.99 G rdcycles |
+
+The full-size log is short on purpose: the curated verify builds and runs
+the WHOLE model once per kernel, and the first one already carries the
+full-size model result (its pre-seeded baseline is all 18 curated). The
+remaining 17 were stopped -- each takes ~17 min and would only re-confirm
+kernels that already passed at the spec shapes on the reduced model.
 
 45.6x, confirmed two ways. The A/B uses the reduced config because the
 all-reference baseline would not finish otherwise.
