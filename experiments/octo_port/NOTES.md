@@ -941,3 +941,73 @@ Note also that conv2d is only 7.0% at full size against 52% on the
 reduced model -- the stem runs once while the transformer runs twelve
 times, so `LAYERS=1 WINDOW=1` flatters conv and the A/B in 14.3 should be
 read per-op, not as a whole-model figure for the real model.
+
+## 15. fp16 on FPGA: blocked in the single-model harness, not in the kernels
+
+`QUANT=fp16 TARGET=rvv RUNNER=firesim` builds and the ELF is right; the
+guest does not reach Zephyr's boot banner on
+`f2_quad_hetero_norose_tacit_q31_60mhz`. Recorded so the next attempt starts
+from the evidence rather than repeating it.
+
+### 15.1 What was confirmed good
+
+* **Zvfh is in the RTL.** `saturn/rocket/Configs.scala:31` sets `vfh = true`
+  in `RocketCoreVectorParams`, and rocket-chip's `BaseTile.scala:127` maps
+  `useVector && vfh` to `"zvfh"`; `WithRocketVectorUnit` also forces
+  `minFLen = 16`, giving `zfh`. True in BOTH `~/chipyard-rose` and
+  `~/chipyard-fsim`, so either F2 Saturn bitstream would serve.
+* **The ELF carries real vector code.** Its ISA attribute reads
+  `rv64i...v1p0...zfh1p0...zvfh1p0...`, and every kernel disassembles to
+  vector instructions (6-58 each: `linear_f16` 42, `conv2d_f16` 53,
+  `softmax_f16` 58, `gelu_f16` 39, `layer_norm_f16` 40, ...). This is the
+  check `generate_kernels.py` asks for when it warns that a curated kernel
+  "that compiled to scalar code would have been profiled and reported as a
+  vector measurement" -- the spike per-kernel verify was skipped for the
+  FPGA build (all 19 already passed it at the real shapes; re-running costs
+  ~5 h and does not test Saturn), so this stands in for it.
+* **Hart 2 is the RVV hart and pinning to it works.** The control run's own
+  output says so: `xpurt: worker[1] kind=rvv pinned_hart=2`. The
+  single-model harness had the hart HARDCODED to 1, which on this bitstream
+  is Rocket + Gemmini with no vector at all -- fixed with
+  `-DMODELBLASTER_PIN_HART`.
+* **The lane, the warm state and the bitstream are healthy.** A known-good
+  ELF from the job 948-957 lineage, same lane, same warm dispatch, booted
+  and ran to DONE.
+
+### 15.2 Two hypotheses tested and excluded
+
+* **ELF size / TSI load.** The first build baked 53 MB of fp16 weights into
+  a 58 MB ELF, against 9.7 MB for every previously-working ELF here.
+  Shrinking to 13.3 MB (`LAYERS=1 WINDOW=1 WRIST=0`, still all 19 op kinds)
+  changed nothing -- the same stall at the same uartlog size. Not the cause,
+  though it is still worth knowing that 58 MB is 6x anything demonstrated on
+  this setup.
+* **Buffered console masking a working run.** The quad-hetero overlay sets
+  `CONFIG_UART_HTIF_BUFFERED_OUTPUT=y` with a 256-byte buffer. The
+  single-model harness prints a ~60-character banner and then runs the model
+  in silence, so nothing would reach the uartlog until the output block
+  pushed past 256 bytes -- a long run would look exactly like a hung boot,
+  and this is why the XPU-RT harness (which prints a schedule line plus one
+  line per worker immediately) always appears and this one never does. A
+  plausible enough story that two jobs were cancelled on the opposite
+  reading. It is WRONG: with a `_unbuffered` overlay, `BUFFERED_OUTPUT`
+  confirmed absent from the generated `.config`, and `BOOT_BANNER=y` +
+  `PRINTK_SYNC=y`, Zephyr's banner still never appears.
+
+### 15.3 Where that leaves it
+
+The failure is in the **single-model harness's early boot** on this
+bitstream, before kernel banner. Note what has ever run on F2 here: the
+XPU-RT harness. `harness_xpurt` got a FireSim rvv_f16 overlay in `c2273cf`;
+`harness/` never did, and the two prj.confs differ substantially
+(harness_xpurt carries POSIX threads, dynamic threads, a 64 MB malloc arena,
+`SCHED_CPU_MASK_PIN_ONLY=n`).
+
+So the next step is not more bisection of `harness/`: route the fp16 model
+through `harness_xpurt` as a single-entry schedule, which is the path with
+demonstrated F2 boots on this exact bitstream and which already places
+workers on the right harts by kind. The kernels themselves need nothing --
+they are verified on spike and present as vector code in the ELF.
+
+Lane hygiene: jobs 958, 959 and 961 were all cancelled with `fq cancel`
+(never `firesim kill`) rather than left to hold a shared lane to timeout.
