@@ -1,0 +1,6 @@
+# 700+ harness ELFs at 4-64 MB each (~15 GB) and 1056 schedule JSONs (~210 MB).
+# Build artifacts, regenerable from fpga/{emit_all,plan,build_all}.py; the
+# manifest, plan and per-build logs ARE tracked, so which ELF realises which
+# solve stays in the tree.
+elf/
+fpga/schedules/
