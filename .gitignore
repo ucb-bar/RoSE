@@ -27,3 +27,13 @@ docs/media/
 
 # TACIT raw traces are large binary captures; keep the analysis, not the bytes
 experiments/tacit/traces/*.out
+
+# Octo port (experiments/octo_port): the Flax param dump (522M), the captured
+# JAX intermediates (274M) and the converted torch state_dict (108M) are all
+# REPRODUCIBLE from the published checkpoint by dump_jax_ref.py /
+# dump_jax_intermediates.py / convert_weights.py. ref/param_tree.json,
+# ref/ref_io.npz and ref/ref_ddpm.npz ARE committed: small, and they are the
+# evidence the scoping note's numbers and the golden I/O rest on.
+experiments/octo_port/ref/params.npz
+experiments/octo_port/ref/ref_intermediates.npz
+experiments/octo_port/*.pt

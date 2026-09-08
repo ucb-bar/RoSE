@@ -1,0 +1,2849 @@
+{
+ "heads_action/diffusion_model/cond_encoder/Dense_0/bias": [
+  [
+   64
+  ],
+  "float32",
+  64
+ ],
+ "heads_action/diffusion_model/cond_encoder/Dense_0/kernel": [
+  [
+   32,
+   64
+  ],
+  "float32",
+  2048
+ ],
+ "heads_action/diffusion_model/cond_encoder/Dense_1/bias": [
+  [
+   32
+  ],
+  "float32",
+  32
+ ],
+ "heads_action/diffusion_model/cond_encoder/Dense_1/kernel": [
+  [
+   64,
+   32
+  ],
+  "float32",
+  2048
+ ],
+ "heads_action/diffusion_model/reverse_network/Dense_0/bias": [
+  [
+   256
+  ],
+  "float32",
+  256
+ ],
+ "heads_action/diffusion_model/reverse_network/Dense_0/kernel": [
+  [
+   444,
+   256
+  ],
+  "float32",
+  113664
+ ],
+ "heads_action/diffusion_model/reverse_network/Dense_1/bias": [
+  [
+   28
+  ],
+  "float32",
+  28
+ ],
+ "heads_action/diffusion_model/reverse_network/Dense_1/kernel": [
+  [
+   256,
+   28
+  ],
+  "float32",
+  7168
+ ],
+ "heads_action/diffusion_model/reverse_network/MLPResNetBlock_0/Dense_0/bias": [
+  [
+   1024
+  ],
+  "float32",
+  1024
+ ],
+ "heads_action/diffusion_model/reverse_network/MLPResNetBlock_0/Dense_0/kernel": [
+  [
+   256,
+   1024
+  ],
+  "float32",
+  262144
+ ],
+ "heads_action/diffusion_model/reverse_network/MLPResNetBlock_0/Dense_1/bias": [
+  [
+   256
+  ],
+  "float32",
+  256
+ ],
+ "heads_action/diffusion_model/reverse_network/MLPResNetBlock_0/Dense_1/kernel": [
+  [
+   1024,
+   256
+  ],
+  "float32",
+  262144
+ ],
+ "heads_action/diffusion_model/reverse_network/MLPResNetBlock_0/LayerNorm_0/bias": [
+  [
+   256
+  ],
+  "float32",
+  256
+ ],
+ "heads_action/diffusion_model/reverse_network/MLPResNetBlock_0/LayerNorm_0/scale": [
+  [
+   256
+  ],
+  "float32",
+  256
+ ],
+ "heads_action/diffusion_model/reverse_network/MLPResNetBlock_1/Dense_0/bias": [
+  [
+   1024
+  ],
+  "float32",
+  1024
+ ],
+ "heads_action/diffusion_model/reverse_network/MLPResNetBlock_1/Dense_0/kernel": [
+  [
+   256,
+   1024
+  ],
+  "float32",
+  262144
+ ],
+ "heads_action/diffusion_model/reverse_network/MLPResNetBlock_1/Dense_1/bias": [
+  [
+   256
+  ],
+  "float32",
+  256
+ ],
+ "heads_action/diffusion_model/reverse_network/MLPResNetBlock_1/Dense_1/kernel": [
+  [
+   1024,
+   256
+  ],
+  "float32",
+  262144
+ ],
+ "heads_action/diffusion_model/reverse_network/MLPResNetBlock_1/LayerNorm_0/bias": [
+  [
+   256
+  ],
+  "float32",
+  256
+ ],
+ "heads_action/diffusion_model/reverse_network/MLPResNetBlock_1/LayerNorm_0/scale": [
+  [
+   256
+  ],
+  "float32",
+  256
+ ],
+ "heads_action/diffusion_model/reverse_network/MLPResNetBlock_2/Dense_0/bias": [
+  [
+   1024
+  ],
+  "float32",
+  1024
+ ],
+ "heads_action/diffusion_model/reverse_network/MLPResNetBlock_2/Dense_0/kernel": [
+  [
+   256,
+   1024
+  ],
+  "float32",
+  262144
+ ],
+ "heads_action/diffusion_model/reverse_network/MLPResNetBlock_2/Dense_1/bias": [
+  [
+   256
+  ],
+  "float32",
+  256
+ ],
+ "heads_action/diffusion_model/reverse_network/MLPResNetBlock_2/Dense_1/kernel": [
+  [
+   1024,
+   256
+  ],
+  "float32",
+  262144
+ ],
+ "heads_action/diffusion_model/reverse_network/MLPResNetBlock_2/LayerNorm_0/bias": [
+  [
+   256
+  ],
+  "float32",
+  256
+ ],
+ "heads_action/diffusion_model/reverse_network/MLPResNetBlock_2/LayerNorm_0/scale": [
+  [
+   256
+  ],
+  "float32",
+  256
+ ],
+ "heads_action/diffusion_model/time_preprocess/kernel": [
+  [
+   16,
+   1
+  ],
+  "float32",
+  16
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoder_norm/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoder_norm/scale": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_0/LayerNorm_0/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_0/LayerNorm_0/scale": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_0/LayerNorm_1/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_0/LayerNorm_1/scale": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_0/MlpBlock_0/Dense_0/bias": [
+  [
+   1536
+  ],
+  "float32",
+  1536
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_0/MlpBlock_0/Dense_0/kernel": [
+  [
+   384,
+   1536
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_0/MlpBlock_0/Dense_1/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_0/MlpBlock_0/Dense_1/kernel": [
+  [
+   1536,
+   384
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_0/MultiHeadDotProductAttention_0/key/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_0/MultiHeadDotProductAttention_0/key/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_0/MultiHeadDotProductAttention_0/out/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_0/MultiHeadDotProductAttention_0/out/kernel": [
+  [
+   6,
+   64,
+   384
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_0/MultiHeadDotProductAttention_0/query/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_0/MultiHeadDotProductAttention_0/query/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_0/MultiHeadDotProductAttention_0/value/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_0/MultiHeadDotProductAttention_0/value/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_1/LayerNorm_0/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_1/LayerNorm_0/scale": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_1/LayerNorm_1/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_1/LayerNorm_1/scale": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_1/MlpBlock_0/Dense_0/bias": [
+  [
+   1536
+  ],
+  "float32",
+  1536
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_1/MlpBlock_0/Dense_0/kernel": [
+  [
+   384,
+   1536
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_1/MlpBlock_0/Dense_1/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_1/MlpBlock_0/Dense_1/kernel": [
+  [
+   1536,
+   384
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_1/MultiHeadDotProductAttention_0/key/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_1/MultiHeadDotProductAttention_0/key/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_1/MultiHeadDotProductAttention_0/out/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_1/MultiHeadDotProductAttention_0/out/kernel": [
+  [
+   6,
+   64,
+   384
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_1/MultiHeadDotProductAttention_0/query/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_1/MultiHeadDotProductAttention_0/query/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_1/MultiHeadDotProductAttention_0/value/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_1/MultiHeadDotProductAttention_0/value/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_10/LayerNorm_0/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_10/LayerNorm_0/scale": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_10/LayerNorm_1/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_10/LayerNorm_1/scale": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_10/MlpBlock_0/Dense_0/bias": [
+  [
+   1536
+  ],
+  "float32",
+  1536
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_10/MlpBlock_0/Dense_0/kernel": [
+  [
+   384,
+   1536
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_10/MlpBlock_0/Dense_1/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_10/MlpBlock_0/Dense_1/kernel": [
+  [
+   1536,
+   384
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_10/MultiHeadDotProductAttention_0/key/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_10/MultiHeadDotProductAttention_0/key/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_10/MultiHeadDotProductAttention_0/out/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_10/MultiHeadDotProductAttention_0/out/kernel": [
+  [
+   6,
+   64,
+   384
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_10/MultiHeadDotProductAttention_0/query/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_10/MultiHeadDotProductAttention_0/query/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_10/MultiHeadDotProductAttention_0/value/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_10/MultiHeadDotProductAttention_0/value/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_11/LayerNorm_0/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_11/LayerNorm_0/scale": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_11/LayerNorm_1/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_11/LayerNorm_1/scale": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_11/MlpBlock_0/Dense_0/bias": [
+  [
+   1536
+  ],
+  "float32",
+  1536
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_11/MlpBlock_0/Dense_0/kernel": [
+  [
+   384,
+   1536
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_11/MlpBlock_0/Dense_1/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_11/MlpBlock_0/Dense_1/kernel": [
+  [
+   1536,
+   384
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_11/MultiHeadDotProductAttention_0/key/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_11/MultiHeadDotProductAttention_0/key/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_11/MultiHeadDotProductAttention_0/out/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_11/MultiHeadDotProductAttention_0/out/kernel": [
+  [
+   6,
+   64,
+   384
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_11/MultiHeadDotProductAttention_0/query/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_11/MultiHeadDotProductAttention_0/query/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_11/MultiHeadDotProductAttention_0/value/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_11/MultiHeadDotProductAttention_0/value/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_2/LayerNorm_0/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_2/LayerNorm_0/scale": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_2/LayerNorm_1/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_2/LayerNorm_1/scale": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_2/MlpBlock_0/Dense_0/bias": [
+  [
+   1536
+  ],
+  "float32",
+  1536
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_2/MlpBlock_0/Dense_0/kernel": [
+  [
+   384,
+   1536
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_2/MlpBlock_0/Dense_1/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_2/MlpBlock_0/Dense_1/kernel": [
+  [
+   1536,
+   384
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_2/MultiHeadDotProductAttention_0/key/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_2/MultiHeadDotProductAttention_0/key/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_2/MultiHeadDotProductAttention_0/out/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_2/MultiHeadDotProductAttention_0/out/kernel": [
+  [
+   6,
+   64,
+   384
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_2/MultiHeadDotProductAttention_0/query/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_2/MultiHeadDotProductAttention_0/query/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_2/MultiHeadDotProductAttention_0/value/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_2/MultiHeadDotProductAttention_0/value/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_3/LayerNorm_0/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_3/LayerNorm_0/scale": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_3/LayerNorm_1/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_3/LayerNorm_1/scale": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_3/MlpBlock_0/Dense_0/bias": [
+  [
+   1536
+  ],
+  "float32",
+  1536
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_3/MlpBlock_0/Dense_0/kernel": [
+  [
+   384,
+   1536
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_3/MlpBlock_0/Dense_1/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_3/MlpBlock_0/Dense_1/kernel": [
+  [
+   1536,
+   384
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_3/MultiHeadDotProductAttention_0/key/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_3/MultiHeadDotProductAttention_0/key/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_3/MultiHeadDotProductAttention_0/out/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_3/MultiHeadDotProductAttention_0/out/kernel": [
+  [
+   6,
+   64,
+   384
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_3/MultiHeadDotProductAttention_0/query/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_3/MultiHeadDotProductAttention_0/query/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_3/MultiHeadDotProductAttention_0/value/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_3/MultiHeadDotProductAttention_0/value/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_4/LayerNorm_0/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_4/LayerNorm_0/scale": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_4/LayerNorm_1/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_4/LayerNorm_1/scale": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_4/MlpBlock_0/Dense_0/bias": [
+  [
+   1536
+  ],
+  "float32",
+  1536
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_4/MlpBlock_0/Dense_0/kernel": [
+  [
+   384,
+   1536
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_4/MlpBlock_0/Dense_1/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_4/MlpBlock_0/Dense_1/kernel": [
+  [
+   1536,
+   384
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_4/MultiHeadDotProductAttention_0/key/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_4/MultiHeadDotProductAttention_0/key/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_4/MultiHeadDotProductAttention_0/out/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_4/MultiHeadDotProductAttention_0/out/kernel": [
+  [
+   6,
+   64,
+   384
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_4/MultiHeadDotProductAttention_0/query/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_4/MultiHeadDotProductAttention_0/query/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_4/MultiHeadDotProductAttention_0/value/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_4/MultiHeadDotProductAttention_0/value/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_5/LayerNorm_0/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_5/LayerNorm_0/scale": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_5/LayerNorm_1/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_5/LayerNorm_1/scale": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_5/MlpBlock_0/Dense_0/bias": [
+  [
+   1536
+  ],
+  "float32",
+  1536
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_5/MlpBlock_0/Dense_0/kernel": [
+  [
+   384,
+   1536
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_5/MlpBlock_0/Dense_1/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_5/MlpBlock_0/Dense_1/kernel": [
+  [
+   1536,
+   384
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_5/MultiHeadDotProductAttention_0/key/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_5/MultiHeadDotProductAttention_0/key/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_5/MultiHeadDotProductAttention_0/out/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_5/MultiHeadDotProductAttention_0/out/kernel": [
+  [
+   6,
+   64,
+   384
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_5/MultiHeadDotProductAttention_0/query/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_5/MultiHeadDotProductAttention_0/query/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_5/MultiHeadDotProductAttention_0/value/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_5/MultiHeadDotProductAttention_0/value/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_6/LayerNorm_0/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_6/LayerNorm_0/scale": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_6/LayerNorm_1/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_6/LayerNorm_1/scale": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_6/MlpBlock_0/Dense_0/bias": [
+  [
+   1536
+  ],
+  "float32",
+  1536
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_6/MlpBlock_0/Dense_0/kernel": [
+  [
+   384,
+   1536
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_6/MlpBlock_0/Dense_1/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_6/MlpBlock_0/Dense_1/kernel": [
+  [
+   1536,
+   384
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_6/MultiHeadDotProductAttention_0/key/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_6/MultiHeadDotProductAttention_0/key/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_6/MultiHeadDotProductAttention_0/out/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_6/MultiHeadDotProductAttention_0/out/kernel": [
+  [
+   6,
+   64,
+   384
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_6/MultiHeadDotProductAttention_0/query/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_6/MultiHeadDotProductAttention_0/query/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_6/MultiHeadDotProductAttention_0/value/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_6/MultiHeadDotProductAttention_0/value/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_7/LayerNorm_0/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_7/LayerNorm_0/scale": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_7/LayerNorm_1/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_7/LayerNorm_1/scale": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_7/MlpBlock_0/Dense_0/bias": [
+  [
+   1536
+  ],
+  "float32",
+  1536
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_7/MlpBlock_0/Dense_0/kernel": [
+  [
+   384,
+   1536
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_7/MlpBlock_0/Dense_1/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_7/MlpBlock_0/Dense_1/kernel": [
+  [
+   1536,
+   384
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_7/MultiHeadDotProductAttention_0/key/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_7/MultiHeadDotProductAttention_0/key/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_7/MultiHeadDotProductAttention_0/out/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_7/MultiHeadDotProductAttention_0/out/kernel": [
+  [
+   6,
+   64,
+   384
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_7/MultiHeadDotProductAttention_0/query/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_7/MultiHeadDotProductAttention_0/query/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_7/MultiHeadDotProductAttention_0/value/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_7/MultiHeadDotProductAttention_0/value/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_8/LayerNorm_0/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_8/LayerNorm_0/scale": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_8/LayerNorm_1/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_8/LayerNorm_1/scale": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_8/MlpBlock_0/Dense_0/bias": [
+  [
+   1536
+  ],
+  "float32",
+  1536
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_8/MlpBlock_0/Dense_0/kernel": [
+  [
+   384,
+   1536
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_8/MlpBlock_0/Dense_1/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_8/MlpBlock_0/Dense_1/kernel": [
+  [
+   1536,
+   384
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_8/MultiHeadDotProductAttention_0/key/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_8/MultiHeadDotProductAttention_0/key/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_8/MultiHeadDotProductAttention_0/out/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_8/MultiHeadDotProductAttention_0/out/kernel": [
+  [
+   6,
+   64,
+   384
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_8/MultiHeadDotProductAttention_0/query/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_8/MultiHeadDotProductAttention_0/query/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_8/MultiHeadDotProductAttention_0/value/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_8/MultiHeadDotProductAttention_0/value/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_9/LayerNorm_0/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_9/LayerNorm_0/scale": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_9/LayerNorm_1/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_9/LayerNorm_1/scale": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_9/MlpBlock_0/Dense_0/bias": [
+  [
+   1536
+  ],
+  "float32",
+  1536
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_9/MlpBlock_0/Dense_0/kernel": [
+  [
+   384,
+   1536
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_9/MlpBlock_0/Dense_1/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_9/MlpBlock_0/Dense_1/kernel": [
+  [
+   1536,
+   384
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_9/MultiHeadDotProductAttention_0/key/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_9/MultiHeadDotProductAttention_0/key/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_9/MultiHeadDotProductAttention_0/out/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_9/MultiHeadDotProductAttention_0/out/kernel": [
+  [
+   6,
+   64,
+   384
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_9/MultiHeadDotProductAttention_0/query/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_9/MultiHeadDotProductAttention_0/query/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_9/MultiHeadDotProductAttention_0/value/bias": [
+  [
+   6,
+   64
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/BlockTransformer_0/Transformer_0/encoderblock_9/MultiHeadDotProductAttention_0/value/kernel": [
+  [
+   384,
+   6,
+   64
+  ],
+  "float32",
+  147456
+ ],
+ "octo_transformer/obs_primary_pos_embedding": [
+  [
+   1,
+   10,
+   256,
+   384
+  ],
+  "float32",
+  983040
+ ],
+ "octo_transformer/obs_primary_projection/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/obs_primary_projection/kernel": [
+  [
+   512,
+   384
+  ],
+  "float32",
+  196608
+ ],
+ "octo_transformer/obs_wrist_pos_embedding": [
+  [
+   1,
+   10,
+   64,
+   384
+  ],
+  "float32",
+  245760
+ ],
+ "octo_transformer/obs_wrist_projection/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/obs_wrist_projection/kernel": [
+  [
+   512,
+   384
+  ],
+  "float32",
+  196608
+ ],
+ "octo_transformer/observation_tokenizers_primary/SmallStem16_0/GroupNorm_0/bias": [
+  [
+   32
+  ],
+  "float32",
+  32
+ ],
+ "octo_transformer/observation_tokenizers_primary/SmallStem16_0/GroupNorm_0/scale": [
+  [
+   32
+  ],
+  "float32",
+  32
+ ],
+ "octo_transformer/observation_tokenizers_primary/SmallStem16_0/GroupNorm_1/bias": [
+  [
+   96
+  ],
+  "float32",
+  96
+ ],
+ "octo_transformer/observation_tokenizers_primary/SmallStem16_0/GroupNorm_1/scale": [
+  [
+   96
+  ],
+  "float32",
+  96
+ ],
+ "octo_transformer/observation_tokenizers_primary/SmallStem16_0/GroupNorm_2/bias": [
+  [
+   192
+  ],
+  "float32",
+  192
+ ],
+ "octo_transformer/observation_tokenizers_primary/SmallStem16_0/GroupNorm_2/scale": [
+  [
+   192
+  ],
+  "float32",
+  192
+ ],
+ "octo_transformer/observation_tokenizers_primary/SmallStem16_0/GroupNorm_3/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/observation_tokenizers_primary/SmallStem16_0/GroupNorm_3/scale": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/observation_tokenizers_primary/SmallStem16_0/StdConv_0/bias": [
+  [
+   32
+  ],
+  "float32",
+  32
+ ],
+ "octo_transformer/observation_tokenizers_primary/SmallStem16_0/StdConv_0/kernel": [
+  [
+   3,
+   3,
+   6,
+   32
+  ],
+  "float32",
+  1728
+ ],
+ "octo_transformer/observation_tokenizers_primary/SmallStem16_0/StdConv_1/bias": [
+  [
+   96
+  ],
+  "float32",
+  96
+ ],
+ "octo_transformer/observation_tokenizers_primary/SmallStem16_0/StdConv_1/kernel": [
+  [
+   3,
+   3,
+   32,
+   96
+  ],
+  "float32",
+  27648
+ ],
+ "octo_transformer/observation_tokenizers_primary/SmallStem16_0/StdConv_2/bias": [
+  [
+   192
+  ],
+  "float32",
+  192
+ ],
+ "octo_transformer/observation_tokenizers_primary/SmallStem16_0/StdConv_2/kernel": [
+  [
+   3,
+   3,
+   96,
+   192
+  ],
+  "float32",
+  165888
+ ],
+ "octo_transformer/observation_tokenizers_primary/SmallStem16_0/StdConv_3/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/observation_tokenizers_primary/SmallStem16_0/StdConv_3/kernel": [
+  [
+   3,
+   3,
+   192,
+   384
+  ],
+  "float32",
+  663552
+ ],
+ "octo_transformer/observation_tokenizers_primary/SmallStem16_0/embedding/bias": [
+  [
+   512
+  ],
+  "float32",
+  512
+ ],
+ "octo_transformer/observation_tokenizers_primary/SmallStem16_0/embedding/kernel": [
+  [
+   1,
+   1,
+   384,
+   512
+  ],
+  "float32",
+  196608
+ ],
+ "octo_transformer/observation_tokenizers_wrist/SmallStem16_0/GroupNorm_0/bias": [
+  [
+   32
+  ],
+  "float32",
+  32
+ ],
+ "octo_transformer/observation_tokenizers_wrist/SmallStem16_0/GroupNorm_0/scale": [
+  [
+   32
+  ],
+  "float32",
+  32
+ ],
+ "octo_transformer/observation_tokenizers_wrist/SmallStem16_0/GroupNorm_1/bias": [
+  [
+   96
+  ],
+  "float32",
+  96
+ ],
+ "octo_transformer/observation_tokenizers_wrist/SmallStem16_0/GroupNorm_1/scale": [
+  [
+   96
+  ],
+  "float32",
+  96
+ ],
+ "octo_transformer/observation_tokenizers_wrist/SmallStem16_0/GroupNorm_2/bias": [
+  [
+   192
+  ],
+  "float32",
+  192
+ ],
+ "octo_transformer/observation_tokenizers_wrist/SmallStem16_0/GroupNorm_2/scale": [
+  [
+   192
+  ],
+  "float32",
+  192
+ ],
+ "octo_transformer/observation_tokenizers_wrist/SmallStem16_0/GroupNorm_3/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/observation_tokenizers_wrist/SmallStem16_0/GroupNorm_3/scale": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/observation_tokenizers_wrist/SmallStem16_0/StdConv_0/bias": [
+  [
+   32
+  ],
+  "float32",
+  32
+ ],
+ "octo_transformer/observation_tokenizers_wrist/SmallStem16_0/StdConv_0/kernel": [
+  [
+   3,
+   3,
+   6,
+   32
+  ],
+  "float32",
+  1728
+ ],
+ "octo_transformer/observation_tokenizers_wrist/SmallStem16_0/StdConv_1/bias": [
+  [
+   96
+  ],
+  "float32",
+  96
+ ],
+ "octo_transformer/observation_tokenizers_wrist/SmallStem16_0/StdConv_1/kernel": [
+  [
+   3,
+   3,
+   32,
+   96
+  ],
+  "float32",
+  27648
+ ],
+ "octo_transformer/observation_tokenizers_wrist/SmallStem16_0/StdConv_2/bias": [
+  [
+   192
+  ],
+  "float32",
+  192
+ ],
+ "octo_transformer/observation_tokenizers_wrist/SmallStem16_0/StdConv_2/kernel": [
+  [
+   3,
+   3,
+   96,
+   192
+  ],
+  "float32",
+  165888
+ ],
+ "octo_transformer/observation_tokenizers_wrist/SmallStem16_0/StdConv_3/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/observation_tokenizers_wrist/SmallStem16_0/StdConv_3/kernel": [
+  [
+   3,
+   3,
+   192,
+   384
+  ],
+  "float32",
+  663552
+ ],
+ "octo_transformer/observation_tokenizers_wrist/SmallStem16_0/embedding/bias": [
+  [
+   512
+  ],
+  "float32",
+  512
+ ],
+ "octo_transformer/observation_tokenizers_wrist/SmallStem16_0/embedding/kernel": [
+  [
+   1,
+   1,
+   384,
+   512
+  ],
+  "float32",
+  196608
+ ],
+ "octo_transformer/readout_action_pos_embedding": [
+  [
+   1,
+   10,
+   1,
+   384
+  ],
+  "float32",
+  3840
+ ],
+ "octo_transformer/task_language_pos_embedding": [
+  [
+   1,
+   16,
+   384
+  ],
+  "float32",
+  6144
+ ],
+ "octo_transformer/task_language_projection/bias": [
+  [
+   384
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/task_language_projection/kernel": [
+  [
+   768,
+   384
+  ],
+  "float32",
+  294912
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/0/layer/0/SelfAttention/k/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/0/layer/0/SelfAttention/o/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/0/layer/0/SelfAttention/q/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/0/layer/0/SelfAttention/relative_attention_bias/embedding": [
+  [
+   32,
+   12
+  ],
+  "float32",
+  384
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/0/layer/0/SelfAttention/v/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/0/layer/0/layer_norm/weight": [
+  [
+   768
+  ],
+  "float32",
+  768
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/0/layer/1/DenseReluDense/wi/kernel": [
+  [
+   768,
+   3072
+  ],
+  "float32",
+  2359296
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/0/layer/1/DenseReluDense/wo/kernel": [
+  [
+   3072,
+   768
+  ],
+  "float32",
+  2359296
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/0/layer/1/layer_norm/weight": [
+  [
+   768
+  ],
+  "float32",
+  768
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/1/layer/0/SelfAttention/k/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/1/layer/0/SelfAttention/o/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/1/layer/0/SelfAttention/q/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/1/layer/0/SelfAttention/v/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/1/layer/0/layer_norm/weight": [
+  [
+   768
+  ],
+  "float32",
+  768
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/1/layer/1/DenseReluDense/wi/kernel": [
+  [
+   768,
+   3072
+  ],
+  "float32",
+  2359296
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/1/layer/1/DenseReluDense/wo/kernel": [
+  [
+   3072,
+   768
+  ],
+  "float32",
+  2359296
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/1/layer/1/layer_norm/weight": [
+  [
+   768
+  ],
+  "float32",
+  768
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/10/layer/0/SelfAttention/k/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/10/layer/0/SelfAttention/o/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/10/layer/0/SelfAttention/q/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/10/layer/0/SelfAttention/v/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/10/layer/0/layer_norm/weight": [
+  [
+   768
+  ],
+  "float32",
+  768
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/10/layer/1/DenseReluDense/wi/kernel": [
+  [
+   768,
+   3072
+  ],
+  "float32",
+  2359296
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/10/layer/1/DenseReluDense/wo/kernel": [
+  [
+   3072,
+   768
+  ],
+  "float32",
+  2359296
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/10/layer/1/layer_norm/weight": [
+  [
+   768
+  ],
+  "float32",
+  768
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/11/layer/0/SelfAttention/k/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/11/layer/0/SelfAttention/o/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/11/layer/0/SelfAttention/q/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/11/layer/0/SelfAttention/v/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/11/layer/0/layer_norm/weight": [
+  [
+   768
+  ],
+  "float32",
+  768
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/11/layer/1/DenseReluDense/wi/kernel": [
+  [
+   768,
+   3072
+  ],
+  "float32",
+  2359296
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/11/layer/1/DenseReluDense/wo/kernel": [
+  [
+   3072,
+   768
+  ],
+  "float32",
+  2359296
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/11/layer/1/layer_norm/weight": [
+  [
+   768
+  ],
+  "float32",
+  768
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/2/layer/0/SelfAttention/k/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/2/layer/0/SelfAttention/o/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/2/layer/0/SelfAttention/q/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/2/layer/0/SelfAttention/v/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/2/layer/0/layer_norm/weight": [
+  [
+   768
+  ],
+  "float32",
+  768
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/2/layer/1/DenseReluDense/wi/kernel": [
+  [
+   768,
+   3072
+  ],
+  "float32",
+  2359296
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/2/layer/1/DenseReluDense/wo/kernel": [
+  [
+   3072,
+   768
+  ],
+  "float32",
+  2359296
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/2/layer/1/layer_norm/weight": [
+  [
+   768
+  ],
+  "float32",
+  768
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/3/layer/0/SelfAttention/k/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/3/layer/0/SelfAttention/o/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/3/layer/0/SelfAttention/q/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/3/layer/0/SelfAttention/v/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/3/layer/0/layer_norm/weight": [
+  [
+   768
+  ],
+  "float32",
+  768
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/3/layer/1/DenseReluDense/wi/kernel": [
+  [
+   768,
+   3072
+  ],
+  "float32",
+  2359296
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/3/layer/1/DenseReluDense/wo/kernel": [
+  [
+   3072,
+   768
+  ],
+  "float32",
+  2359296
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/3/layer/1/layer_norm/weight": [
+  [
+   768
+  ],
+  "float32",
+  768
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/4/layer/0/SelfAttention/k/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/4/layer/0/SelfAttention/o/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/4/layer/0/SelfAttention/q/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/4/layer/0/SelfAttention/v/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/4/layer/0/layer_norm/weight": [
+  [
+   768
+  ],
+  "float32",
+  768
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/4/layer/1/DenseReluDense/wi/kernel": [
+  [
+   768,
+   3072
+  ],
+  "float32",
+  2359296
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/4/layer/1/DenseReluDense/wo/kernel": [
+  [
+   3072,
+   768
+  ],
+  "float32",
+  2359296
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/4/layer/1/layer_norm/weight": [
+  [
+   768
+  ],
+  "float32",
+  768
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/5/layer/0/SelfAttention/k/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/5/layer/0/SelfAttention/o/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/5/layer/0/SelfAttention/q/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/5/layer/0/SelfAttention/v/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/5/layer/0/layer_norm/weight": [
+  [
+   768
+  ],
+  "float32",
+  768
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/5/layer/1/DenseReluDense/wi/kernel": [
+  [
+   768,
+   3072
+  ],
+  "float32",
+  2359296
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/5/layer/1/DenseReluDense/wo/kernel": [
+  [
+   3072,
+   768
+  ],
+  "float32",
+  2359296
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/5/layer/1/layer_norm/weight": [
+  [
+   768
+  ],
+  "float32",
+  768
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/6/layer/0/SelfAttention/k/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/6/layer/0/SelfAttention/o/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/6/layer/0/SelfAttention/q/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/6/layer/0/SelfAttention/v/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/6/layer/0/layer_norm/weight": [
+  [
+   768
+  ],
+  "float32",
+  768
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/6/layer/1/DenseReluDense/wi/kernel": [
+  [
+   768,
+   3072
+  ],
+  "float32",
+  2359296
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/6/layer/1/DenseReluDense/wo/kernel": [
+  [
+   3072,
+   768
+  ],
+  "float32",
+  2359296
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/6/layer/1/layer_norm/weight": [
+  [
+   768
+  ],
+  "float32",
+  768
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/7/layer/0/SelfAttention/k/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/7/layer/0/SelfAttention/o/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/7/layer/0/SelfAttention/q/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/7/layer/0/SelfAttention/v/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/7/layer/0/layer_norm/weight": [
+  [
+   768
+  ],
+  "float32",
+  768
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/7/layer/1/DenseReluDense/wi/kernel": [
+  [
+   768,
+   3072
+  ],
+  "float32",
+  2359296
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/7/layer/1/DenseReluDense/wo/kernel": [
+  [
+   3072,
+   768
+  ],
+  "float32",
+  2359296
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/7/layer/1/layer_norm/weight": [
+  [
+   768
+  ],
+  "float32",
+  768
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/8/layer/0/SelfAttention/k/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/8/layer/0/SelfAttention/o/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/8/layer/0/SelfAttention/q/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/8/layer/0/SelfAttention/v/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/8/layer/0/layer_norm/weight": [
+  [
+   768
+  ],
+  "float32",
+  768
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/8/layer/1/DenseReluDense/wi/kernel": [
+  [
+   768,
+   3072
+  ],
+  "float32",
+  2359296
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/8/layer/1/DenseReluDense/wo/kernel": [
+  [
+   3072,
+   768
+  ],
+  "float32",
+  2359296
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/8/layer/1/layer_norm/weight": [
+  [
+   768
+  ],
+  "float32",
+  768
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/9/layer/0/SelfAttention/k/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/9/layer/0/SelfAttention/o/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/9/layer/0/SelfAttention/q/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/9/layer/0/SelfAttention/v/kernel": [
+  [
+   768,
+   768
+  ],
+  "float32",
+  589824
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/9/layer/0/layer_norm/weight": [
+  [
+   768
+  ],
+  "float32",
+  768
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/9/layer/1/DenseReluDense/wi/kernel": [
+  [
+   768,
+   3072
+  ],
+  "float32",
+  2359296
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/9/layer/1/DenseReluDense/wo/kernel": [
+  [
+   3072,
+   768
+  ],
+  "float32",
+  2359296
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/block/9/layer/1/layer_norm/weight": [
+  [
+   768
+  ],
+  "float32",
+  768
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/encoder/final_layer_norm/weight": [
+  [
+   768
+  ],
+  "float32",
+  768
+ ],
+ "octo_transformer/task_tokenizers_language/hf_model/shared/embedding": [
+  [
+   32128,
+   768
+  ],
+  "float32",
+  24674304
+ ]
+}
