@@ -1,0 +1,63 @@
+{
+  "num_samples": 8,
+  "inputs": {
+    "img_primary": {
+      "loader": "bridge_episodes",
+      "path": "/scratch2/dima/misc_sw/octo_work/bridge_episodes.pkl",
+      "key": "image_primary",
+      "image_size": [
+        256,
+        256
+      ],
+      "domain": "unit",
+      "compose": {
+        "kind": "window_stack",
+        "frames_per_sample": 2
+      }
+    },
+    "img_wrist": {
+      "loader": "bridge_episodes",
+      "path": "/scratch2/dima/misc_sw/octo_work/bridge_episodes.pkl",
+      "key": "image_wrist",
+      "image_size": [
+        128,
+        128
+      ],
+      "domain": "unit",
+      "compose": {
+        "kind": "window_stack",
+        "frames_per_sample": 2
+      }
+    },
+    "lang": {
+      "loader": "synthetic",
+      "shape": [
+        16,
+        768
+      ],
+      "kind": "gaussian",
+      "scale": 0.5,
+      "comment": "T5 encoder output; T5 is not part of the port (NOTES.md 7), so there is no source for this here."
+    },
+    "noisy_actions": {
+      "loader": "synthetic",
+      "shape": [
+        2,
+        28
+      ],
+      "kind": "gaussian",
+      "scale": 0.3,
+      "comment": "x_t of the DDPM chain: a function of the sampling loop, not of the dataset."
+    },
+    "t": {
+      "loader": "synthetic",
+      "shape": [
+        2,
+        32
+      ],
+      "kind": "gaussian",
+      "scale": 0.5,
+      "comment": "cond_table() row for the current step (TIME=lut)."
+    }
+  }
+}

@@ -502,3 +502,249 @@ TIME=lut     20-step actions     max_abs=1.252e-06  rel=1.244e-06
 ```
 
 `NORM=0` is definitionally identical (it moves `x/127.5-1` out of the graph).
+
+## 13. On-target validation, and the ten bugs it took to get there
+
+`bash modelblaster/examples/octo_small/run.sh` with `QUANT=int8` runs the port
+end to end on a board. §1-12 was measured in PyTorch or against JAX; this is
+the generated C, executing the extracted graph on a target.
+
+**Configuration (all of it in `examples/octo_small/run.sh`):** 316 ops,
+`--per-channel` weight scales, 8 calibration samples of real BridgeData
+frames, `MODELBLASTER_ACT_PERCENTILE=99.99`, `SPLITFC=1`, plus the §1-12
+coverage knobs (`GN=layernorm TIME=lut NORM=0 ATTN=matmul`).
+
+```
+RUNNER=spike    max_abs_err=8 of 127 int8 LSBs   cos=0.9713   ~16 min
+RUNNER=native   max_abs_err=7                    cos=0.9757   ~12 s host
+```
+
+316 dispatches run to completion on spike_riscv64, on the same IR in both
+cases (for the spike build the `inspect_tensors` list is stripped from
+`graph.json` first -- the dumps go out over HTIF at roughly 100 lines/s, so
+the native ladder's 1.8 M lines would take hours; stripping them changes no
+arithmetic).
+
+Per-tensor tracking against the PyTorch fp32 capture, input to output:
+
+```
+conv2d_4      cos 0.9935     matmul_1       cos 0.9672
+add_5             0.9934     add_46             0.9865
+cat_4             0.9934     layer_norm_32      0.9822
+layer_norm_8      0.9940     select             0.9730
+                             linear_84 (out)    0.9756
+```
+
+**The int8 golden is the QUANTIZED FP32 REFERENCE**, not a simulation of the
+int8 graph (`extract_graph_export.py` io.npz emit:
+`_quantize_per_tensor_sym(captured_fp32, scale)`). `max_abs_err` therefore
+measures the whole network's quantization error in LSBs of the output scale,
+and a zero-tolerance PASS is not reachable for a real quantized model. Read
+the number, not the verdict line.
+
+`RUNNER=native` (`native_sim/native/64`) is what made this affordable: the
+whole 690-token model runs in ~12 s instead of spike's ~15 min, with the same
+in-binary `MODELBLASTER_VERIFY` compare. Two fixes were needed before that
+board could build at all -- `fence rw, rw` in the harness and `rdcycle` in the
+generated `model.c` are not x86 instructions -- so `RUNNER=native` had never
+actually built anything.
+
+### 13.1 Method
+
+`--inspect <tensors>` dumps chosen intermediates from the running binary with
+their scale, and writes `inspect_ref.npz` with the PyTorch fp32 values at the
+same tensors. Walking a ladder of checkpoints and reading the first place the
+cosine collapses localizes a bug to one op.
+`experiments/octo_port/onchip/inspect_compare.py` does the comparison;
+`xtarget_compare.py` diffs two runs of the same IR against each other.
+
+### 13.2 Lowering bugs (8)
+
+Every one was silent: the build succeeded, no kernel was reported missing,
+and the answer was wrong.
+
+| # | what was wrong | localized by |
+|---|---|---|
+| 1 | `transpose`/`permute` aliased even when it reorders elements (a ViT head split, a stem NCHW->NHWC) | `linear_1` cos 0.0196 -> 0.9991 |
+| 2 | `matmul_s8` has no batch loop, so 6 heads collapsed to one head's work over the wrong elements | -- |
+| 3 | K-transposes materialized (12 x 2.9 MB) instead of using the kernel's `transpose_b` | memory only |
+| 4 | `layer_norm` took K from the *aliased buffer's* last dim, so GroupNormLN normalized 128 elements instead of its 16384-element group | M=8192,K=128 -> M=64,K=16384 |
+| 5 | channel-broadcast `mul`/`add` hidden behind a rank-3 view, lowered to a flat elementwise op walking C*H*W elements of a length-C weight | first stem norm all-zero |
+| 6 | the shared mask `(1,1,S,S)` added to `(1,heads,S,S)` scores by flat index | -- |
+| 7 | `expand_as` and narrowing `slice`/`select` were aliases despite changing the element count | `cat4_c1_s8` read 33 MB past a 98 KB buffer (segfault) |
+| 8 | a rank-4 `cat` assumed axis 1 whatever the real axis was | segfault |
+
+and two that were not shape bugs:
+
+* `generate_skeleton.ptr_for` had no case for a **weight consumed as a plain
+  positional input** -- a GroupNorm gamma into `mul_c1_s8`, a positional
+  embedding into `slice_c_s8`, the mask into `add_tile_s8`. It fell through to
+  an intermediate scratch buffer, which is zeroed, so those ops read all zeros.
+* `softmax_s8`'s output scale was hardcoded to `1/127`. Over 690 keys a typical
+  attention weight is ~1e-3, i.e. **below half an LSB** -- whole attention rows
+  quantized to zero. Using the calibrated scale instead was the single largest
+  fix of the set.
+
+New kernels this needed: `permute4_s8`, `matmul_b_s8`, `add_tile_s8`,
+`add_c1_s8`, all four bit-exact against numpy
+(`pipeline/tests/test_broadcast_and_permute_kernels.py`). The alias-vs-copy
+predicates are pinned in `pipeline/tests/test_export_alias_decisions.py`.
+
+**Correction to §11.** It says the readout mean-pool "lowers to a `select`,
+which is a free alias". It does not: `x[:, :, -1, :]` takes 1 token out of 337
+along axis 2, which is a strided gather. It is a `slice_c_s8` copy now.
+
+### 13.3 Quantization bugs in the port itself (2)
+
+Found by linting the extracted graph for ops whose output scale is much
+coarser than an input scale.
+
+* **`NORM=0` was feeding the model raw [0,255].** The knob moves `/127.5 - 1`
+  out of the graph, which makes pre-normalized values the input contract, but
+  `get_sample_input` returned [0,255] regardless. So the stem ran 128x
+  overdriven, and `goal_const` (= `normalize_images(0)` = -1.0) sat in a
+  different domain from the image it is concatenated with: that cat's shared
+  scale came out 2.008 = 255/127 and the -1.0 goal channels quantized to a
+  single LSB. Every activation scale downstream was fitted to that.
+* **The score net's `Linear(concat([cond(32), obs(384), action(28)]))`** forces
+  one per-tensor scale on three blocks whose measured scales are 0.010857 /
+  0.085178 / 0.0053646, so `noisy_actions` -- the variable the diffusion loop
+  is denoising -- reached the matmul with 8 of its 127 levels.
+  `MODELBLASTER_OCTO_SPLITFC=1` replaces it with three summed Linears
+  (identical arithmetic, measured 3.1e-06 / 5.0e-07 against the fused form in
+  fp32, same order as the other knobs in §12).
+
+### 13.4 Calibration is the largest single lever, and it is fragile
+
+`get_calibration_spec` has named a `bridge_episodes` loader since the port
+landed, but **no such loader was registered**, so every extraction fell back
+to one `torch.randint` sample -- and the spec's `rolling_window` composer
+would have produced `(B, window*3, R, R)` instead of `(B, window, 3, R, R)`,
+the same element count tokenized wrongly. Both are fixed
+(`mb_datasets/bridge_episodes.py`, `synthetic.py`, `window_stack`).
+
+Note what calibrating on one sample was hiding: it was the SAME sample the
+golden is computed from, so the reported error was optimistic. Moving to 8
+real frames with a held-in-distribution test frame took the output cosine
+from 0.9585 to 0.8575 before clipping. The clipping sweep, on those 8 frames:
+
+```
+max-abs (no clip)  cos 0.8575   max_abs_err 22
+99.999                 0.9085                14
+99.99                  0.9757                 7
+99.95                  0.9354                18
+99.9                   0.9254                19
+99.0                   0.7332                95
+```
+
+99.99 is **empirically tuned on this calibration set, not a principled
+quantile**: the extractor estimates the percentile from at most 2048 elements
+per tensor per sample, so for the 2.8 M-element attention tensors it is closer
+to "max of a 16 k draw" than to a real 99.99th percentile -- which is why the
+neighbours are not monotonic. A 3.5x spread in `max_abs_err` across adjacent
+settings is itself the finding: per-tensor int8 PTQ on this model is fragile,
+and re-tuning is required if the calibration set changes.
+
+### 13.5 Spike and native are not bit-comparable, and the reason is `expf`
+
+Same IR, same reference kernels, and the outputs differ. Neither target is
+broken. Localized with `xtarget_compare.py`:
+
+```
+native vs spike, same IR:  linear  add  cat_2  slice_4    0.00% differ
+                           layer_norm_33                 91.80%, max 18 lsb
+                           final output                  69.64%, max 24 lsb
+```
+
+Ops 0..56 -- the language branch and BOTH image stems, including 10 convs, 8
+`layer_norm_s8`, 8 `mul_c1_s8`, 8 `add_c1_s8`, 3 `add_s8`, 2 `permute4_s8`, 4
+`slice_c_s8` -- are **bit-identical across targets**. The first op that calls
+`expf` is #68 (`softmax`), and divergence starts there. `expf` is the only
+operation in these kernels that is not exactly specified: `sqrtf`, `roundf`
+and float `+ - * /` are all correctly rounded and contribute nothing.
+
+FP contraction was the other candidate and is NOT the cause. gcc's default
+`-ffp-contract=fast` does fuse the multiply-accumulates in the kernels that
+dequantize to float, asymmetrically -- counted in the disassembly of one
+`kernels.c`, RISC-V gets 5 fused ops in `layer_norm_s8` and 1 each in
+`add_s8` / `add_c1_s8` / `add_tile_s8`, x86-64 gets none -- and driving
+`add_s8` directly with the model's own scale triples moves up to 0.785% of
+its int8 outputs by 1 LSB. But the bit-identical prefix above contains 51 of
+those fused ops and is bit-identical anyway, and rebuilding native with
+`-mfma -ffp-contract=fast` (new `EXTRA_KERNEL_CFLAGS` knob) only moves
+`max_abs_err` 26 -> 20 against spike's 13. So contraction is a real
+asymmetry that in practice does not flip int8 outputs here.
+
+The rule: for an int8 graph whose kernels dequantize to float, do not compare
+two targets bit-for-bit. Compare each against the fp32 reference with a
+tolerance. `EXTRA_KERNEL_CFLAGS='-ffp-contract=off'` on both targets removes
+the contraction half if a stricter comparison is ever wanted.
+
+### 13.6 Independent checks of the integer path
+
+Two numpy replicas, both reproducing the device dump **bit-for-bit**, so the
+IR's own numbers are confirmed against something that is not the pipeline:
+
+* `linear_s8_pc` at op 0 -- int32 accumulate, then the Q0.31
+  `(acc*mult + 2^30) >> 31` requantize with the per-channel multiplier and
+  shift read straight out of `weights.npz`. Confirms the extracted weights,
+  multipliers and shifts are what the kernel consumes.
+* the `slice_5` -> `select` chain -- `[16:690]` of the 690-token sequence,
+  then token 336 of 337 per timestep, replicated from the dumped
+  `layer_norm_32` values through both requantizes. This is the pair the old
+  alias treatment got wrong (a non-zero-start slice and a `select`
+  reinterpreted onto axis 1 of `N=2, IC=337`), so it is worth pinning
+  directly rather than only through the end-to-end cosine.
+
+### 13.7 The deployment decomposition also extracts
+
+`MODELBLASTER_OCTO_PART` splits the graph the way a scheduler would run it
+(backbone once, score 20x). Both halves extract with 0 pending kernels:
+
+```
+PART=full      316 ops
+PART=backbone  290 ops
+PART=score      23 ops   inputs: obs_enc(768) + noisy_actions(56) + t(64)
+```
+
+Op mix of the full graph: `linear_s8_pc` 85, `permute4_s8` 50,
+`layer_norm_s8` 36, `add_s8` 32, `matmul_b_s8` 24, `add_tile_s8` 12,
+`softmax_s8` 12, `gelu_s8` 12, `conv2d_s8_pc` 10, `mul_c1_s8` 8,
+`add_c1_s8` 8, `relu_s8` 8, `slice_c_s8` 6, `cat2_c1_s8` 4, `sigmoid_s8` 4,
+`mul_s8` 4, `cat4_c1_s8` 1.
+
+### 13.8 Known gaps
+
+* `PART=score` has no calibration source -- its inputs are the backbone's
+  output plus the diffusion state. `get_calibration_spec` returns None for it
+  rather than calibrating on noise; it should be calibrated from a
+  `PART=full` run's captured `obs_enc`.
+* `img_wrist` is calibrated on the primary camera's frames: these episodes are
+  single-camera, and the loader records the substitution in the item meta.
+* Intermediate buffers are **240 MiB** with no liveness reuse -- every tensor
+  gets its own static array (510 of them in `buffers.c`). 2.1 MiB of that is
+  constant tensors that also get a redundant scratch buffer nothing reads.
+  The spike build fits the 256 MB ram0 at 82%.
+* Where the time goes, from the spike profile (shares are the reliable part;
+  the absolute numbers are spike's cycle model, not silicon, and note that
+  the per-op `rdcycle` deltas sum to 331 G while `WALL_CYCLES` reads
+  3.31 G -- exactly 100x apart, because the two use different clocks):
+
+  ```
+  linear_s8_pc    85 dispatches   67.3%
+  matmul_b_s8     24              17.9%
+  conv2d_s8_pc    10              11.3%
+  softmax_s8      12               2.3%
+  gelu_s8         12               0.5%
+  everything else                 <1%   (permute4_s8, 50 dispatches: 0.04%)
+  ```
+
+  96.5% is in linear / matmul / conv, which is where the curated RVV and
+  Gemmini kernels already are -- `conv2d_s8_pc` and `linear_s8_pc` have them,
+  `matmul_b_s8` does not. The 50 `permute4_s8` copies cost 0.04% of the time,
+  so removing them (a strided-A `matmul_b_s8` could read the head split in
+  place) is a ~9.5 MB memory win, not a speed one.
+* `MODELBLASTER_OCTO_ATTN=sdpa` now **refuses to extract** rather than
+  silently dropping the mask, exactly as §11 predicted. `ATTN=matmul` is the
+  only route, as §11 recommended.
+* No FPGA run yet.

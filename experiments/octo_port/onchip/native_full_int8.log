@@ -1,0 +1,871 @@
+  octo checkpoint: /scratch/dima/rose-infra/RoSE/experiments/octo_port/octo_small_torch.pt
+[1/5] extract_graph (quant=int8) -> /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/generated
+MODELBLASTER_STAGE_BEGIN:extract
+  (skipped — IR present at /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/generated; set FORCE_EXTRACT=1 to re-run)
+MODELBLASTER_STAGE_END:extract:0.001
+[2/5] generate_skeleton (backend=scalar) -> /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/generated/scalar
+MODELBLASTER_STAGE_BEGIN:generate_skeleton
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/generated/scalar/weights.h
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/generated/scalar/weights.c
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/generated/scalar/model.h
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/generated/scalar/model.c
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/generated/scalar/buffers.c
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/generated/scalar/test_io.h
+MODELBLASTER_STAGE_END:generate_skeleton:5.380
+[3/5] generate_kernels (backend=reference target=scalar quant=int8 optimize=0) -> /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/generated/scalar
+MODELBLASTER_STAGE_BEGIN:generate_kernels
+backend=reference  target=scalar  ops=['add_c1_s8', 'add_s8', 'add_tile_s8', 'cat2_c1_s8', 'cat3_c1_s8', 'cat4_c1_s8', 'conv2d_s8_pc', 'gelu_s8', 'layer_norm_s8', 'linear_s8_pc', 'matmul_b_s8', 'mul_c1_s8', 'mul_s8', 'permute4_s8', 'relu_s8', 'sigmoid_s8', 'slice_c_s8', 'softmax_s8']
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/generated/scalar/kernels.h
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/generated/scalar/kernels.c  (source=reference target=scalar)
+wrote /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/generated/scalar/kernel_picks.json
+MODELBLASTER_STAGE_END:generate_kernels:0.152
+[4/5] west build (board=native_sim/native/64) -> /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/build/scalar
+MODELBLASTER_STAGE_BEGIN:build
+-- west build: making build dir /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/build/scalar pristine
+-- west build: generating a build system
+Loading Zephyr default modules (Zephyr base).
+-- Application: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/harness
+-- CMake version: 3.28.3
+-- Found Python3: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools/miniforge3/envs/zephyr/bin/python3.12 (found suitable version "3.12.13", minimum required is "3.10") found components: Interpreter 
+-- Cache files will be written to: /home/dima/.cache/zephyr
+-- Zephyr version: 4.2.99 (/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr)
+-- Found west (found suitable version "1.5.0", minimum required is "0.14.0")
+-- Board: native_sim, qualifiers: native/64
+-- Found host-tools: zephyr 1.0.0 (/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1)
+-- Found toolchain: host (gcc/ld)
+-- Found Dtc: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/tools-manual/zephyr-sdk-1.0.0-beta1/hosttools/sysroots/x86_64-pokysdk-linux/usr/bin/dtc (found suitable version "1.7.0", minimum required is "1.4.6") 
+-- Found BOARD.dts: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/boards/native/native_sim/native_sim_64.dts
+-- Generated zephyr.dts: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/build/scalar/zephyr/zephyr.dts
+-- Generated pickled edt: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/build/scalar/zephyr/edt.pickle
+-- Generated devicetree_generated.h: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/build/scalar/zephyr/include/generated/zephyr/devicetree_generated.h
+Parsing /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/harness/Kconfig
+Loaded configuration '/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/boards/native/native_sim/native_sim_64_defconfig'
+Merged configuration '/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/harness/prj.conf'
+Merged configuration '/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/harness/backends/scalar.conf'
+Configuration saved to '/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/build/scalar/zephyr/.config'
+Kconfig header saved to '/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/build/scalar/zephyr/include/generated/zephyr/autoconf.h'
+-- Found GnuLd: /usr/bin/ld.bfd (found version "2.42") 
+-- The C compiler identification is GNU 13.3.0
+-- The CXX compiler identification is GNU 13.3.0
+-- The ASM compiler identification is GNU
+-- Found assembler: /usr/bin/gcc
+-- Using ccache: /usr/bin/ccache
+-- Found gen_kobject_list: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr/scripts/build/gen_kobject_list.py
+-- modelblaster harness MODEL_DIR=/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/generated/scalar  backend=scalar
+-- modelblaster harness kernel cflags=-O2
+-- Configuring done (3.7s)
+-- Generating done (0.0s)
+-- Build files have been written to: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/build/scalar
+-- west build: building application
+[1/97] Preparing syscall dependency handling
+
+[2/97] Generating misc/generated/syscalls_subdirs.trigger
+[3/97] Generating misc/generated/syscalls.json, misc/generated/struct_tags.json
+[4/97] Generating include/generated/device-api-sections.ld, include/generated/device-api-sections.cmake
+[5/97] Generating include/generated/zephyr/syscall_dispatch.c, include/generated/zephyr/syscall_exports_llext.c, syscall_weakdefs_llext.c, include/generated/zephyr/syscall_list.h
+[6/97] Generating include/generated/zephyr/driver-validation.h
+[7/97] Generating include/generated/zephyr/kobj-types-enum.h, include/generated/zephyr/otype-to-str.h, include/generated/zephyr/otype-to-size.h
+[8/97] Building C object zephyr/CMakeFiles/offsets.dir/arch/posix/core/offsets/offsets.c.obj
+[9/97] Generating include/generated/zephyr/offsets.h
+[10/97] Generating include/generated/zephyr/version.h
+-- Zephyr version: 4.2.99 (/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/zephyr_ws/zephyr), build: ceb2b9c3fcc2
+[11/97] Building C object CMakeFiles/app.dir/src/main.c.obj
+[12/97] Building C object CMakeFiles/app.dir/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/generated/scalar/buffers.c.obj
+[13/97] Building C object zephyr/CMakeFiles/zephyr.dir/lib/libc/validate_libc.c.obj
+[14/97] Building C object zephyr/CMakeFiles/zephyr.dir/lib/heap/heap.c.obj
+[15/97] Building C object zephyr/CMakeFiles/zephyr.dir/lib/os/cbprintf_packaged.c.obj
+[16/97] Building C object zephyr/CMakeFiles/zephyr.dir/lib/os/clock.c.obj
+[17/97] Building C object zephyr/CMakeFiles/zephyr.dir/lib/os/printk.c.obj
+[18/97] Building C object zephyr/CMakeFiles/zephyr.dir/lib/os/sem.c.obj
+[19/97] Building C object zephyr/CMakeFiles/zephyr.dir/lib/os/thread_entry.c.obj
+[20/97] Building C object zephyr/CMakeFiles/zephyr.dir/lib/os/cbprintf_complete.c.obj
+[21/97] Building C object zephyr/CMakeFiles/zephyr.dir/lib/os/cbprintf.c.obj
+[22/97] Building C object zephyr/CMakeFiles/zephyr.dir/lib/os/assert.c.obj
+[23/97] Building C object zephyr/CMakeFiles/zephyr.dir/lib/utils/dec.c.obj
+[24/97] Building C object zephyr/CMakeFiles/zephyr.dir/lib/utils/hex.c.obj
+[25/97] Building C object zephyr/CMakeFiles/zephyr.dir/lib/utils/rb.c.obj
+[26/97] Building C object zephyr/CMakeFiles/zephyr.dir/lib/utils/timeutil.c.obj
+[27/97] Building C object zephyr/CMakeFiles/zephyr.dir/lib/utils/bitarray.c.obj
+[28/97] Building C object zephyr/CMakeFiles/zephyr.dir/lib/utils/bitmask.c.obj
+[29/97] Building C object zephyr/CMakeFiles/zephyr.dir/lib/utils/ring_buffer.c.obj
+[30/97] Building C object zephyr/CMakeFiles/zephyr.dir/misc/generated/configs.c.obj
+[31/97] Building C object zephyr/arch/common/CMakeFiles/arch__common.dir/init.c.obj
+[32/97] Building C object CMakeFiles/app.dir/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/generated/scalar/kernels.c.obj
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/generated/scalar/kernels.c: In function ‘kernel_mul_c1_s8_octo_small’:
+/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/generated/scalar/kernels.c:325:11: warning: unused variable ‘k’ [-Wunused-variable]
+  325 |     float k = (scale_gate * scale_x) / scale_out;
+      |           ^
+[33/97] Building C object zephyr/CMakeFiles/zephyr.dir/subsys/tracing/tracing_none.c.obj
+[34/97] Building C object zephyr/arch/arch/posix/core/CMakeFiles/arch__posix__core.dir/cpuhalt.c.obj
+[35/97] Building C object zephyr/arch/arch/posix/core/CMakeFiles/arch__posix__core.dir/fatal.c.obj
+[36/97] Building C object zephyr/arch/arch/posix/core/CMakeFiles/arch__posix__core.dir/irq.c.obj
+[37/97] Building C object zephyr/arch/arch/posix/core/CMakeFiles/arch__posix__core.dir/swap.c.obj
+[38/97] Building C object zephyr/arch/arch/posix/core/CMakeFiles/arch__posix__core.dir/thread.c.obj
+[39/97] Building C object zephyr/arch/arch/posix/core/CMakeFiles/arch__posix__core.dir/posix_core_nsi.c.obj
+[40/97] Building C object zephyr/soc/soc/native/CMakeFiles/soc__native__inf_clock.dir/soc.c.obj
+[41/97] Building C object zephyr/soc/soc/native/CMakeFiles/soc__native__inf_clock.dir/native_tasks.c.obj
+[42/97] Building C object zephyr/soc/soc/native/CMakeFiles/soc__native__inf_clock.dir/native_remap.c.obj
+[43/97] Building C object zephyr/boards/native/native_sim/CMakeFiles/boards__native__native_sim.dir/cmdline.c.obj
+[44/97] Building C object zephyr/boards/native/native_sim/CMakeFiles/boards__native__native_sim.dir/cpu_wait.c.obj
+[45/97] Building C object zephyr/boards/native/native_sim/CMakeFiles/boards__native__native_sim.dir/nsi_if.c.obj
+[46/97] Building C object zephyr/boards/native/native_sim/CMakeFiles/boards__native__native_sim.dir/irq_handler.c.obj
+[47/97] Building C object zephyr/boards/native/native_sim/CMakeFiles/boards__native__native_sim.dir/misc.c.obj
+[48/97] Building C object zephyr/boards/native/native_sim/CMakeFiles/boards__native__native_sim.dir/posix_arch_if.c.obj
+[49/97] Building C object zephyr/drivers/console/CMakeFiles/drivers__console.dir/posix_arch_console.c.obj
+[50/97] Building C object zephyr/drivers/timer/CMakeFiles/drivers__timer.dir/sys_clock_init.c.obj
+[51/97] Building C object zephyr/drivers/timer/CMakeFiles/drivers__timer.dir/native_sim_timer.c.obj
+[52/97] Building C object zephyr/kernel/CMakeFiles/kernel.dir/main_weak.c.obj
+[53/97] Building C object zephyr/kernel/CMakeFiles/kernel.dir/banner.c.obj
+[54/97] Building C object zephyr/kernel/CMakeFiles/kernel.dir/busy_wait.c.obj
+[55/97] Building C object zephyr/kernel/CMakeFiles/kernel.dir/device.c.obj
+[56/97] Building C object zephyr/kernel/CMakeFiles/kernel.dir/errno.c.obj
+[57/97] Building C object zephyr/kernel/CMakeFiles/kernel.dir/fatal.c.obj
+[58/97] Building C object zephyr/kernel/CMakeFiles/kernel.dir/init.c.obj
+[59/97] Building C object zephyr/kernel/CMakeFiles/kernel.dir/kheap.c.obj
+[60/97] Building C object zephyr/kernel/CMakeFiles/kernel.dir/mem_slab.c.obj
+[61/97] Building C object zephyr/kernel/CMakeFiles/kernel.dir/float.c.obj
+[62/97] Building C object zephyr/kernel/CMakeFiles/kernel.dir/version.c.obj
+[63/97] Building ASM object CMakeFiles/app.dir/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/generated/scalar/test_io.S.obj
+[64/97] Building C object zephyr/kernel/CMakeFiles/kernel.dir/idle.c.obj
+[65/97] Building C object zephyr/kernel/CMakeFiles/kernel.dir/mailbox.c.obj
+[66/97] Building C object zephyr/kernel/CMakeFiles/kernel.dir/msg_q.c.obj
+[67/97] Building C object zephyr/kernel/CMakeFiles/kernel.dir/mutex.c.obj
+[68/97] Building C object zephyr/kernel/CMakeFiles/kernel.dir/queue.c.obj
+[69/97] Building C object zephyr/kernel/CMakeFiles/kernel.dir/sem.c.obj
+[70/97] Building C object zephyr/kernel/CMakeFiles/kernel.dir/stack.c.obj
+[71/97] Building C object zephyr/kernel/CMakeFiles/kernel.dir/system_work_q.c.obj
+[72/97] Building C object zephyr/kernel/CMakeFiles/kernel.dir/work.c.obj
+[73/97] Building C object zephyr/kernel/CMakeFiles/kernel.dir/condvar.c.obj
+[74/97] Building C object zephyr/kernel/CMakeFiles/kernel.dir/thread.c.obj
+[75/97] Building C object zephyr/kernel/CMakeFiles/kernel.dir/sched.c.obj
+[76/97] Building C object zephyr/kernel/CMakeFiles/kernel.dir/pipe.c.obj
+[77/97] Building C object zephyr/kernel/CMakeFiles/kernel.dir/timeslicing.c.obj
+[78/97] Building C object zephyr/kernel/CMakeFiles/kernel.dir/timeout.c.obj
+[79/97] Building C object zephyr/kernel/CMakeFiles/kernel.dir/timer.c.obj
+[80/97] Building C object zephyr/kernel/CMakeFiles/kernel.dir/mempool.c.obj
+[81/97] Building C object zephyr/kernel/CMakeFiles/kernel.dir/dynamic_disabled.c.obj
+[82/97] Generating linker_zephyr_pre0.cmd
+[83/97] Building C object zephyr/CMakeFiles/zephyr_pre0.dir/misc/empty_file.c.obj
+[84/97] Linking C static library zephyr/arch/common/libarch__common.a
+[85/97] Linking C static library zephyr/drivers/console/libdrivers__console.a
+[86/97] Linking C static library zephyr/soc/soc/native/libsoc__native__inf_clock.a
+[87/97] Linking C static library zephyr/drivers/timer/libdrivers__timer.a
+[88/97] Linking C static library zephyr/arch/arch/posix/core/libarch__posix__core.a
+[89/97] Linking C static library zephyr/boards/native/native_sim/libboards__native__native_sim.a
+[90/97] Linking C static library zephyr/libzephyr.a
+[91/97] Linking C static library zephyr/kernel/libkernel.a
+[92/97] Building C object CMakeFiles/app.dir/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/generated/scalar/weights.c.obj
+[93/97] Building C object CMakeFiles/app.dir/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/generated/scalar/model.c.obj
+[94/97] Linking C static library app/libapp.a
+[95/97] Linking C executable zephyr/zephyr.elf
+/usr/bin/ld.bfd: warning: test_io.S.obj: missing .note.GNU-stack section implies executable stack
+/usr/bin/ld.bfd: NOTE: This behaviour is deprecated and will be removed in a future version of the linker
+Generating files from /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/build/scalar/zephyr/zephyr.elf for board: native_sim
+[96/97] Building native simulator runner, and linking final executable
+/usr/bin/ld: warning: /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/build/scalar/zephyr/NSI/scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/build/scalar/zephyr/zephyr.elf.loc_cpusw.o: requires executable stack (because the .note.GNU-stack section is executable)
+[97/97] Running utility command for native_runner_executable
+MODELBLASTER_STAGE_END:build:6.353
+[5/5] native + compare
+MODELBLASTER_STAGE_BEGIN:run
+=== MODELBLASTER_RAW_NATIVE_BEGIN ===
+*** Booting Zephyr OS build ceb2b9c3fcc2 ***
+modelblaster harness: model=octo_small in=503928 out=56
+=== MODELBLASTER_VERIFY === max_abs_err=26 max_rel_err=3.00000005e+12 n=56
+=== MODELBLASTER_OUTPUT_BEGIN ===
+1
+20
+-2
+-20
+9
+-29
+-8
+4
+34
+7
+13
+-12
+9
+-16
+-6
+-11
+-10
+15
+21
+-14
+-26
+2
+9
+-10
+22
+-2
+-2
+-9
+1
+0
+0
+0
+1
+0
+-71
+3
+-4
+1
+-6
+4
+-4
+75
+-11
+7
+2
+-3
+-3
+-3
+-119
+3
+-3
+0
+7
+1
+-1
+-50
+=== MODELBLASTER_OUTPUT_END ===
+=== MODELBLASTER_PROFILE_BEGIN ===
+dispatch_id,name,op,shape,cycles
+0,linear,linear_s8_pc,M=16;K=768;N=384,0
+1,add,add_s8,n=6144,0
+2,cat,cat2_c1_s8,N=2;H=256;W=256;C_total=6;C_inputs=3|3,0
+3,conv2d,conv2d_s8_pc,N=2;IC=6;IH=256;IW=256;OC=32;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1;DH=1;DW=1;groups=1,0
+4,layer_norm,layer_norm_s8,M=64;K=16384,0
+5,mul,mul_c1_s8,N=2;C=32;HW=16384,0
+6,add_1,add_c1_s8,N=2;C=32;HW=16384,0
+7,relu,relu_s8,n=1048576,0
+8,conv2d_1,conv2d_s8_pc,N=2;IC=32;IH=128;IW=128;OC=96;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1;DH=1;DW=1;groups=1,0
+9,layer_norm_1,layer_norm_s8,M=64;K=12288,0
+10,mul_1,mul_c1_s8,N=2;C=96;HW=4096,0
+11,add_2,add_c1_s8,N=2;C=96;HW=4096,0
+12,relu_1,relu_s8,n=786432,0
+13,conv2d_2,conv2d_s8_pc,N=2;IC=96;IH=64;IW=64;OC=192;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1;DH=1;DW=1;groups=1,0
+14,layer_norm_2,layer_norm_s8,M=64;K=6144,0
+15,mul_2,mul_c1_s8,N=2;C=192;HW=1024,0
+16,add_3,add_c1_s8,N=2;C=192;HW=1024,0
+17,relu_2,relu_s8,n=393216,0
+18,conv2d_3,conv2d_s8_pc,N=2;IC=192;IH=32;IW=32;OC=384;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1;DH=1;DW=1;groups=1,0
+19,layer_norm_3,layer_norm_s8,M=64;K=3072,0
+20,mul_3,mul_c1_s8,N=2;C=384;HW=256,0
+21,add_4,add_c1_s8,N=2;C=384;HW=256,0
+22,relu_3,relu_s8,n=196608,0
+23,conv2d_4,conv2d_s8_pc,N=2;IC=384;IH=16;IW=16;OC=512;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0;DH=1;DW=1;groups=1,0
+24,permute,permute4_s8,d0=2;d1=512;d2=16;d3=16;p0=0;p1=2;p2=3;p3=1,0
+25,linear_1,linear_s8_pc,M=512;K=512;N=384,0
+26,slice_1,slice_c_s8,N=1;IC=10;C_start=0;C_end=2;H=256;W=384,0
+27,add_5,add_s8,n=196608,0
+28,cat_1,cat2_c1_s8,N=2;H=128;W=128;C_total=6;C_inputs=3|3,0
+29,conv2d_5,conv2d_s8_pc,N=2;IC=6;IH=128;IW=128;OC=32;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1;DH=1;DW=1;groups=1,0
+30,layer_norm_4,layer_norm_s8,M=64;K=4096,0
+31,mul_4,mul_c1_s8,N=2;C=32;HW=4096,0
+32,add_6,add_c1_s8,N=2;C=32;HW=4096,0
+33,relu_4,relu_s8,n=262144,0
+34,conv2d_6,conv2d_s8_pc,N=2;IC=32;IH=64;IW=64;OC=96;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1;DH=1;DW=1;groups=1,0
+35,layer_norm_5,layer_norm_s8,M=64;K=3072,0
+36,mul_5,mul_c1_s8,N=2;C=96;HW=1024,0
+37,add_7,add_c1_s8,N=2;C=96;HW=1024,0
+38,relu_5,relu_s8,n=196608,0
+39,conv2d_7,conv2d_s8_pc,N=2;IC=96;IH=32;IW=32;OC=192;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1;DH=1;DW=1;groups=1,0
+40,layer_norm_6,layer_norm_s8,M=64;K=1536,0
+41,mul_6,mul_c1_s8,N=2;C=192;HW=256,0
+42,add_8,add_c1_s8,N=2;C=192;HW=256,0
+43,relu_6,relu_s8,n=98304,0
+44,conv2d_8,conv2d_s8_pc,N=2;IC=192;IH=16;IW=16;OC=384;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1;DH=1;DW=1;groups=1,0
+45,layer_norm_7,layer_norm_s8,M=64;K=768,0
+46,mul_7,mul_c1_s8,N=2;C=384;HW=64,0
+47,add_9,add_c1_s8,N=2;C=384;HW=64,0
+48,relu_7,relu_s8,n=49152,0
+49,conv2d_9,conv2d_s8_pc,N=2;IC=384;IH=8;IW=8;OC=512;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0;DH=1;DW=1;groups=1,0
+50,permute_1,permute4_s8,d0=2;d1=512;d2=8;d3=8;p0=0;p1=2;p2=3;p3=1,0
+51,linear_2,linear_s8_pc,M=128;K=512;N=384,0
+52,slice_2,slice_c_s8,N=1;IC=10;C_start=0;C_end=2;H=64;W=384,0
+53,add_10,add_s8,n=49152,0
+54,cat_2,cat2_c1_s8,N=1;H=16;W=384;C_total=2;C_inputs=1|1,0
+55,slice_3,slice_c_s8,N=1;IC=10;C_start=0;C_end=2;H=1;W=384,0
+56,slice_4,slice_c_s8,N=2;IC=256;C_start=0;C_end=1;H=1;W=384,0
+57,cat_3,cat4_c1_s8,N=2;H=1;W=384;C_total=337;C_inputs=256|64|16|1,0
+58,cat_4,cat2_c1_s8,N=1;H=1;W=384;C_total=690;C_inputs=16|674,0
+59,layer_norm_8,layer_norm_s8,M=690;K=384,0
+60,linear_3,linear_s8_pc,M=690;K=384;N=384,0
+61,transpose,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+62,linear_4,linear_s8_pc,M=690;K=384;N=384,0
+63,transpose_1,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+64,linear_5,linear_s8_pc,M=690;K=384;N=384,0
+65,transpose_2,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+66,matmul,matmul_b_s8,B=6;M=690;K=64;N=690,0
+67,add_11,add_tile_s8,OUTER=6;INNER=476100,0
+68,softmax,softmax_s8,M=4140;K=690,0
+69,matmul_1,matmul_b_s8,B=6;M=690;K=690;N=64,0
+70,transpose_4,permute4_s8,d0=1;d1=6;d2=690;d3=64;p0=0;p1=2;p2=1;p3=3,0
+71,linear_6,linear_s8_pc,M=690;K=384;N=384,0
+72,add_12,add_s8,n=264960,0
+73,layer_norm_9,layer_norm_s8,M=690;K=384,0
+74,linear_7,linear_s8_pc,M=690;K=384;N=1536,0
+75,gelu,gelu_s8,n=1059840,0
+76,linear_8,linear_s8_pc,M=690;K=1536;N=384,0
+77,add_13,add_s8,n=264960,0
+78,layer_norm_10,layer_norm_s8,M=690;K=384,0
+79,linear_9,linear_s8_pc,M=690;K=384;N=384,0
+80,transpose_5,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+81,linear_10,linear_s8_pc,M=690;K=384;N=384,0
+82,transpose_6,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+83,linear_11,linear_s8_pc,M=690;K=384;N=384,0
+84,transpose_7,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+85,matmul_2,matmul_b_s8,B=6;M=690;K=64;N=690,0
+86,add_14,add_tile_s8,OUTER=6;INNER=476100,0
+87,softmax_1,softmax_s8,M=4140;K=690,0
+88,matmul_3,matmul_b_s8,B=6;M=690;K=690;N=64,0
+89,transpose_9,permute4_s8,d0=1;d1=6;d2=690;d3=64;p0=0;p1=2;p2=1;p3=3,0
+90,linear_12,linear_s8_pc,M=690;K=384;N=384,0
+91,add_15,add_s8,n=264960,0
+92,layer_norm_11,layer_norm_s8,M=690;K=384,0
+93,linear_13,linear_s8_pc,M=690;K=384;N=1536,0
+94,gelu_1,gelu_s8,n=1059840,0
+95,linear_14,linear_s8_pc,M=690;K=1536;N=384,0
+96,add_16,add_s8,n=264960,0
+97,layer_norm_12,layer_norm_s8,M=690;K=384,0
+98,linear_15,linear_s8_pc,M=690;K=384;N=384,0
+99,transpose_10,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+100,linear_16,linear_s8_pc,M=690;K=384;N=384,0
+101,transpose_11,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+102,linear_17,linear_s8_pc,M=690;K=384;N=384,0
+103,transpose_12,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+104,matmul_4,matmul_b_s8,B=6;M=690;K=64;N=690,0
+105,add_17,add_tile_s8,OUTER=6;INNER=476100,0
+106,softmax_2,softmax_s8,M=4140;K=690,0
+107,matmul_5,matmul_b_s8,B=6;M=690;K=690;N=64,0
+108,transpose_14,permute4_s8,d0=1;d1=6;d2=690;d3=64;p0=0;p1=2;p2=1;p3=3,0
+109,linear_18,linear_s8_pc,M=690;K=384;N=384,0
+110,add_18,add_s8,n=264960,0
+111,layer_norm_13,layer_norm_s8,M=690;K=384,0
+112,linear_19,linear_s8_pc,M=690;K=384;N=1536,0
+113,gelu_2,gelu_s8,n=1059840,0
+114,linear_20,linear_s8_pc,M=690;K=1536;N=384,0
+115,add_19,add_s8,n=264960,0
+116,layer_norm_14,layer_norm_s8,M=690;K=384,0
+117,linear_21,linear_s8_pc,M=690;K=384;N=384,0
+118,transpose_15,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+119,linear_22,linear_s8_pc,M=690;K=384;N=384,0
+120,transpose_16,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+121,linear_23,linear_s8_pc,M=690;K=384;N=384,0
+122,transpose_17,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+123,matmul_6,matmul_b_s8,B=6;M=690;K=64;N=690,0
+124,add_20,add_tile_s8,OUTER=6;INNER=476100,0
+125,softmax_3,softmax_s8,M=4140;K=690,0
+126,matmul_7,matmul_b_s8,B=6;M=690;K=690;N=64,0
+127,transpose_19,permute4_s8,d0=1;d1=6;d2=690;d3=64;p0=0;p1=2;p2=1;p3=3,0
+128,linear_24,linear_s8_pc,M=690;K=384;N=384,0
+129,add_21,add_s8,n=264960,0
+130,layer_norm_15,layer_norm_s8,M=690;K=384,0
+131,linear_25,linear_s8_pc,M=690;K=384;N=1536,0
+132,gelu_3,gelu_s8,n=1059840,0
+133,linear_26,linear_s8_pc,M=690;K=1536;N=384,0
+134,add_22,add_s8,n=264960,0
+135,layer_norm_16,layer_norm_s8,M=690;K=384,0
+136,linear_27,linear_s8_pc,M=690;K=384;N=384,0
+137,transpose_20,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+138,linear_28,linear_s8_pc,M=690;K=384;N=384,0
+139,transpose_21,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+140,linear_29,linear_s8_pc,M=690;K=384;N=384,0
+141,transpose_22,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+142,matmul_8,matmul_b_s8,B=6;M=690;K=64;N=690,0
+143,add_23,add_tile_s8,OUTER=6;INNER=476100,0
+144,softmax_4,softmax_s8,M=4140;K=690,0
+145,matmul_9,matmul_b_s8,B=6;M=690;K=690;N=64,0
+146,transpose_24,permute4_s8,d0=1;d1=6;d2=690;d3=64;p0=0;p1=2;p2=1;p3=3,0
+147,linear_30,linear_s8_pc,M=690;K=384;N=384,0
+148,add_24,add_s8,n=264960,0
+149,layer_norm_17,layer_norm_s8,M=690;K=384,0
+150,linear_31,linear_s8_pc,M=690;K=384;N=1536,0
+151,gelu_4,gelu_s8,n=1059840,0
+152,linear_32,linear_s8_pc,M=690;K=1536;N=384,0
+153,add_25,add_s8,n=264960,0
+154,layer_norm_18,layer_norm_s8,M=690;K=384,0
+155,linear_33,linear_s8_pc,M=690;K=384;N=384,0
+156,transpose_25,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+157,linear_34,linear_s8_pc,M=690;K=384;N=384,0
+158,transpose_26,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+159,linear_35,linear_s8_pc,M=690;K=384;N=384,0
+160,transpose_27,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+161,matmul_10,matmul_b_s8,B=6;M=690;K=64;N=690,0
+162,add_26,add_tile_s8,OUTER=6;INNER=476100,0
+163,softmax_5,softmax_s8,M=4140;K=690,0
+164,matmul_11,matmul_b_s8,B=6;M=690;K=690;N=64,0
+165,transpose_29,permute4_s8,d0=1;d1=6;d2=690;d3=64;p0=0;p1=2;p2=1;p3=3,0
+166,linear_36,linear_s8_pc,M=690;K=384;N=384,0
+167,add_27,add_s8,n=264960,0
+168,layer_norm_19,layer_norm_s8,M=690;K=384,0
+169,linear_37,linear_s8_pc,M=690;K=384;N=1536,0
+170,gelu_5,gelu_s8,n=1059840,0
+171,linear_38,linear_s8_pc,M=690;K=1536;N=384,0
+172,add_28,add_s8,n=264960,0
+173,layer_norm_20,layer_norm_s8,M=690;K=384,0
+174,linear_39,linear_s8_pc,M=690;K=384;N=384,0
+175,transpose_30,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+176,linear_40,linear_s8_pc,M=690;K=384;N=384,0
+177,transpose_31,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+178,linear_41,linear_s8_pc,M=690;K=384;N=384,0
+179,transpose_32,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+180,matmul_12,matmul_b_s8,B=6;M=690;K=64;N=690,0
+181,add_29,add_tile_s8,OUTER=6;INNER=476100,0
+182,softmax_6,softmax_s8,M=4140;K=690,0
+183,matmul_13,matmul_b_s8,B=6;M=690;K=690;N=64,0
+184,transpose_34,permute4_s8,d0=1;d1=6;d2=690;d3=64;p0=0;p1=2;p2=1;p3=3,0
+185,linear_42,linear_s8_pc,M=690;K=384;N=384,0
+186,add_30,add_s8,n=264960,0
+187,layer_norm_21,layer_norm_s8,M=690;K=384,0
+188,linear_43,linear_s8_pc,M=690;K=384;N=1536,0
+189,gelu_6,gelu_s8,n=1059840,0
+190,linear_44,linear_s8_pc,M=690;K=1536;N=384,0
+191,add_31,add_s8,n=264960,0
+192,layer_norm_22,layer_norm_s8,M=690;K=384,0
+193,linear_45,linear_s8_pc,M=690;K=384;N=384,0
+194,transpose_35,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+195,linear_46,linear_s8_pc,M=690;K=384;N=384,0
+196,transpose_36,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+197,linear_47,linear_s8_pc,M=690;K=384;N=384,0
+198,transpose_37,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+199,matmul_14,matmul_b_s8,B=6;M=690;K=64;N=690,0
+200,add_32,add_tile_s8,OUTER=6;INNER=476100,0
+201,softmax_7,softmax_s8,M=4140;K=690,0
+202,matmul_15,matmul_b_s8,B=6;M=690;K=690;N=64,0
+203,transpose_39,permute4_s8,d0=1;d1=6;d2=690;d3=64;p0=0;p1=2;p2=1;p3=3,0
+204,linear_48,linear_s8_pc,M=690;K=384;N=384,0
+205,add_33,add_s8,n=264960,0
+206,layer_norm_23,layer_norm_s8,M=690;K=384,0
+207,linear_49,linear_s8_pc,M=690;K=384;N=1536,0
+208,gelu_7,gelu_s8,n=1059840,0
+209,linear_50,linear_s8_pc,M=690;K=1536;N=384,0
+210,add_34,add_s8,n=264960,0
+211,layer_norm_24,layer_norm_s8,M=690;K=384,0
+212,linear_51,linear_s8_pc,M=690;K=384;N=384,0
+213,transpose_40,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+214,linear_52,linear_s8_pc,M=690;K=384;N=384,0
+215,transpose_41,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+216,linear_53,linear_s8_pc,M=690;K=384;N=384,0
+217,transpose_42,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+218,matmul_16,matmul_b_s8,B=6;M=690;K=64;N=690,0
+219,add_35,add_tile_s8,OUTER=6;INNER=476100,0
+220,softmax_8,softmax_s8,M=4140;K=690,0
+221,matmul_17,matmul_b_s8,B=6;M=690;K=690;N=64,0
+222,transpose_44,permute4_s8,d0=1;d1=6;d2=690;d3=64;p0=0;p1=2;p2=1;p3=3,0
+223,linear_54,linear_s8_pc,M=690;K=384;N=384,0
+224,add_36,add_s8,n=264960,0
+225,layer_norm_25,layer_norm_s8,M=690;K=384,0
+226,linear_55,linear_s8_pc,M=690;K=384;N=1536,0
+227,gelu_8,gelu_s8,n=1059840,0
+228,linear_56,linear_s8_pc,M=690;K=1536;N=384,0
+229,add_37,add_s8,n=264960,0
+230,layer_norm_26,layer_norm_s8,M=690;K=384,0
+231,linear_57,linear_s8_pc,M=690;K=384;N=384,0
+232,transpose_45,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+233,linear_58,linear_s8_pc,M=690;K=384;N=384,0
+234,transpose_46,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+235,linear_59,linear_s8_pc,M=690;K=384;N=384,0
+236,transpose_47,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+237,matmul_18,matmul_b_s8,B=6;M=690;K=64;N=690,0
+238,add_38,add_tile_s8,OUTER=6;INNER=476100,0
+239,softmax_9,softmax_s8,M=4140;K=690,0
+240,matmul_19,matmul_b_s8,B=6;M=690;K=690;N=64,0
+241,transpose_49,permute4_s8,d0=1;d1=6;d2=690;d3=64;p0=0;p1=2;p2=1;p3=3,0
+242,linear_60,linear_s8_pc,M=690;K=384;N=384,0
+243,add_39,add_s8,n=264960,0
+244,layer_norm_27,layer_norm_s8,M=690;K=384,0
+245,linear_61,linear_s8_pc,M=690;K=384;N=1536,0
+246,gelu_9,gelu_s8,n=1059840,0
+247,linear_62,linear_s8_pc,M=690;K=1536;N=384,0
+248,add_40,add_s8,n=264960,0
+249,layer_norm_28,layer_norm_s8,M=690;K=384,0
+250,linear_63,linear_s8_pc,M=690;K=384;N=384,0
+251,transpose_50,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+252,linear_64,linear_s8_pc,M=690;K=384;N=384,0
+253,transpose_51,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+254,linear_65,linear_s8_pc,M=690;K=384;N=384,0
+255,transpose_52,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+256,matmul_20,matmul_b_s8,B=6;M=690;K=64;N=690,0
+257,add_41,add_tile_s8,OUTER=6;INNER=476100,0
+258,softmax_10,softmax_s8,M=4140;K=690,0
+259,matmul_21,matmul_b_s8,B=6;M=690;K=690;N=64,0
+260,transpose_54,permute4_s8,d0=1;d1=6;d2=690;d3=64;p0=0;p1=2;p2=1;p3=3,0
+261,linear_66,linear_s8_pc,M=690;K=384;N=384,0
+262,add_42,add_s8,n=264960,0
+263,layer_norm_29,layer_norm_s8,M=690;K=384,0
+264,linear_67,linear_s8_pc,M=690;K=384;N=1536,0
+265,gelu_10,gelu_s8,n=1059840,0
+266,linear_68,linear_s8_pc,M=690;K=1536;N=384,0
+267,add_43,add_s8,n=264960,0
+268,layer_norm_30,layer_norm_s8,M=690;K=384,0
+269,linear_69,linear_s8_pc,M=690;K=384;N=384,0
+270,transpose_55,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+271,linear_70,linear_s8_pc,M=690;K=384;N=384,0
+272,transpose_56,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+273,linear_71,linear_s8_pc,M=690;K=384;N=384,0
+274,transpose_57,permute4_s8,d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3,0
+275,matmul_22,matmul_b_s8,B=6;M=690;K=64;N=690,0
+276,add_44,add_tile_s8,OUTER=6;INNER=476100,0
+277,softmax_11,softmax_s8,M=4140;K=690,0
+278,matmul_23,matmul_b_s8,B=6;M=690;K=690;N=64,0
+279,transpose_59,permute4_s8,d0=1;d1=6;d2=690;d3=64;p0=0;p1=2;p2=1;p3=3,0
+280,linear_72,linear_s8_pc,M=690;K=384;N=384,0
+281,add_45,add_s8,n=264960,0
+282,layer_norm_31,layer_norm_s8,M=690;K=384,0
+283,linear_73,linear_s8_pc,M=690;K=384;N=1536,0
+284,gelu_11,gelu_s8,n=1059840,0
+285,linear_74,linear_s8_pc,M=690;K=1536;N=384,0
+286,add_46,add_s8,n=264960,0
+287,layer_norm_32,layer_norm_s8,M=690;K=384,0
+288,slice_5,slice_c_s8,N=1;IC=690;C_start=16;C_end=690;H=1;W=384,0
+289,select,slice_c_s8,N=2;IC=337;C_start=336;C_end=337;H=1;W=384,0
+290,cat_5,cat3_c1_s8,N=2;H=1;W=1;C_total=444;C_inputs=32|384|28,0
+291,linear_75,linear_s8_pc,M=2;K=444;N=256,0
+292,layer_norm_33,layer_norm_s8,M=2;K=256,0
+293,linear_76,linear_s8_pc,M=2;K=256;N=1024,0
+294,sigmoid,sigmoid_s8,n=2048,0
+295,mul_20,mul_s8,n=2048,0
+296,linear_77,linear_s8_pc,M=2;K=1024;N=256,0
+297,add_47,add_s8,n=512,0
+298,layer_norm_34,layer_norm_s8,M=2;K=256,0
+299,linear_78,linear_s8_pc,M=2;K=256;N=1024,0
+300,sigmoid_1,sigmoid_s8,n=2048,0
+301,mul_21,mul_s8,n=2048,0
+302,linear_79,linear_s8_pc,M=2;K=1024;N=256,0
+303,add_48,add_s8,n=512,0
+304,layer_norm_35,layer_norm_s8,M=2;K=256,0
+305,linear_80,linear_s8_pc,M=2;K=256;N=1024,0
+306,sigmoid_2,sigmoid_s8,n=2048,0
+307,mul_22,mul_s8,n=2048,0
+308,linear_81,linear_s8_pc,M=2;K=1024;N=256,0
+309,add_49,add_s8,n=512,0
+310,sigmoid_3,sigmoid_s8,n=512,0
+311,mul_23,mul_s8,n=512,0
+312,linear_82,linear_s8_pc,M=2;K=256;N=28,0
+=== MODELBLASTER_PROFILE_END ===
+=== MODELBLASTER_WALL_CYCLES === 0
+=== MODELBLASTER_RAW_NATIVE_END ===
+max_abs_err=26 max_rel_err=3e+12 (atol=0 rtol=0, in-binary)
+FAIL
+
+profile -> /scratch/dima/rose-infra/RoSE/soc/sw/xpu-rt/zephyr-chipyard-sw/modelblaster/examples/octo_small/int8/generated/profile.csv
+name           op             shape                                                                               cycles      %
+------------------------------------------------------------------------------------------------------------------------------
+linear         linear_s8_pc   M=16;K=768;N=384                                                                         0    0.0
+add            add_s8         n=6144                                                                                   0    0.0
+cat            cat2_c1_s8     N=2;H=256;W=256;C_total=6;C_inputs=3|3                                                   0    0.0
+conv2d         conv2d_s8_pc   N=2;IC=6;IH=256;IW=256;OC=32;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1;DH=1;DW=1;groups=1            0    0.0
+layer_norm     layer_norm_s8  M=64;K=16384                                                                             0    0.0
+mul            mul_c1_s8      N=2;C=32;HW=16384                                                                        0    0.0
+add_1          add_c1_s8      N=2;C=32;HW=16384                                                                        0    0.0
+relu           relu_s8        n=1048576                                                                                0    0.0
+conv2d_1       conv2d_s8_pc   N=2;IC=32;IH=128;IW=128;OC=96;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1;DH=1;DW=1;groups=1           0    0.0
+layer_norm_1   layer_norm_s8  M=64;K=12288                                                                             0    0.0
+mul_1          mul_c1_s8      N=2;C=96;HW=4096                                                                         0    0.0
+add_2          add_c1_s8      N=2;C=96;HW=4096                                                                         0    0.0
+relu_1         relu_s8        n=786432                                                                                 0    0.0
+conv2d_2       conv2d_s8_pc   N=2;IC=96;IH=64;IW=64;OC=192;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1;DH=1;DW=1;groups=1            0    0.0
+layer_norm_2   layer_norm_s8  M=64;K=6144                                                                              0    0.0
+mul_2          mul_c1_s8      N=2;C=192;HW=1024                                                                        0    0.0
+add_3          add_c1_s8      N=2;C=192;HW=1024                                                                        0    0.0
+relu_2         relu_s8        n=393216                                                                                 0    0.0
+conv2d_3       conv2d_s8_pc   N=2;IC=192;IH=32;IW=32;OC=384;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1;DH=1;DW=1;groups=1           0    0.0
+layer_norm_3   layer_norm_s8  M=64;K=3072                                                                              0    0.0
+mul_3          mul_c1_s8      N=2;C=384;HW=256                                                                         0    0.0
+add_4          add_c1_s8      N=2;C=384;HW=256                                                                         0    0.0
+relu_3         relu_s8        n=196608                                                                                 0    0.0
+conv2d_4       conv2d_s8_pc   N=2;IC=384;IH=16;IW=16;OC=512;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0;DH=1;DW=1;groups=1           0    0.0
+permute        permute4_s8    d0=2;d1=512;d2=16;d3=16;p0=0;p1=2;p2=3;p3=1                                              0    0.0
+linear_1       linear_s8_pc   M=512;K=512;N=384                                                                        0    0.0
+slice_1        slice_c_s8     N=1;IC=10;C_start=0;C_end=2;H=256;W=384                                                  0    0.0
+add_5          add_s8         n=196608                                                                                 0    0.0
+cat_1          cat2_c1_s8     N=2;H=128;W=128;C_total=6;C_inputs=3|3                                                   0    0.0
+conv2d_5       conv2d_s8_pc   N=2;IC=6;IH=128;IW=128;OC=32;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1;DH=1;DW=1;groups=1            0    0.0
+layer_norm_4   layer_norm_s8  M=64;K=4096                                                                              0    0.0
+mul_4          mul_c1_s8      N=2;C=32;HW=4096                                                                         0    0.0
+add_6          add_c1_s8      N=2;C=32;HW=4096                                                                         0    0.0
+relu_4         relu_s8        n=262144                                                                                 0    0.0
+conv2d_6       conv2d_s8_pc   N=2;IC=32;IH=64;IW=64;OC=96;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1;DH=1;DW=1;groups=1             0    0.0
+layer_norm_5   layer_norm_s8  M=64;K=3072                                                                              0    0.0
+mul_5          mul_c1_s8      N=2;C=96;HW=1024                                                                         0    0.0
+add_7          add_c1_s8      N=2;C=96;HW=1024                                                                         0    0.0
+relu_5         relu_s8        n=196608                                                                                 0    0.0
+conv2d_7       conv2d_s8_pc   N=2;IC=96;IH=32;IW=32;OC=192;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1;DH=1;DW=1;groups=1            0    0.0
+layer_norm_6   layer_norm_s8  M=64;K=1536                                                                              0    0.0
+mul_6          mul_c1_s8      N=2;C=192;HW=256                                                                         0    0.0
+add_8          add_c1_s8      N=2;C=192;HW=256                                                                         0    0.0
+relu_6         relu_s8        n=98304                                                                                  0    0.0
+conv2d_8       conv2d_s8_pc   N=2;IC=192;IH=16;IW=16;OC=384;KH=3;KW=3;SH=2;SW=2;PH=1;PW=1;DH=1;DW=1;groups=1           0    0.0
+layer_norm_7   layer_norm_s8  M=64;K=768                                                                               0    0.0
+mul_7          mul_c1_s8      N=2;C=384;HW=64                                                                          0    0.0
+add_9          add_c1_s8      N=2;C=384;HW=64                                                                          0    0.0
+relu_7         relu_s8        n=49152                                                                                  0    0.0
+conv2d_9       conv2d_s8_pc   N=2;IC=384;IH=8;IW=8;OC=512;KH=1;KW=1;SH=1;SW=1;PH=0;PW=0;DH=1;DW=1;groups=1             0    0.0
+permute_1      permute4_s8    d0=2;d1=512;d2=8;d3=8;p0=0;p1=2;p2=3;p3=1                                                0    0.0
+linear_2       linear_s8_pc   M=128;K=512;N=384                                                                        0    0.0
+slice_2        slice_c_s8     N=1;IC=10;C_start=0;C_end=2;H=64;W=384                                                   0    0.0
+add_10         add_s8         n=49152                                                                                  0    0.0
+cat_2          cat2_c1_s8     N=1;H=16;W=384;C_total=2;C_inputs=1|1                                                    0    0.0
+slice_3        slice_c_s8     N=1;IC=10;C_start=0;C_end=2;H=1;W=384                                                    0    0.0
+slice_4        slice_c_s8     N=2;IC=256;C_start=0;C_end=1;H=1;W=384                                                   0    0.0
+cat_3          cat4_c1_s8     N=2;H=1;W=384;C_total=337;C_inputs=256|64|16|1                                           0    0.0
+cat_4          cat2_c1_s8     N=1;H=1;W=384;C_total=690;C_inputs=16|674                                                0    0.0
+layer_norm_8   layer_norm_s8  M=690;K=384                                                                              0    0.0
+linear_3       linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose      permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_4       linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_1    permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_5       linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_2    permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+matmul         matmul_b_s8    B=6;M=690;K=64;N=690                                                                     0    0.0
+add_11         add_tile_s8    OUTER=6;INNER=476100                                                                     0    0.0
+softmax        softmax_s8     M=4140;K=690                                                                             0    0.0
+matmul_1       matmul_b_s8    B=6;M=690;K=690;N=64                                                                     0    0.0
+transpose_4    permute4_s8    d0=1;d1=6;d2=690;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_6       linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+add_12         add_s8         n=264960                                                                                 0    0.0
+layer_norm_9   layer_norm_s8  M=690;K=384                                                                              0    0.0
+linear_7       linear_s8_pc   M=690;K=384;N=1536                                                                       0    0.0
+gelu           gelu_s8        n=1059840                                                                                0    0.0
+linear_8       linear_s8_pc   M=690;K=1536;N=384                                                                       0    0.0
+add_13         add_s8         n=264960                                                                                 0    0.0
+layer_norm_10  layer_norm_s8  M=690;K=384                                                                              0    0.0
+linear_9       linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_5    permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_10      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_6    permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_11      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_7    permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+matmul_2       matmul_b_s8    B=6;M=690;K=64;N=690                                                                     0    0.0
+add_14         add_tile_s8    OUTER=6;INNER=476100                                                                     0    0.0
+softmax_1      softmax_s8     M=4140;K=690                                                                             0    0.0
+matmul_3       matmul_b_s8    B=6;M=690;K=690;N=64                                                                     0    0.0
+transpose_9    permute4_s8    d0=1;d1=6;d2=690;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_12      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+add_15         add_s8         n=264960                                                                                 0    0.0
+layer_norm_11  layer_norm_s8  M=690;K=384                                                                              0    0.0
+linear_13      linear_s8_pc   M=690;K=384;N=1536                                                                       0    0.0
+gelu_1         gelu_s8        n=1059840                                                                                0    0.0
+linear_14      linear_s8_pc   M=690;K=1536;N=384                                                                       0    0.0
+add_16         add_s8         n=264960                                                                                 0    0.0
+layer_norm_12  layer_norm_s8  M=690;K=384                                                                              0    0.0
+linear_15      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_10   permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_16      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_11   permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_17      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_12   permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+matmul_4       matmul_b_s8    B=6;M=690;K=64;N=690                                                                     0    0.0
+add_17         add_tile_s8    OUTER=6;INNER=476100                                                                     0    0.0
+softmax_2      softmax_s8     M=4140;K=690                                                                             0    0.0
+matmul_5       matmul_b_s8    B=6;M=690;K=690;N=64                                                                     0    0.0
+transpose_14   permute4_s8    d0=1;d1=6;d2=690;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_18      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+add_18         add_s8         n=264960                                                                                 0    0.0
+layer_norm_13  layer_norm_s8  M=690;K=384                                                                              0    0.0
+linear_19      linear_s8_pc   M=690;K=384;N=1536                                                                       0    0.0
+gelu_2         gelu_s8        n=1059840                                                                                0    0.0
+linear_20      linear_s8_pc   M=690;K=1536;N=384                                                                       0    0.0
+add_19         add_s8         n=264960                                                                                 0    0.0
+layer_norm_14  layer_norm_s8  M=690;K=384                                                                              0    0.0
+linear_21      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_15   permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_22      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_16   permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_23      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_17   permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+matmul_6       matmul_b_s8    B=6;M=690;K=64;N=690                                                                     0    0.0
+add_20         add_tile_s8    OUTER=6;INNER=476100                                                                     0    0.0
+softmax_3      softmax_s8     M=4140;K=690                                                                             0    0.0
+matmul_7       matmul_b_s8    B=6;M=690;K=690;N=64                                                                     0    0.0
+transpose_19   permute4_s8    d0=1;d1=6;d2=690;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_24      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+add_21         add_s8         n=264960                                                                                 0    0.0
+layer_norm_15  layer_norm_s8  M=690;K=384                                                                              0    0.0
+linear_25      linear_s8_pc   M=690;K=384;N=1536                                                                       0    0.0
+gelu_3         gelu_s8        n=1059840                                                                                0    0.0
+linear_26      linear_s8_pc   M=690;K=1536;N=384                                                                       0    0.0
+add_22         add_s8         n=264960                                                                                 0    0.0
+layer_norm_16  layer_norm_s8  M=690;K=384                                                                              0    0.0
+linear_27      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_20   permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_28      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_21   permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_29      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_22   permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+matmul_8       matmul_b_s8    B=6;M=690;K=64;N=690                                                                     0    0.0
+add_23         add_tile_s8    OUTER=6;INNER=476100                                                                     0    0.0
+softmax_4      softmax_s8     M=4140;K=690                                                                             0    0.0
+matmul_9       matmul_b_s8    B=6;M=690;K=690;N=64                                                                     0    0.0
+transpose_24   permute4_s8    d0=1;d1=6;d2=690;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_30      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+add_24         add_s8         n=264960                                                                                 0    0.0
+layer_norm_17  layer_norm_s8  M=690;K=384                                                                              0    0.0
+linear_31      linear_s8_pc   M=690;K=384;N=1536                                                                       0    0.0
+gelu_4         gelu_s8        n=1059840                                                                                0    0.0
+linear_32      linear_s8_pc   M=690;K=1536;N=384                                                                       0    0.0
+add_25         add_s8         n=264960                                                                                 0    0.0
+layer_norm_18  layer_norm_s8  M=690;K=384                                                                              0    0.0
+linear_33      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_25   permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_34      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_26   permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_35      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_27   permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+matmul_10      matmul_b_s8    B=6;M=690;K=64;N=690                                                                     0    0.0
+add_26         add_tile_s8    OUTER=6;INNER=476100                                                                     0    0.0
+softmax_5      softmax_s8     M=4140;K=690                                                                             0    0.0
+matmul_11      matmul_b_s8    B=6;M=690;K=690;N=64                                                                     0    0.0
+transpose_29   permute4_s8    d0=1;d1=6;d2=690;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_36      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+add_27         add_s8         n=264960                                                                                 0    0.0
+layer_norm_19  layer_norm_s8  M=690;K=384                                                                              0    0.0
+linear_37      linear_s8_pc   M=690;K=384;N=1536                                                                       0    0.0
+gelu_5         gelu_s8        n=1059840                                                                                0    0.0
+linear_38      linear_s8_pc   M=690;K=1536;N=384                                                                       0    0.0
+add_28         add_s8         n=264960                                                                                 0    0.0
+layer_norm_20  layer_norm_s8  M=690;K=384                                                                              0    0.0
+linear_39      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_30   permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_40      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_31   permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_41      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_32   permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+matmul_12      matmul_b_s8    B=6;M=690;K=64;N=690                                                                     0    0.0
+add_29         add_tile_s8    OUTER=6;INNER=476100                                                                     0    0.0
+softmax_6      softmax_s8     M=4140;K=690                                                                             0    0.0
+matmul_13      matmul_b_s8    B=6;M=690;K=690;N=64                                                                     0    0.0
+transpose_34   permute4_s8    d0=1;d1=6;d2=690;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_42      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+add_30         add_s8         n=264960                                                                                 0    0.0
+layer_norm_21  layer_norm_s8  M=690;K=384                                                                              0    0.0
+linear_43      linear_s8_pc   M=690;K=384;N=1536                                                                       0    0.0
+gelu_6         gelu_s8        n=1059840                                                                                0    0.0
+linear_44      linear_s8_pc   M=690;K=1536;N=384                                                                       0    0.0
+add_31         add_s8         n=264960                                                                                 0    0.0
+layer_norm_22  layer_norm_s8  M=690;K=384                                                                              0    0.0
+linear_45      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_35   permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_46      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_36   permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_47      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_37   permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+matmul_14      matmul_b_s8    B=6;M=690;K=64;N=690                                                                     0    0.0
+add_32         add_tile_s8    OUTER=6;INNER=476100                                                                     0    0.0
+softmax_7      softmax_s8     M=4140;K=690                                                                             0    0.0
+matmul_15      matmul_b_s8    B=6;M=690;K=690;N=64                                                                     0    0.0
+transpose_39   permute4_s8    d0=1;d1=6;d2=690;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_48      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+add_33         add_s8         n=264960                                                                                 0    0.0
+layer_norm_23  layer_norm_s8  M=690;K=384                                                                              0    0.0
+linear_49      linear_s8_pc   M=690;K=384;N=1536                                                                       0    0.0
+gelu_7         gelu_s8        n=1059840                                                                                0    0.0
+linear_50      linear_s8_pc   M=690;K=1536;N=384                                                                       0    0.0
+add_34         add_s8         n=264960                                                                                 0    0.0
+layer_norm_24  layer_norm_s8  M=690;K=384                                                                              0    0.0
+linear_51      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_40   permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_52      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_41   permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_53      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_42   permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+matmul_16      matmul_b_s8    B=6;M=690;K=64;N=690                                                                     0    0.0
+add_35         add_tile_s8    OUTER=6;INNER=476100                                                                     0    0.0
+softmax_8      softmax_s8     M=4140;K=690                                                                             0    0.0
+matmul_17      matmul_b_s8    B=6;M=690;K=690;N=64                                                                     0    0.0
+transpose_44   permute4_s8    d0=1;d1=6;d2=690;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_54      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+add_36         add_s8         n=264960                                                                                 0    0.0
+layer_norm_25  layer_norm_s8  M=690;K=384                                                                              0    0.0
+linear_55      linear_s8_pc   M=690;K=384;N=1536                                                                       0    0.0
+gelu_8         gelu_s8        n=1059840                                                                                0    0.0
+linear_56      linear_s8_pc   M=690;K=1536;N=384                                                                       0    0.0
+add_37         add_s8         n=264960                                                                                 0    0.0
+layer_norm_26  layer_norm_s8  M=690;K=384                                                                              0    0.0
+linear_57      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_45   permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_58      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_46   permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_59      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_47   permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+matmul_18      matmul_b_s8    B=6;M=690;K=64;N=690                                                                     0    0.0
+add_38         add_tile_s8    OUTER=6;INNER=476100                                                                     0    0.0
+softmax_9      softmax_s8     M=4140;K=690                                                                             0    0.0
+matmul_19      matmul_b_s8    B=6;M=690;K=690;N=64                                                                     0    0.0
+transpose_49   permute4_s8    d0=1;d1=6;d2=690;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_60      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+add_39         add_s8         n=264960                                                                                 0    0.0
+layer_norm_27  layer_norm_s8  M=690;K=384                                                                              0    0.0
+linear_61      linear_s8_pc   M=690;K=384;N=1536                                                                       0    0.0
+gelu_9         gelu_s8        n=1059840                                                                                0    0.0
+linear_62      linear_s8_pc   M=690;K=1536;N=384                                                                       0    0.0
+add_40         add_s8         n=264960                                                                                 0    0.0
+layer_norm_28  layer_norm_s8  M=690;K=384                                                                              0    0.0
+linear_63      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_50   permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_64      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_51   permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_65      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_52   permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+matmul_20      matmul_b_s8    B=6;M=690;K=64;N=690                                                                     0    0.0
+add_41         add_tile_s8    OUTER=6;INNER=476100                                                                     0    0.0
+softmax_10     softmax_s8     M=4140;K=690                                                                             0    0.0
+matmul_21      matmul_b_s8    B=6;M=690;K=690;N=64                                                                     0    0.0
+transpose_54   permute4_s8    d0=1;d1=6;d2=690;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_66      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+add_42         add_s8         n=264960                                                                                 0    0.0
+layer_norm_29  layer_norm_s8  M=690;K=384                                                                              0    0.0
+linear_67      linear_s8_pc   M=690;K=384;N=1536                                                                       0    0.0
+gelu_10        gelu_s8        n=1059840                                                                                0    0.0
+linear_68      linear_s8_pc   M=690;K=1536;N=384                                                                       0    0.0
+add_43         add_s8         n=264960                                                                                 0    0.0
+layer_norm_30  layer_norm_s8  M=690;K=384                                                                              0    0.0
+linear_69      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_55   permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_70      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_56   permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_71      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+transpose_57   permute4_s8    d0=1;d1=690;d2=6;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+matmul_22      matmul_b_s8    B=6;M=690;K=64;N=690                                                                     0    0.0
+add_44         add_tile_s8    OUTER=6;INNER=476100                                                                     0    0.0
+softmax_11     softmax_s8     M=4140;K=690                                                                             0    0.0
+matmul_23      matmul_b_s8    B=6;M=690;K=690;N=64                                                                     0    0.0
+transpose_59   permute4_s8    d0=1;d1=6;d2=690;d3=64;p0=0;p1=2;p2=1;p3=3                                               0    0.0
+linear_72      linear_s8_pc   M=690;K=384;N=384                                                                        0    0.0
+add_45         add_s8         n=264960                                                                                 0    0.0
+layer_norm_31  layer_norm_s8  M=690;K=384                                                                              0    0.0
+linear_73      linear_s8_pc   M=690;K=384;N=1536                                                                       0    0.0
+gelu_11        gelu_s8        n=1059840                                                                                0    0.0
+linear_74      linear_s8_pc   M=690;K=1536;N=384                                                                       0    0.0
+add_46         add_s8         n=264960                                                                                 0    0.0
+layer_norm_32  layer_norm_s8  M=690;K=384                                                                              0    0.0
+slice_5        slice_c_s8     N=1;IC=690;C_start=16;C_end=690;H=1;W=384                                                0    0.0
+select         slice_c_s8     N=2;IC=337;C_start=336;C_end=337;H=1;W=384                                               0    0.0
+cat_5          cat3_c1_s8     N=2;H=1;W=1;C_total=444;C_inputs=32|384|28                                               0    0.0
+linear_75      linear_s8_pc   M=2;K=444;N=256                                                                          0    0.0
+layer_norm_33  layer_norm_s8  M=2;K=256                                                                                0    0.0
+linear_76      linear_s8_pc   M=2;K=256;N=1024                                                                         0    0.0
+sigmoid        sigmoid_s8     n=2048                                                                                   0    0.0
+mul_20         mul_s8         n=2048                                                                                   0    0.0
+linear_77      linear_s8_pc   M=2;K=1024;N=256                                                                         0    0.0
+add_47         add_s8         n=512                                                                                    0    0.0
+layer_norm_34  layer_norm_s8  M=2;K=256                                                                                0    0.0
+linear_78      linear_s8_pc   M=2;K=256;N=1024                                                                         0    0.0
+sigmoid_1      sigmoid_s8     n=2048                                                                                   0    0.0
+mul_21         mul_s8         n=2048                                                                                   0    0.0
+linear_79      linear_s8_pc   M=2;K=1024;N=256                                                                         0    0.0
+add_48         add_s8         n=512                                                                                    0    0.0
+layer_norm_35  layer_norm_s8  M=2;K=256                                                                                0    0.0
+linear_80      linear_s8_pc   M=2;K=256;N=1024                                                                         0    0.0
+sigmoid_2      sigmoid_s8     n=2048                                                                                   0    0.0
+mul_22         mul_s8         n=2048                                                                                   0    0.0
+linear_81      linear_s8_pc   M=2;K=1024;N=256                                                                         0    0.0
+add_49         add_s8         n=512                                                                                    0    0.0
+sigmoid_3      sigmoid_s8     n=512                                                                                    0    0.0
+mul_23         mul_s8         n=512                                                                                    0    0.0
+linear_82      linear_s8_pc   M=2;K=256;N=28                                                                           0    0.0
+------------------------------------------------------------------------------------------------------------------------------
+TOTAL                                                                                                                0
+wall_clock_cycles=0 (mtime)
