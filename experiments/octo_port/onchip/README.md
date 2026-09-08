@@ -15,6 +15,21 @@ read the config column before quoting a number.
 | `xtarget_spike.log` | spike_riscv64 | same IR | `max_abs_err=13` |
 | `calibration_spec.json` | -- | the resolved spec the final IR was calibrated with | 8 BridgeData frames + 3 synthetic inputs |
 
+## fp16 on vectorized RVV (NOTES 14)
+
+| file | config | headline |
+|---|---|---|
+| `fp16_native_full.log` | full-size fp16, board native_sim | `max_abs_err=0.00537`, cos 0.999998, **PASS** |
+| `fp16_rvv_curated.log` + `fp16_rvv_curated_profile.csv` | `LAYERS=1 WINDOW=1`, backend `rvv_f16`, all 18 curated | PASS, 5.41M wall cycles |
+| `fp16_rvv_reference.log` + `fp16_rvv_reference_profile.csv` | same IR, `GLOBAL_CURATED_DIR=` (all reference) | PASS, 246.81M wall cycles |
+
+45.6x, confirmed two ways. The A/B uses the reduced config because the
+all-reference baseline would not finish otherwise.
+
+```
+python cycles_ab.py <reference_profile.csv> <curated_profile.csv>   # per-op A/B
+```
+
 The `gold_native.log` element dumps are elided (1.8 M lines); the numbers are
 in `gold_native_ladder.txt`.
 

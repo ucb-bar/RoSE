@@ -748,3 +748,159 @@ Op mix of the full graph: `linear_s8_pc` 85, `permute4_s8` 50,
   silently dropping the mask, exactly as §11 predicted. `ATTN=matmul` is the
   only route, as §11 recommended.
 * No FPGA run yet.
+
+## 14. fp16 on vectorized RVV
+
+`QUANT=fp16 TARGET=rvv` lowers the port onto the `rvv_f16` backend
+(`-march=rv64gcv_zfh_zvfh`, spike `--isa=rv64gcv_zicntr_zfh_zvfh`).
+**328 op records, 0 pending kernels, 18 of the 19 op kinds on curated
+vectorized RVV+Zvfh kernels** -- only `cat4_c1_f16` (1 dispatch) is still
+the scalar reference.
+
+### 14.1 fp16 is a much better fit for this model than int8
+
+```
+                    max_abs_err   max_rel_err   cos vs reference   verdict
+fp16 (native)         0.00537        0.0877         0.999998        PASS
+int8 (native)         7 of 127       --             0.9756          FAIL*
+```
+
+`*` and the int8 FAIL is structural, not a defect: the int8 golden this
+extractor emits IS the quantized fp32 reference, so a zero-tolerance pass
+needs the int8 graph to reproduce fp32 exactly (§13). The fp16 golden is
+the model's own `.half()` forward, so its PASS is a real gate -- and the
+output error is ~60x tighter than int8's on the same outputs.
+
+That is worth stating plainly after §13.4: per-tensor int8 PTQ on this
+model needed a real calibration set AND a tuned activation clip to reach
+cos 0.976, and was fragile to both. fp16 needs neither and lands at
+0.999998.
+
+### 14.2 What was already there, and what was missing
+
+The `rvv_f16` backend and 42 curated kernels predate this work (`47fd721`
+"25 curated kernels closing the gemmini_q31 and rvv_f16 coverage gaps",
+`bc25c91` "Merge ModelBlaster's kernelbench/fp16 line", `95d7be7` "rvv:
+the AVL a vsetvl is given, and two kernels that were silently wrong"),
+including vectorized `linear_f16` and `conv2d_f16`. Missing on every ref,
+checked post-fetch against `origin/main` and every branch:
+
+* `bmm_tb_f16` did not exist as an OP. The existing family was
+  {matmul, matmul_tb} x {., bmm} with no batched-transposed member, so a
+  multi-head Q @ K.T had to materialize the transpose.
+* `permute4_f16`, `add_tile_f16`, `add_c1_f16`, `mul_scalar_f16` did not
+  exist either -- the fp16 counterparts of the s8 ops §13 added.
+* `layer_norm_f16`, `softmax_f16`, `gelu_f16`, `bmm_f16` existed as
+  REFERENCE only, with no curated kernel on any target.
+
+### 14.3 Measured, all-reference vs all-curated
+
+Same IR, same model (`LAYERS=1 WINDOW=1` so the reference baseline
+finishes), spike per-op cycles. Both runs **PASS** against the PyTorch
+fp16 golden (reference `max_abs_err=0.00406`, curated `0.00748`).
+
+```
+op                  n    reference     curated   speedup
+conv2d_f16         10     16545.6M      280.7M     59.0x
+linear_f16         19      6963.9M      169.8M     41.0x
+bmm_tb_f16          1       441.1M       54.6M      8.1x   <- new op + kernel
+bmm_f16             1       432.3M       24.1M     17.9x   <- new kernel
+softmax_f16         1        83.3M        2.4M     34.8x   <- new kernel
+gelu_f16            1        77.6M        1.5M     50.9x   <- new kernel
+layer_norm_f16     14        51.4M        4.2M     12.3x   <- new kernel
+relu_f16            8        19.0M        0.3M     72.8x
+add_c1_f16          8        13.7M        0.8M     17.7x   <- new op + kernel
+mul_c1_f16          8        13.7M        0.3M     46.0x
+add_tile_f16        1         9.0M        0.4M     25.6x   <- new op + kernel
+mul_scalar_f16      1         9.0M        0.4M     25.6x   <- new op + kernel
+cat2_c1_f16         3         7.5M        0.1M     66.1x
+permute4_f16        6         5.0M        0.3M     15.9x   <- new op + kernel
+add_f16            10         4.4M        0.1M     54.1x
+slice_c_f16         6         3.0M        0.1M     60.8x
+cat4_c1_f16         1         1.6M        1.6M      1.0x   (still reference)
+sigmoid_f16         4         0.3M        0.0M     34.9x
+mul_f16             4         0.0M        0.0M     50.4x
+TOTAL                     24681.4M      541.4M     45.6x
+```
+
+`WALL_CYCLES` independently reads 246.81M vs 5.41M -- also 45.6x. The two
+counters differ by exactly 100x because they use different clocks (the
+per-op numbers are `rdcycle` deltas, `WALL_CYCLES` is `k_cycle_get_64`);
+the RATIO is what either one is good for. Same trap as §13.8.
+
+**Amdahl drove the work order, and it is worth recording.** With only
+`linear_f16` and `conv2d_f16` curated, the remaining scalar ops were 29%
+of the model. Vectorizing the two big GEMMs promoted everything else, so
+the second tier (softmax 10%, gelu 9%, layer_norm 6%) mattered far more
+than the int8 profile in §13.8 suggested -- there softmax was 2.3%.
+
+### 14.4 One judgement call I got wrong first
+
+I first shipped softmax with only passes 1 and 3 vectorized, leaving the
+`expf` pass scalar, on the grounds that a polynomial exp would put an
+approximation in the op feeding every attention weight. It measured
+**1.15x**, i.e. it left 72.6 of 83.3 Mcycles on the table and made softmax
+the largest remaining scalar op in the model.
+
+The caution did not survive contact with the numbers. **The reference
+already rounds every exp to fp16 on the way out** (`output[k] =
+(_Float16)e`, ~5e-4 relative), so the vector exp's 1.6e-6 fp32 error is
+three orders of magnitude below error the reference itself introduces.
+Measured over 200 random rows of K=690: fp16 output max|d| 7.6e-06,
+row-sum max rel err 6.2e-07, 0.04% of elements one fp16 ulp apart, against
+an fp16 verify atol of 1e-2. Vectorizing the exp took softmax to **34.8x**.
+
+The same vector exp is what makes `gelu_f16` 50.9x, via
+`tanh(a) = 1 - 2/(exp(2a)+1)`. Both kernels disassemble to zero libm
+calls. Frequent 1-ulp fp16 differences are expected there and are not a
+defect: `expf`/`tanhf` are not correctly rounded, so the reference's own
+last bits move with the libm -- which is exactly why §13.5's spike and
+native builds are not bit-identical.
+
+Two kernels are deliberately exact rather than fast: softmax's row max is
+`vfredmax` plus ONE scalar multiply (monotonic for `input_scale >= 0`, so
+the max of the scaled values IS the scaled max), and `permute4_f16` cannot
+change a value at all.
+
+### 14.5 Two silent-fallback bugs found on the way
+
+Both made a run labelled `rvv_f16` actually measure scalar code, and
+neither said so.
+
+* **ram0 was sized from the baked io.** `io * 3 + 128 MB` is a good proxy
+  only when activations are small relative to the io; this model inverts
+  it, ~1 MB of io against 479 MB of fp16 intermediates. The derived size
+  came out UNDER the stock 256 MB, so no overlay was written and the link
+  failed with `region 'RAM' overflowed by 244299616 bytes`. On the
+  curated-verify path that link error is caught and reported as the KERNEL
+  failing, so **all 18 curated picks silently became reference**.
+  `generate_skeleton` now writes `footprint.json` with the .bss it
+  declared, `_run_lib.sh` sizes from io + buffers + weights (704 MiB
+  here), and the verify builds get the overlay through
+  `MODELBLASTER_EXTRA_CMAKE_ARGS`.
+* **`_check_conv_family_layout_agreement` made `rvv_f16` unbuildable.** It
+  compared `conv2d_s8`'s weight layout ('ihwoc') against `conv2d_f16`'s
+  ('oihw') and exited -- a combination its own SCOPE note calls legitimate.
+  Retired; see the commit for why nothing is left for it to protect. The
+  same guard had also made `rvv_x60`'s packing untestable (4 pre-existing
+  test errors, now passing). Related: a 4-D tensor the IR claims for
+  nothing is no longer conv-packed -- rank 4 is not the same question as
+  "is a conv filter", and this model's mask and positional tables are
+  rank 4.
+
+Also: `MB_DRIFT_ATOL` is now int8-only in `run.sh`. It is measured in int8
+LSBs and it is the one knob that LOOSENS a verify gate; under `QUANT=fp16`
+it was taking the curated verify atol from 0.01 to **2.0** on outputs
+spanning +/-2.
+
+### 14.6 Status and gaps
+
+* All 18 curated kernels PASS their per-kernel verify against the
+  reference at the spec shapes (0 FAILs).
+* Reduced-size (`LAYERS=1 WINDOW=1`) fp16 on spike with all 18: PASS,
+  `max_abs_err=0.00748`, 5.41M wall cycles.
+* Full-size (690-token, 12-layer) fp16 on spike: launched, not yet
+  reported here. The full-size curated verify is the slow part -- it
+  builds and runs the whole model once per kernel.
+* `cat4_c1_f16` (1 dispatch, 1.6 Mcyc) has no curated kernel.
+* No FPGA run at fp16.
