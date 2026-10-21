@@ -79,6 +79,21 @@ register(
     entry_point='envs.isaac_crazyflie.crazyflie_multisensor_env:IsaacCrazyflieMultiSensorEnv',
 )
 
+# RiskyBird counterparts of the three Isaac Crazyflie envs above (same RoSE contract), flying
+# the RiskyBird airframe. The Crazyflie envs stay the golden reference and are not modified.
+register(
+    id='IsaacRiskyBirdMPCEnv-v0',
+    entry_point='envs.isaac_riskybird.riskybird_mpc_env:IsaacRiskyBirdMPCEnv',
+)
+register(
+    id='IsaacRiskyBirdSensorEnv-v0',
+    entry_point='envs.isaac_riskybird.riskybird_sensor_env:IsaacRiskyBirdSensorEnv',
+)
+register(
+    id='IsaacRiskyBirdMultiSensorEnv-v0',
+    entry_point='envs.isaac_riskybird.riskybird_multisensor_env:IsaacRiskyBirdMultiSensorEnv',
+)
+
 # GPU-free stand-in for validating the HM01B0 FPV camera DMA path headlessly: serves the SAME
 # analytic scene-derived frames as the Isaac multisensor env, from a scripted hallway flight,
 # with no isaaclab dependency. Pair with config_gym_CrazyflieCamProbeEnv-v0.yaml.

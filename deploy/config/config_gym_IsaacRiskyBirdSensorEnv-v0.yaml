@@ -1,0 +1,74 @@
+# RoSE co-sim config for the sensor-based flight-controller loop (IsaacRiskyBirdSensorEnv-v0).
+# The env serves REAL SENSOR MODALITIES (IMU accel+gyro, optical flow vx/vy) instead of
+# ground-truth state; the SoC (samples/rose_flight_controller) runs a state estimator to
+# reconstruct the 12-DoF state TinyMPC needs, then returns 4 normalized motor thrusts.
+# Same 1 GHz timing note as the ground-truth loop (see config_deploy_gym.yaml).
+gym_env: 'IsaacRiskyBirdSensorEnv-v0'
+
+# gym_timestep = one env.step(). 0.005 s = 200 Hz control (the 50 Hz TinyMPC LQR gain is
+# rate-tolerant; running it faster tightens the loop for the fast attitude dynamics).
+# Must equal firesim_step/firesim_freq in config_deploy_gym.yaml (-> 1 control/env step).
+gym_timestep: 0.005
+
+packets:
+  # env -> SoC: accelerometer = [ax,ay,az] (body specific force). Separate packet from the
+  # gyro, matching the real BMI088's two I2C devices; the guest issues both as independent
+  # PIPELINED reqrsp requests (streamed together, collected one grant later).
+  - name: accel
+    id: 0x12                 # SoC command: request accelerometer
+    type: "reqrsp"
+    latency: 0
+    channel: 2               # reqrsp1 (ROSE_RX_DATA_2)
+    indices:
+      - "accel"
+
+  # env -> SoC: gyroscope = [gx,gy,gz] (body rate). Its own packet (BMI088 gyro @0x68).
+  - name: gyro
+    id: 0x15                 # SoC command: request gyroscope
+    type: "reqrsp"
+    latency: 0
+    channel: 2               # reqrsp1 (ROSE_RX_DATA_2), sequential after accel
+    indices:
+      - "gyro"
+
+  # env -> SoC: optical flow = [vx,vy] (body-frame horizontal velocity, PMW3901-like).
+  # 2 float32 words on reqrsp ch1 (a separate channel so IMU and flow never interleave).
+  - name: flow
+    id: 0x13                 # SoC command: request optical flow
+    type: "reqrsp"
+    latency: 0
+    channel: 1               # reqrsp0 (ROSE_RX_DATA_1)
+    indices:
+      - "flow"
+
+  # env -> SoC: downward ToF height = [h] (VL53L1x-like). 1 float32 word on ch1. LOW-RATE:
+  # the env holds it ~20-40 ms and the guest's ToF driver polls it at that cadence, so
+  # altitude is observable but the estimator fuses it only on fresh samples (multi-rate).
+  - name: tof
+    id: 0x14                 # SoC command: request ToF height
+    type: "reqrsp"
+    latency: 0
+    channel: 1               # reqrsp0 (ROSE_RX_DATA_1), sequential after flow
+    indices:
+      - "tof"
+
+  # SoC -> env: 4 normalized motor thrusts, latched until the next command.
+  - name: thrust
+    id: 0x20                 # SoC command: submit control
+    type: "action_latch"
+    indices: null            # whole 4-float action vector
+
+# bandwidth_threshold = cycles BETWEEN word deliveries (0 = unlimited), per [dma,ch1,ch2].
+channel_bandwidth: [[0, 0, 0]]
+
+gym_kwargs:
+  headless: true
+  ctrl_freq: 200
+  phys_freq: 400
+  # Start near the hover setpoint. From estimated (not ground-truth) state the controller
+  # can't brake a hard takeoff without overshoot, so a gentle transient keeps the
+  # estimator-in-the-loop stable (must match START_Z in the guest).
+  start_height: 0.9
+
+n_gym_agents: 1
+n_fsim_nodes: 1
