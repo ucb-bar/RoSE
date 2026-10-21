@@ -51,8 +51,7 @@ DEFAULT_TARGET = np.array([0.0, 0.0, 1.0], dtype=np.float64)
 
 # Motor mixing constants for RiskyBird; see airframe.py for where each comes from (the
 # thrust scale and drag ratio are placeholders until the motors are characterized).
-_HOVER_THRUST = airframe.HOVER_THRUST    # normalized thrust at hover (per motor)
-_MAX_THRUST_N = airframe.MAX_THRUST_N    # N per motor at full normalized command
+_DUTY_OFFSET = airframe.DUTY_OFFSET      # motor duty = SoC command u + this
 _KM_OVER_KF = airframe.KM_OVER_KF        # propeller drag/thrust ratio, yaw reaction torque
 _SPIN_SIGN = np.array(airframe.SPIN_SIGN, dtype=np.float64)
 
@@ -287,9 +286,11 @@ class IsaacRiskyBirdMPCEnv(gym.Env):
         self._robot_mass = float(self.robot.root_physx_view.get_masses().sum())
         self._gravity = float(torch.tensor(self.sim.cfg.gravity, device=self.device).norm())
         self._hover_force_per_prop = self._robot_mass * self._gravity / 4.0
-        print("[riskybird_env] mass=%.4f kg (airframe %.4f), hover %.4f N/prop = u %.3f, "
+        _d = np.linspace(0.0, 1.0, 10001)
+        _hover_duty = float(np.interp(self._hover_force_per_prop, airframe.thrust_n(_d), _d))
+        print("[riskybird_env] mass=%.4f kg (airframe %.4f), hover %.4f N/prop = duty %.3f, "
               "max %.4f N/prop" % (self._robot_mass, airframe.MASS_KG, self._hover_force_per_prop,
-                                   self._hover_force_per_prop / _MAX_THRUST_N, _MAX_THRUST_N), flush=True)
+                                   _hover_duty, airframe.thrust_n(1.0)), flush=True)
         self._sim_dt = self.sim.get_physics_dt()
         # base ("body") link for external disturbances (stress plan section 3.2)
         self._base_body_id = self.robot.find_bodies("body")[0][0]
@@ -490,9 +491,9 @@ class IsaacRiskyBirdMPCEnv(gym.Env):
             root_state[0, 10:13] += T(rng.uniform(-rate, rate, 3))
 
     def _thrusts_to_forces(self, u):
-        """Normalized TinyMPC thrusts -> per-motor force in N (same scale as PyBullet env)."""
-        thrust_n = (np.asarray(u, dtype=np.float64) + _HOVER_THRUST) * _MAX_THRUST_N
-        return np.clip(thrust_n, 0.0, None)
+        """SoC commands u (duty - 0.583 per motor) -> per-motor force in N via airframe.thrust_n."""
+        duty = np.clip(np.asarray(u, dtype=np.float64) + _DUTY_OFFSET, 0.0, 1.0)
+        return airframe.thrust_n(duty)
 
     # --- ground-truth trajectory CSV ---
     def _open_traj(self):

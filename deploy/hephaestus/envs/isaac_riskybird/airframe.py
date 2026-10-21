@@ -19,13 +19,24 @@ URDF_PATH = os.path.join(_HERE, "assets", "riskybird_rose.urdf")
 MASS_KG = 0.0585               # scad total (MEASURED-DOC); the env checks PhysX against it
 GRAVITY = 9.81
 
-# Normalized hover command per motor. Kept equal to the CF2X value the unchanged drone_control
-# TinyMPC guest linearizes around, so the same ELF can fly this airframe.
-HOVER_THRUST = 0.583
-# PLACEHOLDER (no RiskyBird thrust curve yet): per-motor force at full normalized command,
-# chosen so HOVER_THRUST exactly carries MASS_KG. Thrust-to-weight = 1 / HOVER_THRUST = 1.72,
-# the same margin as the CF2X model. The Crazyflie's 0.58/4 N would give 1.01 here.
-MAX_THRUST_N = MASS_KG * GRAVITY / (4.0 * HOVER_THRUST)
+# Wire convention shared by every RoSE drone guest: the SoC sends u = duty - DUTY_OFFSET per
+# motor, so motor duty = u + DUTY_OFFSET, clamped to [0, 1].
+DUTY_OFFSET = 0.583
+# PLACEHOLDER (no RiskyBird thrust-stand data yet): per-motor thrust vs. duty is the model the
+# riskybirdv3 flight controller (zephyr-chipyard-sw samples/rose_flight_controller,
+# controller_pid.cpp forceToVoltage) inverts, so the plant and the controller agree: Bitcraze's
+# published 7x16 + 45-35 TOTAL-thrust fit, thrust[g] = A*duty^2 + B*duty, scaled by PROP_GAIN for
+# RiskyBird's 7x20 motors + 51MMX2 props, divided over 4 motors. Full duty gives 0.204 N/motor,
+# thrust-to-weight 1.43; hover sits at duty ~0.78.
+THRUST_A_G = 26.919633         # g per duty^2, whole-vehicle fit
+THRUST_B_G = 35.754861         # g per duty, whole-vehicle fit
+PROP_GAIN = 1.33
+N_PER_GRAM = 9.80665e-3
+
+
+def thrust_n(duty):
+    """Per-motor thrust (N) at duty in [0, 1] (works elementwise on numpy arrays)."""
+    return PROP_GAIN * (THRUST_A_G * duty * duty + THRUST_B_G * duty) * N_PER_GRAM / 4.0
 # PLACEHOLDER: propeller drag/thrust ratio, CF2X value (KM=7.94e-12, KF=3.16e-10).
 KM_OVER_KF = 7.94e-12 / 3.16e-10
 # Yaw reaction sign per motor m1..m4 (FR, RR, RL, FL): reaction torque about +z is
