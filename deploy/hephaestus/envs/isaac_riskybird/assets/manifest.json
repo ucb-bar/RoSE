@@ -1,0 +1,1324 @@
+{
+  "asset": {
+    "name": "RiskyBird airframe",
+    "version": "0.1.0",
+    "generated_utc": "2026-10-16T05:41:02Z",
+    "kind": "reconstructed model, not CAD",
+    "assembly_id": "unassigned (see docs/airframe-model.md section 1; the real build has not been frozen)"
+  },
+  "generator": {
+    "script": "build_model.py",
+    "command": "build_model.py --out .",
+    "script_sha256": "fd47c0ea2e59b24b600c8baa5c0ab62e844a1d03c2c0e03d046ebd71f2d9dc56",
+    "venv": "/scratch2/loren/venvs/usd"
+  },
+  "frame": {
+    "convention": "body FLU: X forward, Y left, Z up; metres; kilograms; quaternions WXYZ",
+    "origin": "board-centre datum = footprint riskybird:riskybird_frame (FID1) at KiCad (100, 100), on the board TOP surface; board occupies z in [-1.6, 0] mm",
+    "kicad_to_body_mm": "x = xk - 100; y = 100 - yk; z = up from the board top (bottom-side parts at z <= -1.6)",
+    "kicad_frame_footprint_at": [
+      100.0,
+      100.0,
+      90.0
+    ],
+    "footprint_local_to_page": "page = (X + x cos(A) + y sin(A), Y - x sin(A) + y cos(A)) for footprint at (X, Y, A degrees)",
+    "pad_angles": "KiCad stores absolute pad angles in the .kicad_pcb",
+    "verification": [
+      {
+        "check": "mounting hole H4",
+        "got": [
+          -22.0,
+          -17.0
+        ],
+        "expected": [
+          -22.0,
+          -17.0
+        ],
+        "max_abs_err_mm": 0.0,
+        "tolerance_mm": 0.01,
+        "ok": true
+      },
+      {
+        "check": "mounting hole H1",
+        "got": [
+          22.0,
+          17.0
+        ],
+        "expected": [
+          22.0,
+          17.0
+        ],
+        "max_abs_err_mm": 0.0,
+        "tolerance_mm": 0.01,
+        "ok": true
+      },
+      {
+        "check": "mounting hole H3",
+        "got": [
+          -22.0,
+          17.0
+        ],
+        "expected": [
+          -22.0,
+          17.0
+        ],
+        "max_abs_err_mm": 0.0,
+        "tolerance_mm": 0.01,
+        "ok": true
+      },
+      {
+        "check": "mounting hole H2",
+        "got": [
+          22.0,
+          -17.0
+        ],
+        "expected": [
+          22.0,
+          -17.0
+        ],
+        "max_abs_err_mm": 0.0,
+        "tolerance_mm": 0.01,
+        "ok": true
+      },
+      {
+        "check": "motor axis (Cmts.User prop circle)",
+        "got": [
+          -32.5,
+          -32.5
+        ],
+        "expected": [
+          -32.5,
+          -32.5
+        ],
+        "max_abs_err_mm": 0.0,
+        "tolerance_mm": 0.01,
+        "ok": true
+      },
+      {
+        "check": "motor axis (Cmts.User prop circle)",
+        "got": [
+          -32.5,
+          32.5
+        ],
+        "expected": [
+          -32.5,
+          32.5
+        ],
+        "max_abs_err_mm": 0.0,
+        "tolerance_mm": 0.01,
+        "ok": true
+      },
+      {
+        "check": "motor axis (Cmts.User prop circle)",
+        "got": [
+          32.5,
+          -32.5
+        ],
+        "expected": [
+          32.5,
+          -32.5
+        ],
+        "max_abs_err_mm": 0.0,
+        "tolerance_mm": 0.01,
+        "ok": true
+      },
+      {
+        "check": "motor axis (Cmts.User prop circle)",
+        "got": [
+          32.5,
+          32.5
+        ],
+        "expected": [
+          32.5,
+          32.5
+        ],
+        "max_abs_err_mm": 0.0,
+        "tolerance_mm": 0.01,
+        "ok": true
+      },
+      {
+        "check": "IMU BMI088 U3 (kicad xy -> drone)",
+        "got": [
+          -0.0038,
+          16.0
+        ],
+        "expected": [
+          0.0,
+          16.0
+        ],
+        "max_abs_err_mm": 0.0038,
+        "tolerance_mm": 0.01,
+        "ok": true
+      },
+      {
+        "check": "silk 'X' label lies on the +x side of the silk axis triad",
+        "got": [
+          4.0
+        ],
+        "expected": [
+          "> 0"
+        ],
+        "max_abs_err_mm": 0.0,
+        "tolerance_mm": 0.0,
+        "ok": true
+      },
+      {
+        "check": "silk 'Y' label lies on the +y side of the silk axis triad",
+        "got": [
+          4.25
+        ],
+        "expected": [
+          "> 0"
+        ],
+        "max_abs_err_mm": 0.0,
+        "tolerance_mm": 0.0,
+        "ok": true
+      },
+      {
+        "check": "board bbox x",
+        "got": [
+          -35.0,
+          35.0
+        ],
+        "expected": [
+          -35.0,
+          35.0
+        ],
+        "max_abs_err_mm": 0.0,
+        "tolerance_mm": 0.01,
+        "ok": true
+      },
+      {
+        "check": "board bbox y",
+        "got": [
+          -35.7484,
+          34.8907
+        ],
+        "expected": [
+          -35.748,
+          34.891
+        ],
+        "max_abs_err_mm": 0.0004,
+        "tolerance_mm": 0.01,
+        "ok": true
+      },
+      {
+        "check": "Edge.Cuts outline vs pcb-geometry.json polygon (Hausdorff, mm)",
+        "got": [
+          0.0199
+        ],
+        "expected": [
+          0.0
+        ],
+        "max_abs_err_mm": 0.0199,
+        "tolerance_mm": 0.05,
+        "ok": true,
+        "note": "outer area 3129.4 mm2 here, 3128.7 mm2 in the json"
+      }
+    ]
+  },
+  "sources": {
+    "pcb_geometry": {
+      "path": "/scratch2/loren/scad/assets/riskybird_drone/sources/pcb-geometry.json",
+      "role": "authoritative PCB extraction: frames, outline, motor axes, components, mass table, unknowns",
+      "sha256": "a5178ed70f89ffeaa779958bb169b84f0b0dbecfdb524364c4cbccf0bd9cd60f",
+      "git": {
+        "toplevel": "/scratch2/loren/scad",
+        "head": "e3687cfda9ab79e19c9e208368495be3866f7329",
+        "last_commit_touching_file": null,
+        "file_modified_in_working_tree": false
+      }
+    },
+    "common_scad": {
+      "path": "/scratch2/loren/scad/lib/common.scad",
+      "role": "pivot-stand drone model (D_* constants); user-confirmed values preferred",
+      "sha256": "e56f42aa19473793268dd664dbf324b6244ed23ddafe809951d8054c3103ff40",
+      "git": {
+        "toplevel": "/scratch2/loren/scad",
+        "head": "e3687cfda9ab79e19c9e208368495be3866f7329",
+        "last_commit_touching_file": "89892e5e9ad042f402ca63eab72f75bacc12976c",
+        "file_modified_in_working_tree": false
+      }
+    },
+    "kicad_pcb": {
+      "path": "/scratch2/loren/riskybird-dev-dronet/hardware/pcb/riskybirdv3_base/riskybirdv3.kicad_pcb",
+      "role": "KiCad 10 board: Edge.Cuts outline, holes, footprint positions",
+      "sha256": "39827214d720a5fbc76380407524d10283e701dee0cb7aebe59e914b020a0393",
+      "git": {
+        "toplevel": "/scratch2/loren/riskybird-dev-dronet/hardware/pcb",
+        "head": "79564aa2cae9eaea964db871bacde44531f259ba",
+        "last_commit_touching_file": "9d5c573035e88943f3dda9feb1bdd89d2ba04000",
+        "file_modified_in_working_tree": false
+      },
+      "submodule_commit": "79564aa2cae9eaea964db871bacde44531f259ba"
+    },
+    "component_weight": {
+      "path": "/scratch2/loren/riskybird-dev-dronet/hardware/pcb/riskybirdv3_base/docs/COMPONENT_WEIGHT.md",
+      "role": "component masses (58.5 g breakdown)",
+      "sha256": "8b5a79923b853118e0ac44bf56b4c0c8e824d528c5078d8f7e11de42e9ea986a",
+      "git": {
+        "toplevel": "/scratch2/loren/riskybird-dev-dronet/hardware/pcb",
+        "head": "79564aa2cae9eaea964db871bacde44531f259ba",
+        "last_commit_touching_file": "23ca57173b6a374cdd2049e66f27f10bd172b7a3",
+        "file_modified_in_working_tree": false
+      }
+    },
+    "off_bom": {
+      "path": "/scratch2/loren/riskybird-dev-dronet/hardware/pcb/riskybirdv3_base/docs/OFF-BOM_PARTS_ORDER.md",
+      "role": "hand-fitted parts (PMW3901 lens, U.FL antenna, camera, ToF breakouts)",
+      "sha256": "6d61860c28d5405e0e80b1dedb38588edac75b87f59cf873d2b7dbd8e66a6f9a",
+      "git": {
+        "toplevel": "/scratch2/loren/riskybird-dev-dronet/hardware/pcb",
+        "head": "79564aa2cae9eaea964db871bacde44531f259ba",
+        "last_commit_touching_file": "23ca57173b6a374cdd2049e66f27f10bd172b7a3",
+        "file_modified_in_working_tree": false
+      }
+    },
+    "airframe_model_doc": {
+      "path": "/scratch2/loren/dronesim-wt/docs/airframe-model.md",
+      "role": "the spec this asset follows (frames, one rigid body, MassAPI, integration gaps)",
+      "sha256": "ad90c5e956e84b00d84dc890cda6c33c782cc6ebcdf86a6a8c7d9c28ecd4b5c7",
+      "git": {
+        "toplevel": "/scratch2/loren/dronesim-wt",
+        "head": "e52698223f9c5554806babcf2665ed71c8ebcd1c",
+        "last_commit_touching_file": "67e0549ba2274de22e7a1d832e7096e1b9695fa5",
+        "file_modified_in_working_tree": true
+      }
+    },
+    "dronesim_airframe": {
+      "path": "/scratch2/loren/dronesim-wt/vehicle/airframe.py",
+      "role": "current placeholder plant fields",
+      "sha256": "9bd2693f25b226a1dfacee774757a2f7ba2bd65534b36a6de06293772c9092e9",
+      "git": {
+        "toplevel": "/scratch2/loren/dronesim-wt",
+        "head": "e52698223f9c5554806babcf2665ed71c8ebcd1c",
+        "last_commit_touching_file": null,
+        "file_modified_in_working_tree": true
+      }
+    },
+    "dronesim_physics": {
+      "path": "/scratch2/loren/dronesim-wt/vehicle/physics.py",
+      "role": "plant field conventions (com, motors, spin signs)",
+      "sha256": "2a69c3bc63dedc2ed365e170ff59954825448b305779fa1fb42739e00288f721",
+      "git": {
+        "toplevel": "/scratch2/loren/dronesim-wt",
+        "head": "e52698223f9c5554806babcf2665ed71c8ebcd1c",
+        "last_commit_touching_file": null,
+        "file_modified_in_working_tree": true
+      }
+    },
+    "dronesim_sensors": {
+      "path": "/scratch2/loren/dronesim-wt/flight_controller/sensors.py",
+      "role": "sensor offset/rotation conventions",
+      "sha256": "19ca305d4b320228802d4afc2e8aaac3d1fba7e4e80aaf13551a71b6a342a6ef",
+      "git": {
+        "toplevel": "/scratch2/loren/dronesim-wt",
+        "head": "e52698223f9c5554806babcf2665ed71c8ebcd1c",
+        "last_commit_touching_file": null,
+        "file_modified_in_working_tree": true
+      }
+    },
+    "dronesim_isaac": {
+      "path": "/scratch2/loren/dronesim-wt/world/isaac.py",
+      "role": "Isaac backend (CuboidCfg, mass/inertia/CoM setting)",
+      "sha256": "c9945fa204d46e06550cd3c2453f917e8983a13e489c6e6811ac91682a00cdd4",
+      "git": {
+        "toplevel": "/scratch2/loren/dronesim-wt",
+        "head": "e52698223f9c5554806babcf2665ed71c8ebcd1c",
+        "last_commit_touching_file": null,
+        "file_modified_in_working_tree": true
+      }
+    }
+  },
+  "source_disagreements": [
+    "Prop diameter: PCB circles 47 mm vs firmware and user 51 mm. Used 51 mm (CONFIRMED-USER, scad D_PROP_D).",
+    "SoM mass-box centre: scad D_MASS_PARTS uses z = 7.9 mm; its own stack (6.5) and top (10.6) give 8.55 mm. Used 8.55 mm.",
+    "Motor assembly centre: scad D_MASS_PARTS uses z = 5 mm; its own can (z -3 to 17) centres at 7 mm. Used 7 mm.",
+    "NPTH slot orientation (front 1 x 2.5 mm slots): KiCad absolute pad angle 90 puts the 2.5 mm length along x; scad D_SLOTS has it along y. Used the board file.",
+    "Pivot-stand board mass model is a 58 x 58 x 2 mm plate; used the real outline for the bare board and a central box for the components.",
+    "dronesim docs/airframe-model.md says the outline is silkscreen-only; pcb-geometry.json and the board file show Edge.Cuts lines and arcs. Used Edge.Cuts.",
+    "Weight note: parts sum 58.5 g, its own base-drone check plus SoM 58.1 g. Used 58.5 g.",
+    "dronesim working tree is dirty (staged renames); the sha256 of each file as read is recorded."
+  ],
+  "parameters": [
+    {
+      "name": "board.thickness",
+      "value": 1.6,
+      "unit": "mm",
+      "status": "MEASURED-PCB",
+      "source": "kicad_pcb stackup",
+      "note": "4-layer 1.600 mm"
+    },
+    {
+      "name": "board.bbox_x",
+      "value": [
+        -35.0,
+        35.0
+      ],
+      "unit": "mm",
+      "status": "MEASURED-PCB",
+      "source": "kicad_pcb Edge.Cuts",
+      "note": ""
+    },
+    {
+      "name": "board.bbox_y",
+      "value": [
+        -35.748,
+        34.891
+      ],
+      "unit": "mm",
+      "status": "MEASURED-PCB",
+      "source": "kicad_pcb Edge.Cuts",
+      "note": "USB-C bulge to -35.75"
+    },
+    {
+      "name": "board.outline",
+      "value": "Edge.Cuts polygon, 622 vertices, area 3129.4 mm2",
+      "unit": "-",
+      "status": "MEASURED-PCB",
+      "source": "kicad_pcb",
+      "note": "60 lines + 40 arcs tessellated at 6 deg; arcs approximate"
+    },
+    {
+      "name": "board.window",
+      "value": [
+        34,
+        20
+      ],
+      "unit": "mm",
+      "status": "MEASURED-PCB",
+      "source": "kicad_pcb Edge.Cuts gr_rect",
+      "note": "34 x 20 mm, centred, under the SoM"
+    },
+    {
+      "name": "board.mounting_holes",
+      "value": [
+        [
+          -22.0,
+          -17.0,
+          3.2
+        ],
+        [
+          22.0,
+          17.0,
+          3.2
+        ],
+        [
+          -22.0,
+          17.0,
+          3.2
+        ],
+        [
+          22.0,
+          -17.0,
+          3.2
+        ]
+      ],
+      "unit": "mm",
+      "status": "MEASURED-PCB",
+      "source": "kicad_pcb",
+      "note": "3.2 mm NPTH, 44 x 34 mm pattern (TE0712 standoff holes)"
+    },
+    {
+      "name": "motor.axis_xy",
+      "value": [
+        [
+          32.5,
+          -32.5
+        ],
+        [
+          -32.5,
+          -32.5
+        ],
+        [
+          -32.5,
+          32.5
+        ],
+        [
+          32.5,
+          32.5
+        ]
+      ],
+      "unit": "mm",
+      "status": "MEASURED-PCB",
+      "source": "kicad_pcb Cmts.User prop circles",
+      "note": "motors sit on separate clip-on arms, not on the PCB"
+    },
+    {
+      "name": "prop.diameter",
+      "value": 51,
+      "unit": "mm",
+      "status": "CONFIRMED-USER",
+      "source": "scad/lib/common.scad D_PROP_D (user, 2026-10-04)",
+      "note": "HQ Ultralight 51MMX2; the PCB prop circles are 47 mm and outdated"
+    },
+    {
+      "name": "motor.can_diameter",
+      "value": 7,
+      "unit": "mm",
+      "status": "INFERRED",
+      "source": "scad/lib/common.scad D_MOTOR_D; firmware note Bitcraze 7x20",
+      "note": "7 mm class brushed can; confirm installed motor"
+    },
+    {
+      "name": "motor.can_length",
+      "value": 20,
+      "unit": "mm",
+      "status": "INFERRED",
+      "source": "scad/lib/common.scad D_MOTOR_H; firmware note Bitcraze 7x20 thrust upgrade",
+      "note": "older comments say 7x16"
+    },
+    {
+      "name": "motor.can_bottom_z",
+      "value": -3,
+      "unit": "mm",
+      "status": "ASSUMED",
+      "source": "scad/lib/common.scad D_MOTOR_Z0 (UNKNOWN there)",
+      "note": "arm geometry is not in the PCB; sets the rotor height and the can contact point"
+    },
+    {
+      "name": "prop.plane_z",
+      "value": 18.5,
+      "unit": "mm",
+      "status": "ASSUMED",
+      "source": "scad/lib/common.scad D_PROP_Z (UNKNOWN there)",
+      "note": "can top (17) + 1.5 mm"
+    },
+    {
+      "name": "prop.swept_thickness",
+      "value": 3,
+      "unit": "mm",
+      "status": "ASSUMED",
+      "source": "scad/lib/common.scad D_PROP_T (UNKNOWN there)",
+      "note": ""
+    },
+    {
+      "name": "arm.width",
+      "value": 6,
+      "unit": "mm",
+      "status": "ASSUMED",
+      "source": "scad/lib/common.scad D_ARM_W (UNKNOWN there)",
+      "note": "clip-on arm shape is a placeholder"
+    },
+    {
+      "name": "som.outline",
+      "value": [
+        -25,
+        25,
+        -20,
+        20
+      ],
+      "unit": "mm",
+      "status": "INFERRED",
+      "source": "pcb-geometry.json som.outline_status",
+      "note": "50 x 40 module centred on the hole pattern"
+    },
+    {
+      "name": "som.stack_height",
+      "value": 6.5,
+      "unit": "mm",
+      "status": "INFERRED",
+      "source": "pcb-geometry.json som.stack_status",
+      "note": "LSHM 04.0 + 02.5 mated; verify"
+    },
+    {
+      "name": "som.top_z",
+      "value": 10.6,
+      "unit": "mm",
+      "status": "INFERRED",
+      "source": "pcb-geometry.json som.module_top_status",
+      "note": "6.5 + 1.6 PCB + ~2.5 BGA, no heatsink"
+    },
+    {
+      "name": "battery.size",
+      "value": [
+        32,
+        20,
+        7
+      ],
+      "unit": "mm",
+      "status": "ASSUMED",
+      "source": "scad/lib/common.scad D_BATT (UNKNOWN there)",
+      "note": "350 mAh 1S pouch; real size not recorded"
+    },
+    {
+      "name": "battery.top_z",
+      "value": 4.6,
+      "unit": "mm",
+      "status": "ASSUMED",
+      "source": "scad/lib/common.scad D_BATT_Z_TOP (UNKNOWN there)",
+      "note": "battery sits in the window under the SoM, centred at x=y=0"
+    },
+    {
+      "name": "battery_holder.size",
+      "value": [
+        34,
+        20,
+        0.8
+      ],
+      "unit": "mm",
+      "status": "ASSUMED",
+      "source": "scad/lib/common.scad D_BATT_HOLDER (UNKNOWN there)",
+      "note": "plate under the window"
+    },
+    {
+      "name": "lowest_point_z",
+      "value": -6,
+      "unit": "mm",
+      "status": "INFERRED",
+      "source": "scad/lib/common.scad D_Z_MIN; J1 FTSH-110 4.4 mm below the board",
+      "note": "landing feet and unfitted ToF breakouts are unknown"
+    },
+    {
+      "name": "mass.total",
+      "value": 58.5,
+      "unit": "g",
+      "status": "MEASURED-DOC",
+      "source": "component_weight",
+      "note": "sum of the five rows; its own base+SoM check gives 58.1 g"
+    },
+    {
+      "name": "mass.motor_prop_arm_each",
+      "value": 3.3,
+      "unit": "g",
+      "status": "MEASURED-DOC",
+      "source": "component_weight",
+      "note": "x4"
+    },
+    {
+      "name": "mass.battery_holder",
+      "value": 1.5,
+      "unit": "g",
+      "status": "MEASURED-DOC",
+      "source": "component_weight",
+      "note": "unguarded print"
+    },
+    {
+      "name": "mass.base_pcb_assembly",
+      "value": 17.6,
+      "unit": "g",
+      "status": "MEASURED-DOC",
+      "source": "component_weight",
+      "note": "includes antenna, camera bracket, battery plug"
+    },
+    {
+      "name": "mass.bare_pcb",
+      "value": 8.2,
+      "unit": "g",
+      "status": "MEASURED-DOC",
+      "source": "component_weight",
+      "note": "bare base PCB"
+    },
+    {
+      "name": "mass.battery",
+      "value": 9.2,
+      "unit": "g",
+      "status": "MEASURED-DOC",
+      "source": "component_weight",
+      "note": "350 mAh"
+    },
+    {
+      "name": "mass.som",
+      "value": 17.0,
+      "unit": "g",
+      "status": "MEASURED-DOC",
+      "source": "component_weight",
+      "note": "Trenz Artix 200 SoM, no standoffs"
+    },
+    {
+      "name": "mass.distribution.board_components",
+      "value": "9.4 g (17.6 - 8.2) as a 51 x 40 x 3.8 mm box at z = -0.7 mm",
+      "unit": "-",
+      "status": "INFERRED",
+      "source": "this script",
+      "note": "where the populated-board mass sits is not recorded"
+    },
+    {
+      "name": "mass.distribution.motor_assembly",
+      "value": "3.3 g as a uniform 7 x 20 mm cylinder at the can",
+      "unit": "-",
+      "status": "ASSUMED",
+      "source": "this script",
+      "note": "the real split between can, arm and prop is unknown"
+    },
+    {
+      "name": "imu.position",
+      "value": [
+        -0.004,
+        16.0,
+        -2.075
+      ],
+      "unit": "mm",
+      "status": "MEASURED-PCB",
+      "source": "pcb-geometry.json U3 (xy); z INFERRED",
+      "note": "xy measured; z is the package centre below the board (datasheet height 0.95 mm)"
+    },
+    {
+      "name": "flow.aperture",
+      "value": [
+        -26.15,
+        0.1,
+        -3.96
+      ],
+      "unit": "mm",
+      "status": "MEASURED-PCB",
+      "source": "pcb-geometry.json IC1 (xy); z INFERRED",
+      "note": "xy measured; z is the sensor underside (board bottom - 2.36 mm footprint height)"
+    },
+    {
+      "name": "tof_down.aperture",
+      "value": [
+        -21.572,
+        10.537,
+        -3.16
+      ],
+      "unit": "mm",
+      "status": "MEASURED-PCB",
+      "source": "pcb-geometry.json U9 (xy); z INFERRED",
+      "note": "VL53L1CX on the board bottom; z is its underside (datasheet 1.56 mm)"
+    },
+    {
+      "name": "camera.lens",
+      "value": [
+        35.5,
+        0,
+        -3
+      ],
+      "unit": "mm",
+      "status": "INFERRED",
+      "source": "scad/lib/common.scad D_CAM",
+      "note": "lens is on an off-board flex module; position and tilt unknown"
+    },
+    {
+      "name": "spin_signs",
+      "value": [
+        -1,
+        1,
+        -1,
+        1
+      ],
+      "unit": "-",
+      "status": "ASSUMED",
+      "source": "dronesim vehicle/airframe.py spin_signs",
+      "note": "reaction torque sign per wire index FR, RR, RL, FL; physical verification needed"
+    },
+    {
+      "name": "derived.mass",
+      "value": 0.0585,
+      "unit": "kg",
+      "status": "MEASURED-DOC",
+      "source": "mass_properties.json",
+      "note": "sum of the weight note"
+    },
+    {
+      "name": "derived.com",
+      "value": [
+        -2.228e-06,
+        -2.4553e-05,
+        0.003940684
+      ],
+      "unit": "m",
+      "status": "INFERRED",
+      "source": "mass_properties.json",
+      "note": "component model; not measured"
+    },
+    {
+      "name": "derived.inertia_about_com",
+      "value": [
+        [
+          2.2449e-05,
+          7e-09,
+          -1e-09
+        ],
+        [
+          7e-09,
+          2.4528e-05,
+          -7e-09
+        ],
+        [
+          -1e-09,
+          -7e-09,
+          4.3921e-05
+        ]
+      ],
+      "unit": "kg m2",
+      "status": "INFERRED",
+      "source": "mass_properties.json",
+      "note": "uniform boxes and cylinders; not measured"
+    },
+    {
+      "name": "derived.principal_inertia",
+      "value": [
+        2.2449e-05,
+        2.4528e-05,
+        4.3921e-05
+      ],
+      "unit": "kg m2",
+      "status": "INFERRED",
+      "source": "mass_properties.json",
+      "note": "eigenvalues of the tensor above"
+    }
+  ],
+  "approximations": [
+    "Board outline: KiCad Edge.Cuts, arcs tessellated at 6 degrees (max chord error ~0.003 mm for the 1 mm arcs). Outline and window are exact to that; the 1.6 mm thickness is the stackup.",
+    "NPTH slots are drawn as stadiums from the json sizes with KiCad's absolute pad angle (the scad D_SLOTS lists the 1 x 2.5 slots rotated 90 degrees the other way).",
+    "SoM: a 50 x 40 x 1.6 mm PCB at 6.5 mm and a 2.5 mm parts-envelope block (not the real FPGA and regulator shapes). Mass model: one uniform 50 x 40 x 4.1 mm box.",
+    "Components (B2B connectors, flow sensor, ToF, IMU, USB-C, JTAG, ESP32, switches, motor connectors, inductor): courtyard-sized boxes with datasheet heights; USB-C is an 8.94 x 7.65 mm box.",
+    "Clip-on arms: hull of a 6 mm circle at the rail end and a 9 mm collar at the motor, 4 mm thick from z = -3 mm. Placeholder.",
+    "Motors: 7 x 20 mm cylinders with a 1 mm shaft stub. Props: two-blade planform with 12 degree pitch inside a 51 mm disc; a visual stand-in, not the HQ blade.",
+    "Camera: box bracket 3 x 8 x 3.4 mm plus a 3 mm lens stub; the real flex module and bracket are not in the PCB.",
+    "Battery and holder: boxes. The 20 mm battery width equals the window width.",
+    "Colliders: boxes and cylinders on the same inferred heights; the resting pose depends on the assumed motor can bottom (-3 mm) and the inferred connector heights.",
+    "Mass: the populated-board mass (17.6 g less the 8.2 g bare board = 9.4 g) is spread over a 51 x 40 x 3.8 mm box; antenna, camera bracket and battery plug are not placed separately.",
+    "Antenna pigtail, wires, ToF breakouts (unfitted slots), standoffs and fasteners are not modelled; their mass is inside the weight-note figures or unknown."
+  ],
+  "assumptions_affecting_dynamics": [
+    "Mass 58.5 g is the sum of the weight-note parts; the note's own check gives 58.1 g; the real flight-ready weight is unmeasured.",
+    "CoM z = 3.9 mm above the board top depends on the SoM box (z 6.5-10.6), the battery (z -2.4 to 4.6, centred x = y = 0) and the motor assemblies (centre z = 7 mm). Battery x/y position moves the CoM 0.18 mm per mm of shift.",
+    "Inertia comes from uniform boxes and cylinders. Izz is set mainly by the four 3.3 g rotor masses at 46 mm; Ixx and Iyy by the same plus the stack height. The mass split inside a rotor (can, arm, prop) is unknown; a prop-heavy split (centre z = 12 mm) changes Ixx and Iyy by about +3 percent.",
+    "Rotor plane z = 18.5 mm and can bottom z = -3 mm are assumptions; they set where the rotors sit relative to the CoM (about 15 mm above it) and the can contact height.",
+    "Spin signs are copied from dronesim and unverified; they set the sign of the yaw reaction torque of each motor.",
+    "Prop diameter 51 mm (user-confirmed) is used; the PCB prop circles say 47 mm.",
+    "Thrust, drag, ground effect, battery and motor dynamics are not part of this asset."
+  ],
+  "validation": {
+    "frame_checks_pass": true,
+    "mass_checks": {
+      "mass_sum_kg": 0.0585,
+      "mass_doc_total_kg": 0.0585,
+      "mass_closure_error_kg": 0.0,
+      "mass_closure_ok": true,
+      "com_closure_residual_kg_m": 6.219783176008131e-20,
+      "com_closure_ok": true,
+      "parallel_axis_two_routes_max_abs_diff": 6.776263578034403e-21,
+      "tensor_symmetry_max_abs": 0.0,
+      "tensor_symmetric": true,
+      "eigenvalues_positive": true,
+      "triangle_inequality": {
+        "Ixx+Iyy>=Izz": true,
+        "Iyy+Izz>=Ixx": true,
+        "Izz+Ixx>=Iyy": true
+      },
+      "perpendicular_axis_Izz_minus_Ixx_minus_Iyy": -3.0567235275281693e-06,
+      "principal_axes_reconstruct_tensor_max_abs": 3.3881317890172014e-21,
+      "primitive_tensor_vs_trimesh_max_rel_err": 1.6895116068725262e-05,
+      "all_ok": true
+    },
+    "usd": {
+      "metersPerUnit": 1.0,
+      "kilogramsPerUnit": 1.0,
+      "upAxis": "Z",
+      "defaultPrim": "/RiskyBird",
+      "root_has_RigidBodyAPI": true,
+      "root_has_MassAPI": true,
+      "mass_kg": 0.05849999934434891,
+      "centerOfMass_m": [
+        -2.227838649559999e-06,
+        -2.4553239200031385e-05,
+        0.003940683789551258
+      ],
+      "diagonalInertia": [
+        2.244946881546639e-05,
+        2.4527778805349953e-05,
+        4.3920525058638304e-05
+      ],
+      "principalAxes_wxyz": [
+        0.9999983906745911,
+        0.00017559531261213124,
+        -1.4134120647213422e-05,
+        -0.0017923804698511958
+      ],
+      "density_authored": false,
+      "principal_axes_rebuild_tensor_max_abs_err": 1.3256305029922012e-12,
+      "mass_matches_json": true,
+      "n_visual_meshes": 31,
+      "visuals_have_no_physics_api": true,
+      "n_colliders": 20,
+      "colliders_have_CollisionAPI": true,
+      "colliders_purpose_guide": true,
+      "only_root_is_rigid_body": true,
+      "frames": [
+        "Camera",
+        "Flow",
+        "IMU",
+        "Motor_FL",
+        "Motor_FR",
+        "Motor_RL",
+        "Motor_RR",
+        "ToF_Down"
+      ],
+      "motor_frame_wire_and_spin": {
+        "Motor_FR": [
+          0,
+          -1
+        ],
+        "Motor_RR": [
+          1,
+          1
+        ],
+        "Motor_RL": [
+          2,
+          -1
+        ],
+        "Motor_FL": [
+          3,
+          1
+        ]
+      },
+      "visual_bbox_min_m": [
+        -0.050567977,
+        -0.050931793,
+        -0.006
+      ],
+      "visual_bbox_max_m": [
+        0.050567977,
+        0.050931793,
+        0.0195
+      ],
+      "visual_bbox_size_mm": [
+        101.135954261,
+        101.863585413,
+        25.500000454
+      ],
+      "visual_bbox_matches_meshes_max_abs_err_m": 9.777484863415786e-10,
+      "colliders_bbox_note": "guide purpose is excluded from the default bbox (as intended)",
+      "expected_prop_envelope_mm": 116.0,
+      "board_visual_thickness_mm": 1.5999999595806003,
+      "board_bbox_mm": [
+        70.0,
+        70.63917,
+        1.6
+      ],
+      "board_bbox_matches_pcb": true,
+      "swept_rotor_envelope_mm": 116.0,
+      "visual_z_range_mm": [
+        -6.000000052154064,
+        19.500000402331352
+      ],
+      "visual_bbox_note": "blades are drawn along the arm diagonals, so the visual bbox is smaller than the 116 mm swept-disc envelope (frames.glb discs); z min is the JTAG underside",
+      "all_ok": true
+    },
+    "urdf": {
+      "parsed": true,
+      "links": [
+        "base_link",
+        "rotor_FR",
+        "rotor_RR",
+        "rotor_RL",
+        "rotor_FL",
+        "sensor_IMU",
+        "sensor_Flow",
+        "sensor_ToF_Down",
+        "sensor_Camera"
+      ],
+      "joints": [
+        [
+          "rotor_FR_joint",
+          "fixed"
+        ],
+        [
+          "rotor_RR_joint",
+          "fixed"
+        ],
+        [
+          "rotor_RL_joint",
+          "fixed"
+        ],
+        [
+          "rotor_FL_joint",
+          "fixed"
+        ],
+        [
+          "sensor_IMU_joint",
+          "fixed"
+        ],
+        [
+          "sensor_Flow_joint",
+          "fixed"
+        ],
+        [
+          "sensor_ToF_Down_joint",
+          "fixed"
+        ],
+        [
+          "sensor_Camera_joint",
+          "fixed"
+        ]
+      ],
+      "visual_meshes_exist": true,
+      "urdf_inertia": {
+        "ixx": 2.24494947e-05,
+        "ixy": 7.45039682e-09,
+        "ixz": -6.1784647e-10,
+        "iyy": 2.4527755e-05,
+        "iyz": -6.80935007e-09,
+        "izz": 4.39205213e-05
+      },
+      "pybullet": {
+        "version": 202010061,
+        "loaded": true,
+        "mass_kg": 0.0585,
+        "local_inertia_diagonal": [
+          2.2449467974865312e-05,
+          2.45277793162492e-05,
+          4.392052370888548e-05
+        ],
+        "local_inertial_pos_m": [
+          -2.22783857e-06,
+          -2.45532401e-05,
+          0.00394068376
+        ],
+        "num_joints": 8,
+        "total_mass_all_links_kg": 0.0585,
+        "n_collision_shapes": 20,
+        "n_visual_shapes": 31,
+        "note": "loaded with URDF_USE_INERTIA_FROM_FILE (PyBullet otherwise recomputes inertia from the collision shapes) and queried only; stepSimulation was never called",
+        "inertia_diag_vs_principal_max_rel_err": 1.8432211312813251e-09,
+        "mass_ok": true,
+        "com_ok": true
+      },
+      "all_ok": true
+    },
+    "renders": [
+      {
+        "view": "iso",
+        "ok": true,
+        "size": [
+          1600,
+          1100
+        ]
+      },
+      {
+        "view": "top",
+        "ok": true,
+        "size": [
+          1600,
+          1100
+        ]
+      },
+      {
+        "view": "front",
+        "ok": true,
+        "size": [
+          1600,
+          1100
+        ]
+      },
+      {
+        "view": "side",
+        "ok": true,
+        "size": [
+          1600,
+          1100
+        ]
+      },
+      {
+        "view": "bottom",
+        "ok": true,
+        "size": [
+          1600,
+          1100
+        ]
+      },
+      {
+        "view": "collision",
+        "ok": true,
+        "size": [
+          1600,
+          1100
+        ]
+      },
+      {
+        "view": "collision_below",
+        "ok": true,
+        "size": [
+          1600,
+          1100
+        ]
+      },
+      {
+        "view": "frames",
+        "ok": true,
+        "size": [
+          1600,
+          1100
+        ]
+      },
+      {
+        "view": "frames_below",
+        "ok": true,
+        "size": [
+          1600,
+          1100
+        ]
+      }
+    ],
+    "static_rest_pose": {
+      "method": "convex hull of the collider shapes + trimesh.poses.compute_stable_poses with the CoM; static geometry, no simulation",
+      "upright_poses": [
+        {
+          "body_z_tilt_deg": 2.0526468456593157,
+          "origin_height_above_floor_mm": 5.269907255403905,
+          "body_x_axis_elevation_deg": 2.0526419172013775,
+          "body_y_axis_elevation_deg": -0.004496157931592323,
+          "probability": 0.41067038559517527
+        }
+      ],
+      "lowest_collider_point_z_mm": -6.0
+    }
+  },
+  "tool_versions": {
+    "python": "3.13.12",
+    "usd-core": "0.26.8",
+    "trimesh": "5.1.1",
+    "numpy": "2.5.4",
+    "shapely": "2.2.0",
+    "scipy": "1.18.1",
+    "pillow": "12.3.0",
+    "pybullet_api": 202010061,
+    "openscad": "OpenSCAD version 2026.10.03"
+  },
+  "outputs": {
+    "README.md": {
+      "sha256": "754940fa001949bf9f5a998599ce8084ae5df33971920dce5c8815c2bc9675bf",
+      "bytes": 3510
+    },
+    "build_model.py": {
+      "sha256": "fd47c0ea2e59b24b600c8baa5c0ab62e844a1d03c2c0e03d046ebd71f2d9dc56",
+      "bytes": 121993
+    },
+    "dronesim_plant.json": {
+      "sha256": "48abf4ffe6daad01860d3020f862919680e8bf52b26f35b7293c817157b9563c",
+      "bytes": 3571
+    },
+    "mass_properties.json": {
+      "sha256": "fda5dc06d2b1d31bd1ec590de6e15b73c2e4a5e84621a3c0fc1b05c0860c988e",
+      "bytes": 14576
+    },
+    "meshes/Arm_FL.obj": {
+      "sha256": "62ce1ff1dff7e4eb4ceb8b9cdfc5da394b41ab5724ee87955a09ad7d70be9cbe",
+      "bytes": 11608
+    },
+    "meshes/Arm_FR.obj": {
+      "sha256": "79c4f4c1ed4201ba448f7ac714254e6ac74fbedab1bb4439b0ae77231a5a09ce",
+      "bytes": 11804
+    },
+    "meshes/Arm_RL.obj": {
+      "sha256": "a60d95196297f5ecf4d55a8f6384f324d80853984ce5176823308175f228f3dc",
+      "bytes": 11804
+    },
+    "meshes/Arm_RR.obj": {
+      "sha256": "58003779b8472afebe1e91f00a48a847128a7175b7bd91b8265d0eb79a8246d6",
+      "bytes": 12000
+    },
+    "meshes/B2B_JM1.obj": {
+      "sha256": "5cfaf527c76d11e4ce707cb937b003876cc4ca82d033ed79aa464c8704b368aa",
+      "bytes": 417
+    },
+    "meshes/B2B_JM2.obj": {
+      "sha256": "09a64205fd499d6b68beb7a3af8c2909222d05569938f068956d63b92b14ed40",
+      "bytes": 425
+    },
+    "meshes/B2B_JM3.obj": {
+      "sha256": "70f4ba5feff3a927238bea2389bb3665da22c5e036b61bce2cc6086d23249cb3",
+      "bytes": 417
+    },
+    "meshes/Battery.obj": {
+      "sha256": "446da9f0aaed4021e90fde4faa870c00087fce7b5476bea756ef85fb099dc723",
+      "bytes": 425
+    },
+    "meshes/BatteryHolder.obj": {
+      "sha256": "2ec7109912ee3a68fc714cb4f55f1cc9707cb596d15e5a99457cd2211c8ee660",
+      "bytes": 429
+    },
+    "meshes/Board.obj": {
+      "sha256": "4a3f3120ed240e7ebc1acc810ab491b43692dade7be36a8370812968e4447e0c",
+      "bytes": 171124
+    },
+    "meshes/Buttons.obj": {
+      "sha256": "bf2d0d57775d247497199e9608786c546b389bbd9b953e55328e9e66ddeb5dfa",
+      "bytes": 1245
+    },
+    "meshes/Camera.obj": {
+      "sha256": "92b50792f6b594a523e5b11b10090ef7da53349937e572582d48e603750c655d",
+      "bytes": 3723
+    },
+    "meshes/ESP32.obj": {
+      "sha256": "03346c6612881d923d35bd8287a27d5b338321485de1dfff46e377b9a7624f87",
+      "bytes": 425
+    },
+    "meshes/FlowSensor.obj": {
+      "sha256": "95a7c7d47c8dface88cb4de2ac690bcb8997637cddbb01fa9ab0930129af57c4",
+      "bytes": 433
+    },
+    "meshes/IMU.obj": {
+      "sha256": "759302d967387f854a54d3b118b121726cf183e4b629cd5a48356564d0b47700",
+      "bytes": 425
+    },
+    "meshes/Inductor_L2.obj": {
+      "sha256": "b437d02d58b74342eba0950f94f0e8627e05cf02199547b9d91e0ba8a3a736dd",
+      "bytes": 429
+    },
+    "meshes/JTAG.obj": {
+      "sha256": "57f984295f8b986118baf2949391409e7ae952efa560bc6504e12aecd856c0e8",
+      "bytes": 425
+    },
+    "meshes/MotorConnectors.obj": {
+      "sha256": "33dbda533902a61ef8b3e84acb3f2a4acb0b925fb7ffb50f94101d091bed7205",
+      "bytes": 1709
+    },
+    "meshes/Motor_FL.obj": {
+      "sha256": "1f1c8fab13db9e27422ecfa7d120bc59e9cd4ae1706e05d77476ae882ed13ea3",
+      "bytes": 5584
+    },
+    "meshes/Motor_FR.obj": {
+      "sha256": "604525ad965a3cb81b031ec98d50f6d6ac317ba5852400e6ff5f475514643e01",
+      "bytes": 5684
+    },
+    "meshes/Motor_RL.obj": {
+      "sha256": "e036764069d5c3706bb6413b897d7eaad658ae9e98948491fb60a7124e579066",
+      "bytes": 5684
+    },
+    "meshes/Motor_RR.obj": {
+      "sha256": "de0c46fc0dce18ec26b80941cc086f9fa848e8adf9bab3d61850f6a0a36addc6",
+      "bytes": 5784
+    },
+    "meshes/PowerSwitch.obj": {
+      "sha256": "94ab8c8bcd57ead13d9e66092fbd803a431eb53718f0ae31541c820556ad2991",
+      "bytes": 417
+    },
+    "meshes/Prop_FL.obj": {
+      "sha256": "070f92c7e1c78337f984695714a8ea1e51c3c7618d6615d0ed938f62b01f761d",
+      "bytes": 16451
+    },
+    "meshes/Prop_FR.obj": {
+      "sha256": "840a4147f21e1d6041495e911ec52f0e50206873535aca25ca9d5972a3e4b323",
+      "bytes": 16724
+    },
+    "meshes/Prop_RL.obj": {
+      "sha256": "53645bcc0e35351def7b2e45bf5d80f3c7f36a39a99111719385f85b81b3392b",
+      "bytes": 16724
+    },
+    "meshes/Prop_RR.obj": {
+      "sha256": "1d96e41ad62780b101468562c9360f7e2cbaa6149c7a4dd1ab8f3ad9e21d7865",
+      "bytes": 16999
+    },
+    "meshes/SoM.obj": {
+      "sha256": "6726f20c06e746517b00f8d531785e5ed0d146ddf7f81b22d14703323d520abe",
+      "bytes": 48922
+    },
+    "meshes/SoM_Parts.obj": {
+      "sha256": "7d3df4ffb64559deb819e0e81f6e6156addc7e7f8eaecb90e96c143748c6237a",
+      "bytes": 49025
+    },
+    "meshes/ToF_Down.obj": {
+      "sha256": "00e0213132cbcf03a2214f3ca35d0c47308ed3e3c5bee674719c372fedbbe425",
+      "bytes": 429
+    },
+    "meshes/USB_C.obj": {
+      "sha256": "9f400f79d8154f0ea30e9e7cb88b0a4f299d4f4ffdbc3a5d2cee2151d707e03c",
+      "bytes": 425
+    },
+    "page/img/bottom.png": {
+      "sha256": "df799bb325e5dcb026659b8d88e6d2d56deca254f01c88f58822812df3f03df8",
+      "bytes": 93760
+    },
+    "page/img/collision.png": {
+      "sha256": "a9b85d9c8148a8aee6679becafff8dbca94af170b6974b575fcdd1c80fa23fc7",
+      "bytes": 207764
+    },
+    "page/img/collision_below.png": {
+      "sha256": "208447cd2f4e7c0214cf7a6ad24ae1947a2f24c0cc7fc9ce8353d236988dba5e",
+      "bytes": 249378
+    },
+    "page/img/frames.png": {
+      "sha256": "8c909a2689ed9ea07069903417b483ad95a00958c94fb3625563bd11318d416e",
+      "bytes": 281725
+    },
+    "page/img/frames_below.png": {
+      "sha256": "263ba10def7d36910e788c570383385c6e534103da4f020e11af94c1ec553cfe",
+      "bytes": 293408
+    },
+    "page/img/front.png": {
+      "sha256": "c02f490b47b252236383e6c00c1c642a30bff1ba5c130421f3a70bb17f458391",
+      "bytes": 25990
+    },
+    "page/img/iso.png": {
+      "sha256": "2aa65f2f6163bf92ca29ee0ebd70e96c76511b7ac293da860ed014e0ef70e4b6",
+      "bytes": 151447
+    },
+    "page/img/side.png": {
+      "sha256": "61430e8b7dbdb6e6d170b4214e834a1fd4f4e31edb11631c3cdca5b14ec5caa4",
+      "bytes": 26115
+    },
+    "page/img/top.png": {
+      "sha256": "537e0d330166c57497099cc8329f2c690ad21538ea188f83ed0a9aeb8e7af7f6",
+      "bytes": 111955
+    },
+    "page/index.html": {
+      "sha256": "9ffdb493a50e767bb5cc532e36d52e66eb0d4c40dc4acbfff5babeb918b1a7b8",
+      "bytes": 39386
+    },
+    "page/model/colliders.glb": {
+      "sha256": "fe0be72665618aa4de2cb5b1f681e6af6cea55519774d20613252bec8a246fd5",
+      "bytes": 16672
+    },
+    "page/model/frames.glb": {
+      "sha256": "a18eb707e4ef29d3f3d861904969cf53e6257b7e87a8b08105dc87aee5ab5953",
+      "bytes": 34944
+    },
+    "page/model/riskybird.glb": {
+      "sha256": "25a77ec6ff35cc28a1de726fa3faddf4e51d62166a4374d66810563d61a7a1e7",
+      "bytes": 219004
+    },
+    "renders/bottom.png": {
+      "sha256": "df799bb325e5dcb026659b8d88e6d2d56deca254f01c88f58822812df3f03df8",
+      "bytes": 93760
+    },
+    "renders/collision.png": {
+      "sha256": "a9b85d9c8148a8aee6679becafff8dbca94af170b6974b575fcdd1c80fa23fc7",
+      "bytes": 207764
+    },
+    "renders/collision_below.png": {
+      "sha256": "208447cd2f4e7c0214cf7a6ad24ae1947a2f24c0cc7fc9ce8353d236988dba5e",
+      "bytes": 249378
+    },
+    "renders/frames.png": {
+      "sha256": "8c909a2689ed9ea07069903417b483ad95a00958c94fb3625563bd11318d416e",
+      "bytes": 281725
+    },
+    "renders/frames_below.png": {
+      "sha256": "263ba10def7d36910e788c570383385c6e534103da4f020e11af94c1ec553cfe",
+      "bytes": 293408
+    },
+    "renders/front.png": {
+      "sha256": "c02f490b47b252236383e6c00c1c642a30bff1ba5c130421f3a70bb17f458391",
+      "bytes": 25990
+    },
+    "renders/iso.png": {
+      "sha256": "2aa65f2f6163bf92ca29ee0ebd70e96c76511b7ac293da860ed014e0ef70e4b6",
+      "bytes": 151447
+    },
+    "renders/side.png": {
+      "sha256": "61430e8b7dbdb6e6d170b4214e834a1fd4f4e31edb11631c3cdca5b14ec5caa4",
+      "bytes": 26115
+    },
+    "renders/top.png": {
+      "sha256": "537e0d330166c57497099cc8329f2c690ad21538ea188f83ed0a9aeb8e7af7f6",
+      "bytes": 111955
+    },
+    "riskybird.glb": {
+      "sha256": "25a77ec6ff35cc28a1de726fa3faddf4e51d62166a4374d66810563d61a7a1e7",
+      "bytes": 219004
+    },
+    "riskybird.urdf": {
+      "sha256": "56e611dec75be346da9a0aeac17dc8ad5a688b17bcf0f608de6baa1c95585f50",
+      "bytes": 15375
+    },
+    "riskybird.usda": {
+      "sha256": "1fd17417e501f862c9c8659ec5d5222c1a559731f509ba976586a2ed6942ce74",
+      "bytes": 1379712
+    }
+  },
+  "note_on_hashes": "outputs lists every file under this folder except manifest.json itself"
+}

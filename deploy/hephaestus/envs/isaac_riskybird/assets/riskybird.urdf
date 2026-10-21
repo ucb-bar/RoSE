@@ -1,0 +1,350 @@
+<?xml version="1.0"?>
+<!-- RiskyBird airframe v0.1.0. Body frame: X forward, Y left, Z up, metres, kg. base_link origin = board-centre
+     datum on the PCB top surface. Reconstructed model, not CAD: see manifest.json for the status of every number. -->
+<robot name="riskybird">
+  <material name="mat_Board"><color rgba="0.040 0.330 0.160 1"/></material>
+  <material name="mat_SoM"><color rgba="0.100 0.420 0.220 1"/></material>
+  <material name="mat_SoM_Parts"><color rgba="0.160 0.160 0.190 1"/></material>
+  <material name="mat_B2B_JM1"><color rgba="0.550 0.550 0.580 1"/></material>
+  <material name="mat_B2B_JM2"><color rgba="0.550 0.550 0.580 1"/></material>
+  <material name="mat_B2B_JM3"><color rgba="0.550 0.550 0.580 1"/></material>
+  <material name="mat_Battery"><color rgba="0.180 0.340 0.720 1"/></material>
+  <material name="mat_BatteryHolder"><color rgba="0.930 0.480 0.120 1"/></material>
+  <material name="mat_Arm_FR"><color rgba="0.820 0.830 0.860 1"/></material>
+  <material name="mat_Motor_FR"><color rgba="0.680 0.700 0.740 1"/></material>
+  <material name="mat_Prop_FR"><color rgba="0.100 0.100 0.110 1"/></material>
+  <material name="mat_Arm_RR"><color rgba="0.820 0.830 0.860 1"/></material>
+  <material name="mat_Motor_RR"><color rgba="0.680 0.700 0.740 1"/></material>
+  <material name="mat_Prop_RR"><color rgba="0.100 0.100 0.110 1"/></material>
+  <material name="mat_Arm_RL"><color rgba="0.820 0.830 0.860 1"/></material>
+  <material name="mat_Motor_RL"><color rgba="0.680 0.700 0.740 1"/></material>
+  <material name="mat_Prop_RL"><color rgba="0.100 0.100 0.110 1"/></material>
+  <material name="mat_Arm_FL"><color rgba="0.820 0.830 0.860 1"/></material>
+  <material name="mat_Motor_FL"><color rgba="0.680 0.700 0.740 1"/></material>
+  <material name="mat_Prop_FL"><color rgba="0.100 0.100 0.110 1"/></material>
+  <material name="mat_Camera"><color rgba="0.080 0.080 0.090 1"/></material>
+  <material name="mat_FlowSensor"><color rgba="0.920 0.720 0.120 1"/></material>
+  <material name="mat_ToF_Down"><color rgba="0.800 0.220 0.220 1"/></material>
+  <material name="mat_IMU"><color rgba="0.350 0.350 0.400 1"/></material>
+  <material name="mat_USB_C"><color rgba="0.780 0.790 0.820 1"/></material>
+  <material name="mat_JTAG"><color rgba="0.070 0.070 0.080 1"/></material>
+  <material name="mat_ESP32"><color rgba="0.600 0.600 0.630 1"/></material>
+  <material name="mat_PowerSwitch"><color rgba="0.300 0.300 0.330 1"/></material>
+  <material name="mat_Buttons"><color rgba="0.250 0.250 0.280 1"/></material>
+  <material name="mat_MotorConnectors"><color rgba="0.850 0.850 0.800 1"/></material>
+  <material name="mat_Inductor_L2"><color rgba="0.450 0.450 0.480 1"/></material>
+  <link name="base_link">
+    <inertial>
+      <origin xyz="-2.22783857e-06 -2.45532401e-05 0.00394068376" rpy="0 0 0"/>
+      <mass value="0.0585"/>
+      <inertia ixx="2.24494947e-05" ixy="7.45039682e-09" ixz="-6.1784647e-10" iyy="2.4527755e-05" iyz="-6.80935007e-09" izz="4.39205213e-05"/>
+    </inertial>
+    <visual name="Board">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/Board.obj"/></geometry>
+      <material name="mat_Board"/>
+    </visual>
+    <visual name="SoM">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/SoM.obj"/></geometry>
+      <material name="mat_SoM"/>
+    </visual>
+    <visual name="SoM_Parts">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/SoM_Parts.obj"/></geometry>
+      <material name="mat_SoM_Parts"/>
+    </visual>
+    <visual name="B2B_JM1">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/B2B_JM1.obj"/></geometry>
+      <material name="mat_B2B_JM1"/>
+    </visual>
+    <visual name="B2B_JM2">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/B2B_JM2.obj"/></geometry>
+      <material name="mat_B2B_JM2"/>
+    </visual>
+    <visual name="B2B_JM3">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/B2B_JM3.obj"/></geometry>
+      <material name="mat_B2B_JM3"/>
+    </visual>
+    <visual name="Battery">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/Battery.obj"/></geometry>
+      <material name="mat_Battery"/>
+    </visual>
+    <visual name="BatteryHolder">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/BatteryHolder.obj"/></geometry>
+      <material name="mat_BatteryHolder"/>
+    </visual>
+    <visual name="Arm_FR">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/Arm_FR.obj"/></geometry>
+      <material name="mat_Arm_FR"/>
+    </visual>
+    <visual name="Motor_FR">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/Motor_FR.obj"/></geometry>
+      <material name="mat_Motor_FR"/>
+    </visual>
+    <visual name="Prop_FR">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/Prop_FR.obj"/></geometry>
+      <material name="mat_Prop_FR"/>
+    </visual>
+    <visual name="Arm_RR">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/Arm_RR.obj"/></geometry>
+      <material name="mat_Arm_RR"/>
+    </visual>
+    <visual name="Motor_RR">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/Motor_RR.obj"/></geometry>
+      <material name="mat_Motor_RR"/>
+    </visual>
+    <visual name="Prop_RR">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/Prop_RR.obj"/></geometry>
+      <material name="mat_Prop_RR"/>
+    </visual>
+    <visual name="Arm_RL">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/Arm_RL.obj"/></geometry>
+      <material name="mat_Arm_RL"/>
+    </visual>
+    <visual name="Motor_RL">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/Motor_RL.obj"/></geometry>
+      <material name="mat_Motor_RL"/>
+    </visual>
+    <visual name="Prop_RL">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/Prop_RL.obj"/></geometry>
+      <material name="mat_Prop_RL"/>
+    </visual>
+    <visual name="Arm_FL">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/Arm_FL.obj"/></geometry>
+      <material name="mat_Arm_FL"/>
+    </visual>
+    <visual name="Motor_FL">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/Motor_FL.obj"/></geometry>
+      <material name="mat_Motor_FL"/>
+    </visual>
+    <visual name="Prop_FL">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/Prop_FL.obj"/></geometry>
+      <material name="mat_Prop_FL"/>
+    </visual>
+    <visual name="Camera">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/Camera.obj"/></geometry>
+      <material name="mat_Camera"/>
+    </visual>
+    <visual name="FlowSensor">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/FlowSensor.obj"/></geometry>
+      <material name="mat_FlowSensor"/>
+    </visual>
+    <visual name="ToF_Down">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/ToF_Down.obj"/></geometry>
+      <material name="mat_ToF_Down"/>
+    </visual>
+    <visual name="IMU">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/IMU.obj"/></geometry>
+      <material name="mat_IMU"/>
+    </visual>
+    <visual name="USB_C">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/USB_C.obj"/></geometry>
+      <material name="mat_USB_C"/>
+    </visual>
+    <visual name="JTAG">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/JTAG.obj"/></geometry>
+      <material name="mat_JTAG"/>
+    </visual>
+    <visual name="ESP32">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/ESP32.obj"/></geometry>
+      <material name="mat_ESP32"/>
+    </visual>
+    <visual name="PowerSwitch">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/PowerSwitch.obj"/></geometry>
+      <material name="mat_PowerSwitch"/>
+    </visual>
+    <visual name="Buttons">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/Buttons.obj"/></geometry>
+      <material name="mat_Buttons"/>
+    </visual>
+    <visual name="MotorConnectors">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/MotorConnectors.obj"/></geometry>
+      <material name="mat_MotorConnectors"/>
+    </visual>
+    <visual name="Inductor_L2">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/Inductor_L2.obj"/></geometry>
+      <material name="mat_Inductor_L2"/>
+    </visual>
+    <collision name="Board_Center">
+      <origin xyz="0 0 -0.0008" rpy="0 0 0"/>
+      <geometry><box size="0.051 0.04 0.0016"/></geometry>
+    </collision>
+    <collision name="Board_Tabs">
+      <origin xyz="0 0 -0.0008" rpy="0 0 0"/>
+      <geometry><box size="0.07 0.015 0.0016"/></geometry>
+    </collision>
+    <collision name="Board_Neck_L">
+      <origin xyz="0 0.0255 -0.0008" rpy="0 0 0"/>
+      <geometry><box size="0.0174 0.011 0.0016"/></geometry>
+    </collision>
+    <collision name="Board_Rail_L">
+      <origin xyz="0 0.0325 -0.0008" rpy="0 0 0"/>
+      <geometry><box size="0.053 0.003 0.0016"/></geometry>
+    </collision>
+    <collision name="Board_Neck_R">
+      <origin xyz="0 -0.0255 -0.0008" rpy="0 0 0"/>
+      <geometry><box size="0.0174 0.011 0.0016"/></geometry>
+    </collision>
+    <collision name="Board_Rail_R">
+      <origin xyz="0 -0.0325 -0.0008" rpy="0 0 0"/>
+      <geometry><box size="0.053 0.003 0.0016"/></geometry>
+    </collision>
+    <collision name="SoM">
+      <origin xyz="0 0 0.00855" rpy="0 0 0"/>
+      <geometry><box size="0.05 0.04 0.0041"/></geometry>
+    </collision>
+    <collision name="Battery">
+      <origin xyz="0 0 0.0011" rpy="0 0 0"/>
+      <geometry><box size="0.032 0.02 0.007"/></geometry>
+    </collision>
+    <collision name="BatteryHolder">
+      <origin xyz="0 0 -0.0028" rpy="0 0 0"/>
+      <geometry><box size="0.034 0.02 0.0008"/></geometry>
+    </collision>
+    <collision name="MotorCan_FR">
+      <origin xyz="0.0325 -0.0325 0.007" rpy="0 0 0"/>
+      <geometry><cylinder radius="0.0035" length="0.02"/></geometry>
+    </collision>
+    <collision name="MotorCan_RR">
+      <origin xyz="-0.0325 -0.0325 0.007" rpy="0 0 0"/>
+      <geometry><cylinder radius="0.0035" length="0.02"/></geometry>
+    </collision>
+    <collision name="MotorCan_RL">
+      <origin xyz="-0.0325 0.0325 0.007" rpy="0 0 0"/>
+      <geometry><cylinder radius="0.0035" length="0.02"/></geometry>
+    </collision>
+    <collision name="MotorCan_FL">
+      <origin xyz="0.0325 0.0325 0.007" rpy="0 0 0"/>
+      <geometry><cylinder radius="0.0035" length="0.02"/></geometry>
+    </collision>
+    <collision name="Landing_JTAG">
+      <origin xyz="0.022005 0 -0.0038" rpy="0 0 0"/>
+      <geometry><box size="0.00343 0.0127 0.0044"/></geometry>
+    </collision>
+    <collision name="Landing_MotorConn_FR">
+      <origin xyz="0.005 -0.02605 -0.0033" rpy="0 0 0"/>
+      <geometry><box size="0.00525 0.0065 0.0034"/></geometry>
+    </collision>
+    <collision name="Landing_MotorConn_RR">
+      <origin xyz="-0.00505 -0.026 -0.0033" rpy="0 0 0"/>
+      <geometry><box size="0.00525 0.0065 0.0034"/></geometry>
+    </collision>
+    <collision name="Landing_MotorConn_RL">
+      <origin xyz="-0.004935 0.02649 -0.0033" rpy="0 0 0"/>
+      <geometry><box size="0.00525 0.0065 0.0034"/></geometry>
+    </collision>
+    <collision name="Landing_MotorConn_FL">
+      <origin xyz="0.004885 0.02658 -0.0033" rpy="0 0 0"/>
+      <geometry><box size="0.00525 0.0065 0.0034"/></geometry>
+    </collision>
+    <collision name="Landing_CameraBracket">
+      <origin xyz="0.034 0 -0.0033" rpy="0 0 0"/>
+      <geometry><box size="0.003 0.008 0.0034"/></geometry>
+    </collision>
+    <collision name="Landing_L2">
+      <origin xyz="0.0092 -0.01424 -0.00315" rpy="0 0 0"/>
+      <geometry><box size="0.0075 0.0075 0.0031"/></geometry>
+    </collision>
+  </link>
+  <link name="rotor_FR">
+    <inertial><origin xyz="0 0 0" rpy="0 0 0"/><mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/></inertial>
+  </link>  <!-- wire index 0 (MOTOR1), dronesim spin_sign -1: prop turns CCW viewed from above (unverified) -->
+  <joint name="rotor_FR_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="rotor_FR"/>
+    <origin xyz="0.0325 -0.0325 0.0185" rpy="0 0 0"/>
+  </joint>
+  <link name="rotor_RR">
+    <inertial><origin xyz="0 0 0" rpy="0 0 0"/><mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/></inertial>
+  </link>  <!-- wire index 1 (MOTOR2), dronesim spin_sign 1: prop turns CW viewed from above (unverified) -->
+  <joint name="rotor_RR_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="rotor_RR"/>
+    <origin xyz="-0.0325 -0.0325 0.0185" rpy="0 0 0"/>
+  </joint>
+  <link name="rotor_RL">
+    <inertial><origin xyz="0 0 0" rpy="0 0 0"/><mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/></inertial>
+  </link>  <!-- wire index 2 (MOTOR3), dronesim spin_sign -1: prop turns CCW viewed from above (unverified) -->
+  <joint name="rotor_RL_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="rotor_RL"/>
+    <origin xyz="-0.0325 0.0325 0.0185" rpy="0 0 0"/>
+  </joint>
+  <link name="rotor_FL">
+    <inertial><origin xyz="0 0 0" rpy="0 0 0"/><mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/></inertial>
+  </link>  <!-- wire index 3 (MOTOR4), dronesim spin_sign 1: prop turns CW viewed from above (unverified) -->
+  <joint name="rotor_FL_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="rotor_FL"/>
+    <origin xyz="0.0325 0.0325 0.0185" rpy="0 0 0"/>
+  </joint>
+  <link name="sensor_IMU">
+    <inertial><origin xyz="0 0 0" rpy="0 0 0"/><mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/></inertial>
+  </link>
+  <joint name="sensor_IMU_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="sensor_IMU"/>
+    <origin xyz="-4e-06 0.016 -0.002075" rpy="0 0 0"/>
+  </joint>
+  <link name="sensor_Flow">
+    <inertial><origin xyz="0 0 0" rpy="0 0 0"/><mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/></inertial>
+  </link>
+  <joint name="sensor_Flow_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="sensor_Flow"/>
+    <origin xyz="-0.02615 0.0001 -0.00396" rpy="0 0 0"/>
+  </joint>
+  <link name="sensor_ToF_Down">
+    <inertial><origin xyz="0 0 0" rpy="0 0 0"/><mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/></inertial>
+  </link>
+  <joint name="sensor_ToF_Down_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="sensor_ToF_Down"/>
+    <origin xyz="-0.021572 0.010537 -0.00316" rpy="0 0 0"/>
+  </joint>
+  <link name="sensor_Camera">
+    <inertial><origin xyz="0 0 0" rpy="0 0 0"/><mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/></inertial>
+  </link>
+  <joint name="sensor_Camera_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="sensor_Camera"/>
+    <origin xyz="0.0355 0 -0.003" rpy="0 0 0"/>
+  </joint>
+</robot>

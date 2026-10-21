@@ -1,0 +1,3 @@
+Vendored from lorenshung/scad@fbfdc2e65b8bd253fe756b68f58329ad4a4953c4, assets/riskybird_drone/ (RiskyBird airframe v0.1.0), unchanged:
+  riskybird.urdf  meshes/*.obj  mass_properties.json  manifest.json  dronesim_plant.json
+riskybird_rose.urdf is generated from riskybird.urdf by make_rose_urdf.py (re-run it after re-vendoring).

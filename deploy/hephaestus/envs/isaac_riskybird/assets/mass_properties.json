@@ -1,0 +1,697 @@
+{
+  "version": "0.1.0",
+  "frame": "body FLU, origin = board-centre datum on the PCB top surface, metres, kg, axes parallel to the body axes",
+  "formula": "I = sum(I_i + m_i*(d_i.d_i*E - d_i d_i^T)), d_i = c_i - c, I_i about each component's own centre, R_i = identity",
+  "components": [
+    {
+      "name": "SoM",
+      "group": "SoM",
+      "mass_kg": 0.017,
+      "mass_g": 17.0,
+      "center_m": [
+        0.0,
+        0.0,
+        0.00855
+      ],
+      "shape": "box",
+      "size_m": [
+        0.05,
+        0.04,
+        0.0041
+      ],
+      "inertia_about_own_centre_kg_m2": [
+        [
+          2.29e-06,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          3.565e-06,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          5.808e-06
+        ]
+      ],
+      "mass_status": "MEASURED-DOC",
+      "position_status": "INFERRED",
+      "note": "TE0712 as one uniform box over its whole 6.5-10.6 mm height; the scad estimate used z=7.9"
+    },
+    {
+      "name": "BarePCB",
+      "group": "Base PCB assembly",
+      "mass_kg": 0.008199999999999999,
+      "mass_g": 8.2,
+      "center_m": [
+        -1.5894e-05,
+        -0.000175166,
+        -0.0008
+      ],
+      "shape": "extruded Edge.Cuts polygon",
+      "size_m": [
+        0.07,
+        0.07063917,
+        0.0016
+      ],
+      "inertia_about_own_centre_kg_m2": [
+        [
+          3.063e-06,
+          7e-09,
+          -0.0
+        ],
+        [
+          7e-09,
+          2.51e-06,
+          0.0
+        ],
+        [
+          -0.0,
+          0.0,
+          5.569e-06
+        ]
+      ],
+      "mass_status": "MEASURED-DOC",
+      "position_status": "MEASURED-PCB",
+      "note": "8.2 g uniform over the real outline (window, holes and slots removed)"
+    },
+    {
+      "name": "BoardComponents",
+      "group": "Base PCB assembly",
+      "mass_kg": 0.009400000000000002,
+      "mass_g": 9.400000000000002,
+      "center_m": [
+        0.0,
+        0.0,
+        -0.0007
+      ],
+      "shape": "box",
+      "size_m": [
+        0.051,
+        0.04,
+        0.0038
+      ],
+      "inertia_about_own_centre_kg_m2": [
+        [
+          1.265e-06,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          2.049e-06,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          3.291e-06
+        ]
+      ],
+      "mass_status": "MEASURED-DOC",
+      "position_status": "INFERRED",
+      "note": "populated components, antenna, camera bracket, battery plug: 9.4 g spread over the central body"
+    },
+    {
+      "name": "Battery",
+      "group": "Battery",
+      "mass_kg": 0.0092,
+      "mass_g": 9.2,
+      "center_m": [
+        0.0,
+        0.0,
+        0.0011
+      ],
+      "shape": "box",
+      "size_m": [
+        0.032,
+        0.02,
+        0.007
+      ],
+      "inertia_about_own_centre_kg_m2": [
+        [
+          3.44e-07,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          8.23e-07,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.092e-06
+        ]
+      ],
+      "mass_status": "MEASURED-DOC",
+      "position_status": "ASSUMED",
+      "note": "350 mAh 1S pouch, uniform box"
+    },
+    {
+      "name": "BatteryHolder",
+      "group": "Battery holder",
+      "mass_kg": 0.0015,
+      "mass_g": 1.5,
+      "center_m": [
+        0.0,
+        0.0,
+        -0.0028
+      ],
+      "shape": "box",
+      "size_m": [
+        0.034,
+        0.02,
+        0.0008
+      ],
+      "inertia_about_own_centre_kg_m2": [
+        [
+          5e-08,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.45e-07,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.95e-07
+        ]
+      ],
+      "mass_status": "MEASURED-DOC",
+      "position_status": "ASSUMED",
+      "note": "printed strap/plate"
+    },
+    {
+      "name": "MotorAssembly_FR",
+      "group": "Motor+prop+arm",
+      "mass_kg": 0.0033,
+      "mass_g": 3.3,
+      "center_m": [
+        0.0325,
+        -0.0325,
+        0.007
+      ],
+      "shape": "cylinder (axis z)",
+      "size_m": [
+        0.007,
+        0.007,
+        0.02
+      ],
+      "inertia_about_own_centre_kg_m2": [
+        [
+          1.2e-07,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.2e-07,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          2e-08
+        ]
+      ],
+      "mass_status": "MEASURED-DOC",
+      "position_status": "ASSUMED",
+      "note": "3.3 g motor+prop+arm as one uniform 7 x 20 mm cylinder at the can; real split unknown"
+    },
+    {
+      "name": "MotorAssembly_RR",
+      "group": "Motor+prop+arm",
+      "mass_kg": 0.0033,
+      "mass_g": 3.3,
+      "center_m": [
+        -0.0325,
+        -0.0325,
+        0.007
+      ],
+      "shape": "cylinder (axis z)",
+      "size_m": [
+        0.007,
+        0.007,
+        0.02
+      ],
+      "inertia_about_own_centre_kg_m2": [
+        [
+          1.2e-07,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.2e-07,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          2e-08
+        ]
+      ],
+      "mass_status": "MEASURED-DOC",
+      "position_status": "ASSUMED",
+      "note": "3.3 g motor+prop+arm as one uniform 7 x 20 mm cylinder at the can; real split unknown"
+    },
+    {
+      "name": "MotorAssembly_RL",
+      "group": "Motor+prop+arm",
+      "mass_kg": 0.0033,
+      "mass_g": 3.3,
+      "center_m": [
+        -0.0325,
+        0.0325,
+        0.007
+      ],
+      "shape": "cylinder (axis z)",
+      "size_m": [
+        0.007,
+        0.007,
+        0.02
+      ],
+      "inertia_about_own_centre_kg_m2": [
+        [
+          1.2e-07,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.2e-07,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          2e-08
+        ]
+      ],
+      "mass_status": "MEASURED-DOC",
+      "position_status": "ASSUMED",
+      "note": "3.3 g motor+prop+arm as one uniform 7 x 20 mm cylinder at the can; real split unknown"
+    },
+    {
+      "name": "MotorAssembly_FL",
+      "group": "Motor+prop+arm",
+      "mass_kg": 0.0033,
+      "mass_g": 3.3,
+      "center_m": [
+        0.0325,
+        0.0325,
+        0.007
+      ],
+      "shape": "cylinder (axis z)",
+      "size_m": [
+        0.007,
+        0.007,
+        0.02
+      ],
+      "inertia_about_own_centre_kg_m2": [
+        [
+          1.2e-07,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.2e-07,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          2e-08
+        ]
+      ],
+      "mass_status": "MEASURED-DOC",
+      "position_status": "ASSUMED",
+      "note": "3.3 g motor+prop+arm as one uniform 7 x 20 mm cylinder at the can; real split unknown"
+    }
+  ],
+  "groups_g": {
+    "SoM": 17.0,
+    "Base PCB assembly": 17.6,
+    "Battery": 9.2,
+    "Battery holder": 1.5,
+    "Motor+prop+arm": 13.2
+  },
+  "total": {
+    "mass_kg": 0.0585,
+    "com_m": [
+      -2.228e-06,
+      -2.4553e-05,
+      0.003940684
+    ],
+    "com_status": "INFERRED: computed from a component model; battery, motor and SoM heights are assumed. Not measured.",
+    "inertia_about_com_kg_m2": [
+      [
+        2.2449e-05,
+        7e-09,
+        -1e-09
+      ],
+      [
+        7e-09,
+        2.4528e-05,
+        -7e-09
+      ],
+      [
+        -1e-09,
+        -7e-09,
+        4.3921e-05
+      ]
+    ],
+    "inertia_about_datum_origin_kg_m2": [
+      [
+        2.3358e-05,
+        7e-09,
+        -0.0
+      ],
+      [
+        7e-09,
+        2.5436e-05,
+        -1e-09
+      ],
+      [
+        -0.0,
+        -1e-09,
+        4.3921e-05
+      ]
+    ],
+    "principal_values_kg_m2": [
+      2.2449e-05,
+      2.4528e-05,
+      4.3921e-05
+    ],
+    "principal_axes_matrix_columns_are_axes": [
+      [
+        0.999993574,
+        0.00358475,
+        -2.8898e-05
+      ],
+      [
+        -0.00358476,
+        0.999993513,
+        -0.000351139
+      ],
+      [
+        2.7639e-05,
+        0.000351241,
+        0.999999938
+      ]
+    ],
+    "principal_axes_quaternion_wxyz": [
+      0.999998378,
+      0.000175595,
+      -1.4134e-05,
+      -0.001792381
+    ],
+    "principal_axes_note": "I = R diag(principal) R^T with R the matrix above; axis i is the principal axis closest to body axis i. Written to UsdPhysics.MassAPI as diagonalInertia and principalAxes.",
+    "off_diagonal_over_smallest_diagonal": 0.0003318736983828228,
+    "principal_axes_tilt_from_body_axes_deg": [
+      0.20539817311211964,
+      0.20637507494925644,
+      0.020186820432652262
+    ]
+  },
+  "checks": {
+    "mass_sum_kg": 0.0585,
+    "mass_doc_total_kg": 0.0585,
+    "mass_closure_error_kg": 0.0,
+    "mass_closure_ok": true,
+    "com_closure_residual_kg_m": 6.219783176008131e-20,
+    "com_closure_ok": true,
+    "parallel_axis_two_routes_max_abs_diff": 6.776263578034403e-21,
+    "tensor_symmetry_max_abs": 0.0,
+    "tensor_symmetric": true,
+    "eigenvalues_positive": true,
+    "triangle_inequality": {
+      "Ixx+Iyy>=Izz": true,
+      "Iyy+Izz>=Ixx": true,
+      "Izz+Ixx>=Iyy": true
+    },
+    "perpendicular_axis_Izz_minus_Ixx_minus_Iyy": -3.0567235275281693e-06,
+    "principal_axes_reconstruct_tensor_max_abs": 3.3881317890172014e-21,
+    "primitive_tensor_vs_trimesh_max_rel_err": 1.6895116068725262e-05,
+    "all_ok": true
+  },
+  "comparison": {
+    "pivot_stand_estimate": {
+      "source": "scad/lib/common.scad D_MASS_PARTS (OpenSCAD-evaluated)",
+      "mass_kg": 0.0585,
+      "com_m": [
+        0.0,
+        0.0,
+        0.00322
+      ],
+      "inertia_diag_kg_m2": [
+        2.288e-05,
+        2.473e-05,
+        4.496e-05
+      ],
+      "note": "diagonal only, about its own CoM; board as a 58 x 58 x 2 plate; motor cylinders centred at z=5 mm; SoM at z=7.9 mm",
+      "this_model_over_pivot_estimate": [
+        0.9811842071075169,
+        0.9918218767004173,
+        0.9768799226895498
+      ],
+      "d_com_mm": [
+        -0.002227839,
+        -0.02455324,
+        0.720683761
+      ]
+    },
+    "dronesim_placeholder": {
+      "source": "dronesim vehicle/airframe.py (physical plant)",
+      "mass_kg": 0.055,
+      "legacy_mass_kg": 0.05,
+      "com_m": [
+        0,
+        0,
+        0
+      ],
+      "inertia_diag_kg_m2": [
+        2e-05,
+        2e-05,
+        3.5e-05
+      ],
+      "body_size_m": [
+        0.08,
+        0.08,
+        0.02
+      ],
+      "motor_positions_m": [
+        [
+          0.033,
+          -0.033,
+          0
+        ],
+        [
+          -0.033,
+          -0.033,
+          0
+        ],
+        [
+          -0.033,
+          0.033,
+          0
+        ],
+        [
+          0.033,
+          0.033,
+          0
+        ]
+      ],
+      "this_model_over_placeholder": [
+        1.1224747329309994,
+        1.2263877505400658,
+        1.254872037832062
+      ]
+    }
+  },
+  "sensitivity_to_assumptions": [
+    {
+      "case": "battery +5 mm in x",
+      "com_mm": [
+        0.912302076,
+        -0.02455324,
+        3.940683761
+      ],
+      "principal_kg_m2": [
+        2.24479741680614e-05,
+        2.4746580371307124e-05,
+        4.4140838510773464e-05
+      ],
+      "d_com_mm": [
+        0.914529915,
+        0.0,
+        0.0
+      ],
+      "d_principal_pct": [
+        -0.01,
+        0.89,
+        0.5
+      ]
+    },
+    {
+      "case": "battery -5 mm in x",
+      "com_mm": [
+        -0.916757753,
+        -0.02455324,
+        3.940683761
+      ],
+      "principal_kg_m2": [
+        2.2447937189964936e-05,
+        2.474611982438355e-05,
+        4.4140382520887016e-05
+      ],
+      "d_com_mm": [
+        -0.914529915,
+        0.0,
+        0.0
+      ],
+      "d_principal_pct": [
+        -0.01,
+        0.89,
+        0.5
+      ]
+    },
+    {
+      "case": "battery +5 mm in y",
+      "com_mm": [
+        -0.002227839,
+        0.889976674,
+        3.940683761
+      ],
+      "principal_kg_m2": [
+        2.2670665484022548e-05,
+        2.4526233134506273e-05,
+        4.4143272067533e-05
+      ],
+      "d_com_mm": [
+        0.0,
+        0.914529915,
+        0.0
+      ],
+      "d_principal_pct": [
+        0.99,
+        -0.01,
+        0.51
+      ]
+    },
+    {
+      "case": "battery +3 mm in z",
+      "com_mm": [
+        -0.002227839,
+        -0.02455324,
+        4.489401709
+      ],
+      "principal_kg_m2": [
+        2.231068218601074e-05,
+        2.438899301872735e-05,
+        4.3920524301625884e-05
+      ],
+      "d_com_mm": [
+        0.0,
+        0.0,
+        0.548717949
+      ],
+      "d_principal_pct": [
+        -0.62,
+        -0.57,
+        0.0
+      ]
+    },
+    {
+      "case": "motor assemblies centred at z=5 mm (pivot-stand file) instead of 7 mm",
+      "com_mm": [
+        -0.002227839,
+        -0.02455324,
+        3.489401709
+      ],
+      "principal_kg_m2": [
+        2.2328822192945302e-05,
+        2.440713402938731e-05,
+        4.392052328403136e-05
+      ],
+      "d_com_mm": [
+        0.0,
+        0.0,
+        -0.451282051
+      ],
+      "d_principal_pct": [
+        -0.54,
+        -0.49,
+        -0.0
+      ]
+    },
+    {
+      "case": "motor assemblies centred at z=12 mm (prop-heavy split)",
+      "com_mm": [
+        -0.002227839,
+        -0.02455324,
+        5.068888889
+      ],
+      "principal_kg_m2": [
+        2.3108836129082143e-05,
+        2.5187146128873455e-05,
+        4.392052514584427e-05
+      ],
+      "d_com_mm": [
+        0.0,
+        0.0,
+        1.128205128
+      ],
+      "d_principal_pct": [
+        2.94,
+        2.69,
+        0.0
+      ]
+    },
+    {
+      "case": "SoM centred at z=7.9 mm (pivot-stand file) instead of 8.55 mm",
+      "com_mm": [
+        -0.002227839,
+        -0.02455324,
+        3.751794872
+      ],
+      "principal_kg_m2": [
+        2.2352697323723696e-05,
+        2.4431008913745376e-05,
+        4.3920523533852175e-05
+      ],
+      "d_com_mm": [
+        0.0,
+        0.0,
+        -0.188888889
+      ],
+      "d_principal_pct": [
+        -0.43,
+        -0.39,
+        -0.0
+      ]
+    }
+  ],
+  "static_rest_pose": {
+    "method": "convex hull of the collider shapes + trimesh.poses.compute_stable_poses with the CoM; static geometry, no simulation",
+    "upright_poses": [
+      {
+        "body_z_tilt_deg": 2.0526468456593157,
+        "origin_height_above_floor_mm": 5.269907255403905,
+        "body_x_axis_elevation_deg": 2.0526419172013775,
+        "body_y_axis_elevation_deg": -0.004496157931592323,
+        "probability": 0.41067038559517527
+      }
+    ],
+    "lowest_collider_point_z_mm": -6.0
+  },
+  "reweigh_note": "the weight note's own base-drone check gives 58.1 g, not 58.5 g; the actual flight-ready weight is unmeasured"
+}

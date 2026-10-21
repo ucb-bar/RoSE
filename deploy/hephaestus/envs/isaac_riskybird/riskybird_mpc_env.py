@@ -1,9 +1,10 @@
-"""RoSE gym environment for the drone_control TinyMPC co-sim loop, on IsaacLab.
+"""RoSE gym environment for the drone_control TinyMPC co-sim loop, on IsaacLab, flying RiskyBird.
 
-This is the **IsaacLab (Isaac Sim) counterpart** of `PyBulletDroneMPCEnv`: it flies a
-Bitcraze **Crazyflie** (`cf2x`) inside NVIDIA Isaac Sim and presents the *exact same*
-RoSE-facing contract, so the unchanged Zephyr guest (`samples/rose/drone_control`) and
-the unchanged loop wiring drive either simulator.
+Copy of `envs/isaac_crazyflie/crazyflie_mpc_env.py` (the golden Crazyflie reference, left
+unchanged) with the airframe swapped for **RiskyBird**: the scad RiskyBird model spawned from
+`assets/riskybird_rose.urdf`, with its plant constants and sensor poses taken from
+`airframe.py`. It keeps the *exact same* RoSE-facing contract, so the unchanged Zephyr guest
+(`samples/rose/drone_control`) and the unchanged loop wiring drive it.
 
 It serves the full linearized quadrotor state the TinyMPC controller expects:
 
@@ -13,8 +14,8 @@ where (r1,r2,r3) are Rodrigues parameters from the body quaternion. The state is
 TARGET-RELATIVE (position offset by a hover setpoint) so the controller regulates the
 drone to that setpoint. The SoC returns **4 normalized motor thrusts** (around the 0.583
 hover point) — matching TinyMPC's per-motor output — which are applied as per-rotor
-z-forces at the 4 propeller bodies (`m.*_prop`), exactly like IsaacLab's own Crazyflie
-demo (`scripts/demos/quadcopter_fpv.py`). Per-rotor forces reproduce collective thrust
+z-forces at the 4 propeller bodies (`m.*_prop`, FR, RR, RL, FL), exactly like IsaacLab's own
+Crazyflie demo (`scripts/demos/quadcopter_fpv.py`). Per-rotor forces reproduce collective thrust
 and roll/pitch moments naturally from the arm geometry; the propeller drag reaction
 (yaw) is added as a per-rotor z-torque with alternating spin sign.
 
@@ -43,18 +44,17 @@ import numpy as np
 import gymnasium as gym
 from gymnasium import spaces
 
+from . import airframe
+
 # TinyMPC hover setpoint (matches PyBulletDroneMPCEnv / pybullet_hil.py).
 DEFAULT_TARGET = np.array([0.0, 0.0, 1.0], dtype=np.float64)
 
-# Motor mixing constants — kept identical to PyBulletDroneMPCEnv so the *same* TinyMPC
-# controller (tuned against gym-pybullet-drones CF2X) maps thrusts to physics the same way.
-_HOVER_THRUST = 0.583          # normalized thrust at hover (per motor)
-_MAX_THRUST_N = 0.58 / 4.0     # N per motor at full normalized command
-# Propeller drag/thrust ratio (gym-pybullet-drones CF2X: KM=7.94e-12, KF=3.16e-10) used
-# for the yaw reaction torque. Spin signs follow CRAZYFLIE_CFG init joint_vel
-# (m1:+, m2:-, m3:+, m4:-).
-_KM_OVER_KF = 7.94e-12 / 3.16e-10
-_SPIN_SIGN = np.array([+1.0, -1.0, +1.0, -1.0], dtype=np.float64)
+# Motor mixing constants for RiskyBird; see airframe.py for where each comes from (the
+# thrust scale and drag ratio are placeholders until the motors are characterized).
+_HOVER_THRUST = airframe.HOVER_THRUST    # normalized thrust at hover (per motor)
+_MAX_THRUST_N = airframe.MAX_THRUST_N    # N per motor at full normalized command
+_KM_OVER_KF = airframe.KM_OVER_KF        # propeller drag/thrust ratio, yaw reaction torque
+_SPIN_SIGN = np.array(airframe.SPIN_SIGN, dtype=np.float64)
 
 # Ground-truth CSV columns (see _traj_row).
 _TRAJ_COLS = (
@@ -90,7 +90,7 @@ def _euler_to_quat_wxyz(roll, pitch, yaw):
 
 
 class IsaacRiskyBirdMPCEnv(gym.Env):
-    """IsaacLab Crazyflie exposed as the TinyMPC full-state HIL loop over the RoSE bridge."""
+    """IsaacLab RiskyBird exposed as the TinyMPC full-state HIL loop over the RoSE bridge."""
 
     metadata = {"render_modes": ["rgb_array"]}
 
@@ -159,7 +159,7 @@ class IsaacRiskyBirdMPCEnv(gym.Env):
         self._fpv_isaac_res = (int(os.environ.get("ROSE_FPV_ISAAC_W", "320")),
                                int(os.environ.get("ROSE_FPV_ISAAC_H", "240")))
         self._fpv_fov = float(os.environ.get("ROSE_FPV_FOV", "70.0"))
-        self._fpv_mount = _vec3("ROSE_FPV_MOUNT", (0.03, 0.0, 0.0))  # body +x, forward
+        self._fpv_mount = _vec3("ROSE_FPV_MOUNT", airframe.CAMERA_POS)  # RiskyBird camera, PCB
         self._fpv_camera = None
 
         # --- 1. Boot Isaac Sim (once per process) BEFORE importing any isaaclab.sim/.assets ---
@@ -179,7 +179,6 @@ class IsaacRiskyBirdMPCEnv(gym.Env):
         from isaaclab.scene import InteractiveScene, InteractiveSceneCfg
         from isaaclab.sim import SimulationContext
         from isaaclab.utils import configclass
-        from isaaclab_assets import CRAZYFLIE_CFG
 
         self._torch = torch
         self.device = device or "cuda:0"
@@ -232,7 +231,7 @@ class IsaacRiskyBirdMPCEnv(gym.Env):
                     horizontal_aperture=aperture, clipping_range=(0.02, 100.0),
                 ),
             )
-            print("[crazyflie_env] FPV(HM01B0) %dx%d hfov=%.0f focal=%.3fmm aperture=%.3fmm"
+            print("[riskybird_env] FPV(HM01B0) %dx%d hfov=%.0f focal=%.3fmm aperture=%.3fmm"
                   % (hm_w, hm_h, self._fpv_fov, focal, aperture), flush=True)
 
         # Robot cfg with rigid-body SLEEP DISABLED. Defensive only: a perfectly-still hover lets
@@ -240,17 +239,17 @@ class IsaacRiskyBirdMPCEnv(gym.Env):
         # co-sim stall (docs/ROSE_FLIGHT_CONTROLLER_THREADING.md). NOTE: this alone does NOT
         # resolve the stall (the committed single-loop still hangs at ~236 with sleep disabled) —
         # kept as a harmless precaution while the real cause is run down via SoC (TACIT) traces.
-        _robot_cfg = CRAZYFLIE_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+        _robot_cfg = airframe.robot_cfg(prim_path="{ENV_REGEX_NS}/Robot")
         try:
             _rp = getattr(_robot_cfg.spawn, "rigid_props", None)
             if _rp is not None:
                 _rp.sleep_threshold = 0.0
                 _rp.stabilization_threshold = 0.0
         except Exception as _e:  # noqa: BLE001
-            print(f"[crazyflie_env] rigid sleep-disable skipped ({_e})", flush=True)
+            print(f"[riskybird_env] rigid sleep-disable skipped ({_e})", flush=True)
 
         @configclass
-        class _CrazyflieSceneCfg(InteractiveSceneCfg):
+        class _RiskyBirdSceneCfg(InteractiveSceneCfg):
             ground = AssetBaseCfg(
                 prim_path="/World/ground",
                 spawn=sim_utils.GroundPlaneCfg(),
@@ -262,7 +261,7 @@ class IsaacRiskyBirdMPCEnv(gym.Env):
             robot = _robot_cfg
 
         # Chain a subclass per optional camera (configclass fields are declared per class).
-        _SceneCfg = _CrazyflieSceneCfg
+        _SceneCfg = _RiskyBirdSceneCfg
         if cam_field is not None:
             @configclass
             class _SceneCfgCam(_SceneCfg):
@@ -288,6 +287,9 @@ class IsaacRiskyBirdMPCEnv(gym.Env):
         self._robot_mass = float(self.robot.root_physx_view.get_masses().sum())
         self._gravity = float(torch.tensor(self.sim.cfg.gravity, device=self.device).norm())
         self._hover_force_per_prop = self._robot_mass * self._gravity / 4.0
+        print("[riskybird_env] mass=%.4f kg (airframe %.4f), hover %.4f N/prop = u %.3f, "
+              "max %.4f N/prop" % (self._robot_mass, airframe.MASS_KG, self._hover_force_per_prop,
+                                   self._hover_force_per_prop / _MAX_THRUST_N, _MAX_THRUST_N), flush=True)
         self._sim_dt = self.sim.get_physics_dt()
         # base ("body") link for external disturbances (stress plan section 3.2)
         self._base_body_id = self.robot.find_bodies("body")[0][0]
@@ -354,7 +356,7 @@ class IsaacRiskyBirdMPCEnv(gym.Env):
 
     def _update_camera_pose(self):
         """Aim the offscreen camera. In follow mode it chases the drone (eye = pos+offset,
-        look = pos) so the Crazyflie stays framed and close; otherwise a fixed vantage."""
+        look = pos) so the drone stays framed and close; otherwise a fixed vantage."""
         if not self._camera_on or self._camera is None:
             return
         torch = self._torch
@@ -566,7 +568,7 @@ class IsaacRiskyBirdMPCEnv(gym.Env):
             self._dbg += 1
             if self._dbg % 25 == 1:
                 p = obs["pos"]
-                print(f"[isaac-cf] step {self._dbg:5d} pos=({p[0]:+.2f},{p[1]:+.2f},{p[2]:+.2f}) "
+                print(f"[isaac-rb] step {self._dbg:5d} pos=({p[0]:+.2f},{p[1]:+.2f},{p[2]:+.2f}) "
                       f"z_err={p[2]-self.target[2]:+.2f} thrust={np.round(a[:4],3)}", flush=True)
         return obs, 0.0, False, False, info
 

@@ -1,0 +1,96 @@
+{
+  "_what": "RiskyBird airframe expressed in dronesim's existing plant fields (vehicle/airframe.py names). Merge the 'plant' block into an experiment's plant overrides and the 'sensors' block into its sensors overrides. Nothing outside those two blocks is a dronesim field.",
+  "plant": {
+    "mass_kg": 0.0585,
+    "com_m": [
+      -2.2e-06,
+      -2.46e-05,
+      0.0039407
+    ],
+    "inertia_kg_m2": [
+      2.24495e-05,
+      2.45278e-05,
+      4.39205e-05
+    ],
+    "motor_positions_m": [
+      [
+        0.0325,
+        -0.0325,
+        0.0185
+      ],
+      [
+        -0.0325,
+        -0.0325,
+        0.0185
+      ],
+      [
+        -0.0325,
+        0.0325,
+        0.0185
+      ],
+      [
+        0.0325,
+        0.0325,
+        0.0185
+      ]
+    ],
+    "spin_signs": [
+      -1,
+      1,
+      -1,
+      1
+    ],
+    "body_size_m": [
+      0.07,
+      0.070639,
+      0.012
+    ]
+  },
+  "sensors": {
+    "imu": {
+      "offset_m": [
+        -4e-06,
+        0.016,
+        -0.002075
+      ]
+    },
+    "flow": {
+      "offset_m": [
+        -0.02615,
+        0.0001,
+        -0.00396
+      ]
+    },
+    "tof": {
+      "offset_m": [
+        -0.021572,
+        0.010537,
+        -0.00316
+      ],
+      "direction": [
+        0,
+        0,
+        -1
+      ]
+    }
+  },
+  "frame_conventions": {
+    "origin": "the board-centre datum on the PCB top surface (the same body origin the USD uses)",
+    "com_m": "relative to that origin (dronesim: arm = motor_position - com_m; truth pos is the origin)",
+    "motor_positions_m": "wire order FR, RR, RL, FL = PCB MOTOR1..4. z is the prop-plane height; the plant ignores it (the thrust force is along +z, so z drops out of the torque cross product)",
+    "spin_signs": "copied from dronesim airframe.py; reaction torque about +z = spin_sign * yaw_m_per_n * thrust. Unverified physically.",
+    "inertia_kg_m2": "diagonal of the full tensor about the CoM in body axes (Ixx, Iyy, Izz). The off-diagonals are <0.04% of the diagonal.",
+    "body_size_m": "dronesim centres this cuboid on the body origin and uses it for floor contact and ground placement only. x, y = the PCB bounding box; z = 2 x |lowest collider point| = 2 x 6.0 mm so that the cuboid bottom sits at the real lowest point (the JTAG connector). The cuboid cannot represent the 10.6 mm SoM stack, the rotors, or the actual landing set.",
+    "sensor_offsets": "relative to the body origin, identity rotation (dronesim: residual rotation after the firmware remap)"
+  },
+  "information_lost": [
+    "off-diagonal inertia terms (about 0.04% of the diagonal; the principal axes are within 0.2 deg of the body axes)",
+    "the principal-axes rotation itself (dronesim forces the CoM-frame quaternion to identity; here it is ~0.2 deg)",
+    "the non-cuboid shape: the tall SoM and rotors, the H-shaped board, and the real landing set (JTAG connector, four PicoBlade connectors, camera bracket) all collapse into one centred cuboid; rest height and tilt behave differently",
+    "the asymmetric z extent: the cuboid is centred on the origin, the drone spans z from -6 mm to +20 mm",
+    "per-motor z (the plant uses x, y only); prop and rotor diameters (ground_effect.rotor_radius_m is a separate dronesim field, 0.0255 m already)",
+    "arm and motor geometry for collision"
+  ],
+  "not_set_here": "thrust curve, voltage scaling, lag, battery, drag, ground effect and contact fields keep their dronesim defaults; this file does not identify them",
+  "evidence": "RiskyBird airframe v0.1.0: mass MEASURED-DOC, CoM and inertia INFERRED from a component model"
+}
