@@ -188,10 +188,17 @@ def synth_fpv_analytic(pos, quat, room_min, room_max, obstacles, dirs_body,
 
 
 class IsaacRiskyBirdMultiSensorEnv(IsaacRiskyBirdSensorEnv):
-    """WIP: adds 4× VL53L5CX zone grids + HM01B0 FPV to the sensor env (see module docstring)."""
+    """WIP: adds 4× VL53L5CX zone grids + HM01B0 FPV to the sensor env (see module docstring).
+
+    fpv=False (IsaacRiskyBirdMultiSensorNoFPVEnv-v0) keeps the zone grids but drops the camera:
+    no `fpv` observation, no frame synthesis and no Isaac FPV render.
+    """
 
     def __init__(self, *args, room=None, obstacles=None, tof_zones=TOF_ZONES,
-                 tof_decimation=13, fpv_size=(FPV_W, FPV_H), **kwargs):
+                 tof_decimation=13, fpv_size=(FPV_W, FPV_H), fpv=True, **kwargs):
+        self._fpv_on = bool(fpv)
+        if not self._fpv_on:
+            kwargs["fpv_isaac"] = False      # don't build the body camera nobody reads
         super().__init__(*args, **kwargs)
         # Analytic "room": interior AABB the horizontal ToFs range against. Default a
         # 4×4 m room, 2.5 m tall, centered on origin. Env-var overridable for sweeps.
@@ -229,7 +236,8 @@ class IsaacRiskyBirdMultiSensorEnv(IsaacRiskyBirdSensorEnv):
         nz = self._tof_zones * self._tof_zones
         extra = {name: spaces.Box(0.0, TOF_MAX_RANGE, (nz,), f32)
                  for name, _, _ in TOF_MOUNTS}
-        extra["fpv"] = spaces.Box(0, 255, (self._fpv_h * self._fpv_w,), np.uint8)
+        if self._fpv_on:
+            extra["fpv"] = spaces.Box(0, 255, (self._fpv_h * self._fpv_w,), np.uint8)
         # additive: keep all existing modality/pose keys, add the new ones
         self.observation_space = spaces.Dict({**self.observation_space.spaces, **extra})
 
@@ -312,9 +320,10 @@ class IsaacRiskyBirdMultiSensorEnv(IsaacRiskyBirdSensorEnv):
         for name, grid in self._mtof_held.items():
             obs[name] = grid
             info["mtof_%s" % name] = grid
-        fpv, fpv_valid = self._synth_fpv(pos, quat)
-        obs["fpv"] = fpv.reshape(-1)
-        info["fpv_valid"] = np.bool_(fpv_valid)
+        if self._fpv_on:
+            fpv, fpv_valid = self._synth_fpv(pos, quat)
+            obs["fpv"] = fpv.reshape(-1)
+            info["fpv_valid"] = np.bool_(fpv_valid)
         return obs, info, gt
 
     def reset(self, *, seed=None, options=None):

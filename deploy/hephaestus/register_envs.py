@@ -93,6 +93,12 @@ register(
     id='IsaacRiskyBirdMultiSensorEnv-v0',
     entry_point='envs.isaac_riskybird.riskybird_multisensor_env:IsaacRiskyBirdMultiSensorEnv',
 )
+# Same as IsaacRiskyBirdMultiSensorEnv-v0 minus the FPV camera (IMU/flow/ToF + 4x multizone ToF).
+register(
+    id='IsaacRiskyBirdMultiSensorNoFPVEnv-v0',
+    entry_point='envs.isaac_riskybird.riskybird_multisensor_env:IsaacRiskyBirdMultiSensorEnv',
+    kwargs={'fpv': False},
+)
 
 # GPU-free stand-in for validating the HM01B0 FPV camera DMA path headlessly: serves the SAME
 # analytic scene-derived frames as the Isaac multisensor env, from a scripted hallway flight,

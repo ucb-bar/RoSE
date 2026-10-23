@@ -1,0 +1,39 @@
+# IsaacRiskyBirdMultiSensorEnv-v0 without the FPV camera: the sensor env's IMU/flow/ToF plus the
+# four horizontal VL53L5CX multizone ToF grids, and no 0x11 DMA frame. Everything else is
+# identical to config_gym_IsaacRiskyBirdMultiSensorEnv-v0.yaml.
+gym_env: 'IsaacRiskyBirdMultiSensorNoFPVEnv-v0'
+gym_timestep: 0.005
+
+packets:
+  # --- inherited from the sensor env (unchanged) ---
+  - {name: accel,  id: 0x12, type: reqrsp, latency: 0, channel: 2, indices: [accel]}
+  - {name: gyro,   id: 0x15, type: reqrsp, latency: 0, channel: 2, indices: [gyro]}
+  - {name: flow,   id: 0x13, type: reqrsp, latency: 0, channel: 1, indices: [flow]}
+  - {name: tof,    id: 0x14, type: reqrsp, latency: 0, channel: 1, indices: [tof]}
+
+  # --- NEW: 4× VL53L5CX horizontal multizone ToF (8×8 = 64 float32 words each, metres) ---
+  # Split F/B on ch2 and L/R on ch1 so opposite pairs pipeline in parallel. Low-rate (the
+  # ucbbar,rose-tof-zone driver decimates ~200 Hz/15 Hz -> 13).
+  - {name: tof_front, id: 0x30, type: reqrsp, latency: 0, channel: 1, indices: [front]}
+  - {name: tof_right, id: 0x31, type: reqrsp, latency: 0, channel: 2, indices: [right]}
+  - {name: tof_back,  id: 0x32, type: reqrsp, latency: 0, channel: 1, indices: [back]}
+  - {name: tof_left,  id: 0x33, type: reqrsp, latency: 0, channel: 2, indices: [left]}
+
+  # SoC -> env: 4 normalized motor thrusts (unchanged)
+  - {name: thrust, id: 0x20, type: action_latch, indices: null}
+
+channel_bandwidth: [[0, 0, 0]]
+
+gym_kwargs:
+  headless: true
+  ctrl_freq: 200
+  phys_freq: 400
+  start_height: 0.9
+  # future-sensor knobs (see riskybird_multisensor_env.py)
+  tof_zones: 8
+  tof_decimation: 13
+  # room: [[-x,-y,0],[x,y,z]] analytic obstacle box the horizontal ToFs range against
+  # obstacles: [[[minx,miny,minz],[maxx,maxy,maxz]], ...]
+
+n_gym_agents: 1
+n_fsim_nodes: 1
